@@ -17,6 +17,8 @@ import CIcon from '@coreui/icons-react'
 import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../../common')
+
 const fields = [
     "_id",
     "name",
@@ -31,6 +33,7 @@ const fields = [
     }
 ]
 
+
 const TenantsView = (props) => {
     const initTableData = Object.freeze(
         []
@@ -38,13 +41,13 @@ const TenantsView = (props) => {
     const [usersData, updateUserData] = useState(initTableData);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8080/api/v1/getalltenants')
+        fetch(common.api_href('/api/v1/getalltenants'))
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch('http://127.0.0.1:8080/api/v1/getalltenants')
+        fetch(common.api_href('/api/v1/getalltenants'))
             .then(response => response.json())
             .then(data => updateUserData(data));
     }

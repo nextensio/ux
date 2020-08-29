@@ -21,6 +21,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../../common')
+
 const GatewaysEdit = (props) => {
     const initGwData = Object.freeze({
         name: "",
@@ -42,7 +44,7 @@ const GatewaysEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: gwData.name, ipaddr: gwData.ipaddr }),
         };
-        fetch('http://127.0.0.1:8080/api/v1/addgateway', requestOptions)
+        fetch(common.api_href('/api/v1/addgateway'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -21,6 +21,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../common')
+
 const UserAttrEdit = (props) => {
     const initUserData = Object.freeze({
         userid: "",
@@ -55,7 +57,7 @@ const UserAttrEdit = (props) => {
             }),
         };
         console.log(requestOptions)
-        fetch('http://127.0.0.1:8080/api/v1/adduserattr', requestOptions)
+        fetch(common.api_href('/api/v1/adduserattr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
