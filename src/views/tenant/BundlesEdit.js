@@ -21,6 +21,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../common')
+
 const BundlesEdit = (props) => {
     const initUserData = Object.freeze({
         bid: "",
@@ -43,7 +45,7 @@ const BundlesEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ bid: userData.bid, tenant: userData.tenant, name: userData.name }),
         };
-        fetch('http://127.0.0.1:8080/api/v1/addbundle', requestOptions)
+        fetch(common.api_href('/api/v1/addbundle'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

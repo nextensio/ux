@@ -17,6 +17,8 @@ import CIcon from '@coreui/icons-react'
 import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../common')
+
 const fields = [
     "tenant",
     "bid",
@@ -45,13 +47,13 @@ const BundleAttrView = (props) => {
     const [usersData, updateUserData] = useState(initTableData);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8080/api/v1/getallbundleattr/' + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch('http://127.0.0.1:8080/api/v1/getallbundleattr/' + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }

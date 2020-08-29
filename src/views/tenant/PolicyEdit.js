@@ -21,6 +21,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../common')
+
 const PolicyEdit = (props) => {
     const initUserData = Object.freeze({
         pid: "",
@@ -48,7 +50,7 @@ const PolicyEdit = (props) => {
             }),
         };
         console.log(requestOptions)
-        fetch('http://127.0.0.1:8080/api/v1/addpolicy', requestOptions)
+        fetch(common.api_href('/api/v1/addpolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -21,6 +21,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 
+var common = require('../../../common')
+
 const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
@@ -45,7 +47,7 @@ const TenantsEdit = (props) => {
             body: JSON.stringify({ name: tenantData.name, idp: tenantData.idp, gateways: tenantData.gateways.split(',') }),
         };
 
-        fetch('http://127.0.0.1:8080/api/v1/addtenant', requestOptions)
+        fetch(common.api_href('/api/v1/addtenant'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 // check for error response
