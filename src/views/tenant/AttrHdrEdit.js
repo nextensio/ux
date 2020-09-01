@@ -23,11 +23,12 @@ import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
-const PolicyEdit = (props) => {
+const UserAttrEdit = (props) => {
     const initUserData = Object.freeze({
-        pid: "",
+        ID: "",
         tenant: props.match.params.id,
-        rego: ""
+        majver: "",
+        minver: "",
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -44,12 +45,11 @@ const PolicyEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                pid: userData.pid, tenant: userData.tenant,
-                version: userData.version, policy: userData.policy
+                ID: userData.ID, tenant: userData.tenant, majver: userData.majver,
+                minver: userData.minver
             }),
         };
-        console.log(requestOptions)
-        fetch(common.api_href('/api/v1/addpolicy'), requestOptions)
+        fetch(common.api_href('/api/v1/addattrhdr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -62,7 +62,7 @@ const PolicyEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/policy/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/attrhdr/view')
                 }
             })
             .catch(error => {
@@ -73,17 +73,21 @@ const PolicyEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add Policy
+                Add Attribute Headers
             </CCardHeader>
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">Policy ID</CLabel>
-                        <CInput name="pid" placeholder="Enter Policy ID" onChange={handleChange} />
+                        <CLabel htmlFor="nf-password">User ID</CLabel>
+                        <CInput name="ID" placeholder="Enter User ID" onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">REGO Policy</CLabel>
-                        <CInput name="rego" placeholder="Enter Policy in REGO language" onChange={handleChange} />
+                        <CLabel htmlFor="nf-email">Major version</CLabel>
+                        <CInput name="majver" placeholder="Enter Major Version" onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">Minor Version</CLabel>
+                        <CInput name="minver" placeholder="Enter Minor Version" onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>
@@ -94,4 +98,4 @@ const PolicyEdit = (props) => {
     )
 }
 
-export default withRouter(PolicyEdit)
+export default withRouter(UserAttrEdit)

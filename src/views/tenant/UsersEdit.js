@@ -25,7 +25,7 @@ var common = require('../../common')
 
 const UsersEdit = (props) => {
     const initUserData = Object.freeze({
-        userid: "",
+        uid: "",
         tenant: props.match.params.id,
         name: "",
         email: ""
@@ -44,7 +44,7 @@ const UsersEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userid: userData.userid, tenant: userData.tenant, name: userData.name, email: userData.email }),
+            body: JSON.stringify({ uid: userData.uid, tenant: userData.tenant, name: userData.name, email: userData.email }),
         };
         fetch(common.api_href('/api/v1/adduser'), requestOptions)
             .then(async response => {
@@ -76,7 +76,7 @@ const UsersEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User ID</CLabel>
-                        <CInput name="userid" placeholder="Enter User ID" onChange={handleChange} />
+                        <CInput name="uid" placeholder="Enter User ID" onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">User Name</CLabel>

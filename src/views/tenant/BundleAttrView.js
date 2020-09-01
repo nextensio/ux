@@ -22,8 +22,6 @@ var common = require('../../common')
 const fields = [
     "tenant",
     "bid",
-    "maj_ver",
-    "min_ver",
     "team",
     "dept",
     "IC",

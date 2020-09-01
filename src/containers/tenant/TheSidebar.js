@@ -23,14 +23,14 @@ const TheSidebar = (props) => {
   const [navExact, updateNav] = useState(navigation);
 
   useEffect(() => {
-    let newNav = navigation
+    let newNav = navigation.slice()
     for (var i = 0; i < navigation.length; i++) {
       if (navigation[i].hasOwnProperty('to')) {
         newNav[i].to = navigation[i].to.replace(":id", props.match.params.id)
       }
       updateNav(newNav)
     }
-  });
+  }, []);
 
   return (
 
