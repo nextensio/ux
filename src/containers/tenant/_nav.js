@@ -37,6 +37,12 @@ export default [
     icon: 'cil-industry',
   },
   {
+    _tag: 'CSidebarNavItem',
+    name: 'Headers',
+    to: '/tenant/:id/attrhdr/view',
+    icon: 'cil-industry',
+  },
+  {
     _tag: 'CSidebarNavDivider',
     className: 'm-2'
   }

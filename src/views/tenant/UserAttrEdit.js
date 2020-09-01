@@ -25,10 +25,8 @@ var common = require('../../common')
 
 const UserAttrEdit = (props) => {
     const initUserData = Object.freeze({
-        userid: "",
+        uid: "",
         tenant: props.match.params.id,
-        maj_ver: "1",
-        min_ver: "0",
         category: "",
         type: "",
         level: "",
@@ -53,10 +51,9 @@ const UserAttrEdit = (props) => {
             body: JSON.stringify({
                 userid: userData.userid, tenant: userData.tenant, category: userData.category,
                 type: userData.type, level: userData.level, dept: userData.dept.split(','),
-                team: userData.team.split(','), maj_ver: userData.maj_ver, min_ver: userData.min_ver
+                team: userData.team.split(',')
             }),
         };
-        console.log(requestOptions)
         fetch(common.api_href('/api/v1/adduserattr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
@@ -87,7 +84,7 @@ const UserAttrEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User ID</CLabel>
-                        <CInput name="userid" placeholder="Enter User ID" onChange={handleChange} />
+                        <CInput name="uid" placeholder="Enter User ID" onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Category</CLabel>

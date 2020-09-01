@@ -27,8 +27,6 @@ const BundleAttrEdit = (props) => {
     const initUserData = Object.freeze({
         bid: "",
         tenant: props.match.params.id,
-        maj_ver: "1",
-        min_ver: "0",
         team: "",
         dept: "",
         IC: "",
@@ -56,7 +54,6 @@ const BundleAttrEdit = (props) => {
                 min_ver: userData.min_ver
             }),
         };
-        console.log(requestOptions)
         fetch(common.api_href('/api/v1/addbundleattr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
@@ -91,7 +88,7 @@ const BundleAttrEdit = (props) => {
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Contrib</CLabel>
-                        <CInput name="contrib" placeholder="Enter Contrib" onChange={handleChange} />
+                        <CInput name="IC" placeholder="Enter Contributer role" onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Manager</CLabel>

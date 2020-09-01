@@ -22,8 +22,7 @@ var common = require('../../common')
 const fields = [
     "tenant",
     "pid",
-    "version",
-    "policy",
+    "rego",
     {
         key: 'edit',
         label: '',

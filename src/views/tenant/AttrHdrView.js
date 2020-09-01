@@ -20,13 +20,9 @@ import { withRouter } from 'react-router-dom';
 var common = require('../../common')
 
 const fields = [
-    "tenant",
-    "uid",
-    "category",
-    "type",
-    "level",
-    "dept",
-    "team",
+    "ID",
+    "minver",
+    "majver",
     {
         key: 'edit',
         label: '',
@@ -45,19 +41,19 @@ const UserAttrView = (props) => {
     const [usersData, updateUserData] = useState(initTableData);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallattrhdr/') + props.match.params.id)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id)
+        fetch('http://127.0.0.1:8080/api/v1/getallattrhdr/' + props.match.params.id)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/userattr/add')
+        props.history.push('/tenant/' + props.match.params.id + '/attrhdr/add')
     }
 
     const handleEdit = (index) => {
@@ -70,7 +66,7 @@ const UserAttrView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            User Attributes
+                            Attribute Headers
                   <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>

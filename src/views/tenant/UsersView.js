@@ -21,7 +21,7 @@ var common = require('../../common')
 
 const fields = [
     "tenant",
-    "userid",
+    "uid",
     "name",
     "email",
     {
