@@ -77,7 +77,7 @@ const BundleAttrView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            User Attributes
+                            Bundle Attributes
                   <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>

@@ -96,7 +96,7 @@ const BundlesView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            Users
+                           Bundles 
                   <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>
