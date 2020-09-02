@@ -72,7 +72,23 @@ const UsersView = (props) => {
     }
 
     const handleDelete = (index) => {
-        console.log('ID is %d', index)
+        fetch(common.api_href('/api/v1/deluser/') + props.match.params.id + '/' + usersData[index].uid)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
     }
 
     return (

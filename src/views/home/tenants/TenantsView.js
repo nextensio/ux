@@ -30,6 +30,13 @@ const fields = [
         _style: { width: '1%' },
         sorter: false,
         filter: false
+    },
+    {
+        key: 'delete',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
     }
 ]
 
@@ -60,6 +67,26 @@ const TenantsView = (props) => {
         props.history.push('/tenant/' + usersData[index]._id + '/users/view')
     }
 
+    const handleDelete = (index) => {
+        fetch(common.api_href('/api/v1/deltenant/') + usersData[index]._id)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    }
+
     return (
         <>
             <CRow>
@@ -88,6 +115,22 @@ const TenantsView = (props) => {
                                                         onClick={() => { handleEdit(index) }}
                                                     >
                                                         Edit
+                                            </CButton>
+                                                </td>
+                                            )
+                                        },
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        color="primary"
+                                                        variant="outline"
+                                                        shape="square"
+                                                        size="sm"
+                                                        onClick={() => { handleDelete(index) }}
+                                                    >
+                                                        Delete
                                             </CButton>
                                                 </td>
                                             )

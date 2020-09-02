@@ -34,13 +34,6 @@ const fields = [
         sorter: false,
         filter: false
     },
-    {
-        key: 'delete',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    }
 ]
 
 
@@ -111,22 +104,6 @@ const UserAttrView = (props) => {
                                                 </td>
                                             )
                                         },
-                                    'delete':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
-                                                    >
-                                                        Delete
-                                            </CButton>
-                                                </td>
-                                            )
-                                        }
                                 }}
                             />
                         </CCardBody>

@@ -54,7 +54,7 @@ const GatewaysView = (props) => {
     }
 
     const handleEdit = (index) => {
-        console.log('ID is %d', index)
+        alert('Edit not supported yet')
     }
 
     return (
