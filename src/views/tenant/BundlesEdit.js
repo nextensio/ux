@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -30,6 +30,12 @@ const BundlesEdit = (props) => {
         name: "",
     });
     const [userData, updateUserData] = useState(initUserData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateUserData(props.location.state)
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateUserData({
@@ -75,11 +81,11 @@ const BundlesEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Bundle ID</CLabel>
-                        <CInput name="bid" placeholder="Enter Bundle ID" onChange={handleChange} />
+                        <CInput name="bid" placeholder={userData.bid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Bundle Name</CLabel>
-                        <CInput name="name" placeholder="Enter Bundle Name" onChange={handleChange} />
+                        <CInput name="name" placeholder={userData.name} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

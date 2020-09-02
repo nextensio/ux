@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -31,6 +31,12 @@ const UsersEdit = (props) => {
         email: ""
     });
     const [userData, updateUserData] = useState(initUserData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateUserData(props.location.state)
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateUserData({
@@ -76,15 +82,15 @@ const UsersEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User ID</CLabel>
-                        <CInput name="uid" placeholder="Enter User ID" onChange={handleChange} />
+                        <CInput name="uid" placeholder={userData.uid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">User Name</CLabel>
-                        <CInput name="name" placeholder="Enter Name" onChange={handleChange} />
+                        <CInput name="name" placeholder={userData.name} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Email Address</CLabel>
-                        <CInput name="email" placeholder="Enter Email Address" onChange={handleChange} />
+                        <CInput name="email" placeholder={userData.email} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

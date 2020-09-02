@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -31,10 +31,21 @@ const UserAttrEdit = (props) => {
         type: "",
         level: "",
         dept: "",
-        team: ""
-
+        team: "",
     });
     const [userData, updateUserData] = useState(initUserData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            if (Array.isArray(props.location.state.team)) {
+                props.location.state.team = props.location.state.team.join();
+            }
+            if (Array.isArray(props.location.state.dept)) {
+                props.location.state.dept = props.location.state.dept.join();
+            }
+            updateUserData(props.location.state)
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateUserData({
@@ -49,7 +60,7 @@ const UserAttrEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                userid: userData.userid, tenant: userData.tenant, category: userData.category,
+                uid: userData.uid, tenant: userData.tenant, category: userData.category,
                 type: userData.type, level: userData.level, dept: userData.dept.split(','),
                 team: userData.team.split(',')
             }),
@@ -84,27 +95,27 @@ const UserAttrEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User ID</CLabel>
-                        <CInput name="uid" placeholder="Enter User ID" onChange={handleChange} />
+                        <CInput name="uid" placeholder={userData.uid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Category</CLabel>
-                        <CInput name="category" placeholder="Enter Category" onChange={handleChange} />
+                        <CInput name="category" placeholder={userData.category} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User Type</CLabel>
-                        <CInput name="type" placeholder="Enter User Type" onChange={handleChange} />
+                        <CInput name="type" placeholder={userData.type} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User Level</CLabel>
-                        <CInput name="level" placeholder="Enter User Level" onChange={handleChange} />
+                        <CInput name="level" placeholder={userData.level} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User Departments</CLabel>
-                        <CInput name="dept" placeholder="Enter User Departments, comma seperated" onChange={handleChange} />
+                        <CInput name="dept" placeholder={userData.dept} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User Teams</CLabel>
-                        <CInput name="team" placeholder="Enter User Teamsm comma seperated" onChange={handleChange} />
+                        <CInput name="team" placeholder={userData.team} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

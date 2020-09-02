@@ -68,7 +68,10 @@ const UserAttrView = (props) => {
     }
 
     const handleEdit = (index) => {
-        console.log('ID is %d', index)
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/userattr/add',
+            state: usersData[index]
+        });
     }
 
 

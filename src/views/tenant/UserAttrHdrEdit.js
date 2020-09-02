@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -23,13 +23,19 @@ import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
-const UserAttrEdit = (props) => {
+const UserAttrHdrEdit = (props) => {
     const initUserData = Object.freeze({
         tenant: props.match.params.id,
         majver: "",
         minver: "",
     });
     const [userData, updateUserData] = useState(initUserData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateUserData(props.location.state)
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateUserData({
@@ -78,11 +84,11 @@ const UserAttrEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Major version</CLabel>
-                        <CInput name="majver" placeholder="Enter Major Version" onChange={handleChange} />
+                        <CInput name="majver" placeholder={userData.majver} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Minor Version</CLabel>
-                        <CInput name="minver" placeholder="Enter Minor Version" onChange={handleChange} />
+                        <CInput name="minver" placeholder={userData.minver} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>
@@ -93,4 +99,4 @@ const UserAttrEdit = (props) => {
     )
 }
 
-export default withRouter(UserAttrEdit)
+export default withRouter(UserAttrHdrEdit)

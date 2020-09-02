@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -35,6 +35,18 @@ const BundleAttrEdit = (props) => {
     });
     const [userData, updateUserData] = useState(initUserData);
 
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            if (Array.isArray(props.location.state.team)) {
+                props.location.state.team = props.location.state.team.join();
+            }
+            if (Array.isArray(props.location.state.dept)) {
+                props.location.state.dept = props.location.state.dept.join();
+            }
+            updateUserData(props.location.state)
+        }
+    }, []);
+
     const handleChange = (e) => {
         updateUserData({
             ...userData,
@@ -50,8 +62,7 @@ const BundleAttrEdit = (props) => {
             body: JSON.stringify({
                 bid: userData.bid, tenant: userData.tenant, team: userData.team.split(','),
                 dept: userData.dept.split(','), IC: userData.IC, manager: userData.manager,
-                nonemployee: userData.nonemployee, maj_ver: userData.maj_ver,
-                min_ver: userData.min_ver
+                nonemployee: userData.nonemployee
             }),
         };
         fetch(common.api_href('/api/v1/addbundleattr'), requestOptions)
@@ -84,27 +95,27 @@ const BundleAttrEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Bundle ID</CLabel>
-                        <CInput name="bid" placeholder="Enter User ID" onChange={handleChange} />
+                        <CInput name="bid" placeholder={userData.bid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Contrib</CLabel>
-                        <CInput name="IC" placeholder="Enter Contributer role" onChange={handleChange} />
+                        <CInput name="IC" placeholder={userData.IC} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Manager</CLabel>
-                        <CInput name="manager" placeholder="Enter Manager" onChange={handleChange} />
+                        <CInput name="manager" placeholder={userData.manager} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Non Employee</CLabel>
-                        <CInput name="nonemployee" placeholder="Enter Non Employee" onChange={handleChange} />
+                        <CInput name="nonemployee" placeholder={userData.nonemployee} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User Departments</CLabel>
-                        <CInput name="dept" placeholder="Enter User Departments, comma seperated" onChange={handleChange} />
+                        <CInput name="dept" placeholder={userData.dept} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">User Teams</CLabel>
-                        <CInput name="team" placeholder="Enter User Teams comma seperated" onChange={handleChange} />
+                        <CInput name="team" placeholder={userData.team} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

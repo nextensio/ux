@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -23,7 +23,7 @@ import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
-const BundleAttrEdit = (props) => {
+const BundleAttrHdrEdit = (props) => {
     const initUserData = Object.freeze({
         ID: "",
         tenant: props.match.params.id,
@@ -31,6 +31,12 @@ const BundleAttrEdit = (props) => {
         minver: "",
     });
     const [userData, updateUserData] = useState(initUserData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateUserData(props.location.state)
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateUserData({
@@ -79,11 +85,11 @@ const BundleAttrEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Major version</CLabel>
-                        <CInput name="majver" placeholder="Enter Major Version" onChange={handleChange} />
+                        <CInput name="majver" placeholder={userData.majver} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Minor Version</CLabel>
-                        <CInput name="minver" placeholder="Enter Minor Version" onChange={handleChange} />
+                        <CInput name="minver" placeholder={userData.minver} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>
@@ -94,4 +100,4 @@ const BundleAttrEdit = (props) => {
     )
 }
 
-export default withRouter(BundleAttrEdit)
+export default withRouter(BundleAttrHdrEdit)
