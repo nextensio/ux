@@ -40,7 +40,7 @@ const fields = [
 ]
 
 
-const BundleAttrView = (props) => {
+const BundleAttrHdrView = (props) => {
 
     const initTableData = Object.freeze(
         []
@@ -64,7 +64,10 @@ const BundleAttrView = (props) => {
     }
 
     const handleEdit = (index) => {
-        console.log('ID is %d', index)
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundleattrhdr/add',
+            state: usersData[index]
+        });
     }
 
     const handleDelete = (index) => {
@@ -131,4 +134,4 @@ const BundleAttrView = (props) => {
     )
 }
 
-export default withRouter(BundleAttrView)
+export default withRouter(BundleAttrHdrView)

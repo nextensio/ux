@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -31,6 +31,12 @@ const PolicyEdit = (props) => {
     });
     const [userData, updateUserData] = useState(initUserData);
 
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateUserData(props.location.state)
+        }
+    }, []);
+
     const handleChange = (e) => {
         updateUserData({
             ...userData,
@@ -45,10 +51,9 @@ const PolicyEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 pid: userData.pid, tenant: userData.tenant,
-                version: userData.version, policy: userData.policy
+                rego: userData.rego
             }),
         };
-        console.log(requestOptions)
         fetch(common.api_href('/api/v1/addpolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
@@ -79,11 +84,11 @@ const PolicyEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Policy ID</CLabel>
-                        <CInput name="pid" placeholder="Enter Policy ID" onChange={handleChange} />
+                        <CInput name="pid" placeholder={userData.pid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">REGO Policy</CLabel>
-                        <CInput name="rego" placeholder="Enter Policy in REGO language" onChange={handleChange} />
+                        <CInput name="rego" placeholder={userData.rego} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

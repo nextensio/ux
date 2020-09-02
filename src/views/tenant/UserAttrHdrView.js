@@ -40,7 +40,7 @@ const fields = [
 ]
 
 
-const UserAttrView = (props) => {
+const UserAttrHdrView = (props) => {
 
     const initTableData = Object.freeze(
         []
@@ -60,11 +60,16 @@ const UserAttrView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/userattrhdr/add')
+        props.history.push(
+            '/tenant/' + props.match.params.id + '/userattrhdr/add'
+        )
     }
 
     const handleEdit = (index) => {
-        console.log('ID is %d', index)
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/userattrhdr/add',
+            state: usersData[index]
+        });
     }
 
     const handleDelete = (index) => {
@@ -131,4 +136,4 @@ const UserAttrView = (props) => {
     )
 }
 
-export default withRouter(UserAttrView)
+export default withRouter(UserAttrHdrView)

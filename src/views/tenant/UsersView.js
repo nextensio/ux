@@ -65,7 +65,10 @@ const UsersView = (props) => {
     }
 
     const handleEdit = (index) => {
-        console.log('ID is %d', index)
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/users/add',
+            state: usersData[index]
+        });
     }
 
     const handleDelete = (index) => {

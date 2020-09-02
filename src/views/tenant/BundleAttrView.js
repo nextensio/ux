@@ -68,7 +68,10 @@ const BundleAttrView = (props) => {
     }
 
     const handleEdit = (index) => {
-        console.log('ID is %d', index)
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundleattr/add',
+            state: usersData[index]
+        });
     }
 
     const handleDelete = (index) => {
