@@ -29,6 +29,13 @@ const fields = [
         _style: { width: '1%' },
         sorter: false,
         filter: false
+    },
+    {
+        key: 'delete',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
     }
 ]
 
@@ -41,22 +48,26 @@ const UserAttrView = (props) => {
     const [usersData, updateUserData] = useState(initTableData);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallattrhdr/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getuserattrhdr/') + props.match.params.id)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch('http://127.0.0.1:8080/api/v1/getallattrhdr/' + props.match.params.id)
+        fetch('http://127.0.0.1:8080/api/v1/getuserattrhdr/' + props.match.params.id)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attrhdr/add')
+        props.history.push('/tenant/' + props.match.params.id + '/userattrhdr/add')
     }
 
     const handleEdit = (index) => {
+        console.log('ID is %d', index)
+    }
+
+    const handleDelete = (index) => {
         console.log('ID is %d', index)
     }
 
@@ -66,7 +77,7 @@ const UserAttrView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            Attribute Headers
+                            User Attribute Header
                   <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>
@@ -91,7 +102,23 @@ const UserAttrView = (props) => {
                                             </CButton>
                                                 </td>
                                             )
-                                        }
+                                        },
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        color="primary"
+                                                        variant="outline"
+                                                        shape="square"
+                                                        size="sm"
+                                                        onClick={() => { handleDelete(index) }}
+                                                    >
+                                                        Delete
+                                            </CButton>
+                                                </td>
+                                            )
+                                        },
                                 }}
                             />
                         </CCardBody>

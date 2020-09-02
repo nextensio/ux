@@ -25,7 +25,6 @@ var common = require('../../common')
 
 const UserAttrEdit = (props) => {
     const initUserData = Object.freeze({
-        ID: "",
         tenant: props.match.params.id,
         majver: "",
         minver: "",
@@ -45,11 +44,11 @@ const UserAttrEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                ID: userData.ID, tenant: userData.tenant, majver: userData.majver,
+                tenant: userData.tenant, majver: userData.majver,
                 minver: userData.minver
             }),
         };
-        fetch(common.api_href('/api/v1/addattrhdr'), requestOptions)
+        fetch(common.api_href('/api/v1/adduserattrhdr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -62,7 +61,7 @@ const UserAttrEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/attrhdr/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/userattrhdr/view')
                 }
             })
             .catch(error => {
@@ -73,14 +72,10 @@ const UserAttrEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add Attribute Headers
+                Add Attribute Header
             </CCardHeader>
             <CCardBody>
                 <CForm>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">User ID</CLabel>
-                        <CInput name="ID" placeholder="Enter User ID" onChange={handleChange} />
-                    </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Major version</CLabel>
                         <CInput name="majver" placeholder="Enter Major Version" onChange={handleChange} />

@@ -38,8 +38,14 @@ export default [
   },
   {
     _tag: 'CSidebarNavItem',
-    name: 'Headers',
-    to: '/tenant/:id/attrhdr/view',
+    name: 'User AttrHdr',
+    to: '/tenant/:id/userattrhdr/view',
+    icon: 'cil-industry',
+  },
+  {
+    _tag: 'CSidebarNavItem',
+    name: 'Bundle AttrHdr',
+    to: '/tenant/:id/bundleattrhdr/view',
     icon: 'cil-industry',
   },
   {

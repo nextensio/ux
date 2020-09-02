@@ -29,7 +29,14 @@ const fields = [
         _style: { width: '1%' },
         sorter: false,
         filter: false
-    }
+    },
+    {
+        key: 'delete',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
 ]
 
 
@@ -57,6 +64,10 @@ const BundlesView = (props) => {
     }
 
     const handleEdit = (index) => {
+        console.log('ID is %d', index)
+    }
+
+    const handleDelete = (index) => {
         console.log('ID is %d', index)
     }
 
@@ -88,6 +99,22 @@ const BundlesView = (props) => {
                                                         onClick={() => { handleEdit(index) }}
                                                     >
                                                         Edit
+                                            </CButton>
+                                                </td>
+                                            )
+                                        },
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        color="primary"
+                                                        variant="outline"
+                                                        shape="square"
+                                                        size="sm"
+                                                        onClick={() => { handleDelete(index) }}
+                                                    >
+                                                        Delete
                                             </CButton>
                                                 </td>
                                             )
