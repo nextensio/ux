@@ -23,6 +23,8 @@ const fields = [
     "tenant",
     "pid",
     "rego",
+    "majver",
+    "minver",
     {
         key: 'edit',
         label: '',
