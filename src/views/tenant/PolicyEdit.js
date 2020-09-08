@@ -16,7 +16,8 @@ import {
     CCardHeader,
     CFormGroup,
     CFormText,
-    CCardFooter
+    CCardFooter,
+    CTextarea
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -27,7 +28,7 @@ const PolicyEdit = (props) => {
     const initUserData = Object.freeze({
         pid: "",
         tenant: props.match.params.id,
-        rego: ""
+        rego: []
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -38,9 +39,15 @@ const PolicyEdit = (props) => {
     }, []);
 
     const handleChange = (e) => {
+        if (e.target.name == "rego") {
+            var rego = e.target.value.split('');
+            var ucode = rego.map(function (c) { return c.charCodeAt(0) });
+        } else {
+            var ucode = e.target.value.trim();
+        }
         updateUserData({
             ...userData,
-            [e.target.name]: e.target.value.trim()
+            [e.target.name]: ucode
         });
     };
 
@@ -88,7 +95,7 @@ const PolicyEdit = (props) => {
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">REGO Policy</CLabel>
-                        <CInput name="rego" placeholder={userData.rego} onChange={handleChange} />
+                        <CTextarea name="rego" placeholder={userData.rego} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

@@ -52,13 +52,27 @@ const PolicyView = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].hasOwnProperty('rego')) {
+                        data[i].rego = String.fromCharCode(...data[i].rego);
+                    }
+                }
+                updateUserData(data);
+            });
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].hasOwnProperty('rego')) {
+                        data[i].rego = String.fromCharCode(...data[i].rego);
+                    }
+                }
+                updateUserData(data);
+            });
     }
 
     const handleAdd = (e) => {
