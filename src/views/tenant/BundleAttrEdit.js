@@ -60,8 +60,13 @@ const BundleAttrEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                bid: userData.bid, tenant: userData.tenant, team: userData.team.split(','),
-                dept: userData.dept.split(','), IC: userData.IC, manager: userData.manager,
+                bid: userData.bid, tenant: userData.tenant, team: userData.team.split(',').map(function (item) {
+                    return item.trim();
+                }),
+                dept: userData.dept.split(',').map(function (item) {
+                    return item.trim();
+                }),
+                IC: userData.IC, manager: userData.manager,
                 nonemployee: userData.nonemployee
             }),
         };
@@ -110,11 +115,11 @@ const BundleAttrEdit = (props) => {
                         <CInput name="nonemployee" placeholder={userData.nonemployee} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">User Departments</CLabel>
+                        <CLabel htmlFor="nf-password">User Departments (Comma Seperated)</CLabel>
                         <CInput name="dept" placeholder={userData.dept} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">User Teams</CLabel>
+                        <CLabel htmlFor="nf-password">User Teams (Comma Seperated)</CLabel>
                         <CInput name="team" placeholder={userData.team} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
