@@ -61,8 +61,13 @@ const UserAttrEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 uid: userData.uid, tenant: userData.tenant, category: userData.category,
-                type: userData.type, level: userData.level, dept: userData.dept.split(','),
-                team: userData.team.split(',')
+                type: userData.type, level: userData.level,
+                dept: userData.dept.split(',').map(function (item) {
+                    return item.trim();
+                }),
+                team: userData.team.split(',').map(function (item) {
+                    return item.trim();
+                })
             }),
         };
         fetch(common.api_href('/api/v1/adduserattr'), requestOptions)
@@ -110,11 +115,11 @@ const UserAttrEdit = (props) => {
                         <CInput name="level" placeholder={userData.level} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">User Departments</CLabel>
+                        <CLabel htmlFor="nf-password">User Departments (Comma Seperated)</CLabel>
                         <CInput name="dept" placeholder={userData.dept} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">User Teams</CLabel>
+                        <CLabel htmlFor="nf-password">User Teams (Comma Seperated)</CLabel>
                         <CInput name="team" placeholder={userData.team} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
