@@ -22,7 +22,6 @@ var common = require('../../../common')
 const fields = [
     "_id",
     "name",
-    "idp",
     "gateways",
     {
         key: 'edit',
