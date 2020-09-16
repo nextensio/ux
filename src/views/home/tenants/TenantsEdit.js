@@ -27,7 +27,6 @@ const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
         name: "",
-        idp: "",
         gateways: "",
     });
     const [tenantData, updateTenantData] = useState(initTenantData);
@@ -44,7 +43,7 @@ const TenantsEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: tenantData.name, idp: tenantData.idp, gateways: tenantData.gateways.split(',') }),
+            body: JSON.stringify({ name: tenantData.name, gateways: tenantData.gateways.split(',') }),
         };
 
         fetch(common.api_href('/api/v1/addtenant'), requestOptions)
@@ -84,11 +83,7 @@ const TenantsEdit = (props) => {
                         <CInput name="name" placeholder="Tenant Name" onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">Identity Provider (IDP)</CLabel>
-                        <CInput name="idp" placeholder="Link to Identity Provider (IDP)" onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Gateways</CLabel>
+                        <CLabel htmlFor="nf-password">Gateways (Comma seperated)</CLabel>
                         <CInput name="gateways" placeholder="List of gateway host names, comma seperated" onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
