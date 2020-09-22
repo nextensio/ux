@@ -10,6 +10,8 @@ const BundleAttrView = React.lazy(() => import('../../views/tenant/BundleAttrVie
 const BundleAttrEdit = React.lazy(() => import('../../views/tenant/BundleAttrEdit'));
 const PolicyView = React.lazy(() => import('../../views/tenant/PolicyView'));
 const PolicyEdit = React.lazy(() => import('../../views/tenant/PolicyEdit'));
+const RoutingView = React.lazy(() => import('../../views/tenant/RoutingView'));
+const RoutingEdit = React.lazy(() => import('../../views/tenant/RoutingEdit'));
 const UserAttrHdrView = React.lazy(() => import('../../views/tenant/UserAttrHdrView'));
 const UserAttrHdrEdit = React.lazy(() => import('../../views/tenant/UserAttrHdrEdit'));
 const BundleAttrHdrView = React.lazy(() => import('../../views/tenant/BundleAttrHdrView'));
@@ -26,6 +28,8 @@ const routes = [
     { path: '/tenant/:id/bundleattr/add', name: 'Tenant', component: BundleAttrEdit },
     { path: '/tenant/:id/policy/view', name: 'Tenant', component: PolicyView },
     { path: '/tenant/:id/policy/add', name: 'Tenant', component: PolicyEdit },
+    { path: '/tenant/:id/route/view', name: 'Tenant', component: RoutingView },
+    { path: '/tenant/:id/route/add', name: 'Tenant', component: RoutingEdit },
     { path: '/tenant/:id/userattrhdr/view', name: 'Tenant', component: UserAttrHdrView },
     { path: '/tenant/:id/userattrhdr/add', name: 'Tenant', component: UserAttrHdrEdit },
     { path: '/tenant/:id/bundleattrhdr/view', name: 'Tenant', component: BundleAttrHdrView },
