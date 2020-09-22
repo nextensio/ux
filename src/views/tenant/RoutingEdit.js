@@ -26,9 +26,10 @@ var common = require('../../common')
 
 const PolicyEdit = (props) => {
     const initUserData = Object.freeze({
+        user: "",
         route: "",
         tenant: props.match.params.id,
-        tag: ""
+        tag: "",
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -51,7 +52,7 @@ const PolicyEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                route: userData.route, tenant: userData.tenant,
+                route: userData.user + ":" + userData.route, tenant: userData.tenant,
                 tag: userData.tag
             }),
         };
@@ -83,6 +84,10 @@ const PolicyEdit = (props) => {
             </CCardHeader>
             <CCardBody>
                 <CForm>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">User id</CLabel>
+                        <CInput name="user" placeholder={userData.user} onChange={handleChange} />
+                    </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Route Name</CLabel>
                         <CInput name="route" placeholder={userData.route} onChange={handleChange} />

@@ -21,6 +21,7 @@ var common = require('../../common')
 
 const fields = [
     "tenant",
+    "user",
     "route",
     "tag",
     {
@@ -51,6 +52,11 @@ const PolicyView = (props) => {
         fetch(common.api_href('/api/v1/getallroutes/') + props.match.params.id)
             .then(response => response.json())
             .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    var ru = data[i].route.split(":");
+                    data[i].user = ru[0];
+                    data[i].route = ru[1];
+                }
                 updateUserData(data);
             });
     }, []);
@@ -59,6 +65,11 @@ const PolicyView = (props) => {
         fetch(common.api_href('/api/v1/getallroutes/') + props.match.params.id)
             .then(response => response.json())
             .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    var ru = data[i].route.split(":");
+                    data[i].user = ru[0];
+                    data[i].route = ru[1];
+                }
                 updateUserData(data);
             });
     }
@@ -75,7 +86,7 @@ const PolicyView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/delroute/') + props.match.params.id + '/' + usersData[index].route)
+        fetch(common.api_href('/api/v1/delroute/') + props.match.params.id + '/' + usersData[index].user + ":" + usersData[index].route)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
