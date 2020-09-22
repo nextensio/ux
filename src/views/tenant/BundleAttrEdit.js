@@ -103,7 +103,7 @@ const BundleAttrEdit = (props) => {
                         <CInput name="bid" placeholder={userData.bid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">Contrib</CLabel>
+                        <CLabel htmlFor="nf-email">IC</CLabel>
                         <CInput name="IC" placeholder={userData.IC} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>

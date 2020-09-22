@@ -38,6 +38,12 @@ export default [
   },
   {
     _tag: 'CSidebarNavItem',
+    name: 'Routing',
+    to: '/tenant/:id/route/view',
+    icon: 'cil-industry',
+  },
+  {
+    _tag: 'CSidebarNavItem',
     name: 'User AttrHdr',
     to: '/tenant/:id/userattrhdr/view',
     icon: 'cil-industry',
