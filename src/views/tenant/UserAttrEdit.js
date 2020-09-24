@@ -61,7 +61,7 @@ const UserAttrEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 uid: userData.uid, tenant: userData.tenant, category: userData.category,
-                type: userData.type, level: userData.level,
+                type: userData.type, level: parseInt(userData.level),
                 dept: userData.dept.split(',').map(function (item) {
                     return item.trim();
                 }),

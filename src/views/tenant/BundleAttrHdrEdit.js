@@ -51,8 +51,8 @@ const BundleAttrHdrEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                tenant: userData.tenant, majver: userData.majver,
-                minver: userData.minver
+                tenant: userData.tenant, majver: parseInt(userData.majver),
+                minver: parseInt(userData.minver)
             }),
         };
         fetch(common.api_href('/api/v1/addbundleattrhdr'), requestOptions)

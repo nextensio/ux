@@ -66,7 +66,7 @@ const BundleAttrEdit = (props) => {
                 dept: userData.dept.split(',').map(function (item) {
                     return item.trim();
                 }),
-                IC: userData.IC, manager: userData.manager,
+                IC: parseInt(userData.IC), manager: parseInt(userData.manager),
                 nonemployee: userData.nonemployee
             }),
         };
