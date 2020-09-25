@@ -58,6 +58,7 @@ const PolicyView = (props) => {
     const [details, setDetails] = useState([])
 
     useEffect(() => {
+        setDetails([])
         fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id)
             .then(response => response.json())
             .then(data => {
@@ -71,6 +72,7 @@ const PolicyView = (props) => {
     }, []);
 
     const handleRefresh = (e) => {
+        setDetails([]);
         fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id)
             .then(response => response.json())
             .then(data => {
@@ -92,9 +94,11 @@ const PolicyView = (props) => {
             pathname: '/tenant/' + props.match.params.id + '/policy/add',
             state: usersData[index]
         });
+        setDetails([])
     }
 
     const handleDelete = (index) => {
+        setDetails([])
         fetch(common.api_href('/api/v1/delpolicy/') + props.match.params.id + '/' + usersData[index].pid)
             .then(async response => {
                 const data = await response.json();
@@ -195,7 +199,7 @@ const PolicyView = (props) => {
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
                                                         <pre>
-                                                            {usersData[index].rego}
+                                                            {item.rego}
                                                         </pre>
                                                     </CCardBody>
                                                 </CCollapse>
