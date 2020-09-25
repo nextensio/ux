@@ -47,13 +47,31 @@ const BundleAttrView = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    // The AttrHeader should not show up among attributes
+                    if (data[i].hasOwnProperty('bid') && data[i].bid == 'AppAttr') {
+                        data.splice(i, 1);
+                        break;
+                    }
+                }
+                updateUserData(data)
+            });
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    // The AttrHeader should not show up among attributes
+                    if (data[i].hasOwnProperty('bid') && data[i].bid == 'AppAttr') {
+                        data.splice(i, 1);
+                        break;
+                    }
+                }
+                updateUserData(data)
+            });
     }
 
     const handleAdd = (e) => {

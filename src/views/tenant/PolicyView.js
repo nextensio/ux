@@ -5,6 +5,7 @@ import {
     CButtonGroup,
     CCard,
     CCardBody,
+    CCollapse,
     CCardFooter,
     CCardHeader,
     CCol,
@@ -22,7 +23,6 @@ var common = require('../../common')
 const fields = [
     "tenant",
     "pid",
-    "rego",
     "majver",
     "minver",
     {
@@ -38,6 +38,13 @@ const fields = [
         _style: { width: '1%' },
         sorter: false,
         filter: false
+    },
+    {
+        key: 'show_details',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
     }
 ]
 
@@ -48,6 +55,7 @@ const PolicyView = (props) => {
         []
     );
     const [usersData, updateUserData] = useState(initTableData);
+    const [details, setDetails] = useState([])
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id)
@@ -106,6 +114,17 @@ const PolicyView = (props) => {
             });
     }
 
+    const toggleDetails = (index) => {
+        const position = details.indexOf(index)
+        let newDetails = details.slice()
+        if (position !== -1) {
+            newDetails.splice(position, 1)
+        } else {
+            newDetails = [...details, index]
+        }
+        setDetails(newDetails)
+    }
+
     return (
         <>
             <CRow>
@@ -152,6 +171,34 @@ const PolicyView = (props) => {
                                                         Delete
                                             </CButton>
                                                 </td>
+                                            )
+                                        },
+                                    'show_details':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        color="primary"
+                                                        variant="outline"
+                                                        shape="square"
+                                                        size="sm"
+                                                        onClick={() => { toggleDetails(index) }}
+                                                    >
+                                                        {details.includes(index) ? 'Hide' : 'Show'}
+                                                    </CButton>
+                                                </td>
+                                            )
+                                        },
+                                    'details':
+                                        (item, index) => {
+                                            return (
+                                                <CCollapse show={details.includes(index)}>
+                                                    <CCardBody>
+                                                        <pre>
+                                                            {usersData[index].rego}
+                                                        </pre>
+                                                    </CCardBody>
+                                                </CCollapse>
                                             )
                                         }
                                 }}
