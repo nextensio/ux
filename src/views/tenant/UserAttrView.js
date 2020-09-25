@@ -47,13 +47,31 @@ const UserAttrView = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    // The AttrHeader should not show up among attributes
+                    if (data[i].hasOwnProperty('uid') && data[i].uid == 'UserAttr') {
+                        data.splice(i, 1);
+                        break;
+                    }
+                }
+                updateUserData(data)
+            });
     }, []);
 
     const handleRefresh = (e) => {
         fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    // The AttrHeader should not show up among attributes
+                    if (data[i].hasOwnProperty('uid') && data[i].uid == 'UserAttr') {
+                        data.splice(i, 1);
+                        break;
+                    }
+                }
+                updateUserData(data)
+            });
     }
 
     const handleAdd = (e) => {
