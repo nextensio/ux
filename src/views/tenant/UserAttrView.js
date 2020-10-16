@@ -86,10 +86,6 @@ const UserAttrView = (props) => {
     }
 
 
-    const handleDelete = (index) => {
-        console.log('ID is %d', index)
-    }
-
     return (
         <>
             <CRow>
