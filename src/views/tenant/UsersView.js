@@ -24,6 +24,7 @@ const fields = [
     "uid",
     "name",
     "email",
+    "services",
     {
         key: 'edit',
         label: '',

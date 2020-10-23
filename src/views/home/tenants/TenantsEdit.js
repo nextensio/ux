@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -26,10 +26,25 @@ var common = require('../../../common')
 const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
+        curid: "unknown",
         name: "",
         gateways: "",
+        image: "",
+        pods: 0,
     });
     const [tenantData, updateTenantData] = useState(initTenantData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateTenantData({
+                curid: props.location.state._id,
+                name: props.location.state.name,
+                gateways: props.location.state.gateways.join(),
+                image: props.location.state.image,
+                pods: props.location.state.pods
+            })
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateTenantData({
@@ -43,7 +58,14 @@ const TenantsEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: tenantData.name, gateways: tenantData.gateways.split(',') }),
+            body: JSON.stringify({
+                curid: tenantData.curid,
+                name: tenantData.name,
+                gateways: tenantData.gateways.split(',').map(function (item) {
+                    return item.trim();
+                }),
+                image: tenantData.image, pods: parseInt(tenantData.pods),
+            }),
         };
 
         fetch(common.api_href('/api/v1/addtenant'), requestOptions)
@@ -80,11 +102,19 @@ const TenantsEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Name</CLabel>
-                        <CInput name="name" placeholder="Tenant Name" onChange={handleChange} />
+                        <CInput name="name" placeholder={tenantData.name} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Gateways (Comma seperated)</CLabel>
-                        <CInput name="gateways" placeholder="List of gateway host names, comma seperated" onChange={handleChange} />
+                        <CInput name="gateways" placeholder={tenantData.gateways} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">Dataplane Image</CLabel>
+                        <CInput name="image" placeholder={tenantData.image} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">Number of pods</CLabel>
+                        <CInput name="pods" placeholder={tenantData.pods} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

@@ -23,6 +23,8 @@ const fields = [
     "_id",
     "name",
     "gateways",
+    "image",
+    "pods",
     {
         key: 'edit',
         label: '',
@@ -32,6 +34,13 @@ const fields = [
     },
     {
         key: 'delete',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
+        key: 'users',
         label: '',
         _style: { width: '1%' },
         sorter: false,
@@ -63,6 +72,13 @@ const TenantsView = (props) => {
     }
 
     const handleEdit = (index) => {
+        props.history.push({
+            pathname: '/home/tenants/add',
+            state: usersData[index]
+        })
+    }
+
+    const handleDetails = (index) => {
         props.history.push('/tenant/' + usersData[index]._id + '/users/view')
     }
 
@@ -133,7 +149,23 @@ const TenantsView = (props) => {
                                             </CButton>
                                                 </td>
                                             )
-                                        }
+                                        },
+                                    'users':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        color="primary"
+                                                        variant="outline"
+                                                        shape="square"
+                                                        size="sm"
+                                                        onClick={() => { handleDetails(index) }}
+                                                    >
+                                                        Users
+                                            </CButton>
+                                                </td>
+                                            )
+                                        },
                                 }}
                             />
                         </CCardBody>

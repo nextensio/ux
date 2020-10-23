@@ -23,6 +23,7 @@ const fields = [
     "tenant",
     "bid",
     "name",
+    "services",
     {
         key: 'edit',
         label: '',
@@ -96,7 +97,7 @@ const BundlesView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                           Bundles 
+                            Bundles
                   <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>

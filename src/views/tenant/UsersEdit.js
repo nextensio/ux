@@ -28,7 +28,8 @@ const UsersEdit = (props) => {
         uid: "",
         tenant: props.match.params.id,
         name: "",
-        email: ""
+        email: "",
+        services: "",
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -50,7 +51,12 @@ const UsersEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: userData.uid, tenant: userData.tenant, name: userData.name, email: userData.email }),
+            body: JSON.stringify({
+                uid: userData.uid, tenant: userData.tenant, name: userData.name, email: userData.email,
+                services: userData.services.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }),
         };
         fetch(common.api_href('/api/v1/adduser'), requestOptions)
             .then(async response => {
@@ -91,6 +97,10 @@ const UsersEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Email Address</CLabel>
                         <CInput name="email" placeholder={userData.email} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>
+                        <CInput name="services" placeholder={userData.services} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

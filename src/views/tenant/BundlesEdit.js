@@ -28,6 +28,7 @@ const BundlesEdit = (props) => {
         bid: "",
         tenant: props.match.params.id,
         name: "",
+        services: ""
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -49,7 +50,12 @@ const BundlesEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bid: userData.bid, tenant: userData.tenant, name: userData.name }),
+            body: JSON.stringify({
+                bid: userData.bid, tenant: userData.tenant, name: userData.name,
+                services: userData.services.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }),
         };
         fetch(common.api_href('/api/v1/addbundle'), requestOptions)
             .then(async response => {
@@ -86,6 +92,10 @@ const BundlesEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Bundle Name</CLabel>
                         <CInput name="name" placeholder={userData.name} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>
+                        <CInput name="services" placeholder={userData.services} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

@@ -60,7 +60,8 @@ const BundleAttrEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                bid: userData.bid, tenant: userData.tenant, team: userData.team.split(',').map(function (item) {
+                bid: userData.bid, tenant: userData.tenant,
+                team: userData.team.split(',').map(function (item) {
                     return item.trim();
                 }),
                 dept: userData.dept.split(',').map(function (item) {
