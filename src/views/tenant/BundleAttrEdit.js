@@ -56,17 +56,32 @@ const BundleAttrEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        var dept = userData.dept
+        if (userData.dept) {
+            if (!Array.isArray(userData.dept)) {
+                dept = userData.dept.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            dept = []
+        }
+        var team = userData.team
+        if (userData.team) {
+            if (!Array.isArray(userData.team)) {
+                team = userData.team.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            team = []
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 bid: userData.bid, tenant: userData.tenant,
-                team: userData.team.split(',').map(function (item) {
-                    return item.trim();
-                }),
-                dept: userData.dept.split(',').map(function (item) {
-                    return item.trim();
-                }),
+                team: team, dept: dept,
                 IC: parseInt(userData.IC), manager: parseInt(userData.manager),
                 nonemployee: userData.nonemployee
             }),
@@ -88,7 +103,7 @@ const BundleAttrEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 

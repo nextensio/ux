@@ -55,15 +55,22 @@ const TenantsEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        var gateways = tenantData.gateways
+        if (tenantData.gateways) {
+            if (!Array.isArray(tenantData.gateways)) {
+                gateways = tenantData.gateways.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            gateways = []
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 curid: tenantData.curid,
-                name: tenantData.name,
-                gateways: tenantData.gateways.split(',').map(function (item) {
-                    return item.trim();
-                }),
+                name: tenantData.name, gateways: gateways,
                 image: tenantData.image, pods: parseInt(tenantData.pods),
             }),
         };
@@ -89,7 +96,7 @@ const TenantsEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 

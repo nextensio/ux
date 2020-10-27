@@ -28,7 +28,8 @@ const BundlesEdit = (props) => {
         bid: "",
         tenant: props.match.params.id,
         name: "",
-        services: ""
+        services: "",
+        gateway: "",
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -47,14 +48,22 @@ const BundlesEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        var services = userData.services
+        if (userData.services) {
+            if (!Array.isArray(userData.services)) {
+                services = userData.services.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            services = []
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 bid: userData.bid, tenant: userData.tenant, name: userData.name,
-                services: userData.services.split(',').map(function (item) {
-                    return item.trim();
-                })
+                gateway: userData.gateway, services: services
             }),
         };
         fetch(common.api_href('/api/v1/addbundle'), requestOptions)
@@ -74,7 +83,7 @@ const BundlesEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 
@@ -92,6 +101,10 @@ const BundlesEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Bundle Name</CLabel>
                         <CInput name="name" placeholder={userData.name} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">(Optional) Pin Bundle to gateway</CLabel>
+                        <CInput name="gateway" placeholder={userData.gateway} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>

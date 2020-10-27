@@ -40,8 +40,7 @@ const PolicyEdit = (props) => {
 
     const handleChange = (e) => {
         if (e.target.name == "rego") {
-            var rego = e.target.value.split('');
-            var ucode = rego.map(function (c) { return c.charCodeAt(0) });
+            var ucode = e.target.value;
         } else {
             var ucode = e.target.value.trim();
         }
@@ -53,12 +52,13 @@ const PolicyEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        var ucode = userData.rego.split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 pid: userData.pid, tenant: userData.tenant,
-                rego: userData.rego
+                rego: ucode
             }),
         };
         fetch(common.api_href('/api/v1/addpolicy'), requestOptions)
@@ -78,7 +78,7 @@ const PolicyEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 

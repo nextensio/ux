@@ -101,7 +101,7 @@ const PolicyView = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     }
 

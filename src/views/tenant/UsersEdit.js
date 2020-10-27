@@ -30,6 +30,7 @@ const UsersEdit = (props) => {
         name: "",
         email: "",
         services: "",
+        gateway: "",
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -48,14 +49,22 @@ const UsersEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        var services = userData.services
+        if (userData.services) {
+            if (!Array.isArray(userData.services)) {
+                services = userData.services.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            services = []
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 uid: userData.uid, tenant: userData.tenant, name: userData.name, email: userData.email,
-                services: userData.services.split(',').map(function (item) {
-                    return item.trim();
-                })
+                gateway: userData.gateway, services: services
             }),
         };
         fetch(common.api_href('/api/v1/adduser'), requestOptions)
@@ -75,7 +84,7 @@ const UsersEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 
@@ -97,6 +106,10 @@ const UsersEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Email Address</CLabel>
                         <CInput name="email" placeholder={userData.email} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">(Optional) Pin user to gateway</CLabel>
+                        <CInput name="gateway" placeholder={userData.gateway} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>

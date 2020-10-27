@@ -25,6 +25,7 @@ const fields = [
     "name",
     "email",
     "services",
+    "gateway",
     {
         key: 'edit',
         label: '',
@@ -88,7 +89,7 @@ const UsersView = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     }
 
