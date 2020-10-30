@@ -24,6 +24,7 @@ const fields = [
     "bid",
     "name",
     "services",
+    "gateway",
     {
         key: 'edit',
         label: '',
@@ -87,7 +88,7 @@ const BundlesView = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     }
 

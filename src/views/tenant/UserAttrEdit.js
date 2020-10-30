@@ -56,18 +56,33 @@ const UserAttrEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        var dept = userData.dept
+        if (userData.dept) {
+            if (!Array.isArray(userData.dept)) {
+                dept = userData.dept.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            dept = []
+        }
+        var team = userData.team
+        if (userData.team) {
+            if (!Array.isArray(userData.team)) {
+                team = userData.team.split(',').map(function (item) {
+                    return item.trim();
+                })
+            }
+        } else {
+            team = []
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 uid: userData.uid, tenant: userData.tenant, category: userData.category,
                 type: userData.type, level: parseInt(userData.level),
-                dept: userData.dept.split(',').map(function (item) {
-                    return item.trim();
-                }),
-                team: userData.team.split(',').map(function (item) {
-                    return item.trim();
-                })
+                dept: dept, team: team
             }),
         };
         fetch(common.api_href('/api/v1/adduserattr'), requestOptions)
@@ -87,7 +102,7 @@ const UserAttrEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 

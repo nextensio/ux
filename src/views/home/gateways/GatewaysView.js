@@ -21,14 +21,20 @@ var common = require('../../../common')
 
 const fields = [
     "name",
-    "ipaddr",
     {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
         sorter: false,
         filter: false
-    }
+    },
+    {
+        key: 'delete',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
 ]
 
 const GatewaysView = (props) => {
@@ -53,8 +59,32 @@ const GatewaysView = (props) => {
         props.history.push('/home/gateways/add')
     }
 
+
     const handleEdit = (index) => {
-        alert('Edit not supported yet')
+        props.history.push({
+            pathname: '/home/gateways/add',
+            state: usersData[index]
+        });
+    }
+
+    const handleDelete = (index) => {
+        fetch(common.api_href('/api/v1/delgateway/') + usersData[index].name)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
     }
 
     return (
@@ -85,6 +115,22 @@ const GatewaysView = (props) => {
                                                         onClick={() => { handleEdit(index) }}
                                                     >
                                                         Edit
+                                            </CButton>
+                                                </td>
+                                            )
+                                        },
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        color="primary"
+                                                        variant="outline"
+                                                        shape="square"
+                                                        size="sm"
+                                                        onClick={() => { handleDelete(index) }}
+                                                    >
+                                                        Delete
                                             </CButton>
                                                 </td>
                                             )

@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -26,9 +26,16 @@ var common = require('../../../common')
 const GatewaysEdit = (props) => {
     const initGwData = Object.freeze({
         name: "",
-        ipaddr: ""
     });
     const [gwData, updateGwData] = useState(initGwData);
+
+    useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateGwData({
+                name: props.location.state.name,
+            })
+        }
+    }, []);
 
     const handleChange = (e) => {
         updateGwData({
@@ -61,7 +68,7 @@ const GatewaysEdit = (props) => {
                 }
             })
             .catch(error => {
-                console.error('There was an error!', error);
+                alert('Error contacting server', error);
             });
     };
 
@@ -74,11 +81,7 @@ const GatewaysEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Hostname</CLabel>
-                        <CInput name="name" placeholder="Enter Hostname" onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">IP Address</CLabel>
-                        <CInput name="ipaddr" placeholder="Enter IP Address" onChange={handleChange} />
+                        <CInput name="name" placeholder={gwData.name} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>
