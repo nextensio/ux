@@ -15,5 +15,5 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-EXPOSE 80/tcp 3000/tcp
+EXPOSE 3000/tcp
 CMD npm start
