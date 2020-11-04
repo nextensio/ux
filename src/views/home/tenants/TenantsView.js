@@ -23,6 +23,7 @@ const fields = [
     "_id",
     "name",
     "gateways",
+    "domains",
     "image",
     "pods",
     {
