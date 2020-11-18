@@ -25,6 +25,7 @@ const fields = [
     "name",
     "services",
     "gateway",
+    "pod",
     {
         key: 'edit',
         label: '',

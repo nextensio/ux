@@ -30,6 +30,7 @@ const BundlesEdit = (props) => {
         name: "",
         services: "",
         gateway: "",
+        pod: 0,
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -63,7 +64,8 @@ const BundlesEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 bid: userData.bid, tenant: userData.tenant, name: userData.name,
-                gateway: userData.gateway, services: services
+                gateway: userData.gateway, services: services,
+                pod: parseInt(userData.pod)
             }),
         };
         fetch(common.api_href('/api/v1/addbundle'), requestOptions)
@@ -105,6 +107,10 @@ const BundlesEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">(Optional) Pin Bundle to gateway</CLabel>
                         <CInput name="gateway" placeholder={userData.gateway} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">(Optional) Pin Bundle to pod</CLabel>
+                        <CInput name="pod" placeholder={userData.pod} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>
