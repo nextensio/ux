@@ -26,6 +26,7 @@ const fields = [
     "email",
     "services",
     "gateway",
+    "pod",
     {
         key: 'edit',
         label: '',

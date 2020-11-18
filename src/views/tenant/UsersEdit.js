@@ -31,6 +31,7 @@ const UsersEdit = (props) => {
         email: "",
         services: "",
         gateway: "",
+        pod: 0,
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -64,7 +65,8 @@ const UsersEdit = (props) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 uid: userData.uid, tenant: userData.tenant, name: userData.name, email: userData.email,
-                gateway: userData.gateway, services: services
+                gateway: userData.gateway, services: services,
+                pod: parseInt(userData.pod)
             }),
         };
         fetch(common.api_href('/api/v1/adduser'), requestOptions)
@@ -110,6 +112,10 @@ const UsersEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">(Optional) Pin user to gateway</CLabel>
                         <CInput name="gateway" placeholder={userData.gateway} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel htmlFor="nf-password">(Optional) Pin user to pod</CLabel>
+                        <CInput name="pod" placeholder={userData.pod} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>
