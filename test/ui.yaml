@@ -31,6 +31,8 @@ spec:
             value: "true"
           - name: IDP_URI
             value: "https://dev-635657.okta.com/oauth2/default/v1/"
+          - name: MONGO_URI
+            value: "mongodb://mongodb-0-service:27017,mongodb-1-service:27018,mongodb-2-service:27019"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -57,6 +59,9 @@ spec:
         tty: true 
         ports:
         - containerPort: 3000
+        env:
+          - name: REACT_APP_API_URL
+            value: "http://REPLACE_CONTROLLER_IP:8080"
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
