@@ -9,7 +9,7 @@ function create_ui {
     kind create cluster --name ui
 
     docker pull registry.gitlab.com/nextensio/ux/controller-test:test
-    kind load docker-image registry.gitlab.com/nextensio/ux/ux-deploy:test --name ui
+    kind load docker-image registry.gitlab.com/nextensio/ux/ux-deploy:latest --name ui
     kind load docker-image registry.gitlab.com/nextensio/ux/controller-test:test --name ui
 
     # metallb as a loadbalancer to map services to externally accessible IPs
