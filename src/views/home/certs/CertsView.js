@@ -13,15 +13,18 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
 var common = require('../../../common')
 
 const fields = [
-    "certid",
+    {   
+        key: "certid",
+        label: "Certificate ID"
+    },
     {
         key: 'edit',
         label: '',
@@ -126,67 +129,85 @@ const CertsView = (props) => {
         setDetails(newDetails)
     }
 
+    const showIcon = <CIcon name='cil-plus' color='dark'/>
+    const hideIcon = <CIcon name='cil-minus' color='dark'/>
+
     return (
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard>
+                    <CCard className='border-primary shadow-lg'>
                         <CCardHeader>
                             Policies
-                  <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                tableFilter
+                                tableFilterValue={{placeholder:'By Certicate ID',label:'Search: '}}
+                                noItemsView={{noItems:'No certificates added'}}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content='edit'
+                                                        placement='bottom'
                                                     >
-                                                        Edit
-                                            </CButton>
+                                                        <CButton
+                                                            color='dark'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' color='dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='bottom'
                                                     >
-                                                        Delete
-                                            </CButton>
+                                                        <CButton
+                                                            color='dark'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' color='dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
                                     'show_details':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { toggleDetails(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content={details.includes(index) ? 'Hide' : 'Details'}
+                                                        placement='bottom'    
                                                     >
-                                                        {details.includes(index) ? 'Hide' : 'Show'}
-                                                    </CButton>
+                                                        <CButton
+                                                            color='dark'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleDetails(index) }}
+                                                        >
+                                                            {details.includes(index) ? hideIcon : showIcon}
+                                                        </CButton>
+                                                    </CTooltip>    
                                                 </td>
                                             )
                                         },
@@ -195,6 +216,7 @@ const CertsView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
+                                                        <strong>Details:{'\n'}</strong>
                                                         <pre>
                                                             {item.cert}
                                                         </pre>

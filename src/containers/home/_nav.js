@@ -4,25 +4,25 @@ import CIcon from '@coreui/icons-react'
 export default [
     {
         _tag: 'CSidebarNavTitle',
-        _children: ['Summary']
+        _children: ['Home']
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Gateways',
         to: '/home/gateways/view',
-        icon: 'cil-industry',
+        icon: 'cil-sitemap',
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Tenants',
         to: '/home/tenants/view',
-        icon: 'cil-industry',
+        icon: 'cil-group',
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Certificates',
         to: '/home/certs/view',
-        icon: 'cil-industry',
+        icon: 'cil-notes',
     },
     {
         _tag: 'CSidebarNavDivider',

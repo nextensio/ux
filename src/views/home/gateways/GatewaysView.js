@@ -14,7 +14,6 @@ import {
     CDataTable,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
 var common = require('../../../common')
@@ -91,10 +90,9 @@ const GatewaysView = (props) => {
         <>
             <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard>
+                    <CCard className='border-primary shadow-lg'>
                         <CCardHeader>
                             Gateways
-                  <DocsLink name="CModal" />
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -106,11 +104,11 @@ const GatewaysView = (props) => {
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { handleEdit(index) }}
                                                     >
@@ -122,15 +120,15 @@ const GatewaysView = (props) => {
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { handleDelete(index) }}
                                                     >
-                                                        Delete
+                                                        <CIcon name='cil-delete' color='dark' />
                                             </CButton>
                                                 </td>
                                             )

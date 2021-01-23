@@ -97,7 +97,7 @@ const BundlesView = (props) => {
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard>
+                    <CCard className='border-primary shadow-lg'>
                         <CCardHeader>
                             Bundles
                   <DocsLink name="CModal" />
@@ -112,11 +112,11 @@ const BundlesView = (props) => {
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { handleEdit(index) }}
                                                     >
@@ -128,15 +128,15 @@ const BundlesView = (props) => {
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { handleDelete(index) }}
                                                     >
-                                                        Delete
+                                                        <CIcon name='cil-delete' color='dark' />
                                             </CButton>
                                                 </td>
                                             )

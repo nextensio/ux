@@ -133,7 +133,7 @@ const PolicyView = (props) => {
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard>
+                    <CCard className='border-primary shadow-lg'>
                         <CCardHeader>
                             Policies
                   <DocsLink name="CModal" />
@@ -148,11 +148,11 @@ const PolicyView = (props) => {
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { handleEdit(index) }}
                                                     >
@@ -164,15 +164,15 @@ const PolicyView = (props) => {
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { handleDelete(index) }}
                                                     >
-                                                        Delete
+                                                        <CIcon name='cil-delete' color='dark' />
                                             </CButton>
                                                 </td>
                                             )
@@ -180,11 +180,11 @@ const PolicyView = (props) => {
                                     'show_details':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
+                                                <td className="py-1">
                                                     <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
+                                                        color='dark'
+                                                        variant='ghost'
+                                                        
                                                         size="sm"
                                                         onClick={() => { toggleDetails(index) }}
                                                     >

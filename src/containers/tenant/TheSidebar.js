@@ -40,25 +40,22 @@ const TheSidebar = (props) => {
     >
       <CSidebarBrand className="d-md-down-none" to="/">
         <CIcon
-          className="c-sidebar-brand-full"
-          name="logo-negative"
-          height={35}
-        />
-        <CIcon
-          className="c-sidebar-brand-minimized"
-          name="sygnet"
-          height={35}
+          className="my-n5 ml-n1"
+          name="logo"
+          size={'8xl'}
         />
       </CSidebarBrand>
+      
+      <CSidebarHeader>
+        Tenant: {props.match.params.id}
+      </CSidebarHeader>
       <CSidebarNav>
-
         <CCreateElement
           items={navExact}
           components={{
             CSidebarNavDivider,
             CSidebarNavDropdown,
             CSidebarNavItem,
-            CSidebarNavTitle
           }}
         />
       </CSidebarNav>

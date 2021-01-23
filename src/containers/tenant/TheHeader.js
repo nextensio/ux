@@ -3,15 +3,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
   CHeader,
   CToggler,
-  CHeaderBrand,
   CHeaderNav,
   CHeaderNavItem,
   CHeaderNavLink,
   CSubheader,
   CBreadcrumbRouter,
-  CLink
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+import routes from './routes'
+import { TheHeaderDropdown } from './TheHeaderDropdown'
 
 const TheHeader = () => {
   const dispatch = useDispatch()
@@ -39,9 +38,28 @@ const TheHeader = () => {
         className="ml-3 d-md-down-none"
         onClick={toggleSidebar}
       />
-      <CHeaderBrand className="mx-auto d-lg-none" to="/">
-        <CIcon name="logo" height="48" alt="Logo" />
-      </CHeaderBrand>
+      <CHeaderNav className='d-md-down-none'>
+        <CHeaderNavItem className='px-3'>
+          <CHeaderNavLink to='/home'>Home</CHeaderNavLink>
+        </CHeaderNavItem>
+        <CHeaderNavItem className='px-3'>
+          <CHeaderNavLink to='/home/gateways'>Gateways</CHeaderNavLink>
+        </CHeaderNavItem>
+        <CHeaderNavItem className='px-3'>
+          <CHeaderNavLink to='/home/tenants'>Tenants</CHeaderNavLink>
+        </CHeaderNavItem>
+      </CHeaderNav>
+
+      <CHeaderNav className='px-3'>
+        <TheHeaderDropdown />
+      </CHeaderNav>
+
+      <CSubheader className='px-3 justify-content-between'>
+        <CBreadcrumbRouter
+          className='border-0 c-subheader-nav m-0 px-0 px-md-3'
+          routes={routes}
+        />
+      </CSubheader>
 
     </CHeader>
   )
