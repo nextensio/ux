@@ -13,16 +13,18 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
 const fields = [
-    "tenant",
-    "pid",
+    {   
+        key: "pid",
+        label: "Policy ID"
+    },
     "majver",
     "minver",
     {
@@ -129,35 +131,41 @@ const PolicyView = (props) => {
         setDetails(newDetails)
     }
 
+    const showIcon = <CIcon name='cil-plus' className='text-dark'/>
+    const hideIcon = <CIcon name='cil-minus' className='text-dark'/>
+
     return (
         <>
             <CRow>
-                <CCol xs="24" lg="12">
+                <CCol xs="12" lg="6">
                     <CCard className='border-primary shadow-lg'>
-                        <CCardHeader>
-                            Policies
-                  <DocsLink name="CModal" />
+                        <CCardHeader className='bg-primary text-white'>
+                            <strong>Policies</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                tableFilter={{placeholder:'By policy ID, majver...',label:'Search: '}}
+                                noItemsView={{noItems:'No policies exist '}}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
-                                                    >
-                                                        Edit
-                                            </CButton>
+                                                    <CTooltip content='Edit' placement='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -165,15 +173,16 @@ const PolicyView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
-                                                    >
-                                                        <CIcon name='cil-delete' color='dark' />
-                                            </CButton>
+                                                    <CTooltip content='cil-delete' placement='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>    
                                                 </td>
                                             )
                                         },
@@ -181,15 +190,19 @@ const PolicyView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { toggleDetails(index) }}
+                                                    <CTooltip 
+                                                        content={details.includes(index) ? 'Hide' : 'Details'}
+                                                        placement='bottom'
                                                     >
-                                                        {details.includes(index) ? 'Hide' : 'Show'}
-                                                    </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleDetails(index) }}
+                                                        >
+                                                            {details.includes(index) ? hideIcon : showIcon}
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -198,6 +211,7 @@ const PolicyView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
+                                                        <strong>Details: {'\n'}</strong>
                                                         <pre>
                                                             {item.rego}
                                                         </pre>

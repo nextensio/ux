@@ -9,13 +9,14 @@ const CertsView = React.lazy(() => import('../../views/home/certs/CertsView'));
 const CertsEdit = React.lazy(() => import('../../views/home/certs/CertsEdit'));
 
 const routes = [
-    { path: '/home', exact: true, name: 'Home', component: DashboardView },
-    { path: '/home/gateways', name: 'Gateways', component: GatewaysView },
-    { path: '/home/gateways/add', name: 'Edit', component: GatewaysEdit },
-    { path: '/home/certs', name: 'Certs', component: CertsView },
-    { path: '/home/certs/add', name: 'Edit', component: CertsEdit },
-    { path: '/home/tenants', name: 'Tenants', component: TenantsView },
-    { path: '/home/tenants/add', name: 'Edit', component: TenantsEdit },
+    { path: '/', exact: true, name: 'Home' },
+    { path: '/home', name: 'Dashboard', component: DashboardView },
+    { path: '/gateways', name: 'Gateways', component: GatewaysView, exact: true },
+    { path: '/gateways/add', name: 'Edit', component: GatewaysEdit },
+    { path: '/certs', name: 'Certificates', component: CertsView, exact: true },
+    { path: '/certs/add', name: 'Edit', component: CertsEdit },
+    { path: '/tenants', name: 'Tenants', component: TenantsView, exact: true },
+    { path: '/tenants/add', name: 'Edit', component: TenantsEdit },
 ];
 
 export default routes;

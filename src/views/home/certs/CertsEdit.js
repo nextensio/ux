@@ -73,7 +73,7 @@ const CertsEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/home/certs/view')
+                    props.history.push('/certs')
                 }
             })
             .catch(error => {
@@ -82,7 +82,7 @@ const CertsEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
                 Add Policy
             </CCardHeader>

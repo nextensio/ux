@@ -12,15 +12,18 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
 var common = require('../../../common')
 
 const fields = [
-    "_id",
+    {   
+        key: "_id",
+        label: "Tenant ID",
+    },
     "name",
     "gateways",
     "domains",
@@ -69,18 +72,18 @@ const TenantsView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/home/tenants/add')
+        props.history.push('/tenants/add')
     }
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/home/tenants/add',
+            pathname: '/tenants/add',
             state: usersData[index]
         })
     }
 
     const handleDetails = (index) => {
-        props.history.push('/tenant/' + usersData[index]._id + '/users/view')
+        props.history.push('/tenant/' + usersData[index]._id + '/')
     }
 
     const handleDelete = (index) => {
@@ -108,30 +111,36 @@ const TenantsView = (props) => {
             <CRow>
                 <CCol xs="24" lg="12">
                     <CCard className='border-primary shadow-lg'>
-                        <CCardHeader>
-                            Tenants
-                  <DocsLink name="CModal" />
+                        <CCardHeader className='bg-primary text-white'>
+                            <strong>Tenants</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                tableFilter={{placeholder:'By name, gateways...',label:'Search: '}}
+                                noItemsView={{noItems:'No tenants exist '}}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
+                                                    <CTooltip
+                                                        content='Edit'
+                                                        placement='bottom'
                                                     >
-                                                        Edit
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -139,15 +148,19 @@ const TenantsView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='bottom'
                                                     >
-                                                        <CIcon name='cil-delete' color='dark' />
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -155,15 +168,19 @@ const TenantsView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleDetails(index) }}
+                                                    <CTooltip
+                                                        content='Tenant Portal'
+                                                        placement='bottom'
                                                     >
-                                                        Users
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleDetails(index) }}
+                                                        >
+                                                            <CIcon name='cil-group' className='text-dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },

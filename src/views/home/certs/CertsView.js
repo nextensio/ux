@@ -86,12 +86,12 @@ const CertsView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/home/certs/add')
+        props.history.push('/certs/add')
     }
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/home/certs/add',
+            pathname: '/certs/add',
             state: usersData[index]
         });
         setDetails([])
@@ -129,25 +129,24 @@ const CertsView = (props) => {
         setDetails(newDetails)
     }
 
-    const showIcon = <CIcon name='cil-plus' color='dark'/>
-    const hideIcon = <CIcon name='cil-minus' color='dark'/>
+    const showIcon = <CIcon name='cil-plus' className='text-dark'/>
+    const hideIcon = <CIcon name='cil-minus' className='text-dark'/>
 
     return (
         <>
             <CRow>
                 <CCol xs="24" lg="12">
                     <CCard className='border-primary shadow-lg'>
-                        <CCardHeader>
-                            Policies
+                        <CCardHeader className='bg-primary text-white'>
+                            <strong>Policies</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter
-                                tableFilterValue={{placeholder:'By Certicate ID',label:'Search: '}}
-                                noItemsView={{noItems:'No certificates added'}}
+                                tableFilter={{placeholder:'By certicate ID...',label:'Search: '}}
+                                noItemsView={{noItems:'No certificates exist '}}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -160,12 +159,12 @@ const CertsView = (props) => {
                                                         placement='bottom'
                                                     >
                                                         <CButton
-                                                            color='dark'
+                                                            color='light'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' color='dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark'/>
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -180,12 +179,12 @@ const CertsView = (props) => {
                                                         placement='bottom'
                                                     >
                                                         <CButton
-                                                            color='dark'
+                                                            color='light'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { handleDelete(index) }}
                                                         >
-                                                            <CIcon name='cil-delete' color='dark' />
+                                                            <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -200,7 +199,7 @@ const CertsView = (props) => {
                                                         placement='bottom'    
                                                     >
                                                         <CButton
-                                                            color='dark'
+                                                            color='light'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { toggleDetails(index) }}

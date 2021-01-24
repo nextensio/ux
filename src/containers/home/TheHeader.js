@@ -39,15 +39,15 @@ const TheHeader = () => {
         onClick={toggleSidebar}
       />
 
-      <CHeaderNav className='d-md-down-none'>
+      <CHeaderNav className='d-md-down-none mr-auto'>
         <CHeaderNavItem className='px-3'>
           <CHeaderNavLink to='/home'>Home</CHeaderNavLink>
         </CHeaderNavItem>
         <CHeaderNavItem className='px-3'>
-          <CHeaderNavLink to='/home/gateways'>Gateways</CHeaderNavLink>
+          <CHeaderNavLink to='/gateways'>Gateways</CHeaderNavLink>
         </CHeaderNavItem>
         <CHeaderNavItem className='px-3'>
-          <CHeaderNavLink to='/home/tenants'>Tenants</CHeaderNavLink>
+          <CHeaderNavLink to='/tenants'>Tenants</CHeaderNavLink>
         </CHeaderNavItem>
       </CHeaderNav>
 

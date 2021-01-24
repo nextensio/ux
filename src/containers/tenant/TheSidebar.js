@@ -5,6 +5,7 @@ import {
   CSidebar,
   CSidebarBrand,
   CSidebarNav,
+  CSidebarHeader,
   CSidebarNavDivider,
   CSidebarNavTitle,
   CSidebarMinimizer,
@@ -36,6 +37,7 @@ const TheSidebar = (props) => {
 
     < CSidebar
       show={show}
+      className='bg-primary'
       onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
     >
       <CSidebarBrand className="d-md-down-none" to="/">
@@ -46,10 +48,8 @@ const TheSidebar = (props) => {
         />
       </CSidebarBrand>
       
-      <CSidebarHeader>
-        Tenant: {props.match.params.id}
-      </CSidebarHeader>
       <CSidebarNav>
+      <CSidebarNavTitle>Tenant:{props.match.params.id}</CSidebarNavTitle>
         <CCreateElement
           items={navExact}
           components={{

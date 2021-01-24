@@ -69,7 +69,7 @@ const PolicyEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/route/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/route/')
                 }
             })
             .catch(error => {
@@ -78,14 +78,14 @@ const PolicyEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
                 Add Route
             </CCardHeader>
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">User id</CLabel>
+                        <CLabel htmlFor="nf-password">User ID</CLabel>
                         <CInput name="user" placeholder={userData.user} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>

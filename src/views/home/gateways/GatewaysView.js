@@ -12,6 +12,7 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -55,13 +56,13 @@ const GatewaysView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/home/gateways/add')
+        props.history.push('/gateways/add')
     }
 
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/home/gateways/add',
+            pathname: '/gateways/add',
             state: usersData[index]
         });
     }
@@ -91,29 +92,36 @@ const GatewaysView = (props) => {
             <CRow>
                 <CCol xs="12" lg="6">
                     <CCard className='border-primary shadow-lg'>
-                        <CCardHeader>
-                            Gateways
+                        <CCardHeader className='bg-primary text-white'>
+                            <strong>Gateways</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                tableFilter={{placeholder:'By name...', label:'Search: '}}
+                                noItemsView={{noItems:'No gateways exist '}}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
+                                                    <CTooltip
+                                                        content='Edit'
+                                                        placement='bottom'
                                                     >
-                                                        Edit
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -121,15 +129,19 @@ const GatewaysView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='bottom'
                                                     >
-                                                        <CIcon name='cil-delete' color='dark' />
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         }

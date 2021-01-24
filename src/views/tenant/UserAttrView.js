@@ -12,16 +12,18 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
 const fields = [
-    "tenant",
-    "uid",
+    {
+        key: "uid",
+        label: "User ID"
+    },
     "category",
     "type",
     "level",
@@ -91,30 +93,33 @@ const UserAttrView = (props) => {
             <CRow>
                 <CCol xs="24" lg="12">
                     <CCard className='border-primary shadow-lg'>
-                        <CCardHeader>
-                            User Attributes
-                  <DocsLink name="CModal" />
+                        <CCardHeader className='bg-primary text-white'>
+                            <strong>User Properties</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                tableFilter={{placeholder:'By user, category...',label:'Search: '}}
+                                noItemsView={{noItems:'No user properties exist '}}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
-                                                    >
-                                                        Edit
-                                            </CButton>
+                                                    <CTooltip content='Edit' placement='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },

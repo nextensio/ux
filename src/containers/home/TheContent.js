@@ -35,7 +35,7 @@ const TheContent = () => {
                   )} />
               )
             })}
-            <Redirect from="/" to="/home" />
+            <Redirect exact from="/" to="/home" />
           </Switch>
         </Suspense>
       </CContainer>

@@ -9,19 +9,19 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Gateways',
-        to: '/home/gateways/view',
+        to: '/gateways',
         icon: 'cil-sitemap',
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Tenants',
-        to: '/home/tenants/view',
+        to: '/tenants',
         icon: 'cil-group',
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Certificates',
-        to: '/home/certs/view',
+        to: '/certs',
         icon: 'cil-notes',
     },
     {

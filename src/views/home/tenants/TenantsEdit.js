@@ -104,7 +104,7 @@ const TenantsEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/home/tenants/view')
+                    props.history.push('/tenants')
                 }
             })
             .catch(error => {
@@ -113,7 +113,7 @@ const TenantsEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
                 Add Tenant
             </CCardHeader>

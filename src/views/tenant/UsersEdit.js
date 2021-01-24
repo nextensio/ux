@@ -82,7 +82,7 @@ const UsersEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/users/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/users/')
                 }
             })
             .catch(error => {
@@ -91,7 +91,7 @@ const UsersEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
                 Add User
             </CCardHeader>

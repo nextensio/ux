@@ -81,7 +81,7 @@ const BundlesEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/bundles/')
                 }
             })
             .catch(error => {
@@ -90,7 +90,7 @@ const BundlesEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
                 Add User
             </CCardHeader>

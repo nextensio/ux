@@ -15,18 +15,19 @@ const RoutingView = React.lazy(() => import('../../views/tenant/RoutingView'));
 const RoutingEdit = React.lazy(() => import('../../views/tenant/RoutingEdit'));
 
 const routes = [
-    { path: '/tenant/:id/', exact: true, name: 'Tenant Home', component: TenantDashboard },
-    { path: '/tenant/:id/users/', name: 'Users', component: UsersView },
+    { path: '/tenant/:id', exact: true, name: 'Tenant Home' },
+    { path: '/tenant/:id/home', name: 'Dashboard', component: TenantDashboard },
+    { path: '/tenant/:id/users', name: 'Users', component: UsersView, exact: true },
     { path: '/tenant/:id/users/add', name: 'Edit', component: UsersEdit },
-    { path: '/tenant/:id/userattr/', name: 'User Properties', component: UserAttrView },
+    { path: '/tenant/:id/userattr', name: 'User Properties', component: UserAttrView, exact: true },
     { path: '/tenant/:id/userattr/add', name: 'Edit', component: UserAttrEdit },
-    { path: '/tenant/:id/bundles/', name: 'Bundles', component: BundlesView },
+    { path: '/tenant/:id/bundles', name: 'Bundles', component: BundlesView, exact: true },
     { path: '/tenant/:id/bundles/add', name: 'Edit', component: BundlesEdit },
-    { path: '/tenant/:id/bundleattr/', name: 'Bundle Properties', component: BundleAttrView },
+    { path: '/tenant/:id/bundleattr', name: 'Bundle Properties', component: BundleAttrView, exact: true },
     { path: '/tenant/:id/bundleattr/add', name: 'Edit', component: BundleAttrEdit },
-    { path: '/tenant/:id/policy/', name: 'Policies', component: PolicyView },
+    { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
     { path: '/tenant/:id/policy/add', name: 'Edit', component: PolicyEdit },
-    { path: '/tenant/:id/route/', name: 'Routes', component: RoutingView },
+    { path: '/tenant/:id/route', name: 'Routes', component: RoutingView, exact: true },
     { path: '/tenant/:id/route/add', name: 'Edit', component: RoutingEdit },
 ];
 

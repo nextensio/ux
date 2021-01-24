@@ -12,15 +12,14 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
 const fields = [
-    "tenant",
     "user",
     "route",
     "tag",
@@ -110,30 +109,33 @@ const PolicyView = (props) => {
             <CRow>
                 <CCol xs="24" lg="12">
                     <CCard className='border-primary shadow-lg'>
-                        <CCardHeader>
-                            Routes
-                  <DocsLink name="CModal" />
+                        <CCardHeader className='bg-primary text-white'>
+                            <strong>Routes</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                tableFilter={{placeholder:'By user, route...',label:'Search: '}}
+                                noItemsView={{noItems:'No routes exist '}}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
-                                                    >
-                                                        Edit
-                                            </CButton>
+                                                    <CTooltip content='Edit' placement='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -141,15 +143,16 @@ const PolicyView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CButton
-                                                        color='dark'
-                                                        variant='ghost'
-                                                        
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
-                                                    >
-                                                        <CIcon name='cil-delete' color='dark' />
-                                            </CButton>
+                                                    <CTooltip content='Delete' className='text-dark'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         }

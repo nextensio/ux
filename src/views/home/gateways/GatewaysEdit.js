@@ -64,7 +64,7 @@ const GatewaysEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/home/gateways/view')
+                    props.history.push('/gateways')
                 }
             })
             .catch(error => {
@@ -73,7 +73,7 @@ const GatewaysEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
                 Add Gateway
             </CCardHeader>

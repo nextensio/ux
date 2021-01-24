@@ -98,7 +98,7 @@ const UserAttrEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/userattr/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/userattr/')
                 }
             })
             .catch(error => {
@@ -107,9 +107,9 @@ const UserAttrEdit = (props) => {
     };
 
     return (
-        <CCard>
+        <CCard accentColor='primary'>
             <CCardHeader>
-                Add User Attributes
+                Add User Properties
             </CCardHeader>
             <CCardBody>
                 <CForm>

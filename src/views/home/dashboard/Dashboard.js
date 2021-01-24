@@ -9,10 +9,11 @@ import {
   CDropdownToggle
 } from '@coreui/react'
 
+import { withRouter } from 'react-router-dom';
 import { CIcon } from '@coreui/icons-react'
 import ChartLineSimple from '../charts/ChartLineSimple'
 
-const Dashboard = () => {
+const DashboardView = () => {
     // render
     return (
       <CRow>
@@ -78,4 +79,4 @@ const Dashboard = () => {
     )
 }
 
-export default Dashboard
+export default withRouter(DashboardView)

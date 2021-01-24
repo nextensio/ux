@@ -4,12 +4,14 @@ tmpdir=/tmp/nextensio-ux
 kubectl=$tmpdir/kubectl
 helm=$tmpdir/linux-amd64/helm
 
+export PATH=$PATH:~/go/bin
+
 function create_ui {
 
     kind create cluster --name ui
 
     docker pull registry.gitlab.com/nextensio/ux/controller-test:test
-    kind load docker-image registry.gitlab.com/nextensio/ux/ux-deploy:test --name ui
+    kind load docker-image registry.gitlab.com/nextensio/ux/ux-deploy:latest --name ui
     kind load docker-image registry.gitlab.com/nextensio/ux/controller-test:test --name ui
 
     # metallb as a loadbalancer to map services to externally accessible IPs
@@ -52,7 +54,7 @@ create_ui
 ctrl_ip=`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ui-control-plane`
 bootstrap_ui $ctrl_ip
 
-echo "######You can access the UI at http://$ctrl_ip:3000/  ############"
+echo "######You can access the UI at http://$ctrl_ip:3000/#/login  ############"
 
 rm -rf $tmpdir/
 

@@ -38,7 +38,7 @@ const Login = (props) => {
     console.log('logging in ', loginData);
     // TODO: Contact IDP etc..
     // If login is succesful, redirect to home page
-    props.history.push('/home/tenants/view');
+    props.history.push('/');
   };
 
   return (
@@ -54,16 +54,16 @@ const Login = (props) => {
                     <p className="text-muted">Sign In to Nextensio</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupPrepend>
-                        <CInputGroupText>
-                          <CIcon name="cil-user" />
+                        <CInputGroupText className="bg-primary text-white">
+                          <CIcon name="cil-user"/>
                         </CInputGroupText>
                       </CInputGroupPrepend>
                       <CInput name="username" type="text" placeholder="Username" autoComplete="username" onChange={handleChange} />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupPrepend>
-                        <CInputGroupText>
-                          <CIcon name="cil-lock-locked" />
+                        <CInputGroupText className="bg-primary text-white">
+                          <CIcon name="cil-asterisk"/>
                         </CInputGroupText>
                       </CInputGroupPrepend>
                       <CInput name="password" type="password" placeholder="Password" autoComplete="current-password" onChange={handleChange} />
