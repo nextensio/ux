@@ -12,6 +12,10 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CModal,
+    CModalHeader,
+    CModalBody,
+    CModalFooter,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -51,6 +55,7 @@ const BundlesView = (props) => {
         []
     );
     const [usersData, updateUserData] = useState(initTableData);
+    const [deleteModal, setDeleteModal] = useState(false);
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id)
@@ -89,10 +94,15 @@ const BundlesView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
+                {handleRefresh()}
             })
             .catch(error => {
                 alert('Error contacting server', error);
             });
+    }
+
+    const toggleDelete = () => {
+        setDeleteModal(!deleteModal);
     }
 
     return (
@@ -145,8 +155,26 @@ const BundlesView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { handleDelete(index) }}
+                                                            onClick={toggleDelete}
                                                         >
+                                                        <CModal show={deleteModal} onClose={toggleDelete}>
+                                                            <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                                                                <strong>Confirm Deletion</strong>
+                                                            </CModalHeader>
+                                                            <CModalBody className='text-lg-left'>
+                                                                <strong>Are you sure you want to delete this bundle?</strong>
+                                                            </CModalBody>
+                                                            <CModalFooter>
+                                                                <CButton 
+                                                                    color="danger"
+                                                                    onClick={() => { handleDelete(index) }}
+                                                                >Confirm</CButton>
+                                                                <CButton
+                                                                    color="secondary"
+                                                                    onClick={toggleDelete}
+                                                                >Cancel</CButton>
+                                                            </CModalFooter>
+                                                        </CModal>
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
