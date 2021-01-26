@@ -81,7 +81,7 @@ const BundlesEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles/')
+                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
                 }
             })
             .catch(error => {

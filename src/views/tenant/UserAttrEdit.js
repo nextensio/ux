@@ -98,7 +98,7 @@ const UserAttrEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/userattr/')
+                    props.history.push('/tenant/' + props.match.params.id + '/userattr')
                 }
             })
             .catch(error => {

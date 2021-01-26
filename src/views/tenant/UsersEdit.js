@@ -82,7 +82,7 @@ const UsersEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/users/')
+                    props.history.push('/tenant/' + props.match.params.id + '/users')
                 }
             })
             .catch(error => {

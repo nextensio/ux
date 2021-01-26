@@ -37,14 +37,14 @@ const TheSidebar = (props) => {
 
     < CSidebar
       show={show}
-      className='bg-primary'
+      className='bg-gradient-primary'
       onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
     >
       <CSidebarBrand className="d-md-down-none" to="/">
         <CIcon
-          className="my-n5 ml-n1"
+          className="my-n5 ml-n3"
           name="logo"
-          size={'8xl'}
+          size={'7xl'}
         />
       </CSidebarBrand>
       

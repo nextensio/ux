@@ -99,7 +99,7 @@ const BundleAttrEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundleattr/')
+                    props.history.push('/tenant/' + props.match.params.id + '/bundleattr')
                 }
             })
             .catch(error => {

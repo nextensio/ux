@@ -69,7 +69,7 @@ const PolicyEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/route/')
+                    props.history.push('/tenant/' + props.match.params.id + '/route')
                 }
             })
             .catch(error => {
