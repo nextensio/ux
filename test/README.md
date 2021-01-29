@@ -28,7 +28,7 @@ Lets say you make some UI/UX changes and want to test it out, this is how you ca
 3. The above step will create an image named registry.gitlab.com/nextensio/ux/ux-deploy and tag '0.1', 
    you can see your image when you type "docker images"
 4. Note the sha/hash string in the "IMAGE ID" column (output of 'docker images') of the image you just built (with tag 0.1)
-5. Say "docker tag <paste IMAGE ID> registry.gitlab.com/nextensio/ux/ux-deploy:latest"
+5. Say "docker tag <paste IMAGE ID> registry.gitlab.com/nextensio/ux/ux-deploy:test"
 6. Now if you run create.sh, it will pick up the new image you built and create a testbed
 
 
