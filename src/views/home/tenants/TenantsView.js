@@ -63,6 +63,7 @@ const TenantsView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(0);
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/getalltenants'))
@@ -105,6 +106,7 @@ const TenantsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
+                setDeleteModal(!deleteModal);
                 {handleRefresh()}
             })
             .catch(error => {
@@ -112,8 +114,9 @@ const TenantsView = (props) => {
             });
     }
 
-    const toggleDelete = () => {
+    const toggleDelete = (index) => {
         setDeleteModal(!deleteModal);
+        setDeleteIndex(index)
     }
 
     return (
@@ -166,26 +169,8 @@ const TenantsView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={toggleDelete}
+                                                            onClick={() => { toggleDelete(index) }}
                                                         >
-                                                        <CModal show={deleteModal} onClose={toggleDelete}>
-                                                            <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                                                                <strong>Confirm Deletion</strong>
-                                                            </CModalHeader>
-                                                            <CModalBody className='text-lg-left'>
-                                                                <strong>Are you sure you want to delete this tenant?</strong>
-                                                            </CModalBody>
-                                                            <CModalFooter>
-                                                                <CButton 
-                                                                    color="danger"
-                                                                    onClick={() => { handleDelete(index) }}
-                                                                >Confirm</CButton>
-                                                                <CButton
-                                                                    color="secondary"
-                                                                    onClick={toggleDelete}
-                                                                >Cancel</CButton>
-                                                            </CModalFooter>
-                                                        </CModal>
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
@@ -214,6 +199,24 @@ const TenantsView = (props) => {
                                         },
                                 }}
                             />
+                            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                                    <strong>Confirm Deletion</strong>
+                                </CModalHeader>
+                                <CModalBody className='text-lg-left'>
+                                    <strong>Are you sure you want to delete this tenant?</strong>
+                                </CModalBody>
+                                <CModalFooter>
+                                    <CButton 
+                                        color="danger"
+                                        onClick={() => { handleDelete(deleteIndex) }}
+                                    >Confirm</CButton>
+                                    <CButton
+                                        color="secondary"
+                                        onClick={() => setDeleteModal(!deleteModal)}
+                                    >Cancel</CButton>
+                                </CModalFooter>
+                            </CModal>
                         </CCardBody>
                     </CCard>
                 </CCol>
