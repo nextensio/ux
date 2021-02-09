@@ -8,9 +8,9 @@ function create_ui {
 
     kind create cluster --name ui
 
-    docker pull registry.gitlab.com/nextensio/ux/controller-test:test
-    kind load docker-image registry.gitlab.com/nextensio/ux/ux-deploy:latest --name ui
-    kind load docker-image registry.gitlab.com/nextensio/ux/controller-test:test --name ui
+    docker pull registry.gitlab.com/nextensio/ux/controller:latest
+    kind load docker-image registry.gitlab.com/nextensio/ux/ux:latest --name ui
+    kind load docker-image registry.gitlab.com/nextensio/ux/controller:latest --name ui
 
     # metallb as a loadbalancer to map services to externally accessible IPs
     $kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
@@ -52,7 +52,7 @@ create_ui
 ctrl_ip=`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ui-control-plane`
 bootstrap_ui $ctrl_ip
 
-echo "######You can access the UI at http://$ctrl_ip:3000/  ############"
+echo "######You can access the UI at https://$ctrl_ip/  ############"
 
 rm -rf $tmpdir/
 
