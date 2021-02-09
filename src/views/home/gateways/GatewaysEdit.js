@@ -20,6 +20,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
@@ -28,6 +29,14 @@ const GatewaysEdit = (props) => {
         name: "",
     });
     const [gwData, updateGwData] = useState(initGwData);
+
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
@@ -48,7 +57,7 @@ const GatewaysEdit = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({ name: gwData.name, ipaddr: gwData.ipaddr }),
         };
         fetch(common.api_href('/api/v1/addgateway'), requestOptions)

@@ -16,6 +16,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
@@ -44,8 +45,16 @@ const UserAttrView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -60,7 +69,7 @@ const UserAttrView = (props) => {
     }, []);
 
     const handleRefresh = (e) => {
-        fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id)
+        fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
