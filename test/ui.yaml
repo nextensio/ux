@@ -17,8 +17,11 @@ spec:
     spec:
       containers:
       - name: controller
-        image: registry.gitlab.com/nextensio/ux/controller-test:test
+        image: registry.gitlab.com/nextensio/ux/controller:latest
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /etc/nxt-certs
         stdin: true 
         tty: true 
         ports:
@@ -33,6 +36,14 @@ spec:
             value: "https://dev-635657.okta.com/oauth2/default/v1/"
           - name: MONGO_URI
             value: "mongodb://mongodb-0-service:27017,mongodb-1-service:27018,mongodb-2-service:27019"
+          - name: TLS_KEY
+            value: "/etc/nxt-certs/tls.key"
+          - name: TLS_CRT
+            value: "/etc/nxt-certs/tls.crt"
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: controller-cert
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,32 +64,32 @@ spec:
     spec:
       containers:
       - name: ux
-        image: registry.gitlab.com/nextensio/ux/ux-deploy:latest
+        image: registry.gitlab.com/nextensio/ux/ux:latest
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /etc/nxt-certs
         stdin: true 
         tty: true 
         ports:
         - containerPort: 443
         env:
+          - name: REACT_APP_IGNORE_AUTH
+            value: "true"
           - name: REACT_APP_API_URL
-            value: "http://REPLACE_CONTROLLER_IP:8080"
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: nextensio-ux
-  labels:
-    app: nextensio-ux
-spec:
-  backend:
-    serviceName: nextensio-ux
-    servicePort: 443
-  backend:
-    serviceName: nextensio-controller
-    servicePort: 8080
-  backend:
-    serviceName: nextensio-mongo
-    servicePort: 27017
+            value: "https://REPLACE_CONTROLLER_IP:8080"
+          - name: REACT_APP_CLIENT_ID
+            value: "0oa24hr70oNBZW0b64x7"
+          - name: REACT_APP_IDP_URI
+            value: "https://dev-635657.okta.com"
+          - name: TLS_KEY
+            value: "/etc/nxt-certs/tls.key"
+          - name: TLS_CRT
+            value: "/etc/nxt-certs/tls.crt"
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: controller-cert
 ---
 apiVersion: v1
 kind: Service

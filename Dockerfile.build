@@ -16,4 +16,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 443/tcp
-CMD npm start
+CMD HTTPS=true SSL_CRT_FILE=$TLS_CRT SSL_KEY_FILE=$TLS_KEY npm start

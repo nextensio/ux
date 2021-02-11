@@ -16,6 +16,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
@@ -56,14 +57,22 @@ const TenantsView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getalltenants'))
+        fetch(common.api_href('/api/v1/getalltenants'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getalltenants'))
+        fetch(common.api_href('/api/v1/getalltenants'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
@@ -84,7 +93,7 @@ const TenantsView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/deltenant/') + usersData[index]._id)
+        fetch(common.api_href('/api/v1/deltenant/') + usersData[index]._id, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

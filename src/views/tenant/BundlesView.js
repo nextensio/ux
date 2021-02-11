@@ -16,6 +16,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
@@ -50,14 +51,22 @@ const BundlesView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
@@ -74,7 +83,7 @@ const BundlesView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/delbundle/') + props.match.params.id + '/' + usersData[index].bid)
+        fetch(common.api_href('/api/v1/delbundle/') + props.match.params.id + '/' + usersData[index].bid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
