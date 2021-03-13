@@ -151,7 +151,7 @@ const PolicyView = (props) => {
         <>
             <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard className='border-primary shadow-lg'>
+                    <CCard className='border-primary'>
                         <CCardHeader className='bg-primary text-white'>
                             <strong>Policies</strong>
                         </CCardHeader>

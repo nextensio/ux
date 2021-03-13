@@ -2,21 +2,18 @@ import React, { lazy, useState, useEffect } from 'react'
 import {
     CBadge,
     CButton,
-    CButtonGroup,
     CCard,
     CCardBody,
-    CCardFooter,
     CCardHeader,
     CCol,
-    CProgress,
     CRow,
-    CCallout,
     CDataTable,
     CModal,
     CModalHeader,
     CModalBody,
-    CTooltip,
     CModalFooter,
+    CTooltip,
+    
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -24,7 +21,10 @@ import { withRouter } from 'react-router-dom';
 var common = require('../../../common')
 
 const fields = [
-    "name",
+    {   
+        key: "name",
+        _classes: 'font-weight-bold'
+    },
     {
         key: 'edit',
         label: '',
@@ -46,7 +46,7 @@ const GatewaysView = (props) => {
         []
     );
     const [usersData, updateUserData] = useState(initTableData);
-    const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteModal, showDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
 
     useEffect(() => {
@@ -87,7 +87,7 @@ const GatewaysView = (props) => {
                     alert(data["Result"])
                 }
                 // automatically handle refresh after deleting entry, close confirm delete modal
-                setDeleteModal(!deleteModal);
+                showDeleteModal(!deleteModal);
                 {handleRefresh()}
             })
             .catch(error => {
@@ -95,16 +95,15 @@ const GatewaysView = (props) => {
             });
     }
     const toggleDelete = (index) => {
-        setDeleteModal(!deleteModal);
+        showDeleteModal(!deleteModal);
         setDeleteIndex(index)
     }
 
-
     return (
-        <>
-            <CRow>
+        <>  
+            <CRow className='mt-3'>
                 <CCol xs="12" lg="6">
-                    <CCard className='border-primary shadow-lg'>
+                    <CCard className='border-primary'>
                         <CCardHeader className='bg-primary text-white'>
                             <strong>Gateways</strong>
                         </CCardHeader>
@@ -112,10 +111,14 @@ const GatewaysView = (props) => {
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPageSelect
                                 tableFilter={{placeholder:'By name...', label:'Search: '}}
-                                noItemsView={{noItems:'No gateways exist '}}
+                                itemsPerPageSelect
+                                itemsPerPage={5}
                                 pagination
+                                sorter
+                                hover
+                                clickableRows
+                                onRowClick={(e) => props.history.push(`/gateways/data`)}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
@@ -129,7 +132,10 @@ const GatewaysView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { handleEdit(index) }}
+                                                            onClick={(e) => { 
+                                                                handleEdit(index);
+                                                                e.stopPropagation() 
+                                                            }}
                                                         >
                                                             <CIcon name='cil-pencil' className='text-dark'/>
                                                         </CButton>
@@ -149,7 +155,10 @@ const GatewaysView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { toggleDelete(index) }}
+                                                            onClick={(e) => { 
+                                                                toggleDelete(index);
+                                                                e.stopPropagation()
+                                                             }}
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
@@ -159,7 +168,7 @@ const GatewaysView = (props) => {
                                         }
                                 }}
                             />
-                            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                            <CModal show={deleteModal} onClose={() => showDeleteModal(!deleteModal)}>
                                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
                                     <strong>Confirm Deletion</strong>
                                 </CModalHeader>
@@ -173,7 +182,7 @@ const GatewaysView = (props) => {
                                     >Confirm</CButton>
                                     <CButton
                                         color="secondary"
-                                        onClick={() => setDeleteModal(!deleteModal)}
+                                        onClick={() => showDeleteModal(!deleteModal)}
                                     >Cancel</CButton>
                                 </CModalFooter>
                             </CModal>

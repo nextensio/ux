@@ -2,9 +2,15 @@ import { logo } from './logo'
 import { 
     cilAccountLogout,
     cilAsterisk,
+    cilCircle,
+    cilCode,
+    cilCommentSquare,
     cilDelete,
+    cilEnvelopeClosed,
     cilFingerprint,
+    cilFire,
     cilGroup,
+    cilHeart,
     cilMinus,
     cilNoteAdd,
     cilNotes,
@@ -15,6 +21,7 @@ import {
     cilSitemap,
     cilUser,
     cilUserPlus,
+    cilXCircle,
 } from '@coreui/icons'
 
 export const icons = Object.assign({}, {
@@ -22,9 +29,15 @@ export const icons = Object.assign({}, {
 },  {
     cilAccountLogout,
     cilAsterisk,
+    cilCircle,
+    cilCode,
+    cilCommentSquare,
     cilDelete,
+    cilEnvelopeClosed,
     cilFingerprint,
+    cilFire,
     cilGroup,
+    cilHeart,
     cilMinus,
     cilNoteAdd,
     cilNotes,
@@ -35,4 +48,5 @@ export const icons = Object.assign({}, {
     cilSitemap,
     cilUser,
     cilUserPlus,
+    cilXCircle,
 })

@@ -19,7 +19,7 @@ const TenantDashboard = (props) => {
           <CCol sm='24' md='10'>
             <CCard 
               accentColor='primary'
-              className='d-flex shadow-lg'
+              className='d-flex'
             >
               <CCardHeader>
                 <strong>Welcome to {props.match.params.id}'s Dashboard</strong>

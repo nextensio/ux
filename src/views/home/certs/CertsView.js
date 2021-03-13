@@ -17,7 +17,8 @@ import {
     CModalHeader,
     CModalBody,
     CModalFooter,
-    CTooltip
+    CTooltip,
+    CWidgetSimple
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -148,8 +149,8 @@ const CertsView = (props) => {
     return (
         <>
             <CRow>
-                <CCol xs="24" lg="12">
-                    <CCard className='border-primary shadow-lg'>
+                <CCol xs="12" lg="6">
+                    <CCard className='border-primary'>
                         <CCardHeader className='bg-primary text-white'>
                             <strong>Policies</strong>
                         </CCardHeader>
@@ -159,7 +160,6 @@ const CertsView = (props) => {
                                 fields={fields}
                                 itemsPerPageSelect
                                 tableFilter={{placeholder:'By certicate ID...',label:'Search: '}}
-                                noItemsView={{noItems:'No certificates exist '}}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -257,6 +257,23 @@ const CertsView = (props) => {
                                     >Cancel</CButton>
                                 </CModalFooter>
                             </CModal>
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+                <CCol xs='12' lg='6'>
+                    <CCard>
+                        <CCardHeader>
+                            Most Active Policies
+                        </CCardHeader>
+                        <CCardBody>
+                            <div className={'row mt-2'}>
+                                <div className={'col-4'}>
+                                    <CWidgetSimple header="Cert ID 1" text="22 Tenants Active"/>
+                                </div> 
+                                <div className={'col-4'}>
+                                    <CWidgetSimple header="Cert ID 2" text="14 Tenants Active"/>
+                                </div>
+                            </div>
                         </CCardBody>
                     </CCard>
                 </CCol>

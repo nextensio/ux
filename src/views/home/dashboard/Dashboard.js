@@ -1,81 +1,138 @@
 import React from 'react'
 import {
-  CWidgetDropdown,
   CRow,
+  CBadge,
+  CCard,
+  CCardHeader,
+  CCardBody,
   CCol,
-  CDropdown,
-  CDropdownMenu,
-  CDropdownItem,
-  CDropdownToggle
+  CDataTable,
+  CEmbed,
+  CLink,
+  CNav,
+  CNavItem,
+  CNavLink,
+  CTabs,
+  CTabContent,
+  CTabPane
 } from '@coreui/react'
 
 import { withRouter } from 'react-router-dom';
 import { CIcon } from '@coreui/icons-react'
-import ChartLineSimple from '../charts/ChartLineSimple'
+import alertData from './AlertData'
+import Map from './mapbox/Mapbox'
+
+const fields = [
+  {key: 'status', label: null, _style: {width: '1%'}},
+  {key: 'date', _style: {width: '20%'}},
+  {key: 'message', _style: {width: '40%'}},
+  {
+    key: 'email',
+    label: '',
+    _style: { width: '1%' },
+    sorter: false,
+    filter: false
+  },
+  {
+    key: 'code',
+    label: '',
+    _style: { width: '1%' },
+    sorter: false,
+    filter: false
+ }
+]
+
+const getIcon = (status) =>{
+  switch (status) {
+    case 'healthy': return 'text-success'
+    case 'overworked': return 'text-warning'
+    case 'compromised': return 'text-danger'
+    default: return 'primary'
+  }
+}
 
 const DashboardView = () => {
     // render
     return (
-      <CRow>
-        <CCol sm="12" lg="6">
-          <CWidgetDropdown
-            color="gradient-info"
-            className="shadow"
-            header="9.823"
-            text="Gateways Online"
-            footerSlot={
-              <ChartLineSimple
-                pointed
-                className="mt-3 mx-3"
-                style={{height: '70px'}}
-                dataPoints={[1, 18, 9, 17, 34, 22, 11]}
-                pointHoverBackgroundColor="info"
-                options={{ elements: { line: { tension: 0.00001 }}}}
-                label="Members"
-                labels="months"
-              />
-            }
-          >
-            <CDropdown>
-              <CDropdownToggle color="transparent">
-                <CIcon name="cil-settings"/>
-              </CDropdownToggle>
-              <CDropdownMenu className="pt-0" placement="bottom-end">
-                <CDropdownItem>Go to Gateway</CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
-          </CWidgetDropdown>
-        </CCol>
-  
-        <CCol sm="12" lg="6">
-          <CWidgetDropdown
-            color="gradient-warning"
-            className="shadow"
-            header="9.823"
-            text="Tenants active"
-            footerSlot={
-              <ChartLineSimple
-                pointed
-                className="mt-3 mx-3"
-                style={{height: '70px'}}
-                dataPoints={[78, 81, 80, 45, 34, 12, 40]}
-                options={{ elements: { line: { tension: 0.00001 }}}}
-                label="Members"
-                labels="months"
-              />
-            }
-          >
-            <CDropdown>
-              <CDropdownToggle color="transparent">
-                <CIcon name="cil-settings"/>
-              </CDropdownToggle>
-              <CDropdownMenu className="pt-0" placement="bottom-end">
-                <CDropdownItem>Go to Tenants</CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
-          </CWidgetDropdown>
-        </CCol>
-    </CRow>
+      <>
+        <CTabs activeTab="map">
+          <CNav variant="pills">
+            <CNavItem>
+              <CNavLink data-tab="map">
+                Map
+              </CNavLink>
+            </CNavItem>
+            <CNavItem>
+              <CNavLink data-tab="alerts">
+                Alerts
+              </CNavLink>
+            </CNavItem>
+          </CNav>
+          <CTabContent>
+            <CTabPane data-tab="map">
+              <CRow className='mt-3'>
+                <CCol lg='12'>
+                  <CCard>
+                    <CCardHeader>
+                      Gateways Heatmap
+                      <div className="card-header-actions">
+                        <CLink className="card-header-action">
+                          <CIcon name="cil-settings" />
+                        </CLink>
+                        <CLink className="card-header-action">
+                          <CIcon name="cil-x-circle" />
+                        </CLink>
+                      </div>
+                    </CCardHeader>
+                    <CCardBody>
+                      <CEmbed>
+                        <Map />
+                      </CEmbed>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+            </CTabPane>
+            <CTabPane data-tab="alerts">
+              <CRow className="mt-3">
+                <CCol lg="12">
+                  <CCard>
+                    <CDataTable 
+                      className="mt-3"
+                      items={alertData}
+                      fields={fields}
+                      scopedSlots = {{
+                        'status':
+                          (item)=>(
+                            <td>
+                              <CIcon name='cil-circle' className={getIcon(item.status)}/>
+                            </td>
+                          ),
+                        'email':
+                          (item, index) => {
+                            return (
+                              <td className="py-1">
+                                <CIcon name="cil-envelope-closed"/>
+                              </td>
+                            )
+                          },
+                        'code':
+                          (item, index) => {
+                            return (
+                              <td className="py-1">
+                                <CIcon name="cil-code"/>
+                              </td>
+                            )
+                          },
+                      }}
+                    />
+                  </CCard>
+                </CCol>
+              </CRow>
+            </CTabPane>
+          </CTabContent>
+        </CTabs>
+      </>
     )
 }
 

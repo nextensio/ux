@@ -37,7 +37,6 @@ const TheSidebar = (props) => {
 
     < CSidebar
       show={show}
-      className='bg-gradient-primary'
       onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
     >
       <CSidebarBrand className="d-md-down-none" to="/">

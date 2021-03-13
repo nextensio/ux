@@ -1,6 +1,5 @@
 // Variable overrides
 $enable-gradients: true;
-$enable-shadows: true;
 
 $white: #fff;
 $black: #000015;
@@ -13,24 +12,8 @@ $gray-900:   #4f5d73;
 $theme-colors:(
     primary: $primary
 );
-// Gradient themes
-$primary-gradient: (
-  "start":  $primary-light,
-  "stop":   $primary
-); 
-$theme-gradients:(
-    primary: $primary-gradient
-);
-// Border variables
-$card-border-radius: 20px;
-// Sidebar variables 
-$sidebar-dark-nav-link-hover-color:       $white;
-$sidebar-dark-nav-link-hover-bg:          $primary-dark;
-$sidebar-dark-nav-link-hover-icon-color:  $white;
-$sidebar-dark-brand-bg:                   $primary;
-$sidebar-dark-nav-link-active-color:      $white;
-$sidebar-dark-nav-link-active-bg:         $primary-light;
-$sidebar-dark-nav-link-active-icon-color: $white;
+
+
 
 
 @import "../../node_modules/@coreui/coreui/scss/bootstrap.scss";

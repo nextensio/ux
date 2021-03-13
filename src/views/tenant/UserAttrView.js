@@ -92,7 +92,7 @@ const UserAttrView = (props) => {
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard className='border-primary shadow-lg'>
+                    <CCard className='border-primary'>
                         <CCardHeader className='bg-primary text-white'>
                             <strong>User Properties</strong>
                         </CCardHeader>
