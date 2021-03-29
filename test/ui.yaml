@@ -28,6 +28,8 @@ spec:
         - containerPort: 8080
         - containerPort: 27017
         env:
+          - name: IGNORE_AUTH
+            value: "true"
           - name: NXT_READONLY
             value: "false"
           - name: TEST_ENVIRONMENT

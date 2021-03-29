@@ -4,8 +4,6 @@ tmpdir=/tmp/nextensio-ux
 kubectl=$tmpdir/kubectl
 helm=$tmpdir/linux-amd64/helm
 
-export PATH=$PATH:~/go/bin
-
 function create_ui {
 
     kind create cluster --name ui
@@ -21,7 +19,7 @@ function create_ui {
     # Create ssl keys/certificates for agents/connectors to establish secure websocket
     openssl req -out $tmpdir/controller.csr -newkey rsa:2048 -nodes -keyout $tmpdir/controller.key \
         -subj "/CN=$ctrl_ip/O=Nextensio Controller and Server"
-    openssl x509 -req -days 365 -CA $tmpdir/rootca.crt -CAkey $tmpdir/rootca.key -set_serial 0 \
+    openssl x509 -req -days 365 -CA ./nextensio.crt -CAkey ./nextensio.key -set_serial 0 \
         -in $tmpdir/controller.csr -out $tmpdir/controller.crt -extfile "${EXTFILE}" -passin pass:Nextensio123
     $kubectl create secret tls controller-cert --key="$tmpdir/controller.key" --cert="$tmpdir/controller.crt"
 
@@ -64,7 +62,7 @@ bootstrap_ui $ctrl_ip
 
 echo "######You can access the UI at https://$ctrl_ip/  ############"
 
-rm -rf $tmpdir/
+#rm -rf $tmpdir/
 
 
 
