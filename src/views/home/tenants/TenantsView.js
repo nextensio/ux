@@ -33,6 +33,7 @@ import { withRouter } from 'react-router-dom';
 import { CChartBar, CChartPie } from '@coreui/react-chartjs'
 import usersUsageData from './UsersUsageData'
 import bundlesUsageData from './BundlesUsageData'
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
@@ -97,6 +98,14 @@ const TenantsView = (props) => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
         fetch(common.api_href('/api/v1/getalltenants'))
         .then(response => response.json())
@@ -125,7 +134,7 @@ const TenantsView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/deltenant/') + usersData[index]._id)
+        fetch(common.api_href('/api/v1/deltenant/') + usersData[index]._id, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

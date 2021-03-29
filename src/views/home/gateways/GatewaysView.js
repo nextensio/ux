@@ -17,6 +17,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
@@ -49,14 +50,22 @@ const GatewaysView = (props) => {
     const [deleteModal, showDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallgateways'))
+        fetch(common.api_href('/api/v1/getallgateways'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallgateways'))
+        fetch(common.api_href('/api/v1/getallgateways'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
@@ -73,7 +82,7 @@ const GatewaysView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/delgateway/') + usersData[index].name)
+        fetch(common.api_href('/api/v1/delgateway/') + usersData[index].name, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

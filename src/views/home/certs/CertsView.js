@@ -22,6 +22,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
@@ -64,9 +65,17 @@ const CertsView = (props) => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
         setDetails([])
-        fetch(common.api_href('/api/v1/getallcerts'))
+        fetch(common.api_href('/api/v1/getallcerts'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -80,7 +89,7 @@ const CertsView = (props) => {
 
     const handleRefresh = (e) => {
         setDetails([]);
-        fetch(common.api_href('/api/v1/getallcerts'))
+        fetch(common.api_href('/api/v1/getallcerts'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -106,7 +115,7 @@ const CertsView = (props) => {
 
     const handleDelete = (index) => {
         setDetails([])
-        fetch(common.api_href('/api/v1/delcert/') + usersData[index].certid)
+        fetch(common.api_href('/api/v1/delcert/') + usersData[index].certid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -8,6 +8,7 @@ const TenantsView = React.lazy(() => import('../..//views/home/tenants/TenantsVi
 const TenantsEdit = React.lazy(() => import('../../views/home/tenants/TenantsEdit'));
 const CertsView = React.lazy(() => import('../../views/home/certs/CertsView'));
 const CertsEdit = React.lazy(() => import('../../views/home/certs/CertsEdit'));
+const Logout = React.lazy(() => import('../../views/home/logout/Logout'));
 
 const routes = [
     { path: '/', exact: true, name: 'Home' },
@@ -19,6 +20,7 @@ const routes = [
     { path: '/certs/add', name: 'Edit', component: CertsEdit },
     { path: '/tenants', name: 'Tenants', component: TenantsView, exact: true },
     { path: '/tenants/add', name: 'Edit', component: TenantsEdit },
+    { path: '/home/logout', name: 'Logout', component: Logout },
 ];
 
 export default routes;

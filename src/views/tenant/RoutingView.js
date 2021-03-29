@@ -20,6 +20,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
@@ -53,8 +54,16 @@ const PolicyView = (props) => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallroutes/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallroutes/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -67,7 +76,7 @@ const PolicyView = (props) => {
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallroutes/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallroutes/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -91,7 +100,7 @@ const PolicyView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/delroute/') + props.match.params.id + '/' + usersData[index].user + ":" + usersData[index].route)
+        fetch(common.api_href('/api/v1/delroute/') + props.match.params.id + '/' + usersData[index].user + ":" + usersData[index].route, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
