@@ -20,6 +20,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
@@ -34,6 +35,14 @@ const TenantsEdit = (props) => {
         pods: 0,
     });
     const [tenantData, updateTenantData] = useState(initTenantData);
+
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
@@ -79,7 +88,7 @@ const TenantsEdit = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 curid: tenantData.curid,
                 name: tenantData.name, gateways: gateways, domains: domains,

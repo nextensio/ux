@@ -16,6 +16,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
+import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
@@ -46,8 +47,16 @@ const BundleAttrView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
 
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -62,7 +71,7 @@ const BundleAttrView = (props) => {
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id)
+        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {

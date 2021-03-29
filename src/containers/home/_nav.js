@@ -49,6 +49,12 @@ export default [
         },
     },
     {
+        _tag: 'CSidebarNavItem',
+        name: 'Logout',
+        to: '/home/logout',
+        icon: 'cil-industry',
+    },
+    {
         _tag: 'CSidebarNavDivider',
         className: 'm-2'
     },
