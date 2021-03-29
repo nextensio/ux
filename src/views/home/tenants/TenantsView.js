@@ -171,8 +171,8 @@ const TenantsView = (props) => {
                     <CTabPane data-tab="catalog">
                         <CRow className='mt-3'>
                             <CCol xs="24" lg="12">
-                                <CCard className='border-primary'>
-                                    <CCardHeader className='bg-primary text-white'>
+                                <CCard>
+                                    <CCardHeader>
                                         <strong>Tenants</strong>
                                     </CCardHeader>
                                     <CCardBody>

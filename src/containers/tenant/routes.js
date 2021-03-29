@@ -11,8 +11,6 @@ const BundleAttrView = React.lazy(() => import('../../views/tenant/BundleAttrVie
 const BundleAttrEdit = React.lazy(() => import('../../views/tenant/BundleAttrEdit'));
 const PolicyView = React.lazy(() => import('../../views/tenant/PolicyView'));
 const PolicyEdit = React.lazy(() => import('../../views/tenant/PolicyEdit'));
-const RoutingView = React.lazy(() => import('../../views/tenant/RoutingView'));
-const RoutingEdit = React.lazy(() => import('../../views/tenant/RoutingEdit'));
 
 const routes = [
     { path: '/tenant/:id', exact: true, name: 'Tenant Home' },
@@ -27,8 +25,6 @@ const routes = [
     { path: '/tenant/:id/bundleattr/add', name: 'Edit', component: BundleAttrEdit },
     { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
     { path: '/tenant/:id/policy/add', name: 'Edit', component: PolicyEdit },
-    { path: '/tenant/:id/route', name: 'Routes', component: RoutingView, exact: true },
-    { path: '/tenant/:id/route/add', name: 'Edit', component: RoutingEdit },
 ];
 
 export default routes;

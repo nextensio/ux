@@ -1,6 +1,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+  CContainer,
   CCreateElement,
   CSidebar,
   CSidebarBrand,
@@ -10,8 +11,10 @@ import {
   CSidebarMinimizer,
   CSidebarNavDropdown,
   CSidebarNavItem,
+  CSidebarFooter,
 } from '@coreui/react'
 
+import './home.scss'
 import CIcon from '@coreui/icons-react'
 
 // sidebar nav config
@@ -25,15 +28,14 @@ const TheSidebar = () => {
     <CSidebar
       show={show}
       onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
-    >
+      colorScheme="light">
       <CSidebarBrand className="d-md-down-none" to="/">
-        <CIcon
-          className="my-n5 ml-n3"
-          name="logo"
-          size={'7xl'}
-        />
+        <div className="c-sidebar-brand-full sidebar-brand">
+          <CIcon name="cil-videogame"/>{' '}
+          Nextensio Controller
+        </div>
+        <CIcon className="c-sidebar-brand-minimized" name="cil-videogame" size="2xl"/>
       </CSidebarBrand>
-
       <CSidebarNav>
         <CCreateElement
           items={navigation}
@@ -45,8 +47,13 @@ const TheSidebar = () => {
           }}
         />
       </CSidebarNav>
-      
-      <CSidebarMinimizer className="c-d-md-down-none" />
+     
+      <CSidebarFooter>
+        <div className="justify-content-end">
+          <CIcon name="cil-account-logout"/>{"\n"}Log Out 
+        </div>
+      </CSidebarFooter>
+      <CSidebarMinimizer className="c-d-md-down-none"/>
     </CSidebar>
   )
 }

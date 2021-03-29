@@ -5,6 +5,8 @@ import {
   CButton,
   CCard,
   CCardBody,
+  CCardImg,
+  CCardImgOverlay,
   CCardGroup,
   CCol,
   CContainer,
@@ -42,48 +44,55 @@ const Login = (props) => {
   };
 
   return (
-    <div className="c-app c-default-layout flex-row align-items-center">
+    <>
       <CContainer>
-        <CRow className="justify-content-center">
+        <CRow>
+          <CCol md="4">
+            <CCard className="login-img-container">
+              Welcome Back
+              
+              <CCardImg className="login-img" variant="top" src={"wfh.jpg"} alt="Remote Office" />
+              
+            </CCard>
+          </CCol>
+          
           <CCol md="8">
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <CForm>
-                    <h1>Login</h1>
-                    <p className="text-muted">Sign In to Nextensio</p>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupPrepend>
-                        <CInputGroupText className="bg-primary text-white">
-                          <CIcon name="cil-user"/>
-                        </CInputGroupText>
-                      </CInputGroupPrepend>
-                      <CInput name="username" type="text" placeholder="Username" autoComplete="username" onChange={handleChange} />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupPrepend>
-                        <CInputGroupText className="bg-primary text-white">
-                          <CIcon name="cil-asterisk"/>
-                        </CInputGroupText>
-                      </CInputGroupPrepend>
-                      <CInput name="password" type="password" placeholder="Password" autoComplete="current-password" onChange={handleChange} />
-                    </CInputGroup>
-                    <CRow>
-                      <CCol xs="6">
-                        <CButton color="primary" className="px-4" onClick={handleSubmit}>Login</CButton>
-                      </CCol>
-                      <CCol xs="6" className="text-right">
-                        <CButton color="link" className="px-0">Forgot password?</CButton>
-                      </CCol>
-                    </CRow>
-                  </CForm>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
+            <CCard className="p-4">
+              <CCardBody>
+                <CForm>
+                  <h1>Login</h1>
+                  <p className="text-muted">Sign In to Nextensio</p>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupPrepend>
+                      <CInputGroupText className="bg-primary text-white">
+                        <CIcon name="cil-user"/>
+                      </CInputGroupText>
+                    </CInputGroupPrepend>
+                    <CInput name="username" type="text" placeholder="Username" autoComplete="username" onChange={handleChange} />
+                  </CInputGroup>
+                  <CInputGroup className="mb-4">
+                    <CInputGroupPrepend>
+                      <CInputGroupText className="bg-primary text-white">
+                        <CIcon name="cil-asterisk"/>
+                      </CInputGroupText>
+                    </CInputGroupPrepend>
+                    <CInput name="password" type="password" placeholder="Password" autoComplete="current-password" onChange={handleChange} />
+                  </CInputGroup>
+                  <CRow>
+                    <CCol xs="6">
+                      <CButton color="primary" className="px-4" onClick={handleSubmit}>Login</CButton>
+                    </CCol>
+                    <CCol xs="6" className="text-right">
+                      <CButton color="link" className="px-0">Forgot password?</CButton>
+                    </CCol>
+                  </CRow>
+                </CForm>
+              </CCardBody>
+            </CCard>
           </CCol>
         </CRow>
       </CContainer>
-    </div>
+    </>
   )
 }
 

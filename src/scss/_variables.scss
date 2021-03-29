@@ -1,19 +1,47 @@
 // Variable overrides
 $enable-gradients: true;
+$enable-shadows: true;
 
-$white: #fff;
-$black: #000015;
-$gray-base: #3c4b64;
-$primary: #1000ff;
-$primary-light: #00bbd1;
-$primary-dark: #0200b9;
-$gray-900:   #4f5d73;
-// Primary color theme 
-$theme-colors:(
-    primary: $primary
+// Defined default colors
+@import '../../node_modules/@coreui/coreui/scss/variables/colors';
+
+// Color
+$title: rgba($primary, .1);
+$table-head: rgba($info, .1);
+$theme-colors: (
+  "title": $title
 );
+// Sidebar 
+$sidebar-width: 230px;
+$sidebar-theme-color: $primary;
 
+// Sidebar brand
+$sidebar-light-brand-bg: $white;   
+$sidebar-light-brand-color: $sidebar-theme-color;
+$sidebar-brand-height:  70px;
 
+// Sidebar items
+$sidebar-light-nav-title-color: $black;
+$sidebar-light-nav-link-icon-color: rgba($black, .8);
+$sidebar-light-nav-link-color: rgba($black, .8);
+
+$sidebar-light-nav-link-hover-bg: rgba($gray-100, .5);
+$sidebar-light-nav-link-hover-icon-color: $sidebar-light-nav-link-icon-color;
+$sidebar-light-nav-link-hover-color: $sidebar-light-nav-link-color;
+
+$sidebar-light-nav-link-active-bg: rgba($sidebar-theme-color, .1);
+$sidebar-light-nav-link-active-color: $sidebar-theme-color;
+$sidebar-light-nav-link-active-icon-color: $sidebar-theme-color;
+$sidebar-light-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
+
+// Sidebar minimizer
+
+// Sidebar footer
+$sidebar-light-footer-bg: transparent; 
+
+// Tables
+$table-head-bg: $table-head;
+$table-head-color: $info;
 
 
 @import "../../node_modules/@coreui/coreui/scss/bootstrap.scss";

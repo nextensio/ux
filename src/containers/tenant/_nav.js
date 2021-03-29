@@ -34,9 +34,9 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Routing',
-        to: '/tenant/:id/route',
-        icon: 'cil-router',
+        name: 'Attribute Editor',
+        to: '/editor',
+        icon: 'cil-code',
     },
     {
         _tag: 'CSidebarNavDivider',

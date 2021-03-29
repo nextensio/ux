@@ -27,32 +27,9 @@ const TheHeader = () => {
   }
 
   return (
-    <CHeader withSubheader>
-      <CToggler
-        inHeader
-        className="ml-md-3 d-lg-none"
-        onClick={toggleSidebarMobile}
-      />
-      <CToggler
-        inHeader
-        className="ml-3 d-md-down-none"
-        onClick={toggleSidebar}
-      />
-
-      <CHeaderNav className='d-md-down-none mr-auto'>
-        <CHeaderNavItem className='px-3'>
-          <CHeaderNavLink to='/home'>Home</CHeaderNavLink>
-        </CHeaderNavItem>
-        <CHeaderNavItem className='px-3'>
-          <CHeaderNavLink to='/gateways'>Gateways</CHeaderNavLink>
-        </CHeaderNavItem>
-        <CHeaderNavItem className='px-3'>
-          <CHeaderNavLink to='/tenants'>Tenants</CHeaderNavLink>
-        </CHeaderNavItem>
-      </CHeaderNav>
-
+    <CHeader withSubheader colorScheme='dark'>
       <CHeaderNav className='px-3'>
-        <TheHeaderDropdown />
+        <TheHeaderDropdown/>
       </CHeaderNav>
 
       <CSubheader className='px-3 justify-content-between'>

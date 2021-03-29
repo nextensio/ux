@@ -18,9 +18,9 @@ const compromisedNum = 3
 
 const Map = () => {
   const mapContainer = useRef();
-  const [lng, setLng] = useState(-122.0820);
-  const [lat, setLat] = useState(37.3685);
-  const [zoom, setZoom] = useState(8.47);
+  const [lng, setLng] = useState(-97.57);
+  const [lat, setLat] = useState(38.46);
+  const [zoom, setZoom] = useState(3);
 
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -35,8 +35,8 @@ const Map = () => {
     })
 
     map.on('move', () => {
-      setLng(map.getCenter().lng.toFixed(4));
-      setLat(map.getCenter().lat.toFixed(4));
+      setLng(map.getCenter().lng.toFixed(2));
+      setLat(map.getCenter().lat.toFixed(2));
       setZoom(map.getZoom().toFixed(2));
     });
 

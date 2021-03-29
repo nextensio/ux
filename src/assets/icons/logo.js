@@ -7,7 +7,7 @@ export const logo = [`
     }
 
     .cls-1, .cls-2, .cls-3 {
-      stroke: #fff;
+      stroke: #1000ff;
       stroke-miterlimit: 10;
     }
 
@@ -16,7 +16,7 @@ export const logo = [`
     }
 
     .cls-3, .cls-4 {
-      fill: #fff;
+      fill: #1000ff;
     }
   </style>
 </defs>

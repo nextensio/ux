@@ -2,9 +2,11 @@ import React, { lazy, useState, useEffect } from 'react'
 import {
     CBadge,
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardHeader,
+    CCardFooter,
     CCol,
     CRow,
     CDataTable,
@@ -13,22 +15,24 @@ import {
     CModalBody,
     CModalFooter,
     CTooltip,
-    
 } from '@coreui/react'
+import { CChartRadar } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom'
+import '../homeviews.scss';
 
 var common = require('../../../common')
 
 const fields = [
     {   
         key: "name",
-        _classes: 'font-weight-bold'
+        _classes: 'data-head',
     },
     {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
+        _classes: 'data-head',
         sorter: false,
         filter: false
     },
@@ -36,6 +40,7 @@ const fields = [
         key: 'delete',
         label: '',
         _style: { width: '1%' },
+        _classes: 'data-head',
         sorter: false,
         filter: false
     },
@@ -101,11 +106,14 @@ const GatewaysView = (props) => {
 
     return (
         <>  
-            <CRow className='mt-3'>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title">Gateways</h4>
+            </CCallout>
+            <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard className='border-primary'>
-                        <CCardHeader className='bg-primary text-white'>
-                            <strong>Gateways</strong>
+                    <CCard>
+                        <CCardHeader className="card-header">
+                            Gateways <small>click on a row to see data on gateway</small>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -168,30 +176,84 @@ const GatewaysView = (props) => {
                                         }
                                 }}
                             />
-                            <CModal show={deleteModal} onClose={() => showDeleteModal(!deleteModal)}>
-                                <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                                    <strong>Confirm Deletion</strong>
-                                </CModalHeader>
-                                <CModalBody className='text-lg-left'>
-                                    <strong>Are you sure you want to delete this gateway?</strong>
-                                </CModalBody>
-                                <CModalFooter>
-                                    <CButton 
-                                        color="danger"
-                                        onClick={() => { handleDelete(deleteIndex) }}
-                                    >Confirm</CButton>
-                                    <CButton
-                                        color="secondary"
-                                        onClick={() => showDeleteModal(!deleteModal)}
-                                    >Cancel</CButton>
-                                </CModalFooter>
-                            </CModal>
+                        </CCardBody>
+                        <CCardFooter className="d-flex flex-row-reverse">
+                            <CButton color="success" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                            <CButton color="primary" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                        </CCardFooter>
+                    </CCard>
+                    <CModal show={deleteModal} onClose={() => showDeleteModal(!deleteModal)}>
+                        <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                            <strong>Confirm Deletion</strong>
+                        </CModalHeader>
+                        <CModalBody className='text-lg-left'>
+                            <strong>Are you sure you want to delete this gateway?</strong>
+                        </CModalBody>
+                        <CModalFooter>
+                            <CButton 
+                                color="danger"
+                                onClick={() => { handleDelete(deleteIndex) }}
+                            >Confirm</CButton>
+                            <CButton
+                                color="secondary"
+                                onClick={() => showDeleteModal(!deleteModal)}
+                            >Cancel</CButton>
+                        </CModalFooter>
+                    </CModal>
+                </CCol>
+                <CCol xs="12" lg="6">
+                    <CCard>
+                        <CCardHeader>
+                            Highest Traffic Gateways <small> in GBs</small>
+                        </CCardHeader>
+                        <CCardBody>
+                            <CChartRadar
+                                datasets={[
+                                {
+                                    label: 'Last Week',
+                                    backgroundColor: 'rgba(179,181,198,0.2)',
+                                    borderColor: 'rgba(179,181,198,1)',
+                                    pointBackgroundColor: 'rgba(179,181,198,1)',
+                                    pointBorderColor: '#fff',
+                                    pointHoverBackgroundColor: '#fff',
+                                    pointHoverBorderColor: 'rgba(179,181,198,1)',
+                                    tooltipLabelColor: 'rgba(179,181,198,1)',
+                                    data: [65, 59, 90, 81, 56, 55, 40]
+                                },
+                                {
+                                    label: 'This Week',
+                                    backgroundColor: 'rgba(255,99,132,0.2)',
+                                    borderColor: 'rgba(255,99,132,1)',
+                                    pointBackgroundColor: 'rgba(255,99,132,1)',
+                                    pointBorderColor: '#fff',
+                                    pointHoverBackgroundColor: '#fff',
+                                    pointHoverBorderColor: 'rgba(255,99,132,1)',
+                                    tooltipLabelColor: 'rgba(255,99,132,1)',
+                                    data: [28, 48, 40, 19, 96, 27, 100]
+                                }
+                                ]}
+                                options={{
+                                    aspectRatio: 1.5,
+                                    tooltips: {
+                                        enabled: true
+                                }
+                                }}
+                                labels={[
+                                    'gateway.hosting1', 'gateway.hosting2', 'gateway.hosting3', 
+                                    'gateway.hosting4', 'gateway.hosting5', 'gateway.hosting6', 
+                                    'gateway.hosting7'
+                                ]}
+                            />
                         </CCardBody>
                     </CCard>
                 </CCol>
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
         </>
     )
 }
