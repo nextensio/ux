@@ -3,6 +3,7 @@
 tmpdir=/tmp/nextensio-ux
 kubectl=$tmpdir/kubectl
 helm=$tmpdir/linux-amd64/helm
+export PATH=$PATH:~/go/bin
 
 function create_ui {
 

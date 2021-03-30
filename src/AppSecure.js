@@ -33,8 +33,7 @@ const AppSecure = () => {
             >
                 <Switch>
                     <Route path="/tenant/:id" name="Tenant" render={props => <TenantLayout {...props} />} />
-                    <Route path="/home" name="Home" render={props => <HomeLayout {...props} />} />
-                    <Route path='/' exact={true} render={props => <HomeLayout {...props} />} />
+                    <Route path='/' render={props => <HomeLayout {...props} />} />
                 </Switch>
             </Security>
         );
