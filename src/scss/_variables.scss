@@ -7,9 +7,19 @@ $enable-shadows: true;
 
 // Color
 $title: rgba($primary, .1);
-$table-head: rgba($info, .1);
+$primary-light: rgba($primary, .1);
+$info-light: rgba($info, .1);
+$success-light: rgba($success, .1);
+$warning-light: rgba($warning, .1);
+$danger-light: rgba($danger, .1);
+
 $theme-colors: (
-  "title": $title
+  "title": $title,
+  "primary-light": $primary-light,
+  "info-light": $info-light,
+  "success-light": $success-light,
+  "warning-light": $warning-light,
+  "danger-light": $danger-light,
 );
 // Sidebar 
 $sidebar-width: 230px;
@@ -39,9 +49,10 @@ $sidebar-light-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
 // Sidebar footer
 $sidebar-light-footer-bg: transparent; 
 
-// Tables
-$table-head-bg: $table-head;
-$table-head-color: $info;
+// Cards
+$card-icon-color: $primary;
 
+// Body
+$body-bg: $white;
 
 @import "../../node_modules/@coreui/coreui/scss/bootstrap.scss";

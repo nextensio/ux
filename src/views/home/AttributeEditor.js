@@ -261,7 +261,7 @@ const AttributeEditor = () => {
                                                     </CDropdownMenu>
                                                 </CDropdown>
                                                 {' '}
-                                                <CButton color="danger" onClick={() => handleRemove(index)}>
+                                                <CButton shape="square" color="danger" onClick={() => handleRemove(index)}>
                                                     X
                                                 </CButton>
                                                 <CInvalidFeedback>Please use alphanumerics for your attribute Name!</CInvalidFeedback>

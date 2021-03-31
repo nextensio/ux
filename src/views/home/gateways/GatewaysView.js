@@ -186,14 +186,14 @@ const GatewaysView = (props) => {
                                 }}
                             />
                         </CCardBody>
-                        <CCardFooter className="d-flex flex-row-reverse">
-                            <CButton color="success" onClick={handleAdd}>
-                                <CIcon name="cil-plus" />
-                                <strong>{" "}Add</strong>
-                            </CButton>
-                            <CButton color="primary" onClick={handleRefresh}>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
                                 <CIcon name="cil-reload" />
                                 <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
                             </CButton>
                         </CCardFooter>
                     </CCard>

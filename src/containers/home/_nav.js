@@ -1,6 +1,4 @@
-import {CModal} from '@coreui/react'
 import './home.scss'
-
 
 export default [
     {
@@ -47,12 +45,6 @@ export default [
             name: 'cil-notes',
             size: 'lg',
         },
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Logout',
-        to: '/home/logout',
-        icon: 'cil-industry',
     },
     {
         _tag: 'CSidebarNavDivider',
@@ -129,11 +121,5 @@ export default [
             size: 'lg',
         },
     },
-    {
-        _tag: 'CSidebarFooter',
-        name: 'Log Out',
-        className: 'roboto-font',
-        icon: 'cil-account-logout',
-    }
 ]
 

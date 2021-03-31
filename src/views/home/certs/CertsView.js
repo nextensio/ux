@@ -29,7 +29,8 @@ var common = require('../../../common')
 const fields = [
     {   
         key: "certid",
-        label: "Certificate ID"
+        label: "Certificate ID",
+        _classes: "data-head",
     },
     {
         key: 'edit',
@@ -157,10 +158,13 @@ const CertsView = (props) => {
 
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title">Certificates</h4>
+            </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard className='border-primary'>
-                        <CCardHeader className='bg-primary text-white'>
+                    <CCard>
+                        <CCardHeader>
                             <strong>Policies</strong>
                         </CCardHeader>
                         <CCardBody>
@@ -168,6 +172,7 @@ const CertsView = (props) => {
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
+                                itemsPerPageSelect={5}
                                 tableFilter={{placeholder:'By certicate ID...',label:'Search: '}}
                                 sorter
                                 pagination
@@ -206,7 +211,6 @@ const CertsView = (props) => {
                                                             size="sm"
                                                             onClick={() => { toggleDelete(index) }}
                                                         >
-                                                        
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
@@ -248,26 +252,36 @@ const CertsView = (props) => {
                                         }
                                 }}
                             />
-                            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
-                                <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                                    <strong>Confirm Deletion</strong>
-                                </CModalHeader>
-                                <CModalBody className='text-lg-left'>
-                                    <strong>Are you sure you want to delete this certificate?</strong>
-                                </CModalBody>
-                                <CModalFooter>
-                                    <CButton 
-                                        color="danger"
-                                        onClick={() => { handleDelete(deleteIndex) }}
-                                    >Confirm</CButton>
-                                    <CButton
-                                        color="secondary"
-                                        onClick={() => setDeleteModal(!deleteModal)}
-                                    >Cancel</CButton>
-                                </CModalFooter>
-                            </CModal>
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
+                    <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                        <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                            <strong>Confirm Deletion</strong>
+                        </CModalHeader>
+                        <CModalBody className='text-lg-left'>
+                            <strong>Are you sure you want to delete this certificate?</strong>
+                        </CModalBody>
+                        <CModalFooter>
+                            <CButton 
+                                color="danger"
+                                onClick={() => { handleDelete(deleteIndex) }}
+                            >Confirm</CButton>
+                            <CButton
+                                color="secondary"
+                                onClick={() => setDeleteModal(!deleteModal)}
+                            >Cancel</CButton>
+                        </CModalFooter>
+                    </CModal>
                 </CCol>
                 <CCol xs='12' lg='6'>
                     <CCard>
@@ -287,8 +301,6 @@ const CertsView = (props) => {
                     </CCard>
                 </CCol>
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
         </>
     )
 }

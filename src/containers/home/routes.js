@@ -6,6 +6,7 @@ const GatewaysEdit = React.lazy(() => import('../../views/home/gateways/Gateways
 const GatewaysData = React.lazy(() => import('../../views/home/gateways/GatewaysData'));
 const TenantsView = React.lazy(() => import('../..//views/home/tenants/TenantsView'));
 const TenantsEdit = React.lazy(() => import('../../views/home/tenants/TenantsEdit'));
+const TenantsData = React.lazy(() => import('../../views/home/tenants/TenantsData'));
 const CertsView = React.lazy(() => import('../../views/home/certs/CertsView'));
 const CertsEdit = React.lazy(() => import('../../views/home/certs/CertsEdit'));
 const AttributeEditor = React.lazy(() => import('../../views/home/AttributeEditor'));
@@ -21,6 +22,7 @@ const routes = [
     { path: '/certs/add', name: 'Edit', component: CertsEdit },
     { path: '/tenants', name: 'Tenants', component: TenantsView, exact: true },
     { path: '/tenants/add', name: 'Edit', component: TenantsEdit },
+    { path: '/tenants/data', name: 'Data', component: TenantsData },
     { path: '/editor', name: 'Attribute Editor', component: AttributeEditor },
     { path: '/logout', name: 'Logout', component: Logout },
 

@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
   CCreateElement,
+  CNavItem,
+  CNavLink,
   CSidebar,
   CSidebarBrand,
   CSidebarNav,
@@ -49,9 +51,11 @@ const TheSidebar = () => {
       </CSidebarNav>
      
       <CSidebarFooter>
-        <div className="justify-content-end">
-          <CIcon name="cil-account-logout"/>{"\n"}Log Out 
-        </div>
+        <CNavItem>
+          <CNavLink to='/logout'>
+            <CIcon name="cil-account-logout"/>{"\n"}Log Out
+          </CNavLink> 
+        </CNavItem>
       </CSidebarFooter>
       <CSidebarMinimizer className="c-d-md-down-none"/>
     </CSidebar>
