@@ -40,14 +40,8 @@ import { useOktaAuth } from '@okta/okta-react';
 var common = require('../../common')
 
 const fields = [
-    {
-        key: "name",
-        _classes: 'data-head',
-    },
-    {
-        key: "appliesTo",
-        _classes: 'data-head'
-    },
+    "name",
+    "appliesTo",
     {
         key: "type",
         _classes: 'data-head'
@@ -195,7 +189,31 @@ const AttributeEditor = (props) => {
     }
 
     const mergeAttrs = (e) => {
-
+        e.preventDefault()
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify(attributeData),
+        };
+        fetch(common.api_href('/api/v1/addattrset/' + props.match.params.id), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"]);
+                } else {
+                    initAttrData = initAttrData.concat(attributeData);
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
     }
 
     return (
