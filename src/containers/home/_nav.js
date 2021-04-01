@@ -87,7 +87,7 @@ export default [
         },
         addLinkClass: 'c-disabled',
         'disabled': true,
-        
+
     },
     {
         _tag: 'CSidebarNavItem',
@@ -110,16 +110,6 @@ export default [
         },
         addLinkClass: 'c-disabled',
         'disabled': true
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Attribute Creator',
-        to: '/editor',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-code',
-            size: 'lg',
-        },
     },
 ]
 

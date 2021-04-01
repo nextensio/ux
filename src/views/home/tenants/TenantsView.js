@@ -38,10 +38,10 @@ import { useOktaAuth } from '@okta/okta-react';
 var common = require('../../../common')
 
 const fields = [
-    {   
-      key: "_id",
-      label: "Tenant ID",
-      _classes: "data-head",
+    {
+        key: "_id",
+        label: "Tenant ID",
+        _classes: "data-head",
     },
     "name",
     "gateways",
@@ -123,10 +123,12 @@ const TenantsView = (props) => {
         props.history.push('/tenants/add')
     }
 
+    // TODO: We dont support an edit today, the edit can allow modifying tenant
+    // data like tenant name or tenant image or number of pods tenant wants etc..
     const handleEdit = (index) => {
         props.history.push({
-        pathname: '/tenants/add',
-        state: usersData[index]
+            pathname: '/tenants/data',
+            state: usersData[index]
         })
     }
 
@@ -146,13 +148,13 @@ const TenantsView = (props) => {
                 }
                 // check for error response
                 if (data["Result"] != "ok") {
-                     alert(data["Result"])
+                    alert(data["Result"])
                 }
                 setDeleteModal(!deleteModal);
-                {handleRefresh()}
+                { handleRefresh() }
             })
             .catch(error => {
-                 alert('Error contacting server', error);
+                alert('Error contacting server', error);
             });
     }
 
@@ -161,7 +163,7 @@ const TenantsView = (props) => {
         setDeleteIndex(index)
     }
 
-    
+
     return (
         <>
             <CRow className='mt-3'>
@@ -174,7 +176,7 @@ const TenantsView = (props) => {
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                tableFilter={{placeholder:'By name, gateways...', label:'Search: '}}
+                                tableFilter={{ placeholder: 'By name, gateways...', label: 'Search: ' }}
                                 itemsPerPageSelect
                                 itemsPerPage={5}
                                 pagination
@@ -195,9 +197,9 @@ const TenantsView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { handleEdit(index) }}
+                                                            onClick={(event) => { event.stopPropagation(); handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -215,7 +217,7 @@ const TenantsView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => {toggleDelete(index)}}
+                                                            onClick={(event) => { event.stopPropagation(); toggleDelete(index) }}
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
@@ -235,9 +237,9 @@ const TenantsView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { handleDetails(index) }}
+                                                            onClick={(event) => { event.stopPropagation(); handleDetails(index) }}
                                                         >
-                                                            <CIcon name='cil-group' className='text-dark'/>
+                                                            <CIcon name='cil-group' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -265,7 +267,7 @@ const TenantsView = (props) => {
                             <strong>Are you sure you want to delete this tenant?</strong>
                         </CModalBody>
                         <CModalFooter>
-                            <CButton 
+                            <CButton
                                 color="danger"
                                 onClick={() => { handleDelete(deleteIndex) }}
                             >Confirm</CButton>

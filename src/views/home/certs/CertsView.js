@@ -27,7 +27,7 @@ import { useOktaAuth } from '@okta/okta-react';
 var common = require('../../../common')
 
 const fields = [
-    {   
+    {
         key: "certid",
         label: "Certificate ID",
         _classes: "data-head",
@@ -130,7 +130,7 @@ const CertsView = (props) => {
                     alert(data["Result"])
                 }
                 setDeleteModal(!deleteModal);
-                {handleRefresh()}
+                { handleRefresh() }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -153,19 +153,18 @@ const CertsView = (props) => {
         setDeleteIndex(index)
     }
 
-    const showIcon = <CIcon name='cil-plus' className='text-dark'/>
-    const hideIcon = <CIcon name='cil-minus' className='text-dark'/>
+    const showIcon = <CIcon name='cil-plus' className='text-dark' />
+    const hideIcon = <CIcon name='cil-minus' className='text-dark' />
 
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Certificates</h4>
             </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
                     <CCard>
                         <CCardHeader>
-                            <strong>Policies</strong>
+                            <strong>Certificates</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -173,7 +172,7 @@ const CertsView = (props) => {
                                 fields={fields}
                                 itemsPerPageSelect
                                 itemsPerPageSelect={5}
-                                tableFilter={{placeholder:'By certicate ID...',label:'Search: '}}
+                                tableFilter={{ placeholder: 'By certicate ID...', label: 'Search: ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -191,7 +190,7 @@ const CertsView = (props) => {
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -223,7 +222,7 @@ const CertsView = (props) => {
                                                 <td className="py-1">
                                                     <CTooltip
                                                         content={details.includes(index) ? 'Hide' : 'Details'}
-                                                        placement='bottom'    
+                                                        placement='bottom'
                                                     >
                                                         <CButton
                                                             color='light'
@@ -233,7 +232,7 @@ const CertsView = (props) => {
                                                         >
                                                             {details.includes(index) ? hideIcon : showIcon}
                                                         </CButton>
-                                                    </CTooltip>    
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -272,7 +271,7 @@ const CertsView = (props) => {
                             <strong>Are you sure you want to delete this certificate?</strong>
                         </CModalBody>
                         <CModalFooter>
-                            <CButton 
+                            <CButton
                                 color="danger"
                                 onClick={() => { handleDelete(deleteIndex) }}
                             >Confirm</CButton>
@@ -282,23 +281,6 @@ const CertsView = (props) => {
                             >Cancel</CButton>
                         </CModalFooter>
                     </CModal>
-                </CCol>
-                <CCol xs='12' lg='6'>
-                    <CCard>
-                        <CCardHeader>
-                            Most Active Policies
-                        </CCardHeader>
-                        <CCardBody>
-                            <div className={'row mt-2'}>
-                                <div className={'col-4'}>
-                                    <CWidgetSimple header="Cert ID 1" text="22 Tenants Active"/>
-                                </div> 
-                                <div className={'col-4'}>
-                                    <CWidgetSimple header="Cert ID 2" text="14 Tenants Active"/>
-                                </div>
-                            </div>
-                        </CCardBody>
-                    </CCard>
                 </CCol>
             </CRow>
         </>

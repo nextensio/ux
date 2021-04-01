@@ -35,7 +35,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Attribute Editor',
-        to: '/editor',
+        to: '/tenant/:id/attreditor',
         icon: 'cil-code',
     },
     {

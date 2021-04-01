@@ -25,7 +25,7 @@ import { useOktaAuth } from '@okta/okta-react';
 var common = require('../../../common')
 
 const fields = [
-    {   
+    {
         key: "name",
         _classes: 'data-head',
     },
@@ -78,7 +78,7 @@ const GatewaysView = (props) => {
     const handleAdd = (e) => {
         props.history.push('/gateways/add')
     }
-    
+
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/gateways/add',
@@ -102,7 +102,7 @@ const GatewaysView = (props) => {
                 }
                 // automatically handle refresh after deleting entry, close confirm delete modal
                 showDeleteModal(!deleteModal);
-                {handleRefresh()}
+                { handleRefresh() }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -114,21 +114,20 @@ const GatewaysView = (props) => {
     }
 
     return (
-        <>  
+        <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Gateways</h4>
             </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
                     <CCard>
                         <CCardHeader className="card-header">
-                            Gateways <small>click on a row to see data on gateway</small>
+                            Gateways
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                tableFilter={{placeholder:'By name...', label:'Search: '}}
+                                tableFilter={{ placeholder: 'By name...', label: 'Search: ' }}
                                 itemsPerPageSelect
                                 itemsPerPage={5}
                                 pagination
@@ -149,12 +148,12 @@ const GatewaysView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={(e) => { 
+                                                            onClick={(e) => {
                                                                 handleEdit(index);
-                                                                e.stopPropagation() 
+                                                                e.stopPropagation()
                                                             }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -172,10 +171,10 @@ const GatewaysView = (props) => {
                                                             color='light'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={(e) => { 
+                                                            onClick={(e) => {
                                                                 toggleDelete(index);
                                                                 e.stopPropagation()
-                                                             }}
+                                                            }}
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
@@ -205,7 +204,7 @@ const GatewaysView = (props) => {
                             <strong>Are you sure you want to delete this gateway?</strong>
                         </CModalBody>
                         <CModalFooter>
-                            <CButton 
+                            <CButton
                                 color="danger"
                                 onClick={() => { handleDelete(deleteIndex) }}
                             >Confirm</CButton>
@@ -219,43 +218,43 @@ const GatewaysView = (props) => {
                 <CCol xs="12" lg="6">
                     <CCard>
                         <CCardHeader>
-                            Highest Traffic Gateways <small> in GBs</small>
+                            Gateway traffic Usage <small> in GBs</small>
                         </CCardHeader>
                         <CCardBody>
                             <CChartRadar
                                 datasets={[
-                                {
-                                    label: 'Last Week',
-                                    backgroundColor: 'rgba(179,181,198,0.2)',
-                                    borderColor: 'rgba(179,181,198,1)',
-                                    pointBackgroundColor: 'rgba(179,181,198,1)',
-                                    pointBorderColor: '#fff',
-                                    pointHoverBackgroundColor: '#fff',
-                                    pointHoverBorderColor: 'rgba(179,181,198,1)',
-                                    tooltipLabelColor: 'rgba(179,181,198,1)',
-                                    data: [65, 59, 90, 81, 56, 55, 40]
-                                },
-                                {
-                                    label: 'This Week',
-                                    backgroundColor: 'rgba(255,99,132,0.2)',
-                                    borderColor: 'rgba(255,99,132,1)',
-                                    pointBackgroundColor: 'rgba(255,99,132,1)',
-                                    pointBorderColor: '#fff',
-                                    pointHoverBackgroundColor: '#fff',
-                                    pointHoverBorderColor: 'rgba(255,99,132,1)',
-                                    tooltipLabelColor: 'rgba(255,99,132,1)',
-                                    data: [28, 48, 40, 19, 96, 27, 100]
-                                }
+                                    {
+                                        label: 'Last Week',
+                                        backgroundColor: 'rgba(179,181,198,0.2)',
+                                        borderColor: 'rgba(179,181,198,1)',
+                                        pointBackgroundColor: 'rgba(179,181,198,1)',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: 'rgba(179,181,198,1)',
+                                        tooltipLabelColor: 'rgba(179,181,198,1)',
+                                        data: [65, 59, 90, 81, 56, 55, 40]
+                                    },
+                                    {
+                                        label: 'This Week',
+                                        backgroundColor: 'rgba(255,99,132,0.2)',
+                                        borderColor: 'rgba(255,99,132,1)',
+                                        pointBackgroundColor: 'rgba(255,99,132,1)',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: 'rgba(255,99,132,1)',
+                                        tooltipLabelColor: 'rgba(255,99,132,1)',
+                                        data: [28, 48, 40, 19, 96, 27, 100]
+                                    }
                                 ]}
                                 options={{
                                     aspectRatio: 1.5,
                                     tooltips: {
                                         enabled: true
-                                }
+                                    }
                                 }}
                                 labels={[
-                                    'gateway.hosting1', 'gateway.hosting2', 'gateway.hosting3', 
-                                    'gateway.hosting4', 'gateway.hosting5', 'gateway.hosting6', 
+                                    'gateway.hosting1', 'gateway.hosting2', 'gateway.hosting3',
+                                    'gateway.hosting4', 'gateway.hosting5', 'gateway.hosting6',
                                     'gateway.hosting7'
                                 ]}
                             />
