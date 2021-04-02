@@ -138,7 +138,7 @@ const TenantsView = (props) => {
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Tenants</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow className='mt-3'>
                 <CCol xs="24" lg="12">

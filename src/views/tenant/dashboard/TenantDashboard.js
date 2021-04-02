@@ -42,10 +42,10 @@ const TenantsDashboard = () => {
     const [bundle, setBundle] = useState('');
     const [usersInterval, setUsersInterval] = useState('month');
     const [bundlesInterval, setBundlesInterval] = useState('month');
-    return(
+    return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Tenants Dashboard</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow className='mt-3'>
                 <CCol lg='6'>
@@ -56,15 +56,15 @@ const TenantsDashboard = () => {
                         <CCardBody>
                             <CDropdown className='d-flex justify-content-end mb-3'>
                                 <CDropdownToggle caret color="primary">
-                                    {usersInterval}         
+                                    {usersInterval}
                                 </CDropdownToggle>
                                 <CDropdownMenu>
-                                    <CDropdownItem onClick={() => {setUsersInterval('month')}}>By Month</CDropdownItem>
-                                    <CDropdownItem onClick={() => {setUsersInterval('week')}}>By Week</CDropdownItem>
-                                    <CDropdownItem onClick={() => {setUsersInterval('day')}}>By Day</CDropdownItem>
+                                    <CDropdownItem onClick={() => { setUsersInterval('month') }}>By Month</CDropdownItem>
+                                    <CDropdownItem onClick={() => { setUsersInterval('week') }}>By Week</CDropdownItem>
+                                    <CDropdownItem onClick={() => { setUsersInterval('day') }}>By Day</CDropdownItem>
                                 </CDropdownMenu>
                             </CDropdown>
-                            <CDataTable 
+                            <CDataTable
                                 items={usersUsageData}
                                 fields={usersUsageFields}
                                 dark
@@ -85,12 +85,12 @@ const TenantsDashboard = () => {
                     </CCard>
                     <CCard className='mt-3'>
                         <CCardHeader>
-                        Network Log for {user}
+                            Network Log for {user}
                         </CCardHeader>
                         <CCardBody>
                             <CDropdown className='d-flex justify-content-end'>
                                 <CDropdownToggle caret color="primary">
-                                    {bundlesInterval}     
+                                    {bundlesInterval}
                                 </CDropdownToggle>
                                 <CDropdownMenu>
                                     <CDropdownItem>By Month</CDropdownItem>
@@ -100,17 +100,17 @@ const TenantsDashboard = () => {
                             </CDropdown>
                             <CChartBar
                                 datasets={[
-                                {
-                                    label: 'GB Traffic',
-                                    backgroundColor: '#f87979',
-                                    data: [40, 20, 12, 39, 10, 40, 39]
-                                }
+                                    {
+                                        label: 'GB Traffic',
+                                        backgroundColor: '#f87979',
+                                        data: [40, 20, 12, 39, 10, 40, 39]
+                                    }
                                 ]}
                                 labels={['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}
                                 options={{
-                                tooltips: {
-                                    enabled: true
-                                }
+                                    tooltips: {
+                                        enabled: true
+                                    }
                                 }}
                             />
                         </CCardBody>
@@ -124,12 +124,12 @@ const TenantsDashboard = () => {
                         <CCardBody>
                             <CDropdown className='d-flex justify-content-end mb-3'>
                                 <CDropdownToggle caret color="primary">
-                                    Time Frame          
+                                    Time Frame
                                 </CDropdownToggle>
                                 <CDropdownMenu>
-                                    <CDropdownItem onClick={() => {setBundlesInterval('month')}}>By Month</CDropdownItem>
-                                    <CDropdownItem onClick={() => {setBundlesInterval('week')}}>By Week</CDropdownItem>
-                                    <CDropdownItem onClick={() => {setBundlesInterval('day')}}>By Day</CDropdownItem>
+                                    <CDropdownItem onClick={() => { setBundlesInterval('month') }}>By Month</CDropdownItem>
+                                    <CDropdownItem onClick={() => { setBundlesInterval('week') }}>By Week</CDropdownItem>
+                                    <CDropdownItem onClick={() => { setBundlesInterval('day') }}>By Day</CDropdownItem>
                                 </CDropdownMenu>
                             </CDropdown>
                             <CDataTable
@@ -143,12 +143,12 @@ const TenantsDashboard = () => {
                     </CCard>
                     <CCard className='mt-3'>
                         <CCardHeader>
-                        Bundle activity for {bundle}
+                            Bundle activity for {bundle}
                         </CCardHeader>
                         <CCardBody>
                             <CDropdown className='d-flex justify-content-end'>
                                 <CDropdownToggle caret color="primary">
-                                    Time Frame          
+                                    Time Frame
                                 </CDropdownToggle>
                                 <CDropdownMenu>
                                     <CDropdownItem>By Month</CDropdownItem>
@@ -158,17 +158,17 @@ const TenantsDashboard = () => {
                             </CDropdown>
                             <CChartBar
                                 datasets={[
-                                {
-                                    label: 'GB Traffic',
-                                    backgroundColor: '#f87979',
-                                    data: [40, 20, 12, 39, 10, 40, 39]
-                                }
+                                    {
+                                        label: 'GB Traffic',
+                                        backgroundColor: '#f87979',
+                                        data: [40, 20, 12, 39, 10, 40, 39]
+                                    }
                                 ]}
                                 labels={['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}
                                 options={{
-                                tooltips: {
-                                    enabled: true
-                                }
+                                    tooltips: {
+                                        enabled: true
+                                    }
                                 }}
                             />
                         </CCardBody>
