@@ -110,7 +110,7 @@ const UserAttrEdit = (props) => {
             </CCardHeader>
             <CCardBody>
                 {attrData.map((attr, index) => {
-                    if (attr == "bid") {
+                    if (attr == "uid") {
                         return (
                             <CFormGroup>
                                 <CLabel htmlFor="nf-attribute">User Id</CLabel>
