@@ -76,12 +76,12 @@ const GatewaysView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/gateways/add')
+        props.history.push('/home/gateways/add')
     }
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/gateways/add',
+            pathname: '/home/gateways/add',
             state: usersData[index]
         })
     }
@@ -134,7 +134,7 @@ const GatewaysView = (props) => {
                                 sorter
                                 hover
                                 clickableRows
-                                onRowClick={(e) => props.history.push(`/gateways/data`)}
+                                onRowClick={(e) => props.history.push(`/home/gateways/data`)}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {

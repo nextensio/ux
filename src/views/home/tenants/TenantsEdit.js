@@ -113,7 +113,7 @@ const TenantsEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenants')
+                    props.history.push('/home/tenants')
                 }
             })
             .catch(error => {

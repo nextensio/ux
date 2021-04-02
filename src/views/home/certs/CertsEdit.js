@@ -82,7 +82,7 @@ const CertsEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/certs')
+                    props.history.push('/home/certs')
                 }
             })
             .catch(error => {

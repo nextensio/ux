@@ -9,7 +9,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Home',
-        to: '/home',
+        to: '/home/dashboard',
         className: 'roboto-font',
         icon: {
             name: 'cil-home',
@@ -19,7 +19,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Gateways',
-        to: '/gateways',
+        to: '/home/gateways',
         className: 'roboto-font',
         icon: {
             name: 'cil-sitemap',
@@ -29,7 +29,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Tenants',
-        to: '/tenants',
+        to: '/home/tenants',
         className: 'roboto-font',
         icon: {
             name: 'cil-group',
@@ -39,7 +39,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Certificates',
-        to: '/certs',
+        to: '/home/certs',
         className: 'roboto-font',
         icon: {
             name: 'cil-notes',

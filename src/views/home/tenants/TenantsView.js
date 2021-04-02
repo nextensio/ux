@@ -91,14 +91,14 @@ const TenantsView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenants/add')
+        props.history.push('/home/tenants/add')
     }
 
     // TODO: We dont support an edit today, the edit can allow modifying tenant
     // data like tenant name or tenant image or number of pods tenant wants etc..
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/tenants/data',
+            pathname: '/home/tenants/data',
             state: usersData[index]
         })
     }

@@ -103,12 +103,12 @@ const CertsView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/certs/add')
+        props.history.push('/home/certs/add')
     }
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/certs/add',
+            pathname: '/home/certs/add',
             state: usersData[index]
         });
         setDetails([])

@@ -11,16 +11,15 @@ const CertsEdit = React.lazy(() => import('../../views/home/certs/CertsEdit'));
 const Logout = React.lazy(() => import('../../views/home/logout/Logout'))
 
 const routes = [
-    { path: '/', exact: true, name: 'Home' },
-    { path: '/home', name: 'Dashboard', component: DashboardView },
-    { path: '/gateways', name: 'Gateways', component: GatewaysView, exact: true },
-    { path: '/gateways/add', name: 'Edit', component: GatewaysEdit },
-    { path: '/gateways/data', name: 'Data', component: GatewaysData },
-    { path: '/certs', name: 'Certificates', component: CertsView, exact: true },
-    { path: '/certs/add', name: 'Edit', component: CertsEdit },
-    { path: '/tenants', name: 'Tenants', component: TenantsView, exact: true },
-    { path: '/tenants/add', name: 'Edit', component: TenantsEdit },
-    { path: '/logout', name: 'Logout', component: Logout },
+    { path: '/home/dashboard', name: 'Dashboard', component: DashboardView },
+    { path: '/home/gateways', name: 'Gateways', component: GatewaysView, exact: true },
+    { path: '/home/gateways/add', name: 'Edit', component: GatewaysEdit },
+    { path: '/home/gateways/data', name: 'Data', component: GatewaysData },
+    { path: '/home/certs', name: 'Certificates', component: CertsView, exact: true },
+    { path: '/home/certs/add', name: 'Edit', component: CertsEdit },
+    { path: '/home/tenants', name: 'Tenants', component: TenantsView, exact: true },
+    { path: '/home/tenants/add', name: 'Edit', component: TenantsEdit },
+    { path: '/home/logout', name: 'Logout', component: Logout },
 
 ];
 

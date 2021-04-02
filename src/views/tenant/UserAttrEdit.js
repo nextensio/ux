@@ -114,7 +114,7 @@ const UserAttrEdit = (props) => {
                         return (
                             <CFormGroup>
                                 <CLabel htmlFor="nf-attribute">User Id</CLabel>
-                                <CInput name="bid" placeholder={userData[attr]} onChange={handleChange} />
+                                <CInput name="uid" placeholder={userData[attr]} onChange={handleChange} />
                             </CFormGroup>
                         );
                     } else {

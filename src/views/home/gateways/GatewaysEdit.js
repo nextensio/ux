@@ -73,7 +73,7 @@ const GatewaysEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/gateways')
+                    props.history.push('/home/gateways')
                 }
             })
             .catch(error => {
