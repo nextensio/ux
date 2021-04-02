@@ -42,10 +42,7 @@ var common = require('../../common')
 const fields = [
     "name",
     "appliesTo",
-    {
-        key: "type",
-        _classes: 'data-head'
-    },
+    "type",
     {
         key: 'show',
         label: '',
@@ -73,9 +70,12 @@ const fields = [
 ]
 
 const AttributeEditor = (props) => {
-    var initAttrData = [];
+    var initAttrData = Object.freeze(
+        []
+    );
+    const [inuseAttr, updateInuseAttr] = useState(initAttrData);
     const [appliesTo, setAttrAppliesTo] = useState('Users');
-    const [attributeData, setAttributeData] = useState([{ name: '', appliesTo: '', type: 'Attribute Type', isValid: 'noState' }])
+    const [attributeData, setAttributeData] = useState([{ name: '', appliesTo: '', type: 'String', isValid: 'noState' }])
     // isValid contains three states: "true", "false", and "noState", this property is used to ensure alphanumeric entry
     const [attributeWarning, setAttributeWarning] = useState(false);
     const [resetWarning, setResetWarning] = useState(false);
@@ -91,13 +91,13 @@ const AttributeEditor = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
             .then(response => response.json())
-            .then(data => { initAttrData = data; });
+            .then(data => { updateInuseAttr(data); });
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
             .then(response => response.json())
-            .then(data => { initAttrData = data; });
+            .then(data => { updateInuseAttr(data); });
     }
 
     const formText = (isValid) => {
@@ -149,7 +149,7 @@ const AttributeEditor = (props) => {
 
     const handleAdd = (e) => {
         const values = [...attributeData];
-        values.push({ name: '', type: 'Attribute Type', isValid: 'noState', appliesTo: appliesTo });
+        values.push({ name: '', type: 'String', isValid: 'noState', appliesTo: appliesTo });
         setAttributeData(values)
         console.log(values)
     }
@@ -208,7 +208,23 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"]);
                 } else {
-                    initAttrData = initAttrData.concat(attributeData);
+                    var newData = [];
+                    for (var i = 0; i < attributeData.length; ++i) {
+                        var found = false;
+                        for (var j = 0; j < inuseAttr.length; j++) {
+                            if (inuseAttr[j].name == attributeData[i].name &&
+                                inuseAttr[j].appliesTo == attributeData[i].appliesTo) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            var a = attributeData[i];
+                            newData.push({ name: a.name, appliesTo: a.appliesTo, type: a.type });
+                        }
+                    }
+                    updateInuseAttr(inuseAttr.concat(newData));
+                    console.log(inuseAttr);
                 }
             })
             .catch(error => {
@@ -327,7 +343,7 @@ const AttributeEditor = (props) => {
                         <CCardBody>
                             <CDataTable
                                 fields={fields}
-                                items={initAttrData}
+                                items={inuseAttr}
                                 scopedSlots={{
                                     'show':
                                         (item, index) => {
