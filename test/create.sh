@@ -14,15 +14,7 @@ function create_ui {
     kind load docker-image registry.gitlab.com/nextensio/ux/ux:latest --name ui
     kind load docker-image registry.gitlab.com/nextensio/ux/controller:latest --name ui
 
-    # Create tls keys for controller (UI) and server (API)
-    EXTFILE="$tmpdir/controller-extfile.conf"
-    echo "subjectAltName = IP:$ctrl_ip" > "${EXTFILE}"
-    # Create ssl keys/certificates for agents/connectors to establish secure websocket
-    openssl req -out $tmpdir/controller.csr -newkey rsa:2048 -nodes -keyout $tmpdir/controller.key \
-        -subj "/CN=$ctrl_ip/O=Nextensio Controller and Server"
-    openssl x509 -req -days 365 -CA ./nextensio.crt -CAkey ./nextensio.key -set_serial 0 \
-        -in $tmpdir/controller.csr -out $tmpdir/controller.crt -extfile "${EXTFILE}" -passin pass:Nextensio123
-    $kubectl create secret tls controller-cert --key="$tmpdir/controller.key" --cert="$tmpdir/controller.crt"
+    $kubectl create secret tls controller-cert --key=./nextensio.key --cert=./nextensio.crt
 
     # metallb as a loadbalancer to map services to externally accessible IPs
     $kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
