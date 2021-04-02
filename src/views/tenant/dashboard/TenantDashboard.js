@@ -14,10 +14,10 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
-import { CChartBar, CChartPie } from '@coreui/react-chartjs'
+import { CChartBar } from '@coreui/react-chartjs'
 import usersUsageData from './UsersUsageData'
 import bundlesUsageData from './BundlesUsageData'
-import '../homeviews.scss'
+import '../tenantviews.scss'
 
 const usersUsageFields = [
     "name",
@@ -37,7 +37,7 @@ const bundlesUsageFields = [
     }
 ]
 
-const TenantsData = () => {
+const TenantsDashboard = () => {
     const [user, setUser] = useState('');
     const [bundle, setBundle] = useState('');
     const [usersInterval, setUsersInterval] = useState('month');
@@ -45,7 +45,7 @@ const TenantsData = () => {
     return(
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Tenants Data</h4>
+                <h4 className="title">Tenants Dashboard</h4>
             </CCallout>
             <CRow className='mt-3'>
                 <CCol lg='6'>
@@ -179,4 +179,4 @@ const TenantsData = () => {
     )
 }
 
-export default withRouter(TenantsData)
+export default withRouter(TenantsDashboard)

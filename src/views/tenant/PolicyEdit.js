@@ -92,9 +92,9 @@ const PolicyEdit = (props) => {
     };
 
     return (
-        <CCard accentColor='primary'>
+        <CCard>
             <CCardHeader>
-                Add Policy
+                <strong>Add Policy</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -109,7 +109,10 @@ const PolicyEdit = (props) => {
                 </CForm>
             </CCardBody>
             <CCardFooter>
-                <CButton size="sm" color="primary" onClick={handleSubmit}>Submit</CButton>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                    <CIcon name="cil-scrubber" />
+                    <strong>{" "}Add</strong>
+                </CButton>
             </CCardFooter>
         </CCard>
     )

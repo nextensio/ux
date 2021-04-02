@@ -11,5 +11,5 @@ export {
   TheHeader,
   TheHeaderDropdown,
   TheLayout,
-  TheSidebar
+  TheSidebar,
 }

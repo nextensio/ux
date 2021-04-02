@@ -1,8 +1,13 @@
-import React from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
   CCreateElement,
+  CDataTable,
+  CModal,
+  CModalTitle,
+  CModalHeader,
+  CModalBody,
   CNavItem,
   CNavLink,
   CSidebar,
@@ -18,6 +23,8 @@ import {
 
 import './home.scss'
 import CIcon from '@coreui/icons-react'
+import { useOktaAuth } from '@okta/okta-react';
+
 
 // sidebar nav config
 import navigation from './_nav'
@@ -58,7 +65,9 @@ const TheSidebar = () => {
         </CNavItem>
       </CSidebarFooter>
       <CSidebarMinimizer className="c-d-md-down-none"/>
+  
     </CSidebar>
+    
   )
 }
 
