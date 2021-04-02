@@ -22,16 +22,11 @@ import './tenantviews.scss'
 
 var common = require('../../common')
 
-const fields = [
+const initAttrData = [
     {
         key: "bid",
         label: "Bundle ID"
     },
-    "team",
-    "dept",
-    "IC",
-    "manager",
-    "nonemployee",
     {
         key: 'edit',
         label: '',
@@ -47,6 +42,7 @@ const BundleAttrView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [attrData, updateAttrData] = useState(initAttrData);
     const [usersData, updateUserData] = useState(initTableData);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -58,6 +54,7 @@ const BundleAttrView = (props) => {
     };
 
     useEffect(() => {
+        getAttrs();
         fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
@@ -71,6 +68,23 @@ const BundleAttrView = (props) => {
                 updateUserData(data)
             });
     }, []);
+
+    const getAttrs = () => {
+        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var fields = [];
+                for (var i = 0; i < initAttrData.length; i++) {
+                    fields.push(initAttrData[i]);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == 'Bundles') {
+                        fields.push(data[i].name);
+                    }
+                }
+                updateAttrData(fields);
+            });
+    }
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
@@ -112,7 +126,7 @@ const BundleAttrView = (props) => {
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
-                                fields={fields}
+                                fields={attrData}
                                 itemsPerPageSelect
                                 tableFilter={{ placeholder: 'By bundle ID, team...', label: 'Search: ' }}
                                 noItemsView={{ noItems: 'No bundle properties exist ' }}

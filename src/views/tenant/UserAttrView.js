@@ -21,16 +21,11 @@ import './tenantviews.scss';
 
 var common = require('../../common')
 
-const fields = [
+const initAttrData = [
     {
         key: "uid",
         label: "User ID"
     },
-    "category",
-    "type",
-    "level",
-    "dept",
-    "team",
     {
         key: 'edit',
         label: '',
@@ -46,6 +41,7 @@ const UserAttrView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [attrData, updateAttrData] = useState(initAttrData);
     const [usersData, updateUserData] = useState(initTableData);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -57,19 +53,30 @@ const UserAttrView = (props) => {
     };
 
     useEffect(() => {
+        getAttrs();
         fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    // The AttrHeader should not show up among attributes
-                    if (data[i].hasOwnProperty('uid') && data[i].uid == 'UserAttr') {
-                        data.splice(i, 1);
-                        break;
-                    }
-                }
                 updateUserData(data)
             });
     }, []);
+
+    const getAttrs = () => {
+        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var fields = [];
+                for (var i = 0; i < initAttrData.length; i++) {
+                    fields.push(initAttrData[i]);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == 'Users') {
+                        fields.push(data[i].name);
+                    }
+                }
+                updateAttrData(fields);
+            });
+    }
 
     const handleRefresh = (e) => {
         fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id, hdrs)
@@ -112,7 +119,7 @@ const UserAttrView = (props) => {
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
-                                fields={fields}
+                                fields={attrData}
                                 itemsPerPageSelect
                                 tableFilter={{ placeholder: 'By user, category...', label: 'Search: ' }}
                                 noItemsView={{ noItems: 'No user properties exist ' }}
