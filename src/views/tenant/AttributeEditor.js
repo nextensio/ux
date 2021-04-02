@@ -29,13 +29,14 @@ import {
     CRow,
     CValidFeedback,
     CInvalidFeedback,
-
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import './tenantviews.scss'
 import { reset } from 'enzyme/build/configuration';
 import { useOktaAuth } from '@okta/okta-react';
+import { introspect } from '@okta/okta-auth-js';
 
 var common = require('../../common')
 
@@ -79,6 +80,8 @@ const AttributeEditor = (props) => {
     // isValid contains three states: "true", "false", and "noState", this property is used to ensure alphanumeric entry
     const [attributeWarning, setAttributeWarning] = useState(false);
     const [resetWarning, setResetWarning] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -188,12 +191,31 @@ const AttributeEditor = (props) => {
         setResetWarning(false);
     }
 
-    const mergeAttrs = (e) => {
+    const commitAttrs = (e) => {
+        // Remove empty rows, also remove elements that already exist
+        var newData = [];
+        for (var i = 0; i < attributeData.length; i++) {
+            if (attributeData[i].name == '') {
+                continue
+            }
+            var found = false;
+            for (var j = 0; j < inuseAttr.length; j++) {
+                if (inuseAttr[j].name == attributeData[i].name &&
+                    inuseAttr[j].appliesTo == attributeData[i].appliesTo) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                var a = attributeData[i];
+                newData.push({ name: a.name, appliesTo: a.appliesTo, type: a.type });
+            }
+        }
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify(attributeData),
+            body: JSON.stringify(newData),
         };
         fetch(common.api_href('/api/v1/addattrset/' + props.match.params.id), requestOptions)
             .then(async response => {
@@ -208,24 +230,44 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"]);
                 } else {
-                    var newData = [];
-                    for (var i = 0; i < attributeData.length; ++i) {
-                        var found = false;
-                        for (var j = 0; j < inuseAttr.length; j++) {
-                            if (inuseAttr[j].name == attributeData[i].name &&
-                                inuseAttr[j].appliesTo == attributeData[i].appliesTo) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            var a = attributeData[i];
-                            newData.push({ name: a.name, appliesTo: a.appliesTo, type: a.type });
-                        }
-                    }
                     updateInuseAttr(inuseAttr.concat(newData));
-                    console.log(inuseAttr);
                 }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const toggleDelete = (index) => {
+        setDeleteModal(!deleteModal);
+        setDeleteIndex(index)
+    }
+
+    const handleDelete = (index) => {
+        var delData = [];
+        delData.push(inuseAttr[index]);
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify(delData),
+        };
+        fetch(common.api_href('/api/v1/delattrset/') + props.match.params.id, requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    inuseAttr.splice(index, 1);
+                    updateInuseAttr(inuseAttr);
+                }
+                setDeleteModal(!deleteModal);
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -301,8 +343,9 @@ const AttributeEditor = (props) => {
                                     )
                                 })}
                             </CForm>
+                            <CButton className="float-right" color="success" onClick={(e) => commitAttrs(e)}><CIcon name="cil-scrubber" /> Commit </CButton>
                             <CButton className="float-right" color="danger" onClick={() => { setResetWarning(true) }}><CIcon name="cil-ban" /> Reset</CButton>
-                            <CButton className="float-right" color="dark" onClick={handleAdd}><CIcon name="cil-plus" /> Add Another Attribute</CButton>
+                            <CButton className="float-right" color="dark" onClick={handleAdd}><CIcon name="cil-plus" /> More</CButton>
                         </CCardBody>
                     </CCard>
                     <CModal show={resetWarning} onClose={() => setResetWarning(false)} color="danger">
@@ -332,6 +375,24 @@ const AttributeEditor = (props) => {
                         </CModalFooter>
                     </CModal>
                 </CCol>
+                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                        <strong>Confirm Deletion</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                        <strong>Are you sure you want to delete this attribute?</strong>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="danger"
+                            onClick={() => { handleDelete(deleteIndex) }}
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setDeleteModal(!deleteModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
             </CRow>
 
             <CRow>
@@ -365,14 +426,21 @@ const AttributeEditor = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-2 bg-title">
-                                                    <CIcon name="cil-delete" />
-                                                </td>
+                                                    <CTooltip content='Delete' className='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>                                                </td>
                                             )
                                         },
                                 }}
                             >
                             </CDataTable>
-                            <CButton className="float-right" color="success" onClick={(e) => mergeAttrs(e)}><CIcon name="cil-scrubber" /> Merge New Attributes</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>

@@ -107,7 +107,7 @@ const UsersView = (props) => {
                     alert(data["Result"])
                 }
                 setDeleteModal(!deleteModal);
-                {handleRefresh()}
+                { handleRefresh() }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -122,7 +122,7 @@ const UsersView = (props) => {
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Users</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
@@ -135,8 +135,8 @@ const UsersView = (props) => {
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{placeholder:'By user ID, name...',label:'Search: '}}
-                                noItemsView={{noItems:'No users exist '}}
+                                tableFilter={{ placeholder: 'By user ID, name...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No users exist ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -151,8 +151,8 @@ const UsersView = (props) => {
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
-                                                         </CButton>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                        </CButton>
                                                     </CTooltip>
                                                 </td>
                                             )
@@ -176,7 +176,7 @@ const UsersView = (props) => {
                                         }
                                 }}
                             />
-                           
+
                         </CCardBody>
                         <CCardFooter>
                             <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
@@ -198,7 +198,7 @@ const UsersView = (props) => {
                         <strong>Are you sure you want to delete this user?</strong>
                     </CModalBody>
                     <CModalFooter>
-                        <CButton 
+                        <CButton
                             color="danger"
                             onClick={() => { handleDelete(deleteIndex) }}
                         >Confirm</CButton>

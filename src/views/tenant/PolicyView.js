@@ -28,7 +28,7 @@ import './tenantviews.scss'
 var common = require('../../common')
 
 const fields = [
-    {   
+    {
         key: "pid",
         label: "Policy ID"
     },
@@ -132,7 +132,7 @@ const PolicyView = (props) => {
                     alert(data["Result"])
                 }
                 setDeleteModal(!deleteModal);
-                {handleRefresh()}
+                { handleRefresh() }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -155,13 +155,13 @@ const PolicyView = (props) => {
         setDeleteIndex(index)
     }
 
-    const showIcon = <CIcon name='cil-plus' className='text-dark'/>
-    const hideIcon = <CIcon name='cil-minus' className='text-dark'/>
+    const showIcon = <CIcon name='cil-plus' className='text-dark' />
+    const hideIcon = <CIcon name='cil-minus' className='text-dark' />
 
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Policies</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
@@ -174,8 +174,8 @@ const PolicyView = (props) => {
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{placeholder:'By policy ID, majver...',label:'Search: '}}
-                                noItemsView={{noItems:'No policies exist '}}
+                                tableFilter={{ placeholder: 'By policy ID, majver...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No policies exist ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -190,7 +190,7 @@ const PolicyView = (props) => {
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -209,7 +209,7 @@ const PolicyView = (props) => {
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
-                                                    </CTooltip>    
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -217,7 +217,7 @@ const PolicyView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-1">
-                                                    <CTooltip 
+                                                    <CTooltip
                                                         content={details.includes(index) ? 'Hide' : 'Details'}
                                                         placement='bottom'
                                                     >
@@ -269,7 +269,7 @@ const PolicyView = (props) => {
                         <strong>Are you sure you want to delete this policy?</strong>
                     </CModalBody>
                     <CModalFooter>
-                        <CButton 
+                        <CButton
                             color="danger"
                             onClick={() => { handleDelete(deleteIndex) }}
                         >Confirm</CButton>
@@ -278,7 +278,7 @@ const PolicyView = (props) => {
                             onClick={() => setDeleteModal(!deleteModal)}
                         >Cancel</CButton>
                     </CModalFooter>
-                </CModal>       
+                </CModal>
             </CRow>
 
         </>

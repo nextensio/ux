@@ -27,7 +27,7 @@ import './tenantviews.scss'
 var common = require('../../common')
 
 const fields = [
-    {   
+    {
         key: "bid",
         label: "Bundle ID"
     },
@@ -107,7 +107,7 @@ const BundlesView = (props) => {
                     alert(data["Result"])
                 }
                 setDeleteModal(!deleteModal);
-                {handleRefresh()}
+                { handleRefresh() }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -122,7 +122,7 @@ const BundlesView = (props) => {
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Bundles</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
@@ -135,8 +135,8 @@ const BundlesView = (props) => {
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{placeholder:'By bundle ID, name...',label:'Search: '}}
-                                noItemsView={{noItems:'No bundles exist '}}
+                                tableFilter={{ placeholder: 'By bundle ID, name...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No bundles exist ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -154,7 +154,7 @@ const BundlesView = (props) => {
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -203,7 +203,7 @@ const BundlesView = (props) => {
                         <strong>Are you sure you want to delete this bundle?</strong>
                     </CModalBody>
                     <CModalFooter>
-                        <CButton 
+                        <CButton
                             color="danger"
                             onClick={() => { handleDelete(deleteIndex) }}
                         >Confirm</CButton>

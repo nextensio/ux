@@ -101,7 +101,7 @@ const BundleAttrView = (props) => {
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">Bundle Attributes</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
@@ -114,8 +114,8 @@ const BundleAttrView = (props) => {
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{placeholder:'By bundle ID, team...',label:'Search: '}}
-                                noItemsView={{noItems:'No bundle properties exist '}}
+                                tableFilter={{ placeholder: 'By bundle ID, team...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No bundle properties exist ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{

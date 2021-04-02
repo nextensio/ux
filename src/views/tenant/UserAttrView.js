@@ -101,7 +101,7 @@ const UserAttrView = (props) => {
     return (
         <>
             <CCallout color="primary" className="bg-title">
-                <h4 className="title">User Attributes</h4>
+                <h4 className="title"></h4>
             </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
@@ -114,8 +114,8 @@ const UserAttrView = (props) => {
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{placeholder:'By user, category...',label:'Search: '}}
-                                noItemsView={{noItems:'No user properties exist '}}
+                                tableFilter={{ placeholder: 'By user, category...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No user properties exist ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -130,7 +130,7 @@ const UserAttrView = (props) => {
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark'/>
+                                                            <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
