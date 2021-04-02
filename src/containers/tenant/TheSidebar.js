@@ -5,14 +5,19 @@ import {
   CSidebar,
   CSidebarBrand,
   CSidebarNav,
+  CSidebarHeader,
   CSidebarNavDivider,
   CSidebarNavTitle,
   CSidebarMinimizer,
   CSidebarNavDropdown,
   CSidebarNavItem,
+  CSidebarFooter,
+  CNavItem,
+  CNavLink,
 } from '@coreui/react'
 
 import CIcon from '@coreui/icons-react'
+import './tenant.scss'
 
 // sidebar nav config
 import navigation from './_nav'
@@ -34,34 +39,37 @@ const TheSidebar = (props) => {
 
   return (
 
-    < CSidebar
+    <CSidebar
       show={show}
       onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
+      colorScheme="light"
     >
       <CSidebarBrand className="d-md-down-none" to="/">
-        <CIcon
-          className="c-sidebar-brand-full"
-          name="logo-negative"
-          height={35}
-        />
-        <CIcon
-          className="c-sidebar-brand-minimized"
-          name="sygnet"
-          height={35}
-        />
+        <div className="c-sidebar-brand-full sidebar-brand">
+          <CIcon name="cil-videogame"/>{' '}
+          Nextensio Controller
+        </div>
+        <CIcon className="c-sidebar-brand-minimized" name="cil-videogame" size="2xl"/>
       </CSidebarBrand>
+      
       <CSidebarNav>
-
+        <CSidebarNavTitle>Tenant:{props.match.params.id}</CSidebarNavTitle>
         <CCreateElement
           items={navExact}
           components={{
             CSidebarNavDivider,
             CSidebarNavDropdown,
             CSidebarNavItem,
-            CSidebarNavTitle
           }}
         />
       </CSidebarNav>
+      <CSidebarFooter>
+        <CNavItem>
+          <CNavLink to='/logout'>
+            <CIcon name="cil-account-logout"/>{"\n"}Log Out
+          </CNavLink> 
+        </CNavItem>
+      </CSidebarFooter>
       <CSidebarMinimizer className="c-d-md-down-none" />
     </CSidebar >
   )

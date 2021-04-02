@@ -83,7 +83,7 @@ const PolicyEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/policy/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/policy')
                 }
             })
             .catch(error => {
@@ -94,7 +94,7 @@ const PolicyEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add Policy
+                <strong>Add Policy</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -109,7 +109,10 @@ const PolicyEdit = (props) => {
                 </CForm>
             </CCardBody>
             <CCardFooter>
-                <CButton size="sm" color="primary" onClick={handleSubmit}>Submit</CButton>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                    <CIcon name="cil-scrubber" />
+                    <strong>{" "}Add</strong>
+                </CButton>
             </CCardFooter>
         </CCard>
     )

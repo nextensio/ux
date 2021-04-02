@@ -113,7 +113,7 @@ const TenantsEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/home/tenants/view')
+                    props.history.push('/home/tenants')
                 }
             })
             .catch(error => {
@@ -124,7 +124,7 @@ const TenantsEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add Tenant
+                <strong>Add Tenant</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -151,7 +151,10 @@ const TenantsEdit = (props) => {
                 </CForm>
             </CCardBody>
             <CCardFooter>
-                <CButton size="sm" color="primary" onClick={handleSubmit}>Submit</CButton>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                    <CIcon name="cil-scrubber" />
+                    <strong>{" "}Add</strong>
+                </CButton>
             </CCardFooter>
         </CCard>
     )

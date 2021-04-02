@@ -1,46 +1,67 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
+import './tenant.scss'
 
 export default [
     {
-        _tag: 'CSidebarNavTitle',
-        _children: ['Summary']
-    },
-    {
         _tag: 'CSidebarNavItem',
         name: 'Users',
-        to: '/tenant/:id/users/view',
-        icon: 'cil-industry',
+        to: '/tenant/:id/users',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-user',
+            size: 'lg'
+        },
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'User Attributes',
-        to: '/tenant/:id/userattr/view',
-        icon: 'cil-industry',
+        to: '/tenant/:id/userattr',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-user-plus',
+            size: 'lg'
+        },
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Bundles',
-        to: '/tenant/:id/bundles/view',
-        icon: 'cil-industry',
+        to: '/tenant/:id/bundles',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-notes',
+            size: 'lg'
+        },
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Bundle Attributes',
-        to: '/tenant/:id/bundleattr/view',
-        icon: 'cil-industry',
+        to: '/tenant/:id/bundleattr',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-note-add',
+            size: 'lg'
+        },
     },
     {
         _tag: 'CSidebarNavItem',
         name: 'Policies',
-        to: '/tenant/:id/policy/view',
-        icon: 'cil-industry',
+        to: '/tenant/:id/policy',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-fingerprint',
+            size: 'lg'
+        },
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Routing',
-        to: '/tenant/:id/route/view',
-        icon: 'cil-industry',
+        name: 'Attribute Editor',
+        to: '/tenant/:id/attreditor',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-code',
+            size: 'lg'
+        },
     },
     {
         _tag: 'CSidebarNavDivider',

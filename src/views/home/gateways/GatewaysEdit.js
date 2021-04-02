@@ -73,7 +73,7 @@ const GatewaysEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/home/gateways/view')
+                    props.history.push('/home/gateways')
                 }
             })
             .catch(error => {
@@ -84,7 +84,7 @@ const GatewaysEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add Gateway
+                <strong>Add Gateway</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -95,7 +95,10 @@ const GatewaysEdit = (props) => {
                 </CForm>
             </CCardBody>
             <CCardFooter>
-                <CButton size="sm" color="primary" onClick={handleSubmit}>Submit</CButton>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                    <CIcon name="cil-scrubber" />
+                    <strong>{" "}Add</strong>
+                </CButton>
             </CCardFooter>
         </CCard>
     )

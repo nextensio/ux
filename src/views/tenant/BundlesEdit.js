@@ -90,7 +90,7 @@ const BundlesEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
                 }
             })
             .catch(error => {
@@ -101,7 +101,7 @@ const BundlesEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add User
+                <strong>Add User</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -128,7 +128,10 @@ const BundlesEdit = (props) => {
                 </CForm>
             </CCardBody>
             <CCardFooter>
-                <CButton size="sm" color="primary" onClick={handleSubmit}>Submit</CButton>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                    <CIcon name="cil-scrubber" />
+                    <strong>{" "}Add</strong>
+                </CButton>
             </CCardFooter>
         </CCard>
     )

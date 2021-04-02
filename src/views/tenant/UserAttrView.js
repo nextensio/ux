@@ -12,22 +12,20 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import './tenantviews.scss';
 
 var common = require('../../common')
 
-const fields = [
-    "tenant",
-    "uid",
-    "category",
-    "type",
-    "level",
-    "dept",
-    "team",
+const initAttrData = [
+    {
+        key: "uid",
+        label: "User ID"
+    },
     {
         key: 'edit',
         label: '',
@@ -43,6 +41,7 @@ const UserAttrView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [attrData, updateAttrData] = useState(initAttrData);
     const [usersData, updateUserData] = useState(initTableData);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -54,19 +53,30 @@ const UserAttrView = (props) => {
     };
 
     useEffect(() => {
+        getAttrs();
         fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    // The AttrHeader should not show up among attributes
-                    if (data[i].hasOwnProperty('uid') && data[i].uid == 'UserAttr') {
-                        data.splice(i, 1);
-                        break;
-                    }
-                }
                 updateUserData(data)
             });
     }, []);
+
+    const getAttrs = () => {
+        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var fields = [];
+                for (var i = 0; i < initAttrData.length; i++) {
+                    fields.push(initAttrData[i]);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == 'Users') {
+                        fields.push(data[i].name);
+                    }
+                }
+                updateAttrData(fields);
+            });
+    }
 
     const handleRefresh = (e) => {
         fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id, hdrs)
@@ -97,44 +107,58 @@ const UserAttrView = (props) => {
 
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title"></h4>
+            </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            User Attributes
-                  <DocsLink name="CModal" />
+                            <strong>User Attributes</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
-                                fields={fields}
-                                itemsPerPage={15}
+                                fields={attrData}
+                                itemsPerPageSelect
+                                tableFilter={{ placeholder: 'By user, category...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No user properties exist ' }}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
-                                                    >
-                                                        Edit
-                                            </CButton>
+                                                <td className="py-1">
+                                                    <CTooltip content='Edit' placement='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
                                 }}
                             />
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
                 </CCol>
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
         </>
     )
 }

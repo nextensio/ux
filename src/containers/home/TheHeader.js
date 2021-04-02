@@ -3,16 +3,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
   CHeader,
   CToggler,
-  CHeaderBrand,
   CHeaderNav,
   CHeaderNavItem,
   CHeaderNavLink,
   CSubheader,
   CBreadcrumbRouter,
-  CLink
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-
+import routes from './routes'
+import { TheHeaderDropdown } from './index'
 
 const TheHeader = () => {
   const dispatch = useDispatch()
@@ -29,21 +27,17 @@ const TheHeader = () => {
   }
 
   return (
-    <CHeader withSubheader>
-      <CToggler
-        inHeader
-        className="ml-md-3 d-lg-none"
-        onClick={toggleSidebarMobile}
-      />
-      <CToggler
-        inHeader
-        className="ml-3 d-md-down-none"
-        onClick={toggleSidebar}
-      />
-      <CHeaderBrand className="mx-auto d-lg-none" to="/">
-        <CIcon name="logo" height="48" alt="Logo" />
-      </CHeaderBrand>
+    <CHeader withSubheader colorScheme='dark'>
+      <CHeaderNav className='px-3'>
+        <TheHeaderDropdown/>
+      </CHeaderNav>
 
+      <CSubheader className='px-3 justify-content-between'>
+        <CBreadcrumbRouter
+          className='border-0 c-subheader-nav m-0 px-0 px-md-3'
+          routes={routes}
+        />
+      </CSubheader>
     </CHeader>
   )
 }

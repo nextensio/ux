@@ -1,21 +1,26 @@
 import React from 'react';
 
+const DashboardView = React.lazy(() => import('../../views/home/dashboard/Dashboard'));
 const GatewaysView = React.lazy(() => import('../../views/home/gateways/GatewaysView'));
 const GatewaysEdit = React.lazy(() => import('../../views/home/gateways/GatewaysEdit'));
+const GatewaysData = React.lazy(() => import('../../views/home/gateways/GatewaysData'));
 const TenantsView = React.lazy(() => import('../..//views/home/tenants/TenantsView'));
 const TenantsEdit = React.lazy(() => import('../../views/home/tenants/TenantsEdit'));
 const CertsView = React.lazy(() => import('../../views/home/certs/CertsView'));
 const CertsEdit = React.lazy(() => import('../../views/home/certs/CertsEdit'));
-const Logout = React.lazy(() => import('../../views/home/logout/Logout'));
+const Logout = React.lazy(() => import('../../views/home/logout/Logout'))
 
 const routes = [
-    { path: '/home/gateways/view', name: 'GatewaysView', component: GatewaysView },
-    { path: '/home/gateways/add', name: 'GatewaysEdit', component: GatewaysEdit },
-    { path: '/home/certs/view', name: 'CertsView', component: CertsView },
-    { path: '/home/certs/add', name: 'CertsEdit', component: CertsEdit },
-    { path: '/home/tenants/view', name: 'TenantsView', component: TenantsView },
-    { path: '/home/tenants/add', name: 'TenantsEdit', component: TenantsEdit },
+    { path: '/home/dashboard', name: 'Dashboard', component: DashboardView },
+    { path: '/home/gateways', name: 'Gateways', component: GatewaysView, exact: true },
+    { path: '/home/gateways/add', name: 'Edit', component: GatewaysEdit },
+    { path: '/home/gateways/data', name: 'Data', component: GatewaysData },
+    { path: '/home/certs', name: 'Certificates', component: CertsView, exact: true },
+    { path: '/home/certs/add', name: 'Edit', component: CertsEdit },
+    { path: '/home/tenants', name: 'Tenants', component: TenantsView, exact: true },
+    { path: '/home/tenants/add', name: 'Edit', component: TenantsEdit },
     { path: '/home/logout', name: 'Logout', component: Logout },
+
 ];
 
 export default routes;

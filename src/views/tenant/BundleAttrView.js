@@ -12,22 +12,21 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import './tenantviews.scss'
+
 
 var common = require('../../common')
 
-const fields = [
-    "tenant",
-    "bid",
-    "team",
-    "dept",
-    "IC",
-    "manager",
-    "nonemployee",
+const initAttrData = [
+    {
+        key: "bid",
+        label: "Bundle ID"
+    },
     {
         key: 'edit',
         label: '',
@@ -43,6 +42,7 @@ const BundleAttrView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [attrData, updateAttrData] = useState(initAttrData);
     const [usersData, updateUserData] = useState(initTableData);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -54,6 +54,7 @@ const BundleAttrView = (props) => {
     };
 
     useEffect(() => {
+        getAttrs();
         fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
             .then(response => response.json())
             .then(data => {
@@ -67,6 +68,23 @@ const BundleAttrView = (props) => {
                 updateUserData(data)
             });
     }, []);
+
+    const getAttrs = () => {
+        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var fields = [];
+                for (var i = 0; i < initAttrData.length; i++) {
+                    fields.push(initAttrData[i]);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == 'Bundles') {
+                        fields.push(data[i].name);
+                    }
+                }
+                updateAttrData(fields);
+            });
+    }
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
@@ -96,44 +114,61 @@ const BundleAttrView = (props) => {
 
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title"></h4>
+            </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            Bundle Attributes
-                  <DocsLink name="CModal" />
+                            <strong>Bundle Attributes</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
-                                fields={fields}
-                                itemsPerPage={15}
+                                fields={attrData}
+                                itemsPerPageSelect
+                                tableFilter={{ placeholder: 'By bundle ID, team...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No bundle properties exist ' }}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content='Edit'
+                                                        placement='bottom'
                                                     >
-                                                        Edit
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
                                 }}
                             />
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
                 </CCol>
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
         </>
     )
 }

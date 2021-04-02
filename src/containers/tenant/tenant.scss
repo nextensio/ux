@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap');
+@import '../../scss/style.scss';
+
+.roboto-font {
+    font-family: 'Roboto Condensed', sans-serif;
+    line-height: 1.6;
+}
+.sidebar-nav-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    text-transform: uppercase;
+}
+.sidebar-brand{
+    margin: 0 auto;
+    font-family: 'Oswald', sans-serif;
+    font-size: 150%;
+}

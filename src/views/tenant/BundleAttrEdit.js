@@ -24,17 +24,15 @@ import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
+const initAttrData = [
+    "bid"
+];
+
 const BundleAttrEdit = (props) => {
     const initUserData = Object.freeze({
-        bid: "",
-        tenant: props.match.params.id,
-        team: "",
-        dept: "",
-        IC: "",
-        manager: "",
-        nonemployee: "",
     });
     const [userData, updateUserData] = useState(initUserData);
+    const [attrData, updateAttrData] = useState(initAttrData);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -45,16 +43,28 @@ const BundleAttrEdit = (props) => {
     };
 
     useEffect(() => {
+        getAttrs();
         if (typeof props.location.state != 'undefined') {
-            if (Array.isArray(props.location.state.team)) {
-                props.location.state.team = props.location.state.team.join();
-            }
-            if (Array.isArray(props.location.state.dept)) {
-                props.location.state.dept = props.location.state.dept.join();
-            }
             updateUserData(props.location.state)
         }
     }, []);
+
+    const getAttrs = () => {
+        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var fields = [];
+                for (var i = 0; i < initAttrData.length; i++) {
+                    fields.push(initAttrData[i]);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == 'Bundles') {
+                        fields.push(data[i].name);
+                    }
+                }
+                updateAttrData(fields);
+            });
+    }
 
     const handleChange = (e) => {
         updateUserData({
@@ -65,35 +75,12 @@ const BundleAttrEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        var dept = userData.dept
-        if (userData.dept) {
-            if (!Array.isArray(userData.dept)) {
-                dept = userData.dept.split(',').map(function (item) {
-                    return item.trim();
-                })
-            }
-        } else {
-            dept = []
-        }
-        var team = userData.team
-        if (userData.team) {
-            if (!Array.isArray(userData.team)) {
-                team = userData.team.split(',').map(function (item) {
-                    return item.trim();
-                })
-            }
-        } else {
-            team = []
-        }
+        userData["tenant"] = props.match.params.id;
+        console.log(userData);
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify({
-                bid: userData.bid, tenant: userData.tenant,
-                team: team, dept: dept,
-                IC: parseInt(userData.IC), manager: parseInt(userData.manager),
-                nonemployee: userData.nonemployee
-            }),
+            body: JSON.stringify(userData),
         };
         fetch(common.api_href('/api/v1/addbundleattr'), requestOptions)
             .then(async response => {
@@ -108,7 +95,7 @@ const BundleAttrEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundleattr/view')
+                    props.history.push('/tenant/' + props.match.params.id + '/bundleattr')
                 }
             })
             .catch(error => {
@@ -119,38 +106,32 @@ const BundleAttrEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Add User Attributes
+                <strong>Add User Properties</strong>
             </CCardHeader>
             <CCardBody>
-                <CForm>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Bundle ID</CLabel>
-                        <CInput name="bid" placeholder={userData.bid} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-email">IC</CLabel>
-                        <CInput name="IC" placeholder={userData.IC} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Manager</CLabel>
-                        <CInput name="manager" placeholder={userData.manager} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Non Employee</CLabel>
-                        <CInput name="nonemployee" placeholder={userData.nonemployee} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">User Departments (Comma Seperated)</CLabel>
-                        <CInput name="dept" placeholder={userData.dept} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">User Teams (Comma Seperated)</CLabel>
-                        <CInput name="team" placeholder={userData.team} onChange={handleChange} />
-                    </CFormGroup>
-                </CForm>
+                {attrData.map((attr, index) => {
+                    if (attr == "bid") {
+                        return (
+                            <CFormGroup>
+                                <CLabel htmlFor="nf-attribute">Bundle Id</CLabel>
+                                <CInput name="bid" placeholder={userData[attr]} onChange={handleChange} />
+                            </CFormGroup>
+                        );
+                    } else {
+                        return (
+                            <CFormGroup>
+                                <CLabel htmlFor="nf-attribute">{attr}</CLabel>
+                                <CInput name={attr} placeholder={userData[attr]} onChange={handleChange} />
+                            </CFormGroup>
+                        )
+                    }
+                })}
             </CCardBody>
             <CCardFooter>
-                <CButton size="sm" color="primary" onClick={handleSubmit}>Submit</CButton>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                    <CIcon name="cil-scrubber" />
+                    <strong>{" "}Add</strong>
+                </CButton>
             </CCardFooter>
         </CCard>
     )

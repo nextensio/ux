@@ -1,25 +1,24 @@
 import React from 'react'
 import {
-  TheContent,
-  TheSidebar,
-  TheFooter,
-  TheHeader
+    TheContent,
+    TheSidebar,
+    TheFooter,
 } from './index'
 
+import './home.scss'
 const TheLayout = () => {
 
-  return (
-    <div className="c-app c-default-layout">
-      <TheSidebar/>
-      <div className="c-wrapper">
-        <TheHeader/>
-        <div className="c-body">
-          <TheContent/>
+    return (
+        <div className="c-app c-default-layout">
+            <TheSidebar />
+            <div className="c-wrapper">
+                <div className="c-body">
+                    <TheContent />
+                </div>
+                <TheFooter />
+            </div>
         </div>
-        <TheFooter/>
-      </div>
-    </div>
-  )
+    )
 }
 
 export default TheLayout

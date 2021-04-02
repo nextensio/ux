@@ -1,5 +1,6 @@
 import React from 'react';
 
+const TenantDashboard = React.lazy(() => import('../../views/tenant/dashboard/TenantDashboard'));
 const UsersView = React.lazy(() => import('../../views/tenant/UsersView'));
 const UsersEdit = React.lazy(() => import('../../views/tenant/UsersEdit'));
 const UserAttrView = React.lazy(() => import('../../views/tenant/UserAttrView'));
@@ -10,22 +11,22 @@ const BundleAttrView = React.lazy(() => import('../../views/tenant/BundleAttrVie
 const BundleAttrEdit = React.lazy(() => import('../../views/tenant/BundleAttrEdit'));
 const PolicyView = React.lazy(() => import('../../views/tenant/PolicyView'));
 const PolicyEdit = React.lazy(() => import('../../views/tenant/PolicyEdit'));
-const RoutingView = React.lazy(() => import('../../views/tenant/RoutingView'));
-const RoutingEdit = React.lazy(() => import('../../views/tenant/RoutingEdit'));
+const AttributeEditor = React.lazy(() => import('../../views/tenant/AttributeEditor'));
 
 const routes = [
-    { path: '/tenant/:id/users/view', name: 'Tenant', component: UsersView },
-    { path: '/tenant/:id/users/add', name: 'Tenant', component: UsersEdit },
-    { path: '/tenant/:id/userattr/view', name: 'Tenant', component: UserAttrView },
-    { path: '/tenant/:id/userattr/add', name: 'Tenant', component: UserAttrEdit },
-    { path: '/tenant/:id/bundles/view', name: 'Tenant', component: BundlesView },
-    { path: '/tenant/:id/bundles/add', name: 'Tenant', component: BundlesEdit },
-    { path: '/tenant/:id/bundleattr/view', name: 'Tenant', component: BundleAttrView },
-    { path: '/tenant/:id/bundleattr/add', name: 'Tenant', component: BundleAttrEdit },
-    { path: '/tenant/:id/policy/view', name: 'Tenant', component: PolicyView },
-    { path: '/tenant/:id/policy/add', name: 'Tenant', component: PolicyEdit },
-    { path: '/tenant/:id/route/view', name: 'Tenant', component: RoutingView },
-    { path: '/tenant/:id/route/add', name: 'Tenant', component: RoutingEdit },
+    { path: '/tenant/:id', exact: true, name: 'Tenant Home' },
+    { path: '/tenant/:id/home', name: 'Dashboard', component: TenantDashboard },
+    { path: '/tenant/:id/users', name: 'Users', component: UsersView, exact: true },
+    { path: '/tenant/:id/users/add', name: 'Edit', component: UsersEdit },
+    { path: '/tenant/:id/userattr', name: 'User Properties', component: UserAttrView, exact: true },
+    { path: '/tenant/:id/userattr/add', name: 'Edit', component: UserAttrEdit },
+    { path: '/tenant/:id/bundles', name: 'Bundles', component: BundlesView, exact: true },
+    { path: '/tenant/:id/bundles/add', name: 'Edit', component: BundlesEdit },
+    { path: '/tenant/:id/bundleattr', name: 'Bundle Properties', component: BundleAttrView, exact: true },
+    { path: '/tenant/:id/bundleattr/add', name: 'Edit', component: BundleAttrEdit },
+    { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
+    { path: '/tenant/:id/policy/add', name: 'Edit', component: PolicyEdit },
+    { path: '/tenant/:id/attreditor', name: 'Attribute Editor', component: AttributeEditor },
 ];
 
 export default routes;

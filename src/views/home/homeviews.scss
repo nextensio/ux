@@ -1,0 +1,44 @@
+@import '../../scss/style.scss';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
+
+
+.data-head {
+    font-family: 'Roboto Condensed', sans-serif;
+    color: $primary;
+}
+.fit-snug{
+    max-width: 100%;
+    max-height: 100%;
+}
+.parent-container {
+    padding: 0;
+}
+.card-header {
+    background-color: rgba($sidebar-theme-color, .2);
+    color: $sidebar-theme-color;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 600;
+    font-size: large;
+    line-height: 2;
+    border-bottom: 1px $primary solid
+}
+.title {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: large;
+    font-weight: 600;
+    line-height: 2;
+}
+.subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.75;
+    color: $gray-900;
+}
+.button-footer-primary {
+    background: $primary-light;
+}
+.button-footer-success {
+    background: $success-light;
+}

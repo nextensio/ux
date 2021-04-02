@@ -13,16 +13,25 @@ import {
     CRow,
     CCallout,
     CDataTable,
+    CModal,
+    CModalHeader,
+    CModalBody,
+    CModalFooter,
+    CTooltip,
+    CWidgetSimple
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
 const fields = [
-    "certid",
+    {
+        key: "certid",
+        label: "Certificate ID",
+        _classes: "data-head",
+    },
     {
         key: 'edit',
         label: '',
@@ -53,7 +62,9 @@ const CertsView = (props) => {
         []
     );
     const [usersData, updateUserData] = useState(initTableData);
-    const [details, setDetails] = useState([])
+    const [details, setDetails] = useState([]);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -118,6 +129,8 @@ const CertsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
+                setDeleteModal(!deleteModal);
+                { handleRefresh() }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -135,67 +148,91 @@ const CertsView = (props) => {
         setDetails(newDetails)
     }
 
+    const toggleDelete = (index) => {
+        setDeleteModal(!deleteModal);
+        setDeleteIndex(index)
+    }
+
+    const showIcon = <CIcon name='cil-plus' className='text-dark' />
+    const hideIcon = <CIcon name='cil-minus' className='text-dark' />
+
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+            </CCallout>
             <CRow>
-                <CCol xs="24" lg="12">
+                <CCol xs="12" lg="6">
                     <CCard>
                         <CCardHeader>
-                            Policies
-                  <DocsLink name="CModal" />
+                            <strong>Certificates</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
-                                itemsPerPage={15}
+                                itemsPerPageSelect
+                                itemsPerPageSelect={5}
+                                tableFilter={{ placeholder: 'By certicate ID...', label: 'Search: ' }}
+                                sorter
                                 pagination
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleEdit(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content='edit'
+                                                        placement='bottom'
                                                     >
-                                                        Edit
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleEdit(index) }}
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { handleDelete(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='bottom'
                                                     >
-                                                        Delete
-                                            </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleDelete(index) }}
+                                                        >
+                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
                                     'show_details':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CButton
-                                                        color="primary"
-                                                        variant="outline"
-                                                        shape="square"
-                                                        size="sm"
-                                                        onClick={() => { toggleDetails(index) }}
+                                                <td className="py-1">
+                                                    <CTooltip
+                                                        content={details.includes(index) ? 'Hide' : 'Details'}
+                                                        placement='bottom'
                                                     >
-                                                        {details.includes(index) ? 'Hide' : 'Show'}
-                                                    </CButton>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleDetails(index) }}
+                                                        >
+                                                            {details.includes(index) ? hideIcon : showIcon}
+                                                        </CButton>
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },
@@ -204,6 +241,7 @@ const CertsView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
+                                                        <strong>Details:{'\n'}</strong>
                                                         <pre>
                                                             {item.cert}
                                                         </pre>
@@ -214,11 +252,37 @@ const CertsView = (props) => {
                                 }}
                             />
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
+                    <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                        <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                            <strong>Confirm Deletion</strong>
+                        </CModalHeader>
+                        <CModalBody className='text-lg-left'>
+                            <strong>Are you sure you want to delete this certificate?</strong>
+                        </CModalBody>
+                        <CModalFooter>
+                            <CButton
+                                color="danger"
+                                onClick={() => { handleDelete(deleteIndex) }}
+                            >Confirm</CButton>
+                            <CButton
+                                color="secondary"
+                                onClick={() => setDeleteModal(!deleteModal)}
+                            >Cancel</CButton>
+                        </CModalFooter>
+                    </CModal>
                 </CCol>
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
         </>
     )
 }
