@@ -53,7 +53,12 @@ rm $tmpdir/helm.tgz
 create_ui
 bootstrap_ui $ctrl_ip
 
-echo "######You can access the UI at https://$ctrl_ip/  ############"
+echo "######Add two lines as below to your /etc/hosts file######"
+echo "$ctrl_ip controller.nextensio.net"
+echo "$ctrl_ip server.nextensio.net"
+echo "######These lines basically map the ip address to names, which is###########"
+echo "######required to properly access the controller via browser     ###########"
+echo "######You can access the UI at https://controller.nextensio.net  ############"
 
 #rm -rf $tmpdir/
 
