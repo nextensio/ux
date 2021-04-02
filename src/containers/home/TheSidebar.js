@@ -55,12 +55,6 @@ const TheSidebar = () => {
             CSidebarNavTitle
           }}
         />
-        <CSidebarNavItem name="Users" className="roboto-font" icon={{name:"cil-user",size:"lg"}}/>
-        <CSidebarNavItem name="User Attributes" className="roboto-font" icon={{name:"cil-user-plus",size:"lg"}}/>
-        <CSidebarNavItem name="Bundles" className="roboto-font" icon={{name:"cil-notes",size:"lg"}}/>
-        <CSidebarNavItem name="Bundle Attributes" className="roboto-font" icon={{name:"cil-note-add",size:"lg"}}/>
-        <CSidebarNavItem name="Policies" className="roboto-font" icon={{name:"cil-fingerprint",size:"lg"}}/>
-        <CSidebarNavItem name="Attribute Editor" className="roboto-font" icon={{name:"cil-code",size:"lg"}} />
       </CSidebarNav>
      
       <CSidebarFooter>
