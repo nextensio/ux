@@ -22,6 +22,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import './tenantviews.scss'
+
 
 var common = require('../../common')
 
@@ -158,10 +160,13 @@ const PolicyView = (props) => {
 
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title">Policies</h4>
+            </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard className='border-primary'>
-                        <CCardHeader className='bg-primary text-white'>
+                    <CCard>
+                        <CCardHeader>
                             <strong>Policies</strong>
                         </CCardHeader>
                         <CCardBody>
@@ -243,30 +248,39 @@ const PolicyView = (props) => {
                                         }
                                 }}
                             />
-                            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
-                                <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                                    <strong>Confirm Deletion</strong>
-                                </CModalHeader>
-                                <CModalBody className='text-lg-left'>
-                                    <strong>Are you sure you want to delete this policy?</strong>
-                                </CModalBody>
-                                <CModalFooter>
-                                    <CButton 
-                                        color="danger"
-                                        onClick={() => { handleDelete(deleteIndex) }}
-                                    >Confirm</CButton>
-                                    <CButton
-                                        color="secondary"
-                                        onClick={() => setDeleteModal(!deleteModal)}
-                                    >Cancel</CButton>
-                                </CModalFooter>
-                            </CModal>
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
                 </CCol>
+                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                        <strong>Confirm Deletion</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                        <strong>Are you sure you want to delete this policy?</strong>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton 
+                            color="danger"
+                            onClick={() => { handleDelete(deleteIndex) }}
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setDeleteModal(!deleteModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>       
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
+
         </>
     )
 }

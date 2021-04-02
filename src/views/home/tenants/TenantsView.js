@@ -31,8 +31,6 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { CChartBar, CChartPie } from '@coreui/react-chartjs'
-import usersUsageData from './UsersUsageData'
-import bundlesUsageData from './BundlesUsageData'
 import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
@@ -62,39 +60,12 @@ const fields = [
         sorter: false,
         filter: false
     },
-    {
-        key: 'users',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    }
-]
-
-const usersUsageFields = [
-    "name",
-    {
-        key: 'data',
-        label: 'GBs Consumed',
-        sorter: true
-    }
-]
-
-const bundlesUsageFields = [
-    "name",
-    {
-        key: 'data',
-        label: 'GBs Consumed',
-        sorter: true
-    }
 ]
 
 const TenantsView = (props) => {
     const initTableData = Object.freeze(
         []
     );
-    const [usersInterval, setUsersInterval] = useState('month');
-    const [bundlesInterval, setBundlesInterval] = useState('month');
     const [usersData, updateUserData] = useState(initTableData);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
@@ -130,8 +101,8 @@ const TenantsView = (props) => {
         })
     }
 
-    const handleDetails = (index) => {
-        props.history.push('/tenant/' + usersData[index]._id + '/')
+    const handleDetails = (item) => {
+        props.history.push('/tenant/' + item._id + '/')
     }
 
     const handleDelete = (index) => {
@@ -164,11 +135,14 @@ const TenantsView = (props) => {
     
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title">Tenants</h4>
+            </CCallout>
             <CRow className='mt-3'>
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            <strong>Tenants</strong>
+                            <strong>Tenants</strong><small> Click on a row to navigate to Tenants page</small>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -181,7 +155,7 @@ const TenantsView = (props) => {
                                 sorter
                                 hover
                                 clickableRows
-                                onRowClick={(e) => props.history.push(`/tenants/data`)}
+                                onRowClick={(item) => { handleDetails(item) }}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
@@ -218,26 +192,6 @@ const TenantsView = (props) => {
                                                             onClick={() => {toggleDelete(index)}}
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
-                                                        </CButton>
-                                                    </CTooltip>
-                                                </td>
-                                            )
-                                        },
-                                    'users':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-1">
-                                                    <CTooltip
-                                                        content='Tenant Portal'
-                                                        placement='bottom'
-                                                    >
-                                                        <CButton
-                                                            color='light'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => { handleDetails(index) }}
-                                                        >
-                                                            <CIcon name='cil-group' className='text-dark'/>
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>

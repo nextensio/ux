@@ -17,6 +17,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import './tenantviews.scss'
+
 
 var common = require('../../common')
 
@@ -98,11 +100,14 @@ const BundleAttrView = (props) => {
 
     return (
         <>
+            <CCallout color="primary" className="bg-title">
+                <h4 className="title">Bundle Attributes</h4>
+            </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard className='border-primary'>
-                        <CCardHeader className='bg-primary text-white'>
-                            <strong>Bundle Properties</strong>
+                    <CCard>
+                        <CCardHeader>
+                            <strong>Bundle Attributes</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -137,11 +142,19 @@ const BundleAttrView = (props) => {
                                 }}
                             />
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                <CIcon name="cil-plus" />
+                                <strong>{" "}Add</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
                 </CCol>
             </CRow>
-            <CButton size="large" color="primary" onClick={handleRefresh}>Refresh</CButton>
-            <CButton size="large" color="secondary" onClick={handleAdd}>Add</CButton>
         </>
     )
 }

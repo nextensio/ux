@@ -1,8 +1,13 @@
-import React from 'react'
+import React, { lazy, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
   CCreateElement,
+  CDataTable,
+  CModal,
+  CModalTitle,
+  CModalHeader,
+  CModalBody,
   CNavItem,
   CNavLink,
   CSidebar,
@@ -18,6 +23,8 @@ import {
 
 import './home.scss'
 import CIcon from '@coreui/icons-react'
+import { useOktaAuth } from '@okta/okta-react';
+
 
 // sidebar nav config
 import navigation from './_nav'
@@ -48,6 +55,12 @@ const TheSidebar = () => {
             CSidebarNavTitle
           }}
         />
+        <CSidebarNavItem name="Users" className="roboto-font" icon={{name:"cil-user",size:"lg"}}/>
+        <CSidebarNavItem name="User Attributes" className="roboto-font" icon={{name:"cil-user-plus",size:"lg"}}/>
+        <CSidebarNavItem name="Bundles" className="roboto-font" icon={{name:"cil-notes",size:"lg"}}/>
+        <CSidebarNavItem name="Bundle Attributes" className="roboto-font" icon={{name:"cil-note-add",size:"lg"}}/>
+        <CSidebarNavItem name="Policies" className="roboto-font" icon={{name:"cil-fingerprint",size:"lg"}}/>
+        <CSidebarNavItem name="Attribute Editor" className="roboto-font" icon={{name:"cil-code",size:"lg"}} />
       </CSidebarNav>
      
       <CSidebarFooter>
@@ -58,7 +71,9 @@ const TheSidebar = () => {
         </CNavItem>
       </CSidebarFooter>
       <CSidebarMinimizer className="c-d-md-down-none"/>
+  
     </CSidebar>
+    
   )
 }
 

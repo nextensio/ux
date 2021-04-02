@@ -5,6 +5,7 @@ import {
   TheFooter,
 } from './index'
 
+import './home.scss'
 const TheLayout = () => {
 
   return (

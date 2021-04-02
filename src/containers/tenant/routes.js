@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TenantDashboard = React.lazy(() => import('../../views/tenant/TenantDashboard'));
+const TenantDashboard = React.lazy(() => import('../../views/tenant/dashboard/TenantDashboard'));
 const UsersView = React.lazy(() => import('../../views/tenant/UsersView'));
 const UsersEdit = React.lazy(() => import('../../views/tenant/UsersEdit'));
 const UserAttrView = React.lazy(() => import('../../views/tenant/UserAttrView'));
@@ -11,6 +11,7 @@ const BundleAttrView = React.lazy(() => import('../../views/tenant/BundleAttrVie
 const BundleAttrEdit = React.lazy(() => import('../../views/tenant/BundleAttrEdit'));
 const PolicyView = React.lazy(() => import('../../views/tenant/PolicyView'));
 const PolicyEdit = React.lazy(() => import('../../views/tenant/PolicyEdit'));
+const AttributeEditor = React.lazy(() => import('../../views/tenant/AttributeEditor'));
 
 const routes = [
     { path: '/tenant/:id', exact: true, name: 'Tenant Home' },
@@ -25,6 +26,7 @@ const routes = [
     { path: '/tenant/:id/bundleattr/add', name: 'Edit', component: BundleAttrEdit },
     { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
     { path: '/tenant/:id/policy/add', name: 'Edit', component: PolicyEdit },
+    { path: '/tenant/:id/attreditor', name: 'Attribute Editor', component: AttributeEditor },
 ];
 
 export default routes;

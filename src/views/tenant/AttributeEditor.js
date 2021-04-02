@@ -33,7 +33,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
-import './homeviews.scss'
+import './tenantviews.scss'
 import { reset } from 'enzyme/build/configuration';
 
 const fields = [
