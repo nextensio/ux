@@ -61,7 +61,7 @@ const TheSidebar = () => {
                 <CNavItem>
                     <CNavLink to='/home/logout'>
                         <CIcon name="cil-account-logout" />{"\n"}Log Out
-          </CNavLink>
+                    </CNavLink>
                 </CNavItem>
             </CSidebarFooter>
             <CSidebarMinimizer className="c-d-md-down-none" />

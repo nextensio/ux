@@ -5,6 +5,16 @@ import './tenant.scss'
 export default [
     {
         _tag: 'CSidebarNavItem',
+        name: 'Dashboard',
+        to: '/tenant/:id/home',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-speedometer',
+            size: 'lg'
+        }
+    },
+    {
+        _tag: 'CSidebarNavItem',
         name: 'Users',
         to: '/tenant/:id/users',
         className: 'roboto-font',

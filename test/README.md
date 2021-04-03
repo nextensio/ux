@@ -30,6 +30,8 @@ Lets say you make some UI/UX changes and want to test it out, this is how you ca
 4. Note the sha/hash string in the "IMAGE ID" column (output of 'docker images') of the image you just built (with tag 0.1)
 5. Say "docker tag <paste IMAGE ID> registry.gitlab.com/nextensio/ux/ux:latest"
 6. Now if you run create.sh, it will pick up the new image you built and create a testbed
+7. Login credentials are user: apogphone@gmail.com
+                         pass: Nextensio238 
 
 
 ## What is created by create.sh

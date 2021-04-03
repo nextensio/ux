@@ -175,15 +175,6 @@ const AttributeEditor = (props) => {
         }
     }
 
-    const validAttributeStyling = (type, isValid) => {
-        if (validType(type) && isValid == "true") {
-            return ["success", "success"]
-        }
-        else {
-            return ["secondary", "transparent"]
-        }
-    }
-
 
     const reset = (e) => {
         setAttrAppliesTo('');
@@ -343,9 +334,9 @@ const AttributeEditor = (props) => {
                                     )
                                 })}
                             </CForm>
-                            <CButton className="float-right" color="success" onClick={(e) => commitAttrs(e)}><CIcon name="cil-scrubber" /> Commit </CButton>
-                            <CButton className="float-right" color="danger" onClick={() => { setResetWarning(true) }}><CIcon name="cil-ban" /> Reset</CButton>
-                            <CButton className="float-right" color="dark" onClick={handleAdd}><CIcon name="cil-plus" /> More</CButton>
+                            <CButton className="float-right button-footer-success" variant="outline" color="success" onClick={(e) => commitAttrs(e)}><CIcon name="cil-scrubber" /> <strong>Commit</strong></CButton>
+                            <CButton className="float-right button-footer-danger" variant="outline" color="danger" onClick={() => { setResetWarning(true) }}><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                            <CButton className="float-right button-footer-dark" variant="outline" color="dark" onClick={handleAdd}><CIcon name="cil-plus" /> <strong>More</strong></CButton>
                         </CCardBody>
                     </CCard>
                     <CModal show={resetWarning} onClose={() => setResetWarning(false)} color="danger">
@@ -409,23 +400,39 @@ const AttributeEditor = (props) => {
                                     'show':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2 bg-title">
-                                                    <CIcon name="cil-plus" />
-                                                </td>
+                                                <td className="py-2">
+                                                    <CTooltip content='Show' className='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                        >
+                                                            <CIcon name='cil-plus' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip>  
+                                                </td>        
                                             )
                                         },
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2 bg-title">
-                                                    <CIcon name="cil-pencil" />
-                                                </td>
+                                                <td className="py-2">
+                                                    <CTooltip content='Edit' className='bottom'>
+                                                        <CButton
+                                                            color='light'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                        >
+                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                        </CButton>
+                                                    </CTooltip> 
+                                                </td>         
                                             )
                                         },
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2 bg-title">
+                                                <td className="py-2">
                                                     <CTooltip content='Delete' className='bottom'>
                                                         <CButton
                                                             color='light'
@@ -435,7 +442,8 @@ const AttributeEditor = (props) => {
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
-                                                    </CTooltip>                                                </td>
+                                                    </CTooltip>                                                
+                                                </td>
                                             )
                                         },
                                 }}
