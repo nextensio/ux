@@ -106,7 +106,7 @@ const UserAttrEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Add User Properties</strong>
+                <strong>Add User Attribute Values</strong>
             </CCardHeader>
             <CCardBody>
                 {attrData.map((attr, index) => {

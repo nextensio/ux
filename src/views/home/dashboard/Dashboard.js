@@ -92,7 +92,7 @@ const DashboardView = () => {
                     <CCard>
                         <CCardHeader>
                             Gateways Heatmap
-              <div className="card-header-actions">
+                            <div className="card-header-actions">
                                 <CLink className="card-header-action">
                                     <CIcon className="text-primary" name="cil-settings" />
                                 </CLink>

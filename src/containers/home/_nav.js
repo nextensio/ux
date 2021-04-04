@@ -57,6 +57,17 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
+        name: 'Dashboard',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-speedometer',
+            size: 'lg'
+        },
+        addLinkClass: 'c-disabled',
+        'disabled': true,
+    },
+    {
+        _tag: 'CSidebarNavItem',
         name: 'Users',
         className: 'roboto-font',
         icon: {

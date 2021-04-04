@@ -12,6 +12,7 @@ $info-light: rgba($info, .1);
 $success-light: rgba($success, .1);
 $warning-light: rgba($warning, .1);
 $danger-light: rgba($danger, .1);
+$dark-light: rgba($dark, .1);
 
 $theme-colors: (
   "title": $title,
@@ -20,6 +21,7 @@ $theme-colors: (
   "success-light": $success-light,
   "warning-light": $warning-light,
   "danger-light": $danger-light,
+  "dark-light": $dark-light,
 );
 // Sidebar 
 $sidebar-width: 230px;
