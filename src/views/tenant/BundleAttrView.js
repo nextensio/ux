@@ -22,19 +22,20 @@ import './tenantviews.scss'
 
 var common = require('../../common')
 
-const initAttrData = [
-    {
-        key: "bid",
-        label: "Bundle ID"
-    },
-    {
-        key: 'edit',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    },
-]
+const bid = {
+    key: "bid",
+    label: "Bundle ID"
+}
+
+const edit = {
+    key: 'edit',
+    label: '',
+    _style: { width: '1%' },
+    sorter: false,
+    filter: false
+}
+
+const initAttrData = [bid, edit]
 
 
 const BundleAttrView = (props) => {
@@ -74,14 +75,13 @@ const BundleAttrView = (props) => {
             .then(response => response.json())
             .then(data => {
                 var fields = [];
-                for (var i = 0; i < initAttrData.length; i++) {
-                    fields.push(initAttrData[i]);
-                }
+                fields.push(bid);
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == 'Bundles') {
                         fields.push(data[i].name);
                     }
                 }
+                fields.push(edit);
                 updateAttrData(fields);
             });
     }

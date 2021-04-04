@@ -101,7 +101,7 @@ const BundlesEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Add User</strong>
+                <strong>Add Bundle</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>

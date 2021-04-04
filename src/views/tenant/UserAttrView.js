@@ -21,19 +21,20 @@ import './tenantviews.scss';
 
 var common = require('../../common')
 
-const initAttrData = [
-    {
-        key: "uid",
-        label: "User ID"
-    },
-    {
-        key: 'edit',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    },
-]
+const uid = {
+    key: "uid",
+    label: "User ID"
+}
+
+const edit = {
+    key: 'edit',
+    label: '',
+    _style: { width: '1%' },
+    sorter: false,
+    filter: false
+}
+
+const initAttrData = [uid, edit]
 
 
 const UserAttrView = (props) => {
@@ -66,14 +67,13 @@ const UserAttrView = (props) => {
             .then(response => response.json())
             .then(data => {
                 var fields = [];
-                for (var i = 0; i < initAttrData.length; i++) {
-                    fields.push(initAttrData[i]);
-                }
+                fields.push(uid);
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == 'Users') {
                         fields.push(data[i].name);
                     }
                 }
+                fields.push(edit);
                 updateAttrData(fields);
             });
     }
