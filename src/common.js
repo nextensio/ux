@@ -10,6 +10,14 @@ export function GetAccessToken(authState) {
     }
 }
 
+export function GetIdToken(authState) {
+    if (process.env.REACT_APP_IGNORE_AUTH == "true") {
+        return "NoBearer"
+    } else {
+        return authState.idToken.idToken
+    }
+}
+
 const oktaAuthConfig = {
     // Note: If your app is configured to use the Implicit Flow
     // instead of the Authorization Code with Proof of Code Key Exchange (PKCE)
