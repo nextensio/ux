@@ -18,6 +18,14 @@ export function GetIdToken(authState) {
     }
 }
 
+export function decodeToken(token) {
+    const jwtBody = token.split('.')[1];
+    const base64 = jwtBody.replace('-', '+').replace('_', '/');
+    const decodedJwt = Buffer.from(base64, 'base64');
+    var idTokenJSON = JSON.parse(decodedJwt);
+    return idTokenJSON;
+}
+
 const oktaAuthConfig = {
     // Note: If your app is configured to use the Implicit Flow
     // instead of the Authorization Code with Proof of Code Key Exchange (PKCE)

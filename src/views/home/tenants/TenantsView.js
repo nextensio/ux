@@ -79,11 +79,6 @@ const TenantsView = (props) => {
     };
 
     useEffect(() => {
-        const jwtBody = common.GetAccessToken(authState).split('.')[1];
-        const base64 = jwtBody.replace('-', '+').replace('_', '/');
-        const decodedJwt = Buffer.from(base64, 'base64');
-        var idTokenJSON = JSON.parse(decodedJwt);
-        console.log('GOPA ' + JSON.stringify(idTokenJSON));
         fetch(common.api_href('/api/v1/getalltenants'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
