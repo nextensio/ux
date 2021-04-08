@@ -50,7 +50,7 @@ const BundleAttrEdit = (props) => {
     }, []);
 
     const getAttrs = () => {
-        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var fields = [];
@@ -75,14 +75,13 @@ const BundleAttrEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        userData["tenant"] = props.match.params.id;
         console.log(userData);
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify(userData),
         };
-        fetch(common.api_href('/api/v1/addbundleattr'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -92,13 +92,13 @@ const AttributeEditor = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => { updateInuseAttr(data); });
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => { updateInuseAttr(data); });
     }
@@ -208,7 +208,7 @@ const AttributeEditor = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify(newData),
         };
-        fetch(common.api_href('/api/v1/addattrset/' + props.match.params.id), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -242,7 +242,7 @@ const AttributeEditor = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify(delData),
         };
-        fetch(common.api_href('/api/v1/delattrset/') + props.match.params.id, requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/attrset'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -409,8 +409,8 @@ const AttributeEditor = (props) => {
                                                         >
                                                             <CIcon name='cil-plus' className='text-dark' />
                                                         </CButton>
-                                                    </CTooltip>  
-                                                </td>        
+                                                    </CTooltip>
+                                                </td>
                                             )
                                         },
                                     'edit':
@@ -425,8 +425,8 @@ const AttributeEditor = (props) => {
                                                         >
                                                             <CIcon name='cil-pencil' className='text-dark' />
                                                         </CButton>
-                                                    </CTooltip> 
-                                                </td>         
+                                                    </CTooltip>
+                                                </td>
                                             )
                                         },
                                     'delete':
@@ -442,7 +442,7 @@ const AttributeEditor = (props) => {
                                                         >
                                                             <CIcon name='cil-delete' className='text-dark' />
                                                         </CButton>
-                                                    </CTooltip>                                                
+                                                    </CTooltip>
                                                 </td>
                                             )
                                         },

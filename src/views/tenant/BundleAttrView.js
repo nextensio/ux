@@ -56,7 +56,7 @@ const BundleAttrView = (props) => {
 
     useEffect(() => {
         getAttrs();
-        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -71,7 +71,7 @@ const BundleAttrView = (props) => {
     }, []);
 
     const getAttrs = () => {
-        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var fields = [];
@@ -87,7 +87,7 @@ const BundleAttrView = (props) => {
     }
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallbundleattr/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {

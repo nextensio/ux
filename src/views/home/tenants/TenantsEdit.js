@@ -96,7 +96,7 @@ const TenantsEdit = (props) => {
             }),
         };
 
-        fetch(common.api_href('/api/v1/addtenant'), requestOptions)
+        fetch(common.api_href('/api/v1/global/add/tenant'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 // check for error response

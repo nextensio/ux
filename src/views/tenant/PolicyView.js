@@ -78,7 +78,7 @@ const PolicyView = (props) => {
 
     useEffect(() => {
         setDetails([])
-        fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -92,7 +92,7 @@ const PolicyView = (props) => {
 
     const handleRefresh = (e) => {
         setDetails([]);
-        fetch(common.api_href('/api/v1/getallpolicies/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -118,7 +118,7 @@ const PolicyView = (props) => {
 
     const handleDelete = (index) => {
         setDetails([])
-        fetch(common.api_href('/api/v1/delpolicy/') + props.match.params.id + '/' + usersData[index].pid, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/policy/') + usersData[index].pid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

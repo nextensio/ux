@@ -70,13 +70,13 @@ const UsersView = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallusers/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallusers/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
@@ -93,7 +93,7 @@ const UsersView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/deluser/') + props.match.params.id + '/' + usersData[index].uid, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + usersData[index].uid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

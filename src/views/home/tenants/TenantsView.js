@@ -79,13 +79,13 @@ const TenantsView = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getalltenants'), hdrs)
+        fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getalltenants'), hdrs)
+        fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
@@ -108,7 +108,7 @@ const TenantsView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/deltenant/') + usersData[index]._id, hdrs)
+        fetch(common.api_href('/api/v1/global/del/tenant/') + usersData[index]._id, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -55,7 +55,7 @@ const UserAttrView = (props) => {
 
     useEffect(() => {
         getAttrs();
-        fetch(common.api_href('/api/v1/getalluserattr/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => {
                 updateUserData(data)
@@ -63,7 +63,7 @@ const UserAttrView = (props) => {
     }, []);
 
     const getAttrs = () => {
-        fetch(common.api_href('/api/v1/getallattrset/' + props.match.params.id), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var fields = [];
@@ -79,7 +79,7 @@ const UserAttrView = (props) => {
     }
 
     const handleRefresh = (e) => {
-        fetch('http://127.0.0.1:8080/api/v1/getalluserattr/' + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {

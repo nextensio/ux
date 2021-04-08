@@ -72,12 +72,12 @@ const BundlesEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                bid: userData.bid, tenant: userData.tenant, name: userData.name,
+                bid: userData.bid, name: userData.name,
                 gateway: userData.gateway, services: services,
                 pod: parseInt(userData.pod)
             }),
         };
-        fetch(common.api_href('/api/v1/addbundle'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

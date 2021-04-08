@@ -69,7 +69,7 @@ const CertsEdit = (props) => {
                 cert: ucode
             }),
         };
-        fetch(common.api_href('/api/v1/addcert'), requestOptions)
+        fetch(common.api_href('/api/v1/global/add/cert'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

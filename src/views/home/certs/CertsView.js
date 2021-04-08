@@ -76,7 +76,7 @@ const CertsView = (props) => {
 
     useEffect(() => {
         setDetails([])
-        fetch(common.api_href('/api/v1/getallcerts'), hdrs)
+        fetch(common.api_href('/api/v1/global/get/allcerts'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -90,7 +90,7 @@ const CertsView = (props) => {
 
     const handleRefresh = (e) => {
         setDetails([]);
-        fetch(common.api_href('/api/v1/getallcerts'), hdrs)
+        fetch(common.api_href('/api/v1/global/get/allcerts'), hdrs)
             .then(response => response.json())
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
@@ -116,7 +116,7 @@ const CertsView = (props) => {
 
     const handleDelete = (index) => {
         setDetails([])
-        fetch(common.api_href('/api/v1/delcert/') + usersData[index].certid, hdrs)
+        fetch(common.api_href('/api/v1/global/del/cert/') + usersData[index].certid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

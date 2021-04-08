@@ -60,7 +60,7 @@ const GatewaysEdit = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({ name: gwData.name, ipaddr: gwData.ipaddr }),
         };
-        fetch(common.api_href('/api/v1/addgateway'), requestOptions)
+        fetch(common.api_href('/api/v1/global/add/gateway'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -70,13 +70,13 @@ const BundlesView = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundles'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/getallbundles/') + props.match.params.id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundles'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
     }
@@ -93,7 +93,7 @@ const BundlesView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/delbundle/') + props.match.params.id + '/' + usersData[index].bid, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundle/') + usersData[index].bid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
