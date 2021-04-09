@@ -1,24 +1,35 @@
 import React from 'react'
+import { Redirect } from 'react-router-dom';
 import {
     TheContent,
     TheSidebar,
     TheFooter,
 } from './index'
-
+import { useOktaAuth } from '@okta/okta-react';
 import './home.scss'
-const TheLayout = () => {
 
-    return (
-        <div className="c-app c-default-layout">
-            <TheSidebar />
-            <div className="c-wrapper">
-                <div className="c-body">
-                    <TheContent />
+var common = require('../../common')
+
+const TheLayout = (props) => {
+
+    const { oktaAuth, authState } = useOktaAuth();
+    const token = common.GetAccessToken(authState);
+    const userInfo = common.decodeToken(token);
+    if (userInfo['usertype'] == 'superadmin') {
+        return (
+            <div className="c-app c-default-layout">
+                <TheSidebar />
+                <div className="c-wrapper">
+                    <div className="c-body">
+                        <TheContent />
+                    </div>
+                    <TheFooter />
                 </div>
-                <TheFooter />
             </div>
-        </div>
-    )
+        )
+    } else {
+        return <Redirect to={'/tenant/' + userInfo['tenant'] + '/home'} />
+    }
 }
 
 export default TheLayout
