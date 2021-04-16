@@ -27,8 +27,7 @@ var common = require('../../../common')
 const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
-        curid: "unknown",
-        name: "",
+        _id: "unknown",
         gateways: "",
         domains: "",
         image: "",
@@ -47,7 +46,7 @@ const TenantsEdit = (props) => {
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
             updateTenantData({
-                curid: props.location.state._id,
+                _id: props.location.state._id,
                 name: props.location.state.name,
                 gateways: props.location.state.gateways.join(),
                 domains: props.location.state.domains.join(),
@@ -90,8 +89,8 @@ const TenantsEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                curid: tenantData.curid,
-                name: tenantData.name, gateways: gateways, domains: domains,
+                _id: tenantData._id,
+                gateways: gateways, domains: domains,
                 image: tenantData.image, pods: parseInt(tenantData.pods),
             }),
         };
@@ -129,8 +128,8 @@ const TenantsEdit = (props) => {
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">Name</CLabel>
-                        <CInput name="name" placeholder={tenantData.name} onChange={handleChange} />
+                        <CLabel htmlFor="nf-email">Enterprise ID</CLabel>
+                        <CInput name="_id" placeholder={tenantData._id} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Gateways (Comma seperated)</CLabel>
