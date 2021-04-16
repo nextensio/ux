@@ -29,6 +29,10 @@ function validateEmail(email) {
     return re.test(String(email).toLowerCase());
 }
 
+function validateEnterprise(tenant) {
+    var format = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/;
+    return !format.test(tenant)
+}
 const SignUp = (props) => {
     const initSignupData = Object.freeze({
         email: "",
@@ -48,14 +52,18 @@ const SignUp = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!validateEmail(signupData.email)) {
-            alert(signupData.email + " is not a valid email id");
+        if (!validateEmail(signupData.email.trim())) {
+            alert(signupData.email + " <- is not a valid email id");
             return
         }
+        if (!validateEnterprise(signupData.tenant.trim())) {
+            alert(signupData.tenant + " <- has to be one word with no special characters")
+        }
+
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: signupData.email, tenant: signupData.tenant }),
+            body: JSON.stringify({ email: signupData.email.trim(), tenant: signupData.tenant.trim() }),
         };
         fetch(common.api_href('/api/v1/noauth/signup'), requestOptions)
             .then(async response => {
@@ -91,9 +99,9 @@ const SignUp = (props) => {
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">An Organization ID, like pepsi / pepsi100 / sprite etc.., one word with any characters</CLabel>
+                        <CLabel htmlFor="nf-email">An Enterprise ID, like pepsi / pepsi100 / sprite etc.. (One word with upper/lower case alphabets, numbers or underscore)</CLabel>
                         <CInput name="tenant" placeholder="" onChange={handleChange} />
-                        <CLabel htmlFor="nf-email">Your Email</CLabel>
+                        <CLabel htmlFor="nf-email">Your Email ID</CLabel>
                         <CInput name="email" placeholder="" onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
@@ -101,7 +109,7 @@ const SignUp = (props) => {
             <CCardFooter>
                 <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
                     <CIcon email="cil-scrubber" />
-                    <strong>{" "}Signup!</strong>
+                    <strong>Signup!</strong>
                 </CButton>
             </CCardFooter>
         </CCard>
