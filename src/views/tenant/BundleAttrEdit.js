@@ -105,14 +105,14 @@ const BundleAttrEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Add Bundle Attribute Values</strong>
+                <strong>Add AppGroup Attributes</strong>
             </CCardHeader>
             <CCardBody>
                 {attrData.map((attr, index) => {
                     if (attr == "bid") {
                         return (
                             <CFormGroup>
-                                <CLabel htmlFor="nf-attribute">Bundle Id</CLabel>
+                                <CLabel htmlFor="nf-attribute">AppGroup Id</CLabel>
                                 <CInput name="bid" placeholder={userData[attr]} onChange={handleChange} />
                             </CFormGroup>
                         );

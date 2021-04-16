@@ -101,25 +101,17 @@ const BundlesEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Add Bundle</strong>
+                <strong>Add AppGroup</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">Bundle ID</CLabel>
+                        <CLabel htmlFor="nf-password">AppGroup ID</CLabel>
                         <CInput name="bid" placeholder={userData.bid} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">Bundle Name</CLabel>
+                        <CLabel htmlFor="nf-email">AppGroup Name</CLabel>
                         <CInput name="name" placeholder={userData.name} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">(Optional) Pin Bundle to gateway</CLabel>
-                        <CInput name="gateway" placeholder={userData.gateway} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">(Optional) Pin Bundle to pod</CLabel>
-                        <CInput name="pod" placeholder={userData.pod} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>

@@ -24,7 +24,7 @@ var common = require('../../common')
 
 const bid = {
     key: "bid",
-    label: "Bundle ID"
+    label: "AppGroup ID"
 }
 
 const edit = {
@@ -121,15 +121,15 @@ const BundleAttrView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            <strong>Bundle Attributes</strong>
+                            <strong>AppGroup Attributes</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={attrData}
                                 itemsPerPageSelect
-                                tableFilter={{ placeholder: 'By bundle ID, team...', label: 'Search: ' }}
-                                noItemsView={{ noItems: 'No bundle properties exist ' }}
+                                tableFilter={{ placeholder: 'By AppGroup ID, team...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No AppGroup Attributes exist ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{

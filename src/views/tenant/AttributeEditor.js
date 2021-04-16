@@ -292,7 +292,7 @@ const AttributeEditor = (props) => {
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
                                                 <CInputRadio custom id="inline-radio2" name="inline-radios" value="Bundles" onChange={(e) => handleAppliesToChange(e)} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-notes" /> Bundle</CLabel>
+                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-notes" /> AppGroup</CLabel>
                                             </CFormGroup>
                                         </div>
                                     </CCol>

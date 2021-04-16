@@ -32,10 +32,6 @@ const fields = [
         label: "User ID"
     },
     "name",
-    "email",
-    "services",
-    "gateway",
-    "pod",
     {
         key: 'edit',
         label: '',

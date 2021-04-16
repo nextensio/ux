@@ -73,8 +73,8 @@ const UsersEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                uid: userData.uid, name: userData.name, email: userData.email,
-                gateway: userData.gateway, services: services,
+                uid: userData.uid, name: userData.name, email: userData.uid,
+                gateway: userData.gateway,
                 pod: parseInt(userData.pod)
             }),
         };
@@ -113,22 +113,6 @@ const UsersEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">User Name</CLabel>
                         <CInput name="name" placeholder={userData.name} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Email Address</CLabel>
-                        <CInput name="email" placeholder={userData.email} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">(Optional) Pin user to gateway</CLabel>
-                        <CInput name="gateway" placeholder={userData.gateway} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">(Optional) Pin user to pod</CLabel>
-                        <CInput name="pod" placeholder={userData.pod} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Services, comma seperated</CLabel>
-                        <CInput name="services" placeholder={userData.services} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

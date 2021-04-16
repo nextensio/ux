@@ -35,7 +35,7 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Bundles',
+        name: 'AppGroups',
         to: '/tenant/:id/bundles',
         className: 'roboto-font',
         icon: {
@@ -45,7 +45,7 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Bundle Attributes',
+        name: 'AppGroup Attributes',
         to: '/tenant/:id/bundleattr',
         className: 'roboto-font',
         icon: {

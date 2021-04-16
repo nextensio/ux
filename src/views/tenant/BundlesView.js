@@ -33,8 +33,6 @@ const fields = [
     },
     "name",
     "services",
-    "gateway",
-    "pod",
     {
         key: 'edit',
         label: '',
@@ -128,15 +126,15 @@ const BundlesView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard>
                         <CCardHeader>
-                            <strong>Bundles</strong>
+                            <strong>AppGroup</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 items={usersData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{ placeholder: 'By bundle ID, name...', label: 'Search: ' }}
-                                noItemsView={{ noItems: 'No bundles exist ' }}
+                                tableFilter={{ placeholder: 'By AppGroup ID, name...', label: 'Search: ' }}
+                                noItemsView={{ noItems: 'No AppGroup exists ' }}
                                 sorter
                                 pagination
                                 scopedSlots={{
@@ -200,7 +198,7 @@ const BundlesView = (props) => {
                         <strong>Confirm Deletion</strong>
                     </CModalHeader>
                     <CModalBody className='text-lg-left'>
-                        <strong>Are you sure you want to delete this bundle?</strong>
+                        <strong>Are you sure you want to delete this AppGroup?</strong>
                     </CModalBody>
                     <CModalFooter>
                         <CButton

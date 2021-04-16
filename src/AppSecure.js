@@ -12,6 +12,7 @@ const TenantLayout = React.lazy(() => import('./containers/tenant/TheLayout'));
 
 // Pages
 const Login = React.lazy(() => import('./Login'));
+const SignUp = React.lazy(() => import('./SignUp'));
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
 
@@ -49,6 +50,7 @@ const AppSecure = () => {
                     <SecureRoute path="/tenant/:id" name="Tenant" render={props => <TenantLayout {...props} />} />
                     <SecureRoute path="/home" name="Home" render={props => <HomeLayout {...props} />} />
                     <Route path='/' exact={true} component={Root} />
+                    <Route path='/signup' render={() => <SignUp />} />
                     <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
                     <Route path='/login/callback' component={LoginCallback} />
                 </Switch>
