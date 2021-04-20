@@ -78,6 +78,7 @@ const SignUp = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
+                    alert("Please check your email, activate your account and then login here")
                     props.history.push('/login')
                 }
             })
