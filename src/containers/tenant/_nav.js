@@ -9,7 +9,7 @@ export default [
         to: '/tenant/:id/home',
         className: 'roboto-font',
         icon: {
-            name: 'cil-speedometer',
+            name: 'cil-home',
             size: 'lg'
         }
     },
@@ -60,6 +60,16 @@ export default [
         className: 'roboto-font',
         icon: {
             name: 'cil-fingerprint',
+            size: 'lg'
+        },
+    },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'Host Config',
+        to: '/tenant/:id/hosts',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-input-power',
             size: 'lg'
         },
     },

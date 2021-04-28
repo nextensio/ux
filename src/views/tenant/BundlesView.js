@@ -1,16 +1,12 @@
 import React, { lazy, useState, useEffect } from 'react'
 import {
-    CBadge,
     CButton,
-    CButtonGroup,
     CCard,
     CCardBody,
     CCardFooter,
     CCardHeader,
     CCol,
-    CProgress,
     CRow,
-    CCallout,
     CDataTable,
     CModal,
     CModalHeader,
@@ -21,6 +17,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
 
 
@@ -29,10 +26,21 @@ var common = require('../../common')
 const fields = [
     {
         key: "bid",
-        label: "Bundle ID"
+        label: "Bundle ID",
+        _classes: "data-head"
     },
-    "name",
-    "services",
+    {
+        key: "name",
+        _classes: "data-field"
+    },
+    {
+        key: "services",
+        _classes: "data-field"
+    },
+    {
+        key: "gateway",
+        _classes: "data-field"
+    },
     {
         key: 'edit',
         label: '',
@@ -119,12 +127,9 @@ const BundlesView = (props) => {
 
     return (
         <>
-            <CCallout color="primary" className="bg-title">
-                <h4 className="title"></h4>
-            </CCallout>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard>
+                    <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
                         </CCardHeader>
@@ -144,15 +149,16 @@ const BundlesView = (props) => {
                                                 <td className="py-1">
                                                     <CTooltip
                                                         content='Edit'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -164,15 +170,16 @@ const BundlesView = (props) => {
                                                 <td className="py-1">
                                                     <CTooltip
                                                         content='Delete'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='danger'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { toggleDelete(index) }}
                                                         >
-                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>

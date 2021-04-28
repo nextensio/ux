@@ -27,11 +27,9 @@ var common = require('../../common')
 const BundlesEdit = (props) => {
     const initUserData = Object.freeze({
         bid: "",
-        tenant: props.match.params.id,
         name: "",
         services: "",
         gateway: "",
-        pod: 0,
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -74,7 +72,6 @@ const BundlesEdit = (props) => {
             body: JSON.stringify({
                 bid: userData.bid, name: userData.name,
                 gateway: userData.gateway, services: services,
-                pod: parseInt(userData.pod)
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)

@@ -32,6 +32,7 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { CChartBar, CChartPie } from '@coreui/react-chartjs'
 import { useOktaAuth } from '@okta/okta-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 var common = require('../../../common')
 
@@ -41,11 +42,26 @@ const fields = [
         label: "Tenant ID",
         _classes: "data-head",
     },
-    "name",
-    "gateways",
-    "domains",
-    "image",
-    "pods",
+    {
+        key: "name",
+        _classes: "data-field"
+    },
+    {
+        key: "gateways",
+        _classes: "data-field"
+    },
+    {
+        key: "domains",
+        _classes: "data-field"
+    },
+    {
+        key: "image",
+        _classes: "data-field"
+    },
+    {
+        key: "pods",
+        _classes: "data-field"
+    },
     {
         key: 'edit',
         label: '',
@@ -98,7 +114,7 @@ const TenantsView = (props) => {
     // data like tenant name or tenant image or number of pods tenant wants etc..
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/home/tenants/data',
+            pathname: '/home/tenants/add',
             state: usersData[index]
         })
     }
@@ -137,14 +153,12 @@ const TenantsView = (props) => {
 
     return (
         <>
-            <CCallout color="primary" className="bg-title">
-                <h4 className="title"></h4>
-            </CCallout>
             <CRow className='mt-3'>
                 <CCol xs="24" lg="12">
-                    <CCard>
+                    <CCard className="shadow rounded">
                         <CCardHeader>
-                            <strong>Tenants</strong><small> Click on a row to navigate to Tenants page</small>
+                            <strong>Tenants</strong>
+                            <div className="text-muted small">Click on a row to navigate to Tenants page</div>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -162,18 +176,22 @@ const TenantsView = (props) => {
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content='Edit'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={(event) => { event.stopPropagation(); handleEdit(index) }}
+                                                            onClick={(e) => {
+                                                                handleEdit(index);
+                                                                e.stopPropagation()
+                                                            }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -182,18 +200,22 @@ const TenantsView = (props) => {
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content='Delete'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={(event) => { event.stopPropagation(); toggleDelete(index) }}
+                                                            onClick={(e) => {
+                                                                toggleDelete(index)
+                                                                e.stopPropagation()
+                                                            }}
                                                         >
-                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -233,8 +255,6 @@ const TenantsView = (props) => {
                     </CModal>
                 </CCol>
             </CRow>
-
-
         </>
     )
 }

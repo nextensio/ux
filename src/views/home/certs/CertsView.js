@@ -23,6 +23,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import '../homeviews.scss'
 
 var common = require('../../../common')
 
@@ -33,6 +35,13 @@ const fields = [
         _classes: "data-head",
     },
     {
+        key: 'show_details',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -41,13 +50,6 @@ const fields = [
     },
     {
         key: 'delete',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    },
-    {
-        key: 'show_details',
         label: '',
         _style: { width: '1%' },
         sorter: false,
@@ -153,16 +155,14 @@ const CertsView = (props) => {
         setDeleteIndex(index)
     }
 
-    const showIcon = <CIcon name='cil-plus' className='text-dark' />
-    const hideIcon = <CIcon name='cil-minus' className='text-dark' />
+    const showIcon = <FontAwesomeIcon icon="angle-double-down" size="lg" className="icon-table-edit" />
+    const hideIcon = <FontAwesomeIcon icon="angle-double-up" size="lg" className="icon-table-edit" />
 
     return (
         <>
-            <CCallout color="primary" className="bg-title">
-            </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard>
+                    <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Certificates</strong>
                         </CCardHeader>
@@ -179,18 +179,19 @@ const CertsView = (props) => {
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content='edit'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { handleEdit(index) }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -199,18 +200,19 @@ const CertsView = (props) => {
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content='Delete'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='danger'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { toggleDelete(index) }}
                                                         >
-                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -219,13 +221,14 @@ const CertsView = (props) => {
                                     'show_details':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content={details.includes(index) ? 'Hide' : 'Details'}
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { toggleDetails(index) }}

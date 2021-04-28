@@ -27,12 +27,7 @@ var common = require('../../common')
 const UsersEdit = (props) => {
     const initUserData = Object.freeze({
         uid: "",
-        tenant: props.match.params.id,
         name: "",
-        email: "",
-        services: "",
-        gateway: "",
-        pod: 0,
     });
     const [userData, updateUserData] = useState(initUserData);
 
@@ -59,23 +54,11 @@ const UsersEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        var services = userData.services
-        if (userData.services) {
-            if (!Array.isArray(userData.services)) {
-                services = userData.services.split(',').map(function (item) {
-                    return item.trim();
-                })
-            }
-        } else {
-            services = []
-        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                uid: userData.uid, name: userData.name, email: userData.uid,
-                gateway: userData.gateway,
-                pod: parseInt(userData.pod)
+                uid: userData.uid, name: userData.name,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user'), requestOptions)

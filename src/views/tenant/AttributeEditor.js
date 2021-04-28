@@ -5,7 +5,6 @@ import {
     CCard,
     CCardHeader,
     CCardBody,
-    CCardFooter,
     CCol,
     CDataTable,
     CDropdown,
@@ -19,8 +18,6 @@ import {
     CInputGroup,
     CInputRadio,
     CLabel,
-    CListGroup,
-    CListGroupItem,
     CModal,
     CModalHeader,
     CModalBody,
@@ -33,22 +30,31 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
-import './tenantviews.scss'
 import { reset } from 'enzyme/build/configuration';
 import { useOktaAuth } from '@okta/okta-react';
 import { introspect } from '@okta/okta-auth-js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import './tenantviews.scss'
 
 var common = require('../../common')
 
 const fields = [
-    "name",
-    "appliesTo",
-    "type",
+    {
+        key: "name",
+        _classes: "data-head"
+    },
+    {
+        key: "appliesTo",
+        _classes: "data-field"
+    },
+    {
+        key: "type",
+        _classes: "data-field"
+    },
     {
         key: 'show',
         label: '',
         _style: { width: '1%' },
-        _classes: 'data-head',
         sorter: false,
         filter: false,
     },
@@ -56,7 +62,6 @@ const fields = [
         key: "edit",
         label: '',
         _style: { width: '1%' },
-        _classes: 'data-head',
         sorter: false,
         filter: false
     },
@@ -64,7 +69,6 @@ const fields = [
         key: "delete",
         label: '',
         _style: { width: '1%' },
-        _classes: 'data-head',
         sorter: false,
         filter: false
     }
@@ -157,25 +161,6 @@ const AttributeEditor = (props) => {
         console.log(values)
     }
 
-    const validType = (type) => {
-        if (type == "String" || type == "Boolean" || type == "Number") {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-
-    const validTypeStyling = (type) => {
-        if (validType(type)) {
-            return "success"
-        }
-        else {
-            return "dark"
-        }
-    }
-
-
     const reset = (e) => {
         setAttrAppliesTo('');
         setAttributeData([{ name: '', type: 'Attribute Type', isValid: 'noState' }]);
@@ -267,16 +252,12 @@ const AttributeEditor = (props) => {
 
     return (
         <>
-            <CCallout color="primary" className="bg-title">
-                <h4 className="title"></h4>
-            </CCallout>
-            <h6 className="subtitle mb-3">Define attribute set for users and bundles.
-                User / bundle can have subset of attributes defined here</h6>
             <CRow>
                 <CCol sm="12" lg="6">
-                    <CCard>
+                    <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
+                            <div className="text-muted small">Define attribute set for users and bundles.</div>
                         </CCardHeader>
                         <CCardBody>
                             <CForm>
@@ -313,12 +294,13 @@ const AttributeEditor = (props) => {
                                                     invalid={attribute.isValid == "false"}
                                                 />
                                                 <CDropdown className="input-group-append">
-                                                    <CDropdownToggle caret color={validTypeStyling(attribute.type)}>
+                                                    <CDropdownToggle caret color="success">
                                                         {attribute.type}
                                                     </CDropdownToggle>
                                                     <CDropdownMenu>
                                                         <CDropdownItem value={attribute.type.value} onClick={(e) => handleType(e, index, "String")}>String</CDropdownItem>
                                                         <CDropdownItem value={attribute.type.value} onClick={(e) => handleType(e, index, "Boolean")}>Boolean</CDropdownItem>
+                                                        <CDropdownItem value={attribute.type.value} onClick={(e) => handleType(e, index, "Date")}>Date</CDropdownItem>
                                                         <CDropdownItem value={attribute.type.value} onClick={(e) => handleType(e, index, "Number")}>Number</CDropdownItem>
                                                     </CDropdownMenu>
                                                 </CDropdown>
@@ -352,20 +334,21 @@ const AttributeEditor = (props) => {
                         </CModalFooter>
                     </CModal>
                 </CCol>
+                
+                {/* Warning to be triggered if tenant attempts to delete attribute field when there is only one rendered*/}
+                <CModal show={attributeWarning} onClose={() => setAttributeWarning(false)} color="danger">
+                    <CModalHeader closeButton>
+                        <CModalTitle>Attention!</CModalTitle>
+                    </CModalHeader>
+                    <CModalBody>
+                        You need at least one attribute.
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton color="danger" onClick={() => setAttributeWarning(false)}>OK</CButton>
+                    </CModalFooter>
+                </CModal>
 
-                <CCol sm="12" lg="6">
-                    <CModal show={attributeWarning} onClose={() => setAttributeWarning(false)} color="danger">
-                        <CModalHeader closeButton>
-                            <CModalTitle>Attention!</CModalTitle>
-                        </CModalHeader>
-                        <CModalBody>
-                            You need at least one attribute.
-                        </CModalBody>
-                        <CModalFooter>
-                            <CButton color="danger" onClick={() => setAttributeWarning(false)}>OK</CButton>
-                        </CModalFooter>
-                    </CModal>
-                </CCol>
+                {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
                 <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
                     <CModalHeader className='bg-danger text-white py-n5' closeButton>
                         <strong>Confirm Deletion</strong>
@@ -388,7 +371,7 @@ const AttributeEditor = (props) => {
 
             <CRow>
                 <CCol sm="12">
-                    <CCard>
+                    <CCard className="shadow rounded">
                         <CCardHeader>
                             Existing Attributes
                         </CCardHeader>
@@ -403,11 +386,12 @@ const AttributeEditor = (props) => {
                                                 <td className="py-2">
                                                     <CTooltip content='Show' className='bottom'>
                                                         <CButton
-                                                            color='light'
+                                                            className='button-table'
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
                                                         >
-                                                            <CIcon name='cil-plus' className='text-dark' />
+                                                            <FontAwesomeIcon icon="angle-double-down" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -419,11 +403,12 @@ const AttributeEditor = (props) => {
                                                 <td className="py-2">
                                                     <CTooltip content='Edit' className='bottom'>
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -435,12 +420,13 @@ const AttributeEditor = (props) => {
                                                 <td className="py-2">
                                                     <CTooltip content='Delete' className='bottom'>
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='danger'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={() => { toggleDelete(index) }}
                                                         >
-                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>

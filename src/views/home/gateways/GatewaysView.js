@@ -1,8 +1,6 @@
 import React, { lazy, useState, useEffect } from 'react'
 import {
-    CBadge,
     CButton,
-    CCallout,
     CCard,
     CCardBody,
     CCardHeader,
@@ -18,6 +16,7 @@ import {
 } from '@coreui/react'
 import { CChartRadar } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '../homeviews.scss';
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
@@ -33,7 +32,6 @@ const fields = [
         key: 'edit',
         label: '',
         _style: { width: '1%' },
-        _classes: 'data-head',
         sorter: false,
         filter: false
     },
@@ -41,7 +39,6 @@ const fields = [
         key: 'delete',
         label: '',
         _style: { width: '1%' },
-        _classes: 'data-head',
         sorter: false,
         filter: false
     },
@@ -115,12 +112,10 @@ const GatewaysView = (props) => {
 
     return (
         <>
-            <CCallout color="primary" className="bg-title">
-            </CCallout>
             <CRow>
                 <CCol xs="12" lg="6">
-                    <CCard>
-                        <CCardHeader className="card-header">
+                    <CCard className="shadow rounded">
+                        <CCardHeader>
                             Gateways
                         </CCardHeader>
                         <CCardBody>
@@ -139,13 +134,14 @@ const GatewaysView = (props) => {
                                     'edit':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content='Edit'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='primary'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={(e) => {
@@ -153,7 +149,7 @@ const GatewaysView = (props) => {
                                                                 e.stopPropagation()
                                                             }}
                                                         >
-                                                            <CIcon name='cil-pencil' className='text-dark' />
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit"/>
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -162,13 +158,14 @@ const GatewaysView = (props) => {
                                     'delete':
                                         (item, index) => {
                                             return (
-                                                <td className="py-1">
+                                                <td className="py-2">
                                                     <CTooltip
                                                         content='Delete'
-                                                        placement='bottom'
+                                                        placement='top'
                                                     >
                                                         <CButton
-                                                            color='light'
+                                                            className="button-table"
+                                                            color='danger'
                                                             variant='ghost'
                                                             size="sm"
                                                             onClick={(e) => {
@@ -176,7 +173,7 @@ const GatewaysView = (props) => {
                                                                 e.stopPropagation()
                                                             }}
                                                         >
-                                                            <CIcon name='cil-delete' className='text-dark' />
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
@@ -216,9 +213,10 @@ const GatewaysView = (props) => {
                     </CModal>
                 </CCol>
                 <CCol xs="12" lg="6">
-                    <CCard>
+                    <CCard className="shadow rounded pb-3">
                         <CCardHeader>
-                            Gateway traffic Usage <small> in GBs</small>
+                            Gateway traffic Usage 
+                            <div className="text-muted small">in GBs</div>
                         </CCardHeader>
                         <CCardBody>
                             <CChartRadar

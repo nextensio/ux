@@ -46,13 +46,15 @@ $sidebar-light-nav-link-active-color: $sidebar-theme-color;
 $sidebar-light-nav-link-active-icon-color: $sidebar-theme-color;
 $sidebar-light-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
 
-// Sidebar minimizer
 
 // Sidebar footer
 $sidebar-light-footer-bg: transparent; 
 
-// Cards
-$card-icon-color: $primary;
+// Nav tabs
+$nav-tabs-border-color: $dark;
+$nav-tabs-link-active-color: $primary;
+$nav-tabs-link-active-bg: $white;
+$nav-tabs-link-active-border-color: $dark $dark transparent;
 
 // Body
 $body-bg: $white;

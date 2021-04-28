@@ -38,28 +38,10 @@ const TheHeader = () => {
                 className="ml-3 d-md-down-none"
                 onClick={toggleSidebar}
             />
-            <CHeaderNav className='d-md-down-none mr-auto'>
-                <CHeaderNavItem className='px-3'>
-                    <CHeaderNavLink to='/home'>Home</CHeaderNavLink>
-                </CHeaderNavItem>
-                <CHeaderNavItem className='px-3'>
-                    <CHeaderNavLink to='/home/gateways'>Gateways</CHeaderNavLink>
-                </CHeaderNavItem>
-                <CHeaderNavItem className='px-3'>
-                    <CHeaderNavLink to='/home/tenants'>Tenants</CHeaderNavLink>
-                </CHeaderNavItem>
-            </CHeaderNav>
 
-            <CHeaderNav className='px-3'>
+            <CHeaderNav className='ml-auto px-3'>
                 <TheHeaderDropdown />
             </CHeaderNav>
-
-            <CSubheader className='px-3 justify-content-between'>
-                <CBreadcrumbRouter
-                    className='border-0 c-subheader-nav m-0 px-0 px-md-3'
-                    routes={routes}
-                />
-            </CSubheader>
 
         </CHeader>
     )

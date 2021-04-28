@@ -20,7 +20,7 @@ const TheHeaderDropdown = () => {
             <CDropdownToggle className='c-header-nav-link' caret={false}>
                 <div className='c-avatar'>
                     <CImg
-                        src={'putuseravtarhere??.jpg'}
+                        src={'boris.jpg'}
                         className='c-avatar-img'
                         alt='user@nextensio.com'
                     />
@@ -58,7 +58,7 @@ const TheHeaderDropdown = () => {
                 </CDropdownItem>
                 <CDropdownItem divider />
                 <CDropdownItem>
-                    <CNavLink to='/login'>
+                    <CNavLink>
                         <CIcon name='cil-account-logout' className='mfe-2' />
                         Logout
                     </CNavLink>

@@ -33,7 +33,6 @@ Lets say you make some UI/UX changes and want to test it out, this is how you ca
 7. Login credentials are user: apogphone@gmail.com
                          pass: Nextensio238 
 
-
 ## What is created by create.sh
 
 What is created by the script is a kubernetes cluster running in a test kubernetes environment 
@@ -43,6 +42,39 @@ APIs etc.. and three pods running mongodb which is our database.
 
 There will be one pod for the loadbalancer haproxy which says crashed/terminated, that is fine, just
 ignore it.
+
+## Building without create.sh
+
+1. Ensure that {localhost} controller.nextensio.net
+               {localhost} server.nextensio.net
+   are in your /etc/hosts file
+2. Ensure that golang and mongodb are installed on your machine
+3. Go to cd controller/nxtsvr and run "go build ./..." in terminal
+   then run 
+
+   NXT_READONLY=false API_CLIENT_ID=0oa24hr70oNBZW0b64x7 IDP_URI="https://dev-635657.okta.com/oauth2/default" TLS_KEY=~/NXT/ux/test/nextensio.key TLS_CRT=~/NXT/ux/test/nextensio.crt ./nxtsvr
+
+4. Open a new terminal
+5. In the cd ux subdir, run "npm install" and ru n
+
+sudo REACT_APP_CLIENT_ID=0oa24hr70oNBZW0b64x7 REACT_APP_API_URL=https://localhost:8080 REACT_APP_IDP_URI="https://dev-635657.okta.com"  HTTPS=true SSL_CRT_FILE=./test/nextensio.crt SSL_KEY_FILE=./test/nextensio.key npm start
+
+-------------- or -------------
+
+sudo REACT_APP_CLIENT_ID=0oa24hr70oNBZW0b64x7 REACT_APP_API_URL=https://server.nextensio.net:8080 REACT_APP_IDP_URI="https://dev-635657.okta.com"  HTTPS=true SSL_CRT_FILE=./test/nextensio.crt SSL_KEY_FILE=./test/nextensio.key npm start
+
+depending on which works...
+
+6. navigate to controller.nextensio.net on Chrome and you should see the UI.
+7. Superuser 	login: matthew@nextensio.net
+		pass: LetMeIn123
+
+Additional Note:
+In the case that your machine does not let you run on ports below 1024:
+run " setcap 'cap_net_bind_service=+ep' /usr/bin/node " in terminal, otherwise port 443 will not be allowed access. 
+
+
+
 
 ### Accessing a pod / logging into the pod
 
