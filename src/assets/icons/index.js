@@ -1,5 +1,6 @@
 import { logo } from './logo'
-import { 
+import {
+    cil3d,
     cilAccountLogout,
     cilAsterisk,
     cilBan,
@@ -48,6 +49,7 @@ import {
 export const icons = Object.assign({}, {
     logo,
 },  {
+    cil3d,
     cilAccountLogout,
     cilAsterisk,
     cilBan,

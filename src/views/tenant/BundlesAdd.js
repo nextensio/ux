@@ -1,4 +1,4 @@
-import React, { lazy, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
@@ -9,15 +9,15 @@ import {
     CInput,
     CInputCheckbox,
     CInputGroup,
-    CInputGroupAppend,
     CInputGroupPrepend,
     CInputGroupText,
+    CInvalidFeedback,
     CRow,
     CSelect,
     CLabel,
     CCardHeader,
     CFormGroup,
-    CCardFooter
+    CCardFooter,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -27,12 +27,23 @@ import './tenantviews.scss'
 
 var common = require('../../common')
 
-const BundlesEdit = (props) => {
-    const [bundleState, updateBundleState] = useState("");
-    const [bundleAttrState, updateBundleAttrState] = useState("");
-    const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
+const BundlesAdd = (props) => {
+    const initBundleData = Object.freeze({
+        bid: "",
+        name: "",
+        services: "",
+        gateway: "",
+    });
+    const initBundleAttrData = Object.freeze({
+        bid: ""
+    });
+    const [bundleData, updateBundleData] = useState(initBundleData);
+    const [bundleAttrData, updateBundleAttrData] = useState(initBundleAttrData);
     const [attrData, updateAttrData] = useState(Object.freeze([]));
-   
+    // gw data for the dropdown
+    const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
+    const [invalidFormState, setInvalidFormState] = useState(false);
+
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
@@ -42,9 +53,6 @@ const BundlesEdit = (props) => {
     };
 
     useEffect(() => {
-        if (typeof props.location.state != 'undefined') {
-            updateBundleState(props.location.state)
-        }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -72,22 +80,9 @@ const BundlesEdit = (props) => {
             });
     }, []);
 
-    useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].bid == bundleState.bid) {
-                        var {bid, _gateway, _name, _pod, ...rest} = data[i]
-                        updateBundleAttrState({bid, ...rest})
-                    }
-                }
-            })
-    }, [props, bundleState]);
-
     const handleBundleChange = (e) => {
-        updateBundleState({
-            ...bundleState,
+        updateBundleData({
+            ...bundleData,
             [e.target.name]: e.target.value.trim()
         });
     };
@@ -100,18 +95,27 @@ const BundlesEdit = (props) => {
         else {
             input = e.target.value.trim().toString()
         }
-        updateBundleAttrState({
-            ...bundleAttrState,
+        updateBundleAttrData({
+            ...bundleAttrData,
             [e.target.name]: input
         });
     };
 
+    function validateEmail(email) {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault()
-        var services = bundleState.services
-        if (bundleState.services) {
-            if (!Array.isArray(bundleState.services)) {
-                services = bundleState.services.split(',').map(function (item) {
+        if (!validateEmail(bundleData.bid)) {
+            setInvalidFormState(true)
+            return
+        }
+        var services = bundleData.services
+        if (bundleData.services) {
+            if (!Array.isArray(bundleData.services)) {
+                services = bundleData.services.split(',').map(function (item) {
                     return item.trim();
                 })
             }
@@ -122,8 +126,8 @@ const BundlesEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                bid: bundleState.bid, name: bundleState.name,
-                gateway: bundleState.gateway, services: services,
+                bid: bundleData.bid, name: bundleData.name,
+                gateway: bundleData.gateway, services: services,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
@@ -139,7 +143,8 @@ const BundlesEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    handleAttrSubmit(e);
+                    // bundle attribute http post must be run after bundle http post
+                    handleAttrSubmit(e)
                 }
             })
             .catch(error => {
@@ -147,44 +152,45 @@ const BundlesEdit = (props) => {
             });
     };
 
+    // user attribute http post function
     const handleAttrSubmit = (e) => {
-        Object.keys(bundleAttrState).forEach(key => {
-            if (bundleAttrState[key].length == 0) {
-                bundleAttrState[key] = null
+        if (Object.keys(bundleAttrData).length > 1) {
+            e.preventDefault()
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: bearer },
+                body: JSON.stringify(bundleAttrData),
+            };
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) {
+                        // get error message from body or default to response status
+                        alert(error);
+                        const error = (data && data.message) || response.status;
+                        return Promise.reject(error);
+                    }
+                    // check for error response
+                    if (data["Result"] != "ok") {
+                        alert(data["Result"])
+                    }
+                    else {
+                        props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                    }
+                })
+                .catch(error => {
+                    alert('Error contacting server', error);
+                })
+            } else {
+                props.history.push('/tenant/' + props.match.params.id + '/bundles')
             }
-        })
-        e.preventDefault()
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify(bundleAttrState),
-        };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                }
-                else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
-                }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            })
+
     };
 
     return (
         <CCard>
             <CCardHeader>
-                <strong>Edit Details for {bundleState.bid}</strong>
+                <strong>Add AppGroup</strong>
             </CCardHeader>
             <CCardBody>
                 <CRow>
@@ -198,12 +204,8 @@ const BundlesEdit = (props) => {
                                             <CIcon name="cil-notes"/>
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="bid" value={bundleState.bid} readOnly/>
-                                    <CInputGroupAppend>
-                                        <CInputGroupText>
-                                            <CIcon name="cil-lock-locked"/>
-                                        </CInputGroupText>
-                                    </CInputGroupAppend>
+                                    <CInput name="bid" placeholder={bundleData.bid} onChange={e => {handleBundleChange(e); handleAttrChange(e)}}  invalid={invalidFormState}/>
+                                    <CInvalidFeedback className="help-block">Please enter a valid email</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
                             <CFormGroup>
@@ -214,7 +216,7 @@ const BundlesEdit = (props) => {
                                             <CIcon name="cil-tag"/>
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="name" defaultValue={bundleState.name} onChange={handleBundleChange} />
+                                    <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange}/>
                                 </CInputGroup>
                             </CFormGroup>
                             <CFormGroup>
@@ -225,7 +227,7 @@ const BundlesEdit = (props) => {
                                             <CIcon name="cil-settings"/>
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="services" defaultValue={bundleState.services} onChange={handleBundleChange} />
+                                    <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} />
                                 </CInputGroup>
                             </CFormGroup>
                             <CFormGroup>
@@ -237,17 +239,10 @@ const BundlesEdit = (props) => {
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CSelect name="gateway" custom onChange={handleBundleChange}>
+                                        <option value={undefined}>Please select a gateway</option>
                                         {gatewayData.map(gateway => {
                                             return (
-                                                <>
-                                                    {gateway == bundleState.gateway
-                                                    ?
-                                                        <option selected value={gateway}>{gateway}</option>
-                                                    :
-                                                        <option value={gateway}>{gateway}</option>
-                                                    }
-                        
-                                                </>
+                                                <option value={gateway}>{gateway}</option>
                                             )
                                         })}
                                     </CSelect>
@@ -261,7 +256,7 @@ const BundlesEdit = (props) => {
                                     <CFormGroup>
                                         <CLabel>{attr}</CLabel>
                                         <CInputGroup>
-                                            <CInput name={attr} defaultValue={bundleAttrState[attr]} onChange={handleAttrChange}/>
+                                            <CInput name={attr} placeholder={attr} onChange={handleAttrChange} />
                                         </CInputGroup>
                                         <CFormText>Use commas to delimit multiple values.</CFormText>
                                     </CFormGroup>
@@ -274,11 +269,11 @@ const BundlesEdit = (props) => {
             <CCardFooter>
                 <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
                     <CIcon name="cil-scrubber" />
-                    <strong>{" "}Confirm</strong>
+                    <strong>{" "}Add</strong>
                 </CButton>
             </CCardFooter>
         </CCard>
     )
 }
 
-export default withRouter(BundlesEdit)
+export default withRouter(BundlesAdd)

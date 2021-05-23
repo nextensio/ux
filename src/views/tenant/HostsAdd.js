@@ -11,6 +11,7 @@ import {
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
+    CInvalidFeedback,
     CListGroup,
     CListGroupItem,
     CRow,
@@ -35,12 +36,14 @@ const HostEdit = (props) => {
     const initHostData = Object.freeze({
         host: "",
         name: "",
-        config: [{route: ""}],
+        routeattrs: [{tag: ""}],
     });
     const [hostData, updateHostData] = useState(initHostData);
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     const [selectedAttr, setSelectedAttr] = useState([]);
     const [searchInput, setSearchInput] = useState("");
+    const [invalidFormState, setInvalidFormState] = useState(false);
+
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
@@ -108,11 +111,20 @@ const HostEdit = (props) => {
         });
     };
 
+    function validateURL(url) {
+        const re = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+        return re.test(String(url).toLowerCase());
+    }
+
     const handleSubmit = (e) => {
-        for (var i = 0; i < selectedAttr.length; i++) {
-            hostData.config[0][selectedAttr[i]] = ''
+        if (!validateURL(hostData.host)) {
+            setInvalidFormState(true)
+            return
         }
         e.preventDefault()
+        for (var i = 0; i < selectedAttr.length; i++) {
+            hostData.routeattrs[0][selectedAttr[i]] = ''
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -149,14 +161,15 @@ const HostEdit = (props) => {
                     <CCol sm="8">
                         <CForm>
                             <CFormGroup>
-                                <CLabel htmlFor="nf-password">Host</CLabel>
+                                <CLabel>Host</CLabel>
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
                                             <CIcon name="cil-link"/>
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="host" placeholder="google.com" onChange={handleChange} />
+                                    <CInput name="host" placeholder="google.com" onChange={handleChange} invalid={invalidFormState}/>
+                                    <CInvalidFeedback>Please enter a valid URL!</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
                             <CFormGroup>

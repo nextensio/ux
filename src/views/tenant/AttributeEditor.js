@@ -5,6 +5,7 @@ import {
     CCard,
     CCardHeader,
     CCardBody,
+    CCardFooter,
     CCol,
     CDataTable,
     CDropdown,
@@ -24,15 +25,12 @@ import {
     CModalTitle,
     CModalFooter,
     CRow,
-    CValidFeedback,
     CInvalidFeedback,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
-import { reset } from 'enzyme/build/configuration';
 import { useOktaAuth } from '@okta/okta-react';
-import { introspect } from '@okta/okta-auth-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
 
@@ -257,15 +255,15 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <div className="text-muted small">Define attribute set for users and bundles.</div>
+                            <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
                             <CForm>
                                 <CFormGroup row>
-                                    <CCol md="6">
+                                    <CCol md="4">
                                         <CLabel>Attributes Apply To</CLabel>
                                     </CCol>
-                                    <CCol md="6">
+                                    <CCol md="8">
                                         <div className="float-right">
                                             <CFormGroup variant="custom-radio" inline>
                                                 <CInputRadio custom id="inline-radio1" name="inline-radios" value="Users" onChange={(e) => handleAppliesToChange(e)} />
@@ -274,6 +272,10 @@ const AttributeEditor = (props) => {
                                             <CFormGroup variant="custom-radio" inline>
                                                 <CInputRadio custom id="inline-radio2" name="inline-radios" value="Bundles" onChange={(e) => handleAppliesToChange(e)} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-notes" /> AppGroup</CLabel>
+                                            </CFormGroup>
+                                            <CFormGroup variant="custom-radio" inline>
+                                                <CInputRadio custom id="inline-radio3" name="inline-radios" value="Hosts" onChange={(e) => handleAppliesToChange(e)} />
+                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-input-power" /> Host</CLabel>
                                             </CFormGroup>
                                         </div>
                                     </CCol>
@@ -294,7 +296,7 @@ const AttributeEditor = (props) => {
                                                     invalid={attribute.isValid == "false"}
                                                 />
                                                 <CDropdown className="input-group-append">
-                                                    <CDropdownToggle caret color="success">
+                                                    <CDropdownToggle caret className="border-success bg-success-light text-success">
                                                         {attribute.type}
                                                     </CDropdownToggle>
                                                     <CDropdownMenu>
@@ -305,7 +307,7 @@ const AttributeEditor = (props) => {
                                                     </CDropdownMenu>
                                                 </CDropdown>
                                                 {' '}
-                                                <CButton shape="square" color="danger" onClick={() => handleRemove(index)}>
+                                                <CButton className="border-danger bg-danger-light text-danger" size="sm" shape="square" onClick={() => handleRemove(index)}>
                                                     X
                                                 </CButton>
                                                 <CInvalidFeedback>Please use alphanumerics for your attribute Name!</CInvalidFeedback>
@@ -316,10 +318,12 @@ const AttributeEditor = (props) => {
                                     )
                                 })}
                             </CForm>
-                            <CButton className="float-right button-footer-success" variant="outline" color="success" onClick={(e) => commitAttrs(e)}><CIcon name="cil-scrubber" /> <strong>Commit</strong></CButton>
-                            <CButton className="float-right button-footer-danger" variant="outline" color="danger" onClick={() => { setResetWarning(true) }}><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                            <CButton className="float-right button-footer-dark" variant="outline" color="dark" onClick={handleAdd}><CIcon name="cil-plus" /> <strong>More</strong></CButton>
+                            <CButton className="float-right border-dark bg-dark-light text-dark" shape="square" onClick={handleAdd}><CIcon name="cil-plus" /> <strong>Add</strong></CButton>
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-danger" variant="outline" color="danger" onClick={() => { setResetWarning(true) }}><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                            <CButton className="button-footer-success" variant="outline" color="success" onClick={(e) => commitAttrs(e)}><CIcon name="cil-scrubber" /> <strong>Commit</strong></CButton>
+                        </CCardFooter>
                     </CCard>
                     <CModal show={resetWarning} onClose={() => setResetWarning(false)} color="danger">
                         <CModalHeader closeButton>
@@ -436,6 +440,12 @@ const AttributeEditor = (props) => {
                             >
                             </CDataTable>
                         </CCardBody>
+                        <CCardFooter>
+                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                                <CIcon name="cil-reload" />
+                                <strong>{" "}Refresh</strong>
+                            </CButton>
+                        </CCardFooter>
                     </CCard>
                 </CCol>
             </CRow>

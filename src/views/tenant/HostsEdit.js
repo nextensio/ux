@@ -52,7 +52,7 @@ const HostEdit = (props) => {
 
     useEffect(() => {
         if (hostState != "") {
-            const {route, ...configAttrs} = hostState.config[0];
+            const {tag, ...configAttrs} = hostState.routeattrs[0];
             setSelectedAttr(Object.keys(configAttrs))
         }
     }, [props, hostState])
@@ -63,7 +63,7 @@ const HostEdit = (props) => {
             .then(data => {
                 var fields = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Users') {
+                    if (data[i].appliesTo == 'Hosts') {
                         fields.push(data[i].name);
                     }
                 }
@@ -113,29 +113,29 @@ const HostEdit = (props) => {
     };
 
     const handleSubmit = (e) => {
-        // for each route config object...
-        //    Generate a list that from the keys, then delete the index with value "route"... 
+        // for each route object...
+        //    Generate a list that from the keys, then delete the index with value "tag"... 
         //    Next iterate over the keys and delete any that are not found on selectedAttr...
         //    
         //    Finally, iterate over selectedAttr, if any attr already exist in our keys list, 
         //    skip the iteration, otherwise enter a new attr key with empty string as value
-        for (var i = 0; i < hostState.config.length; i++) {
-            const keys = Object.keys(hostState.config[i])
-            const routeIdx = keys.indexOf("route")
-            if (routeIdx > -1) {
-                keys.splice(routeIdx, 1)
+        for (var i = 0; i < hostState.routeattrs.length; i++) {
+            const keys = Object.keys(hostState.routeattrs[i])
+            const tagIdx = keys.indexOf("tag")
+            if (tagIdx > -1) {
+                keys.splice(tagIdx, 1)
             }
             keys.forEach((key, index) => {
                 if (!selectedAttr.includes(key)) {
-                    delete hostState.config[i][key]
+                    delete hostState.routeattrs[i][key]
                 }
             })
             for (var j = 0; j < selectedAttr.length; j++) {
-                if (Object.keys(hostState.config[i]).includes(selectedAttr[j])) {
+                if (Object.keys(hostState.routeattrs[i]).includes(selectedAttr[j])) {
                     continue
                 }
                 else {
-                    hostState.config[i][selectedAttr[j]] = ''
+                    hostState.routeattrs[i][selectedAttr[j]] = ''
                 }
             }
         }
@@ -183,7 +183,7 @@ const HostEdit = (props) => {
                                             <CIcon name="cil-link"/>
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput disabled name="host" placeholder={hostState.host} onChange={handleChange} />
+                                    <CInput disabled name="host" defaultValue={hostState.host} onChange={handleChange} />
                                     <CInputGroupAppend>
                                         <CInputGroupText>
                                             <CIcon name="cil-lock-locked"/>
@@ -199,7 +199,7 @@ const HostEdit = (props) => {
                                             <CIcon name="cil-tag"/>
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="name" placeholder={hostState.name} onChange={handleChange} />
+                                    <CInput name="name" defaultValue={hostState.name} onChange={handleChange} />
                                 </CInputGroup>
                             </CFormGroup>
                         </CForm>
@@ -227,7 +227,7 @@ const HostEdit = (props) => {
                                 </CInputGroupPrepend>
                                 <CInput 
                                     type="text" 
-                                    placeholder="User Attribute"
+                                    placeholder="Host Attribute"
                                     value={searchInput}
                                     onChange={handleSearchChange}
                                 />

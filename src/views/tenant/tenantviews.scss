@@ -65,8 +65,9 @@
     border: solid $dark;
     border-width: 0 1px 1px 1px;
 }
+
 th.attributes {
-    width: 30%;
+    width: 10%;
 }
 th.header {
     background-color: $primary-light;
@@ -78,6 +79,9 @@ td.header {
 }
 .add-tab:hover {
     background-color: $dark;
+}
+.border-left-collapse {
+    border-left: 1px solid $primary
 }
 .sticky-scroll {
     position: -webkit-sticky;

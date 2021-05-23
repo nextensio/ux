@@ -1,4 +1,4 @@
-import React, { lazy, useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
     CBadge,
     CButton,
@@ -12,12 +12,12 @@ import {
     CDataTable,
     CProgress,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { CChartBar, CChartDoughnut } from '@coreui/react-chartjs'
 import usersUsageData from './UsersUsageData'
 import bundlesUsageData from './BundlesUsageData'
 import '../tenantviews.scss'
+import { cilHome } from '@coreui/icons';
 
 const usersUsageFields = [
     {
@@ -45,15 +45,15 @@ const bundlesUsageFields = [
     }
 ]
 
-const TenantsDashboard = () => {
+const Home = (props) => {
     const [user, setUser] = useState('');
     const [bundle, setBundle] = useState('');
-    const [usersInterval, setUsersInterval] = useState('month');
-    const [bundlesInterval, setBundlesInterval] = useState('month');
     return(
         <>
             <CCallout color="primary" className="bg-title mb-3">
-                <h4 className="title">Tenants Dashboard</h4>
+                <h4 className="title">Home
+                
+                <CButton onClick={() => console.log(props)}>LOG</CButton></h4>
             </CCallout>
             <CRow>
                 <CCol lg="4">
@@ -274,4 +274,4 @@ const TenantsDashboard = () => {
     )
 }
 
-export default withRouter(TenantsDashboard)
+export default withRouter(Home)

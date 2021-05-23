@@ -10,7 +10,16 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
-const TheHeaderDropdown = () => {
+const TheHeaderDropdown = (props) => {
+
+    const toProfile = (e) => {
+        props.history.push('/tenant/' + props.match.params.id + '/profile')
+    }
+
+    const toSettings = (e) => {
+        props.history.push('/tenant/' + props.match.params.id + '/settings')
+    }
+
     return (
         <CDropdown
             inNavclass
@@ -48,11 +57,11 @@ const TheHeaderDropdown = () => {
                 >
                     <strong>Settings</strong>
                 </CDropdownItem>
-                <CDropdownItem>
+                <CDropdownItem onClick={toProfile}>
                     <CIcon name='cil-user' className='mfe-2' />
                     Profile
                 </CDropdownItem>
-                <CDropdownItem>
+                <CDropdownItem onClick={toSettings}>
                     <CIcon name='cil-settings' className='mfe-2' />
                     Settings
                 </CDropdownItem>

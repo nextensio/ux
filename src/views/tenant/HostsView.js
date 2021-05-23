@@ -1,10 +1,7 @@
-import React, { lazy, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CBadge,
     CButton,
-    CButtonClose,
-    CButtonToolbar,
-    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -16,13 +13,7 @@ import {
     CModalHeader,
     CModalBody,
     CModalFooter,
-    CNav,
-    CNavLink,
-    CNavItem,
     CRow,
-    CTabs,
-    CTabContent,
-    CTabPane,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -36,12 +27,21 @@ var common = require('../../common')
 
 const fields = [
     {
+        key: 'show_details',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: "host",
         label: "Host ID",
+        _style: { width: '30%' },
         _classes: "data-head"
     },
     {
         key: "name",
+        _style: { width: '30%' },
         _classes: "data-field"
     },
     {
@@ -74,9 +74,9 @@ const HostsView = (props) => {
     // Example of what a final JSON version might look like
     // { host: google.com, name: google,  
     // 
-    // config: [{route: limited, OSVersion: linux windows, employeeLevel: 3, location: east},
-    //          {route: unlimited, OSVersion: linux windows, employeeLevel: 1, location: east},
-    //          {route: premium, OSVersion: linux windows, employeeLevel: any, location: west}]
+    // routeattrs: [{tag: limited, OSVersion: linux windows, employeeLevel: 3, location: east},
+    //          {tag: unlimited, OSVersion: linux windows, employeeLevel: 1, location: east},
+    //          {tag: premium, OSVersion: linux windows, employeeLevel: any, location: west}]
     // }
     //
     const [hostsData, updateHostData] = useState(initTableData);
@@ -84,6 +84,9 @@ const HostsView = (props) => {
     // Routing modal will be triggered if the user attempts to delete the route when only one exists
     const [routingModal, setRoutingModal] = useState(false);
     const [details, setDetails] = useState([]);
+    const [deleteHost, setDeleteHost] = useState("");
+    const [deleteModal, setDeleteModal] = useState(false);
+
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
@@ -99,7 +102,6 @@ const HostsView = (props) => {
             .then(data => updateHostData(data));
     }, []);
 
-   
     const handleRefresh = (e) => {
         setDetails([])
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
@@ -121,44 +123,51 @@ const HostsView = (props) => {
 
     const handleAttrConfig = (index, configIndex) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/attrconfig',
+            pathname: '/tenant/' + props.match.params.id + '/hosts/routeconfig',
             state: [hostsData[index], configIndex]
         });
         setDetails([])
     }
 
     // Creates route objects in the hostData.config list
-    // Each route object has a route key and host attribute keys, with an empty strings as values
-    // ex. {route: '', userAttr1: '', userAttr2: '', userAttr3: '', ...etc}
+    // Each route object has a tag key and host attribute keys, with an empty strings as values
+    // ex. {tag: '', userAttr1: '', userAttr2: '', userAttr3: '', ...etc}
     // then immediately pushes to DB
-    const addConfig = (e, item) => {
+    const addTag = (e, item) => {
         const i = hostsData.indexOf(item);
         const data = [...hostsData]
-        const configDict = data[i].config[0]
-        const keys = Object.keys(configDict)
+        const routeDict = data[i].routeattrs[0]
+        const keys = Object.keys(routeDict)
         const initObj = {}
         keys.forEach((key, index) => {
             initObj[key] = ""
         })
-        data[i].config.push(initObj)
+        data[i].routeattrs.push(initObj)
         updateHostData(data)
         e.stopPropagation()
         handleSubmit(e, hostsData[i])
     }
 
-    // deletes a route object from the hostData.config list
+    // deletes a route object from the hostData.routeattrs list
     // immediately pushes this change to the DB
     const delConfig = (e, item, configIndex) => {
         const i = hostsData.indexOf(item);
         const data = [...hostsData]
-        data[i].config.splice(configIndex, 1)
+        data[i].routeattrs.splice(configIndex, 1)
         updateHostData(data)
         e.stopPropagation()
         handleSubmit(e, hostsData[i])
     }
 
-    const handleDelete = (e, index) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostattr/') + hostsData[index].host, hdrs)
+    // I noticed a bug where sorting the items in the data table causes the indexes to not 
+    // point to the correct entry. So, use item to delete entry instead of index.
+    const toggleDelete = (item) => {
+        setDeleteHost(item.host)
+        setDeleteModal(true)
+    }
+
+    const confirmDelete = (host) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostattr/') + host, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -171,12 +180,12 @@ const HostsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
+                setDeleteModal(!deleteModal);
                 handleRefresh()
             })
             .catch(error => {
                 alert('Error contacting server', error);
             });
-        e.stopPropagation()
     }
 
     const handleSubmit = (e, host) => {
@@ -216,6 +225,9 @@ const HostsView = (props) => {
         setDetails(newDetails)
     }
 
+    const showingIcon = <FontAwesomeIcon icon="angle-right" />
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
+
     return (
         <>
             <CRow>
@@ -237,11 +249,19 @@ const HostsView = (props) => {
                                 clickableRows
                                 onRowClick={(item, index) => {toggleDetails(index)}}
                                 scopedSlots={{
+                                    'show_details':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto">
+                                                    {details.includes(index) ? hidingIcon : showingIcon}
+                                                </td>
+                                            )
+                                        },
                                     'routes':
                                         (item, index) => {
                                             return (
                                                 <td className="py-auto">
-                                                    <CBadge color="success">{item.config.length}</CBadge>
+                                                    <CBadge color="success">{item.routeattrs.length}</CBadge>
                                                 </td>  
                                             )
                                         },
@@ -273,9 +293,7 @@ const HostsView = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={(e) => { 
-                                                                handleDelete(e, index);
-                                                             }}
+                                                            onClick={() => {toggleDelete(item)}}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
@@ -285,167 +303,119 @@ const HostsView = (props) => {
                                         },
                                     'details':
                                         (item, index) => {
+                                            const routeConfig = item.routeattrs
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>
-                                                        <CTabs activeTab={"0"}>
-                                                            <CNav variant="tabs">
-                                                                {/*item is the config property with form {route: routename, userattrs: ...} */}
-                                                                {item.config.map((routeConfig, i) => {
-                                                                    return (
-                                                                        <div>
-                                                                            {/* 
-                                                                            * If the routename is not defined (an empty string) the tab will display In Progress...,
-                                                                            * otherwise it will display the route name
-                                                                            */}
-                                                                            {(routeConfig.route == "") 
-                                                                                ? 
-                                                                                <CNavItem>
-                                                                                    <CNavLink data-tab={i.toString()} onClick={((e) => e.stopPropagation())}>
-                                                                                        In Progress...
-                                                                                    </CNavLink>
-                                                                                </CNavItem> 
-                                                                                : 
-                                                                                <CNavItem>
-                                                                                    <CNavLink data-tab={i.toString()} onClick={(e) => e.stopPropagation()}>
-                                                                                        {routeConfig.route}
-                                                                                    </CNavLink>
-                                                                                </CNavItem>}
-                                                                        </div>
-                                                                    )
-                                                                })}
-                                                                <CButton color="dark" variant="ghost" size="sm" className="add-tab ml-2" onClick={(e) => {addConfig(e, item)}}><CIcon name="cil-plus"/></CButton>
-                                                            </CNav>
-                                                            
-                                                            <CTabContent>
-                                                                {item.config.map((routeConfig, i) => {
-                                                                    // destructure the routeConfig object {route: routename, attr: val, attr: val}
-                                                                    // into routename and {attr: val, attr: val, attr: val}
-                                                                    const {route, ...configAttrs} = routeConfig;
-                                                                    return (
-                                                                        <CTabPane data-tab={i.toString()}>
-                                                                            <CRow>
-                                                                                <CCol sm="6">
-                                                                                    {Object.entries(configAttrs).length != 0
-                                                                                        ? 
-                                                                                        <div>
-                                                                                            {/**
-                                                                                             * If the routename is undefined (an empty string), print Almost done and include
-                                                                                             * a link for the tenant to assign values to the host attributes
-                                                                                             * else print route.hostName
-                                                                                             */}
-                                                                                            {route != ''
-                                                                                                ?
-                                                                                                <div className="roboto-font">
-                                                                                                    <strong className="roboto-font text-primary">Route: </strong><text className="roboto-font">{route + "." + item.host}</text>
-                                                                                                </div>
-                                                                                            :
-                                                                                                <div className="roboto-font">Almost done.
-                                                                                                    {' '}<a className="text-primary" onClick={()=>{handleAttrConfig(index, i)}}><FontAwesomeIcon icon="key"/> Click Here</a>
-                                                                                                    {' '}to define your route and assign attribute values
-                                                                                                </div>
-                                                                                            }
-                                                                                        </div>
-                                                                                        : <></>
-                                                                                    }
-                                                                                   
-                                                                                </CCol>
-                                                                                <CCol sm="6">
-                                                                                    {/**
-                                                                                     * If there are attributes assigned to this host, render buttons to delete route,
-                                                                                     * and to assign values to attributes + define the route
-                                                                                     * Else, just render a button to delete the route.
+                                                    <CCardBody>   
+                                                        {/** 
+                                                         * If item.routeattrs[0] has only one key:val pair 
+                                                         * i.e. only tag exists ==> {tag: ""} then we ask the 
+                                                         * tenant to configure attributes.
+                                                         */}
+                                                        {Object.entries(routeConfig[0]).length === 1 
+                                                        ?   <div className="roboto-font">
+                                                                You have no attributes configured on this host. 
+                                                                {' '}<a className="text-primary" onClick={() => { handleEdit(index) }}>
+                                                                    <FontAwesomeIcon icon="pen"/> Click Here
+                                                                </a>
+                                                                {' '}to add attributes
+                                                            </div>
+                                                        :
+                                                            <>
+                                                                {/**If host attributes exist, render below */}
+                                                                {/**This button is used to add another route */}
+                                                                <CButton
+                                                                    className="ml-auto"
+                                                                    color="primary"
+                                                                    size="sm"
+                                                                    onClick={(e)=>{addTag(e, item)}}
+                                                                >
+                                                                    Add Route
+                                                                </CButton>
+                                                                <table className="my-3 table table-outline d-sm-table">
+                                                                    <tr>
+                                                                        <th className="attributes header roboto-font border-right mt-auto">Attributes</th>
+                                                                        {routeConfig.map((route, i) => {
+                                                                            return (
+                                                                                <td className="attributes header roboto-font">
+                                                                                    {/**If the tag attribute is not an empty string, render the tag val
+                                                                                     * else, render in progress
                                                                                      */}
-                                                                                    {Object.entries(configAttrs).length != 0 
-                                                                                        ?
-                                                                                        <CButtonToolbar className="d-flex float-right">
-                                                                                            <CButton 
-                                                                                                color="primary"
-                                                                                                shape="square"
-                                                                                                size="sm"
-                                                                                                onClick={()=>{handleAttrConfig(index, i)}}
-                                                                                            >
-                                                                                                <FontAwesomeIcon icon="key" className="text-white"/> Assign
-                                                                                            </CButton>
-                                                                                            <CButton
-                                                                                                className="ml-1"
-                                                                                                color="danger"
-                                                                                                shape="square"
-                                                                                                size="sm"
-                                                                                                onClick={(e) => item.config.length > 1 ? 
-                                                                                                    delConfig(e, item, i) : 
-                                                                                                    setRoutingModal(true)}
-                                                                                            >
-                                                                                                {/**
-                                                                                                 * You can delete routes until there is only one left,
-                                                                                                 * if you try to delete a route when only one exists, a popup will
-                                                                                                 * occur telling you this is not possible. 
-                                                                                                 */}
-                                                                                                Delete Route
-                                                                                            </CButton>
-                                                                                        </CButtonToolbar>
-                                                                                        :
+                                                                                    <div>
+                                                                                        {route.tag != "" 
+                                                                                        ? <CBadge color="success">{route.tag}</CBadge> 
+                                                                                        : <CBadge color="warning">In Progress</CBadge>
+                                                                                        }
+                                                                                    </div>
+                                                                                    <div>
                                                                                         <CButton
-                                                                                            className="d-flex float-right"
-                                                                                            color="danger"
-                                                                                            shape="square"
+                                                                                            className=" button-table"
+                                                                                            variant="ghost"
+                                                                                            color="primary"
                                                                                             size="sm"
-                                                                                            onClick={(e) => item.config.length > 1 ? 
+                                                                                            onClick={()=>{handleAttrConfig(index, i)}}
+                                                                                        >
+                                                                                            <FontAwesomeIcon icon="key" className="icon-table-edit"/>
+                                                                                        </CButton>
+                                                                                        <CButton
+                                                                                            className="ml-1 button-table"
+                                                                                            variant="ghost"
+                                                                                            color="danger"
+                                                                                            size="sm"
+                                                                                            onClick={(e) => routeConfig.length > 1 ? 
                                                                                                 delConfig(e, item, i) : 
                                                                                                 setRoutingModal(true)}
                                                                                         >
-                                                                                            Delete Route
+                                                                                            {/**
+                                                                                             * You can delete routes until there is only one left,
+                                                                                             * if you try to delete a route when only one exists, a popup will
+                                                                                             * occur telling you this is not possible. 
+                                                                                             */}
+                                                                                            <FontAwesomeIcon icon="trash-alt" className="icon-table-delete"/>
                                                                                         </CButton>
-                                                                                    }
-                                                                                    
-                                                                                </CCol>
-                                                                            </CRow>
-                                                                            {/**
-                                                                             * If there are no attributes assigned to this host, print a message with link 
-                                                                             * for tenant to navigate to HostAttrs page where they can assign attributes,
-                                                                             * else render a table where you can see all attributes + the values
-                                                                             */}
-                                                                            {Object.entries(configAttrs).length === 0 
-                                                                            ?   <div className="roboto-font">
-                                                                                    You have no attributes configured on this host. 
-                                                                                    {' '}<a className="text-primary" onClick={() => { handleEdit(index) }}>
-                                                                                        <FontAwesomeIcon icon="pen"/> Click Here
-                                                                                    </a>
-                                                                                    {' '}to add attributes
-                                                                                </div>
-                                                                            :
-                                                                                <table className="my-3 table table-outline d-sm-table">
-                                                                                    <tr>
-                                                                                        <th className="attributes header roboto-font">Attributes</th>
-                                                                                        <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                                                    </tr>
-                                                                                    {/**
-                                                                                     * Iterate over the config property keys (which are just the attributes)
-                                                                                     * One table column will be the attributes
-                                                                                     * the other will be the assigned attribute values
-                                                                                     */}
-                                                                                    {Object.keys(configAttrs).map(key => {
-                                                                                        return (
-                                                                                            <tr>
-                                                                                                <th className="attributes roboto-font">{key}</th>
-                                                                                                <td className="roboto-font">
-                                                                                                    {/** If the attribute has a value assigned, print it, otherwise print no val assigned */}
-                                                                                                    {configAttrs[key] == "" 
-                                                                                                        ? <div className="text-warning">No value assigned</div>
-                                                                                                        : configAttrs[key]
-                                                                                                    }
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        ) 
-                                                                                    })}
-                                                                                </table>
-                                                                                
-                                                                            }
-                                                                        </CTabPane>
-                                                                    )
-                                                                })}
-                                                            </CTabContent>
-                                                        </CTabs>
+                                                                                    </div>
+                                                                                </td>
+                                                                            )
+                                                                        })}
+                                                                    </tr>
+                                                                    {/**
+                                                                        * Iterate over the routeattrs property keys (which are just the attributes)
+                                                                        * One table column will be the attributes
+                                                                        * the other will be the assigned attribute values
+                                                                        */}
+                                                                    {Object.keys(routeConfig[0]).filter(key => {
+                                                                        if (key != "tag") {
+                                                                            return true
+                                                                        }
+                                                                    }).map(key => {
+                                                                        return (
+                                                                            <tr>
+                                                                                <th className="attributes roboto-font border-right">{key}</th>
+
+                                                                                {/** If the attribute has a value assigned, print it, otherwise print no val assigned */}
+                                                                                {routeConfig.map((route, i) => {
+                                                                                    return (
+                                                                                        <td className="roboto-font">
+                                                                                            {route[key] == "" 
+                                                                                            ? <div className="text-warning">No value assigned</div>
+                                                                                            
+                                                                                            : <div>
+                                                                                                {/**If the value is an array, join the values by ampersand */}
+                                                                                                {Array.isArray(route[key]) 
+                                                                                                ? route[key].join(' &')
+                                                                                                : route[key]}
+                                                                                            </div>
+                                                                                            }
+                                                                                        </td>
+
+                                                                                    )
+                                                                                })}
+                                                                            </tr>
+                                                                        ) 
+                                                                    })}
+                                                                </table>
+                                                            </>
+                                                        }
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
@@ -466,6 +436,24 @@ const HostsView = (props) => {
                     </CCard>
                 </CCol>
             </CRow>
+            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Confirm Deletion</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>Are you sure you want to delete {deleteHost}?</strong>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={() => confirmDelete(deleteHost)}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setDeleteModal(!deleteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
             <CModal show={routingModal} onClose={() => setRoutingModal(!routingModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
                     <strong>Notice!</strong>

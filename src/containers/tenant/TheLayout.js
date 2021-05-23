@@ -12,7 +12,7 @@ const TheLayout = (props) => {
     <div className="c-app c-default-layout">
       <TheSidebar {...props} />
       <div className="c-wrapper">
-        <TheHeader/>
+        <TheHeader {...props}/>
         <div className="c-body">
           <TheContent />
         </div>

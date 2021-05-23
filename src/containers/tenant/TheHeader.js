@@ -4,15 +4,10 @@ import {
     CHeader,
     CToggler,
     CHeaderNav,
-    CHeaderNavItem,
-    CHeaderNavLink,
-    CSubheader,
-    CBreadcrumbRouter,
 } from '@coreui/react'
-import routes from './routes'
 import { TheHeaderDropdown } from './index'
 
-const TheHeader = () => {
+const TheHeader = (props) => {
     const dispatch = useDispatch()
     const sidebarShow = useSelector(state => state.sidebarShow)
 
@@ -40,7 +35,7 @@ const TheHeader = () => {
             />
 
             <CHeaderNav className='ml-auto px-3'>
-                <TheHeaderDropdown />
+                <TheHeaderDropdown {...props}/>
             </CHeaderNav>
 
         </CHeader>
