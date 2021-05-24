@@ -30,12 +30,12 @@ const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
         cluster: "",
         image: "",
-        apods: "",
-        cpods: "",
     });
     const [configData, updateConfigData] = useState(initConfigData);
-    // gw data for the dropdown
+    // cluster data for the dropdown
     const [clusterData, updateClusterData] = useState(Object.freeze([]));
+    const [apodCount, incrementApodCount] = useState(0);
+    const [cpodCount, incrementCpodCount] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -71,8 +71,8 @@ const ClusterConfig = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                cluster: configData.cluster, image: configData.image, apods: configData.apods,
-                cpods: configData.cpods
+                cluster: configData.cluster, image: configData.image, apods: apodCount,
+                cpods: cpodCount
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
@@ -117,6 +117,12 @@ const ClusterConfig = (props) => {
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CSelect name="cluster" custom onChange={handleChange}>
+                                        <option value={undefined}>Please select a cluster</option>
+                                        {clusterData.map(cluster => {
+                                            return (
+                                                <option value={cluster}>{cluster}</option>
+                                            )
+                                        })}
                                     </CSelect>
                                 </CInputGroup>
                             </CFormGroup>
@@ -124,14 +130,22 @@ const ClusterConfig = (props) => {
                                 <CLabel>Image</CLabel>
                                 <CInput name="image" onChange={handleChange}/>
                             </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>APods</CLabel>
-                                <CInput name="apods" onChange={handleChange}/>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>CPods</CLabel>
-                                <CInput name="cpods" onChange={handleChange}/>
-                            </CFormGroup>
+                            <CRow>
+                                <CCol>
+                                    APods
+                                    <div>
+                                        {apodCount}
+                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementApodCount(apodCount + 1)}>+</CButton>
+                                    </div>
+                                </CCol>
+                                <CCol>
+                                    CPods
+                                    <div>
+                                        {cpodCount}
+                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementCpodCount(cpodCount + 1)}>+</CButton>
+                                    </div>
+                                </CCol>
+                            </CRow>
                         </CForm>
                     </CCol>
                 </CRow>
