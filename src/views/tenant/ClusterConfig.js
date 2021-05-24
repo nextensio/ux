@@ -22,7 +22,6 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -36,7 +35,7 @@ const ClusterConfig = (props) => {
     });
     const [configData, updateConfigData] = useState(initConfigData);
     // gw data for the dropdown
-    const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
+    const [clusterData, updateClusterData] = useState(Object.freeze([]));
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -50,13 +49,12 @@ const ClusterConfig = (props) => {
         fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var gatewayNames = []
+                var clusterNames = []
                 for (var i = 0; i < data.length; i++) {
-                    gatewayNames.push(data[i]);
-                    console.log(data[i])
+                    clusterNames.push(data[i].cluster);
                 }
-                gatewayNames.sort()
-                updateGatewayData(gatewayNames)
+                clusterNames.sort()
+                updateClusterData(clusterNames)
             });
     }, []);
 
@@ -104,23 +102,38 @@ const ClusterConfig = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Cluster Configuration</strong>
+                <CButton onClick={e => console.log(configData)}>LOG</CButton>
             </CCardHeader>
             <CCardBody>
                 <CRow>
-                    <CForm>
-                        <CFormGroup>
-                            <CLabel>Cluster</CLabel>
-                            <CInputGroup>
-                                <CInputGroupPrepend>
-                                    <CInputGroupText className="bg-primary-light text-primary">
-                                        <CIcon name="cil-sitemap"/>
-                                    </CInputGroupText>
-                                </CInputGroupPrepend>
-                                <CSelect name="cluster" custom onChange={handleChange}>
-                                </CSelect>
-                            </CInputGroup>
-                        </CFormGroup>
-                    </CForm>
+                    <CCol sm="8">
+                        <CForm>
+                            <CFormGroup>
+                                <CLabel>Cluster</CLabel>
+                                <CInputGroup>
+                                    <CInputGroupPrepend>
+                                        <CInputGroupText className="bg-primary-light text-primary">
+                                            <CIcon name="cil-sitemap"/>
+                                        </CInputGroupText>
+                                    </CInputGroupPrepend>
+                                    <CSelect name="cluster" custom onChange={handleChange}>
+                                    </CSelect>
+                                </CInputGroup>
+                            </CFormGroup>
+                            <CFormGroup>
+                                <CLabel>Image</CLabel>
+                                <CInput name="image" onChange={handleChange}/>
+                            </CFormGroup>
+                            <CFormGroup>
+                                <CLabel>APods</CLabel>
+                                <CInput name="apods" onChange={handleChange}/>
+                            </CFormGroup>
+                            <CFormGroup>
+                                <CLabel>CPods</CLabel>
+                                <CInput name="cpods" onChange={handleChange}/>
+                            </CFormGroup>
+                        </CForm>
+                    </CCol>
                 </CRow>
             </CCardBody>
             <CCardFooter>
