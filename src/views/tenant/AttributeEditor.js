@@ -309,7 +309,7 @@ const AttributeEditor = (props) => {
                                                     <CLabel><FontAwesomeIcon icon="info-circle" /> Single or Multi Value Type</CLabel>
                                                 </CPopover>
                                             </CCol>
-                                            <CCol md="6">
+                                            <CCol md="8">
                                                 <CFormGroup variant="custom-radio" inline>
                                                     <CInputRadio custom id="inline-radio4" name="isArray" value={false} onChange={handleChange} />
                                                     <CLabel variant="custom-checkbox" htmlFor="inline-radio4">Single Value</CLabel>
