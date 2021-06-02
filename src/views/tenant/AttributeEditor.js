@@ -127,6 +127,20 @@ const AttributeEditor = (props) => {
         }
     }
 
+    const rangeCheck = (e) => {
+        if (!attributeData.rangeCheck) {
+            updateAttributeData({
+                ...attributeData,
+                rangeCheck: 10
+            })
+        } else {
+            updateAttributeData({
+                ...attributeData,
+                rangeCheck: undefined
+            })
+        }
+    }
+
 
     const reset = (e) => {
         updateAttributeData({ name: '', appliesTo: '', type: 'Type' });
