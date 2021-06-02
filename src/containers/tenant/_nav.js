@@ -17,7 +17,7 @@ export default [
         to: '/tenant/:id/clusterconfig',
         className: 'roboto-font',
         icon: {
-            name: 'cil-home',
+            name: 'cib-kubernetes',
             size: 'lg'
         }
     },

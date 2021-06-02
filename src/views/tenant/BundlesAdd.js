@@ -11,10 +11,15 @@ import {
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
+    CInputRadio,
     CInvalidFeedback,
     CRow,
     CSelect,
     CLabel,
+    CModal,
+    CModalBody,
+    CModalFooter,
+    CModalHeader,
     CCardHeader,
     CFormGroup,
     CCardFooter,
@@ -39,10 +44,14 @@ const BundlesAdd = (props) => {
     });
     const [bundleData, updateBundleData] = useState(initBundleData);
     const [bundleAttrData, updateBundleAttrData] = useState(initBundleAttrData);
+    const [existingBidData, updateExistingBidData] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     // gw data for the dropdown
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [invalidFormState, setInvalidFormState] = useState(false);
+
+    const [overwriteModal, setOverwriteModal] = useState(false);
+    const [overwriteBid, setOverwriteBid] = useState("");
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -53,13 +62,16 @@ const BundlesAdd = (props) => {
     };
 
     useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateExistingBidData(props.location.state)
+        }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var fields = [];
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == 'Bundles') {
-                        fields.push(data[i].name);
+                        fields.push(data[i]);
                     }
                 }
                 fields.sort()
@@ -110,6 +122,11 @@ const BundlesAdd = (props) => {
         e.preventDefault()
         if (!validateEmail(bundleData.bid)) {
             setInvalidFormState(true)
+            return
+        }
+        if (bundleData.bid in existingBidData && overwriteModal == false) {
+            setOverwriteModal(true)
+            setOverwriteBid(bundleData.bid)
             return
         }
         var services = bundleData.services
@@ -188,91 +205,149 @@ const BundlesAdd = (props) => {
     };
 
     return (
-        <CCard>
-            <CCardHeader>
-                <strong>Add AppGroup</strong>
-            </CCardHeader>
-            <CCardBody>
-                <CRow>
-                    <CCol sm="8">
-                        <CForm>
-                            <CFormGroup>
-                                <CLabel>AppGroup ID</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-notes"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="bid" placeholder={bundleData.bid} onChange={e => {handleBundleChange(e); handleAttrChange(e)}}  invalid={invalidFormState}/>
-                                    <CInvalidFeedback className="help-block">Please enter a valid email</CInvalidFeedback>
-                                </CInputGroup>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>AppGroup Name</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange}/>
-                                </CInputGroup>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>Services, comma seperated</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-settings"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} />
-                                </CInputGroup>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>Gateway</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-sitemap"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CSelect name="gateway" custom onChange={handleBundleChange}>
-                                        <option value={undefined}>Please select a gateway</option>
-                                        {gatewayData.map(gateway => {
-                                            return (
-                                                <option value={gateway}>{gateway}</option>
-                                            )
-                                        })}
-                                    </CSelect>
-                                </CInputGroup>
-                            </CFormGroup>
-                        </CForm>
-                        <div className="title py-3">Attributes</div>
-                        <CForm>
+        <>
+            <CCard>
+                <CCardHeader>
+                    <strong>Add AppGroup</strong>
+                </CCardHeader>
+                <CCardBody>
+                    <CRow>
+                        <CCol sm="8">
+                            <CForm>
+                                <CFormGroup>
+                                    <CLabel>AppGroup ID</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-notes"/>
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CInput name="bid" placeholder={bundleData.bid} onChange={e => {handleBundleChange(e); handleAttrChange(e)}}  invalid={invalidFormState}/>
+                                        <CInvalidFeedback className="help-block">Please enter a valid email</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CFormGroup>
+                                <CFormGroup>
+                                    <CLabel>AppGroup Name</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-tag"/>
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange}/>
+                                    </CInputGroup>
+                                </CFormGroup>
+                                <CFormGroup>
+                                    <CLabel>Services, comma seperated</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-settings"/>
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} />
+                                    </CInputGroup>
+                                </CFormGroup>
+                                <CFormGroup>
+                                    <CLabel>Gateway</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-sitemap"/>
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CSelect name="gateway" custom onChange={handleBundleChange}>
+                                            <option value={undefined}>Please select a gateway</option>
+                                            {gatewayData.map(gateway => {
+                                                return (
+                                                    <option value={gateway}>{gateway}</option>
+                                                )
+                                            })}
+                                        </CSelect>
+                                    </CInputGroup>
+                                </CFormGroup>
+                            </CForm>
+                            <div className="title py-3">Attributes</div>
                             {attrData.map(attr => {
                                 return (
-                                    <CFormGroup>
-                                        <CLabel>{attr}</CLabel>
-                                        <CInputGroup>
-                                            <CInput name={attr} placeholder={attr} onChange={handleAttrChange} />
-                                        </CInputGroup>
-                                        <CFormText>Use commas to delimit multiple values.</CFormText>
-                                    </CFormGroup>
+                                    <CForm>
+                                        {attr.type == "String" && 
+                                            <CFormGroup>
+                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                                <CInputGroup>
+                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                </CInputGroup>
+                                                <CFormText>Use commas to delimit multiple values.</CFormText>
+                                            </CFormGroup>
+                                        }
+                                        {attr.type == "Boolean" &&
+                                            <>
+                                                <div>
+                                                    <CLabel>{attr.name}</CLabel>
+                                                </div>
+                                                <div className="mb-3">
+                                                    <CFormGroup variant="custom-radio" inline>
+                                                        <CInputRadio custom id="inline-radio1" name={attr.name} value={true} onChange={handleAttrChange} />
+                                                        <CLabel variant="custom-checkbox" htmlFor="inline-radio1">True</CLabel>
+                                                    </CFormGroup>
+                                                    <CFormGroup variant="custom-radio" inline>
+                                                        <CInputRadio custom id="inline-radio2" name={attr.name} value={false} onChange={handleAttrChange} />
+                                                        <CLabel variant="custom-checkbox" htmlFor="inline-radio2">False</CLabel>
+                                                    </CFormGroup>
+                                                </div>
+                                            </>
+                                        }
+                                        {attr.type == "Number" &&
+                                            <CFormGroup>
+                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                                <CInputGroup>
+                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                </CInputGroup>
+                                                <CFormText>Use commas to delimit multiple values.</CFormText>
+                                            </CFormGroup>
+                                        }
+                                        {attr.type == "Date" &&
+                                            <CFormGroup>
+                                                <CLabel>{attr.name}</CLabel>
+                                                <CInputGroup>
+                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                </CInputGroup>
+                                            </CFormGroup>
+                                        }
+                                    </CForm>
                                 )
                             })}
-                        </CForm>
-                    </CCol>
-                </CRow>
-            </CCardBody>
-            <CCardFooter>
-                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
-                    <CIcon name="cil-scrubber" />
-                    <strong>{" "}Add</strong>
-                </CButton>
-            </CCardFooter>
-        </CCard>
+                        </CCol>
+                    </CRow>
+                </CCardBody>
+                <CCardFooter>
+                    <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                        <CIcon name="cil-scrubber" />
+                        <strong>{" "}Add</strong>
+                    </CButton>
+                </CCardFooter>
+            </CCard>
+            <CModal show={overwriteModal} onClose={() => setOverwriteModal(!overwriteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Are you sure you want to overwrite?</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>{overwriteBid} already exists in your user collection. Submitting will overwrite the entry.
+                        Do you wish to proceed?
+                    </strong>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={handleSubmit}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setOverwriteModal(!overwriteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+        </>
     )
 }
 

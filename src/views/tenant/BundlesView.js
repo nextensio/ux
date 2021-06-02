@@ -74,7 +74,9 @@ const BundlesView = (props) => {
     );
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
+    const [bidData, updateBidData] = useState("");
     const [zippedData, updateZippedData] = useState(initTableData);
+
     const [details, setDetails] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteBid, setDeleteBid] = useState("");
@@ -109,7 +111,9 @@ const BundlesView = (props) => {
 
     useEffect(() => {
         const zipper = []
+        const bidObj = {}
         for (let i = 0; i < bundleData.length; i++) {
+            bidObj[bundleData[i].bid] = true;
             // Match bundleData object with bundleAttrData by bid and combine the two into one
             if (bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)) {
                 const zipObj = {
@@ -121,6 +125,7 @@ const BundlesView = (props) => {
             }
         }
         updateZippedData(zipper)
+        updateBidData(bidObj)
     }, [bundleData, bundleAttrData])
 
     const handleRefresh = (e) => {
@@ -143,7 +148,10 @@ const BundlesView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/bundles/add')
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundles/add',
+            state: bidData
+        })
     }
 
     const handleEdit = (index) => {

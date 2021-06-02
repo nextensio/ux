@@ -5,10 +5,8 @@ import {
     CCardBody,
     CForm,
     CInput,
-    CInputGroup,
-    CInputGroupPrepend,
-    CInputGroupText,
     CInputRadio,
+    CInputGroup,
     CLabel,
     CCardHeader,
     CFormGroup,
@@ -40,7 +38,7 @@ const HostRouteConfig = (props) => {
     const [configIndex, setConfigIndex] = useState("");
     
     // attrs is different from attrsState in that the variable contains the name and type of 
-    // the attributes, ie {name: "employeeLevel", type: "Number"}
+    // the attributes, ie {name: "employeeLevel", type: "Number", appliesTo: "Hosts", ...}
     const [attrs, setAttrs] = useState(initAttrData);
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -81,8 +79,7 @@ const HostRouteConfig = (props) => {
                 const attrObjs = [];
                 for (var i = 0; i < data.length; i++) {
                     if (attrsState.includes(data[i].name) && data[i].appliesTo == "Hosts") {
-                        const attrObj = {name: data[i].name, type: data[i].type}
-                        attrObjs.push(attrObj);
+                        attrObjs.push(data[i]);
                     }
                 }
                 setAttrs(attrObjs)
@@ -102,14 +99,6 @@ const HostRouteConfig = (props) => {
             [e.target.name]: input
         });
         
-    }
-
-    // Still needs fixing, right now Date type attributes not communicating with DB
-    const handleDateChange = (e, attrName) => {
-        updateRouteObj({
-            ...routeObj,
-            attrName: e.target.value
-        })
     }
 
     const handleConfirm = (e) => {
@@ -163,49 +152,53 @@ const HostRouteConfig = (props) => {
                         </CFormGroup>
                         {(attrs).map((attr, i) => {
                             const name = attr.name
-                            if (attr.type == "String") {
-                                return (
-                                    <CFormGroup>
-                                        <CLabel htmlFor="nf-email">{attr.name}</CLabel>
-                                        <CInput name={attr.name} defaultValue={routeObj[name]} onChange={handleChange}/>
-                                        <CFormText>Use commas to delimit multiple values</CFormText>
-                                    </CFormGroup>
-                                )
-                            }
-                            if (attr.type == "Number") {
-                                return (
-                                    <CFormGroup>
-                                        <CLabel htmlFor="nf-email">{attr.name}</CLabel>
-                                        <CInput name={attr.name} defaultValue={routeObj[name]} onChange={handleChange}/>
-                                        <CFormText>Use commas to delimit multiple values</CFormText>
-                                    </CFormGroup>
-                                )
-                            }
-                            if (attr.type == "Date") {
-                                return (
-                                    <CFormGroup>
-                                        <CLabel htmlFor="nf-email">{attr.name}</CLabel>
-                                        <div>
-                                          <DatePicker selected={startDate} onChange={(date)=>{setStartDate(date)}}/>
-                                        </div>
-                                    </CFormGroup>
-                                )
-                            }
-                            if (attr.type == "Boolean") {
-                                return (
-                                    <div className="mb-3">
-                                        <CLabel>{attr.name}</CLabel> <br/>
-                                        <CFormGroup variant="custom-radio" inline>
-                                            <CInputRadio custom id="inline-radio1" name={attr.name} value="true" onChange={handleChange}/>
-                                            <CLabel variant="custom-checkbox" htmlFor="inline-radio1">True</CLabel>
+                            return (
+                                <>
+                                    {attr.type == "String" && 
+                                        <CFormGroup>
+                                            <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                            <CInputGroup>
+                                                <CInput name={attr.name} defaultValue={routeObj[name]} onChange={handleChange} />
+                                            </CInputGroup>
+                                            <CFormText>Use commas to delimit multiple values.</CFormText>
                                         </CFormGroup>
-                                        <CFormGroup variant="custom-radio" inline>
-                                            <CInputRadio custom id="inline-radio2" name={attr.name} value="false" onChange={handleChange}/>
-                                            <CLabel variant="custom-checkbox" htmlFor="inline-radio2">False</CLabel>
+                                    }
+                                    {attr.type == "Boolean" &&
+                                        <>
+                                            <div>
+                                                <CLabel>{attr.name}</CLabel>
+                                            </div>
+                                            <div className="mb-3">
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio1" name={attr.name} value={true} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio1">True</CLabel>
+                                                </CFormGroup>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio2" name={attr.name} value={false} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio2">False</CLabel>
+                                                </CFormGroup>
+                                            </div>
+                                        </>
+                                    }
+                                    {attr.type == "Number" &&
+                                        <CFormGroup>
+                                            <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                            <CInputGroup>
+                                                <CInput name={attr.name} defaultValue={routeObj[name]} onChange={handleChange} />
+                                            </CInputGroup>
+                                            <CFormText>Use commas to delimit multiple values.</CFormText>
                                         </CFormGroup>
-                                    </div>
-                                )
-                            }
+                                    }
+                                    {attr.type == "Date" &&
+                                        <CFormGroup>
+                                            <CLabel>{attr.name}</CLabel>
+                                            <CInputGroup>
+                                                <CInput type="date" id="date-input" name={attr.name} defaultValue={routeObj[name]} onChange={handleChange} />
+                                            </CInputGroup>
+                                        </CFormGroup>
+                                    }
+                                </>
+                            )
                         })}
                     </CForm>
                 </CCardBody>

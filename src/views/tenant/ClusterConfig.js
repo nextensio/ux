@@ -22,7 +22,6 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -31,12 +30,12 @@ const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
         cluster: "",
         image: "",
-        apods: "",
-        cpods: "",
     });
     const [configData, updateConfigData] = useState(initConfigData);
-    // gw data for the dropdown
-    const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
+    // cluster data for the dropdown
+    const [clusterData, updateClusterData] = useState(Object.freeze([]));
+    const [apodCount, incrementApodCount] = useState(0);
+    const [cpodCount, incrementCpodCount] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -50,13 +49,12 @@ const ClusterConfig = (props) => {
         fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var gatewayNames = []
+                var clusterNames = []
                 for (var i = 0; i < data.length; i++) {
-                    gatewayNames.push(data[i]);
-                    console.log(data[i])
+                    clusterNames.push(data[i].cluster);
                 }
-                gatewayNames.sort()
-                updateGatewayData(gatewayNames)
+                clusterNames.sort()
+                updateClusterData(clusterNames)
             });
     }, []);
 
@@ -73,8 +71,8 @@ const ClusterConfig = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                cluster: configData.cluster, image: configData.image, apods: configData.apods,
-                cpods: configData.cpods
+                cluster: configData.cluster, image: configData.image, apods: apodCount,
+                cpods: cpodCount
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
@@ -104,27 +102,56 @@ const ClusterConfig = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Cluster Configuration</strong>
+                <CButton onClick={e => console.log(configData)}>LOG</CButton>
             </CCardHeader>
             <CCardBody>
                 <CRow>
-                    <CForm>
-                        <CFormGroup>
-                            <CLabel>Cluster</CLabel>
-                            <CInputGroup>
-                                <CInputGroupPrepend>
-                                    <CInputGroupText className="bg-primary-light text-primary">
-                                        <CIcon name="cil-sitemap"/>
-                                    </CInputGroupText>
-                                </CInputGroupPrepend>
-                                <CSelect name="cluster" custom onChange={handleChange}>
-                                </CSelect>
-                            </CInputGroup>
-                        </CFormGroup>
-                    </CForm>
+                    <CCol sm="8">
+                        <CForm>
+                            <CFormGroup>
+                                <CLabel>Cluster</CLabel>
+                                <CInputGroup>
+                                    <CInputGroupPrepend>
+                                        <CInputGroupText className="bg-primary-light text-primary">
+                                            <CIcon name="cil-sitemap"/>
+                                        </CInputGroupText>
+                                    </CInputGroupPrepend>
+                                    <CSelect name="cluster" custom onChange={handleChange}>
+                                        <option value={undefined}>Please select a cluster</option>
+                                        {clusterData.map(cluster => {
+                                            return (
+                                                <option value={cluster}>{cluster}</option>
+                                            )
+                                        })}
+                                    </CSelect>
+                                </CInputGroup>
+                            </CFormGroup>
+                            <CFormGroup>
+                                <CLabel>Image</CLabel>
+                                <CInput name="image" onChange={handleChange}/>
+                            </CFormGroup>
+                            <CRow>
+                                <CCol>
+                                    APods
+                                    <div>
+                                        {apodCount}
+                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementApodCount(apodCount + 1)}>+</CButton>
+                                    </div>
+                                </CCol>
+                                <CCol>
+                                    CPods
+                                    <div>
+                                        {cpodCount}
+                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementCpodCount(cpodCount + 1)}>+</CButton>
+                                    </div>
+                                </CCol>
+                            </CRow>
+                        </CForm>
+                    </CCol>
                 </CRow>
             </CCardBody>
             <CCardFooter>
-                <CButton className="button-footer-success" color="success" variant="outline">
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
                     <CIcon name="cil-scrubber" />
                     <strong>{" "}Add</strong>
                 </CButton>
