@@ -14,10 +14,8 @@ import {
     CCardFooter
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import DatePicker from 'react-datepicker'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import 'react-datepicker/dist/react-datepicker.css'
 
 var common = require('../../common')
 
@@ -25,7 +23,6 @@ const HostRouteConfig = (props) => {
     var initAttrData = Object.freeze(
         []
     );
-    const [startDate, setStartDate] = useState(new Date());
     const [hostState, updateHostState] = useState("");
     const [attrsState, setAttrsState] = useState(initAttrData);
     

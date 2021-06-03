@@ -1,7 +1,6 @@
 import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
-    CCallout,
     CCard,
     CCardHeader,
     CCardBody,
@@ -14,7 +13,6 @@ import {
     CDropdownMenu,
     CForm,
     CFormGroup,
-    CFormText,
     CInput,
     CInputGroup,
     CInputRadio,
@@ -24,6 +22,7 @@ import {
     CModalBody,
     CModalTitle,
     CModalFooter,
+    CPopover,
     CRow,
     CInvalidFeedback,
     CSwitch,
@@ -112,20 +111,6 @@ const AttributeEditor = (props) => {
             ...attributeData, 
             type: type
         });
-    }
-
-    const lengthCheck = (e) => {
-        if (!attributeData.lengthCheck) {
-            updateAttributeData({
-                ...attributeData,
-                lengthCheck: 10
-            })
-        } else {
-            updateAttributeData({
-                ...attributeData,
-                lengthCheck: undefined
-            })
-        }
     }
 
     const rangeCheck = (e) => {
@@ -314,10 +299,17 @@ const AttributeEditor = (props) => {
                                     <>
                                         <div className="mb-3"><strong>Checksums</strong></div>
                                         <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Single or Multi Value Type</CLabel>
+                                            <CCol md="6">
+                                                <CPopover 
+                                                    header="What is Single or Multi Value Type?"
+                                                    content="If this attribute is expected to have more than one value, select Multi Value.
+                                                    For example, a department attribute for a user might need multiple values. John might
+                                                    be in the sales department & marketing department"
+                                                >
+                                                    <CLabel><FontAwesomeIcon icon="info-circle"/> Single or Multi Value Type</CLabel>
+                                                </CPopover>
                                             </CCol>
-                                            <CCol md="8">
+                                            <CCol md="6">
                                                 <CFormGroup variant="custom-radio" inline>
                                                     <CInputRadio custom id="inline-radio4" name="isArray" value={false} onChange={handleChange} />
                                                     <CLabel variant="custom-checkbox" htmlFor="inline-radio4">Single Value</CLabel>
@@ -329,17 +321,24 @@ const AttributeEditor = (props) => {
                                             </CCol>
                                         </CFormGroup>
                                         <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Length Check</CLabel>
+                                            <CCol md="6">
+                                                <CPopover
+                                                    header="What is Length Check?"
+                                                    content="Description of length check"
+                                                >
+                                                    <CLabel><FontAwesomeIcon icon="info-circle"/> Length Check</CLabel>
+                                                </CPopover>
                                             </CCol>
-                                            <CCol md="8">
+                                            <CCol md="6">
                                                 <div>
-                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={lengthCheck}/>
+                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck}/>
                                                 </div>
-                                                {attributeData.lengthCheck &&
+                                                {attributeData.rangeCheck &&
                                                     <CRow className="mt-3">
                                                         <CCol md="3">
-                                                            <CInput defaultValue={attributeData.lengthCheck}/>
+                                                            <div>
+                                                                <CInput name="rangeCheck" defaultValue={attributeData.rangeCheck} onChange={handleChange}/>
+                                                            </div>
                                                         </CCol>
                                                     </CRow>
                                                 }

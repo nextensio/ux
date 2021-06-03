@@ -75,7 +75,7 @@ const ClusterConfig = (props) => {
                 cpods: cpodCount
             }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tenantcluster'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
