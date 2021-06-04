@@ -34,8 +34,8 @@ const ClusterConfig = (props) => {
     const [configData, updateConfigData] = useState(initConfigData);
     // cluster data for the dropdown
     const [clusterData, updateClusterData] = useState(Object.freeze([]));
-    const [apodCount, incrementApodCount] = useState(0);
-    const [cpodCount, incrementCpodCount] = useState(0);
+    const [apodCount, setApodCount] = useState(0);
+    const [cpodCount, setCpodCount] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -63,10 +63,32 @@ const ClusterConfig = (props) => {
             ...configData,
             [e.target.name]: e.target.value.trim()
         });
+        if (e.target.name == "cluster") {
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
+                .then(response => response.json())
+                .then(data => {
+                    setApodCount(data.TenantCl.apods)
+                    setCpodCount(data.TenantCl.cpods)
+                });
+        }
+    };
+
+    const handleApodChange = (e) => {
+        var input = e.target.value.trim().toString()
+        setApodCount(parseInt(input, 10))
+    };
+
+    const handleCpodChange = (e) => {
+        var input = e.target.value.trim().toString()
+        setCpodCount(parseInt(input, 10))
     };
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        if (!configData.cluster) {
+            alert('please select a cluster');
+            return
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -97,7 +119,7 @@ const ClusterConfig = (props) => {
             });
     };
 
-   
+
     return (
         <CCard>
             <CCardHeader>
@@ -113,7 +135,7 @@ const ClusterConfig = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-sitemap"/>
+                                            <CIcon name="cil-sitemap" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CSelect name="cluster" custom onChange={handleChange}>
@@ -128,21 +150,19 @@ const ClusterConfig = (props) => {
                             </CFormGroup>
                             <CFormGroup>
                                 <CLabel>Image</CLabel>
-                                <CInput name="image" onChange={handleChange}/>
+                                <CInput name="image" onChange={handleChange} />
                             </CFormGroup>
                             <CRow>
                                 <CCol>
-                                    APods
+                                    APods {apodCount}
                                     <div>
-                                        {apodCount}
-                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementApodCount(apodCount + 1)}>+</CButton>
+                                        <CInput name="apods" onChange={handleApodChange} />
                                     </div>
                                 </CCol>
                                 <CCol>
-                                    CPods
+                                    CPods {cpodCount}
                                     <div>
-                                        {cpodCount}
-                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementCpodCount(cpodCount + 1)}>+</CButton>
+                                        <CInput name="cpods" onChange={handleCpodChange} />
                                     </div>
                                 </CCol>
                             </CRow>

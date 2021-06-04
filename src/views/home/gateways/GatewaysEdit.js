@@ -65,7 +65,8 @@ const GatewaysEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
+                cluster: gwData.name,
                 name: gwData.name + '.nextensio.net', location: gwData.location, region: gwData.region,
                 zone: gwData.zone, provider: gwData.provider
             }),
@@ -108,7 +109,7 @@ const GatewaysEdit = (props) => {
                                 </CInputGroupText>
                             </CInputGroupAppend>
                         </CInputGroup>
-                        <CFormText>Each entry is appended with .nextensio.net</CFormText>
+                        <CFormText>DNS name is (Hostname).nextensio.net</CFormText>
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel>Location</CLabel>
