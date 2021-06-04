@@ -47,19 +47,11 @@ const fields = [
         _classes: "data-field"
     },
     {
-        key: "gateways",
-        _classes: "data-field"
-    },
-    {
         key: "domains",
         _classes: "data-field"
     },
     {
         key: "image",
-        _classes: "data-field"
-    },
-    {
-        key: "pods",
         _classes: "data-field"
     },
     {
