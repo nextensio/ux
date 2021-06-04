@@ -28,10 +28,7 @@ const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
         _id: "unknown",
-        gateways: "",
-        domains: "",
         image: "",
-        pods: 0,
     });
     const [tenantData, updateTenantData] = useState(initTenantData);
 
@@ -48,10 +45,7 @@ const TenantsEdit = (props) => {
             updateTenantData({
                 _id: props.location.state._id,
                 name: props.location.state.name,
-                gateways: props.location.state.gateways.join(),
-                domains: props.location.state.domains.join(),
                 image: props.location.state.image,
-                pods: props.location.state.pods
             })
         }
     }, []);
@@ -65,33 +59,12 @@ const TenantsEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        var gateways = tenantData.gateways
-        if (tenantData.gateways) {
-            if (!Array.isArray(tenantData.gateways)) {
-                gateways = tenantData.gateways.split(',').map(function (item) {
-                    return item.trim();
-                })
-            }
-        } else {
-            gateways = []
-        }
-        var domains = tenantData.domains
-        if (tenantData.domains) {
-            if (!Array.isArray(tenantData.domains)) {
-                domains = tenantData.domains.split(',').map(function (item) {
-                    return item.trim();
-                })
-            }
-        } else {
-            domains = []
-        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 _id: tenantData._id,
-                gateways: gateways, domains: domains,
-                image: tenantData.image, pods: parseInt(tenantData.pods),
+                image: tenantData.image,
             }),
         };
 
@@ -132,20 +105,8 @@ const TenantsEdit = (props) => {
                         <CInput name="_id" placeholder={tenantData._id} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">Gateways (Comma seperated)</CLabel>
-                        <CInput name="gateways" placeholder={tenantData.gateways} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Private domains (Comma seperated)</CLabel>
-                        <CInput name="domains" placeholder={tenantData.domains} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
                         <CLabel htmlFor="nf-password">Dataplane Image</CLabel>
                         <CInput name="image" placeholder={tenantData.image} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Number of pods</CLabel>
-                        <CInput name="pods" placeholder={tenantData.pods} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

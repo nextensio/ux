@@ -66,7 +66,6 @@ const GatewaysEdit = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                cluster: gwData.name,
                 name: gwData.name + '.nextensio.net', location: gwData.location, region: gwData.region,
                 zone: gwData.zone, provider: gwData.provider
             }),

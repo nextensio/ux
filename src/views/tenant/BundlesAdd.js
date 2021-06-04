@@ -80,7 +80,7 @@ const BundlesAdd = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allgateways'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var gatewayNames = []
@@ -198,9 +198,9 @@ const BundlesAdd = (props) => {
                 .catch(error => {
                     alert('Error contacting server', error);
                 })
-            } else {
-                props.history.push('/tenant/' + props.match.params.id + '/bundles')
-            }
+        } else {
+            props.history.push('/tenant/' + props.match.params.id + '/bundles')
+        }
 
     };
 
@@ -219,10 +219,10 @@ const BundlesAdd = (props) => {
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-notes"/>
+                                                <CIcon name="cil-notes" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="bid" placeholder={bundleData.bid} onChange={e => {handleBundleChange(e); handleAttrChange(e)}}  invalid={invalidFormState}/>
+                                        <CInput name="bid" placeholder={bundleData.bid} onChange={e => { handleBundleChange(e); handleAttrChange(e) }} invalid={invalidFormState} />
                                         <CInvalidFeedback className="help-block">Please enter a valid email</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
@@ -231,10 +231,10 @@ const BundlesAdd = (props) => {
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-tag"/>
+                                                <CIcon name="cil-tag" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange}/>
+                                        <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange} />
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
@@ -242,7 +242,7 @@ const BundlesAdd = (props) => {
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-settings"/>
+                                                <CIcon name="cil-settings" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} />
@@ -253,7 +253,7 @@ const BundlesAdd = (props) => {
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-sitemap"/>
+                                                <CIcon name="cil-sitemap" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CSelect name="gateway" custom onChange={handleBundleChange}>
@@ -271,7 +271,7 @@ const BundlesAdd = (props) => {
                             {attrData.map(attr => {
                                 return (
                                     <CForm>
-                                        {attr.type == "String" && 
+                                        {attr.type == "String" &&
                                             <CFormGroup>
                                                 <CLabel htmlFor="nf-password">{attr.name}</CLabel>
                                                 <CInputGroup>

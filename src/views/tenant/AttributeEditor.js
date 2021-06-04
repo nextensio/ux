@@ -108,7 +108,7 @@ const AttributeEditor = (props) => {
 
     const handleType = (e, type) => {
         updateAttributeData({
-            ...attributeData, 
+            ...attributeData,
             type: type
         });
     }
@@ -129,7 +129,7 @@ const AttributeEditor = (props) => {
 
 
     const reset = (e) => {
-        updateAttributeData({ name: '', appliesTo: '', type: 'Type'});
+        updateAttributeData({ name: '', appliesTo: '', type: 'Type' });
         setResetWarning(false);
     }
 
@@ -140,7 +140,7 @@ const AttributeEditor = (props) => {
                 ...errObj,
                 typeErr: true
             })
-        } 
+        }
         if (attributeData.type == "String" && !attributeData.isArray) {
             updateErrObj({
                 ...errObj,
@@ -166,8 +166,8 @@ const AttributeEditor = (props) => {
                 ...errObj,
                 dateRangeErr: true
             })
-        } 
-        
+        }
+
         return
     }
 
@@ -250,7 +250,7 @@ const AttributeEditor = (props) => {
                 <CCol sm="12" lg="6">
                     <CCard className="shadow rounded">
                         <CCardHeader>
-                            Add New Attributes <CButton onClick={() => console.log(inuseAttr)}>LOG</CButton>
+                            Add New Attributes
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
@@ -279,7 +279,7 @@ const AttributeEditor = (props) => {
                                 <CFormGroup>
                                     <CLabel htmlFor="nf-attribute">Attribute Name</CLabel>
                                     <CInputGroup>
-                                        <CInput name="name" placeholder="Enter Attribute.." onChange={handleChange}/>
+                                        <CInput name="name" placeholder="Enter Attribute.." onChange={handleChange} />
                                         <CDropdown className="input-group-append">
                                             <CDropdownToggle caret className="border-success bg-success-light text-success">
                                                 {attributeData.type}
@@ -300,13 +300,13 @@ const AttributeEditor = (props) => {
                                         <div className="mb-3"><strong>Checksums</strong></div>
                                         <CFormGroup row>
                                             <CCol md="6">
-                                                <CPopover 
+                                                <CPopover
                                                     header="What is Single or Multi Value Type?"
                                                     content="If this attribute is expected to have more than one value, select Multi Value.
                                                     For example, a department attribute for a user might need multiple values. John might
                                                     be in the sales department & marketing department"
                                                 >
-                                                    <CLabel><FontAwesomeIcon icon="info-circle"/> Single or Multi Value Type</CLabel>
+                                                    <CLabel><FontAwesomeIcon icon="info-circle" /> Single or Multi Value Type</CLabel>
                                                 </CPopover>
                                             </CCol>
                                             <CCol md="6">
@@ -326,18 +326,18 @@ const AttributeEditor = (props) => {
                                                     header="What is Length Check?"
                                                     content="Description of length check"
                                                 >
-                                                    <CLabel><FontAwesomeIcon icon="info-circle"/> Length Check</CLabel>
+                                                    <CLabel><FontAwesomeIcon icon="info-circle" /> Length Check</CLabel>
                                                 </CPopover>
                                             </CCol>
                                             <CCol md="6">
                                                 <div>
-                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck}/>
+                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck} />
                                                 </div>
                                                 {attributeData.rangeCheck &&
                                                     <CRow className="mt-3">
                                                         <CCol md="3">
                                                             <div>
-                                                                <CInput name="rangeCheck" defaultValue={attributeData.rangeCheck} onChange={handleChange}/>
+                                                                <CInput name="rangeCheck" defaultValue={attributeData.rangeCheck} onChange={handleChange} />
                                                             </div>
                                                         </CCol>
                                                     </CRow>
@@ -345,7 +345,7 @@ const AttributeEditor = (props) => {
                                             </CCol>
                                         </CFormGroup>
                                     </>
-                                   
+
                                 }
                                 {attributeData.type == "Number" &&
                                     <>
@@ -386,24 +386,24 @@ const AttributeEditor = (props) => {
                                             </CCol>
                                             <CCol md="8">
                                                 <div>
-                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck}/>
+                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck} />
                                                 </div>
                                                 {attributeData.rangeCheck &&
                                                     <CRow className="mt-3">
                                                         <CCol md="3">
-                                                            Min: <CInput defaultValue={attributeData.rangeCheck}/>
+                                                            Min: <CInput defaultValue={attributeData.rangeCheck} />
                                                         </CCol>
                                                         <CCol md="3">
-                                                            Max: <CInput defaultValue={attributeData.rangeCheck}/>
+                                                            Max: <CInput defaultValue={attributeData.rangeCheck} />
                                                         </CCol>
                                                     </CRow>
-                                                    
+
                                                 }
                                             </CCol>
                                         </CFormGroup>
                                     </>
                                 }
-                                {attributeData.type == "Date" && 
+                                {attributeData.type == "Date" &&
                                     <>
                                         <div className="mb-3"><strong>Checksums</strong></div>
                                         <CFormGroup row>

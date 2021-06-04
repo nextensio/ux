@@ -36,7 +36,7 @@ const HostEdit = (props) => {
     const initHostData = Object.freeze({
         host: "",
         name: "",
-        routeattrs: [{tag: ""}],
+        routeattrs: [{ tag: "" }],
     });
     const [hostData, updateHostData] = useState(initHostData);
     const [attrData, updateAttrData] = useState(Object.freeze([]));
@@ -91,7 +91,7 @@ const HostEdit = (props) => {
         setSelectedAttr(selected)
     }
 
-    const handleDeselect= (e) => {
+    const handleDeselect = (e) => {
         const selected = [...selectedAttr]
         const i = selected.indexOf(e.target.name)
         if (i > -1) {
@@ -112,6 +112,9 @@ const HostEdit = (props) => {
     };
 
     function validateURL(url) {
+        if (url == 'nextensio-default-internet') {
+            return true
+        }
         const re = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
         return re.test(String(url).toLowerCase());
     }
@@ -165,10 +168,10 @@ const HostEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-link"/>
+                                            <CIcon name="cil-link" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="host" placeholder="google.com" onChange={handleChange} invalid={invalidFormState}/>
+                                    <CInput name="host" placeholder="google.com" onChange={handleChange} invalid={invalidFormState} />
                                     <CInvalidFeedback>Please enter a valid URL!</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
@@ -177,7 +180,7 @@ const HostEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
+                                            <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="name" placeholder="google" onChange={handleChange} />
@@ -190,7 +193,7 @@ const HostEdit = (props) => {
                                 {selectedAttr.map(attr => {
                                     return (
                                         <CListGroupItem color="primary" accent="primary">
-                                            {attr}<CButtonClose className="ml-1" buttonClass="text-white close" name={attr} onClick={(e) => handleDeselect(e)}/>
+                                            {attr}<CButtonClose className="ml-1" buttonClass="text-white close" name={attr} onClick={(e) => handleDeselect(e)} />
                                         </CListGroupItem>
                                     )
                                 })}
@@ -198,7 +201,7 @@ const HostEdit = (props) => {
                         </CCol>
                         <div className="roboto-font mt-3"><FontAwesomeIcon icon="info-circle" className="text-info" /> Add an attribute from the checklist on the right.</div>
                     </CCol>
-                
+
                     <CCol sm="4">
                         <div className="sticky-scroll p-3">
                             <div className="title mb-3">Attribute List</div>
@@ -208,8 +211,8 @@ const HostEdit = (props) => {
                                         <CIcon name="cil-magnifying-glass" />
                                     </CInputGroupText>
                                 </CInputGroupPrepend>
-                                <CInput 
-                                    type="text" 
+                                <CInput
+                                    type="text"
                                     placeholder="User Attribute"
                                     value={searchInput}
                                     onChange={handleSearchChange}
@@ -218,7 +221,7 @@ const HostEdit = (props) => {
                             {searchResults.map(attr => {
                                 return (
                                     <CFormGroup variant="checkbox" className="checkbox">
-                                        <CInputCheckbox value={attr} onChange={(e) => {handleSelect(e)}} checked={selectedAttr.includes(attr)}/>
+                                        <CInputCheckbox value={attr} onChange={(e) => { handleSelect(e) }} checked={selectedAttr.includes(attr)} />
                                         <CLabel variant="checkbox" className="form-check-label">{attr}</CLabel>
                                     </CFormGroup>
                                 )

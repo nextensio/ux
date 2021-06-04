@@ -28,12 +28,12 @@ var common = require('../../common')
 
 const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
-        cluster: "",
+        gateway: "",
         image: "",
     });
     const [configData, updateConfigData] = useState(initConfigData);
-    // cluster data for the dropdown
-    const [clusterData, updateClusterData] = useState(Object.freeze([]));
+    // gateway data for the dropdown
+    const [gatewayData, updategatewayData] = useState(Object.freeze([]));
     const [apodCount, setApodCount] = useState(0);
     const [cpodCount, setCpodCount] = useState(0);
 
@@ -46,15 +46,15 @@ const ClusterConfig = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allgateways'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var clusterNames = []
+                var gatewayNames = []
                 for (var i = 0; i < data.length; i++) {
-                    clusterNames.push(data[i].cluster);
+                    gatewayNames.push(data[i].name);
                 }
-                clusterNames.sort()
-                updateClusterData(clusterNames)
+                gatewayNames.sort()
+                updategatewayData(gatewayNames)
             });
     }, []);
 
@@ -63,7 +63,7 @@ const ClusterConfig = (props) => {
             ...configData,
             [e.target.name]: e.target.value.trim()
         });
-        if (e.target.name == "cluster") {
+        if (e.target.name == "gateway") {
             fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
                 .then(response => response.json())
                 .then(data => {
@@ -85,15 +85,15 @@ const ClusterConfig = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!configData.cluster) {
-            alert('please select a cluster');
+        if (!configData.gateway) {
+            alert('please select a gateway');
             return
         }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                cluster: configData.cluster, image: configData.image, apods: apodCount,
+                gateway: configData.gateway, image: configData.image, apods: apodCount,
                 cpods: cpodCount
             }),
         };
@@ -123,7 +123,7 @@ const ClusterConfig = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Cluster Configuration</strong>
+                <strong>gateway Configuration</strong>
                 <CButton onClick={e => console.log(configData)}>LOG</CButton>
             </CCardHeader>
             <CCardBody>
@@ -131,18 +131,18 @@ const ClusterConfig = (props) => {
                     <CCol sm="8">
                         <CForm>
                             <CFormGroup>
-                                <CLabel>Cluster</CLabel>
+                                <CLabel>gateway</CLabel>
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
                                             <CIcon name="cil-sitemap" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CSelect name="cluster" custom onChange={handleChange}>
-                                        <option value={undefined}>Please select a cluster</option>
-                                        {clusterData.map(cluster => {
+                                    <CSelect name="gateway" custom onChange={handleChange}>
+                                        <option value={undefined}>Please select a gateway</option>
+                                        {gatewayData.map(gateway => {
                                             return (
-                                                <option value={cluster}>{cluster}</option>
+                                                <option value={gateway}>{gateway}</option>
                                             )
                                         })}
                                     </CSelect>

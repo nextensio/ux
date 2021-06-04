@@ -32,7 +32,7 @@ const BundlesEdit = (props) => {
     const [bundleAttrState, updateBundleAttrState] = useState("");
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [attrData, updateAttrData] = useState(Object.freeze([]));
-   
+
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
@@ -60,7 +60,7 @@ const BundlesEdit = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allgateways'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var gatewayNames = []
@@ -78,8 +78,8 @@ const BundlesEdit = (props) => {
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].bid == bundleState.bid) {
-                        var {bid, _gateway, _name, _pod, ...rest} = data[i]
-                        updateBundleAttrState({bid, ...rest})
+                        var { bid, _gateway, _name, _pod, ...rest } = data[i]
+                        updateBundleAttrState({ bid, ...rest })
                     }
                 }
             })
@@ -195,13 +195,13 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-notes"/>
+                                            <CIcon name="cil-notes" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="bid" value={bundleState.bid} readOnly/>
+                                    <CInput name="bid" value={bundleState.bid} readOnly />
                                     <CInputGroupAppend>
                                         <CInputGroupText>
-                                            <CIcon name="cil-lock-locked"/>
+                                            <CIcon name="cil-lock-locked" />
                                         </CInputGroupText>
                                     </CInputGroupAppend>
                                 </CInputGroup>
@@ -211,7 +211,7 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
+                                            <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="name" defaultValue={bundleState.name} onChange={handleBundleChange} />
@@ -222,7 +222,7 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-settings"/>
+                                            <CIcon name="cil-settings" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="services" defaultValue={bundleState.services} onChange={handleBundleChange} />
@@ -233,7 +233,7 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-sitemap"/>
+                                            <CIcon name="cil-sitemap" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CSelect name="gateway" custom onChange={handleBundleChange}>
@@ -241,12 +241,12 @@ const BundlesEdit = (props) => {
                                             return (
                                                 <>
                                                     {gateway == bundleState.gateway
-                                                    ?
+                                                        ?
                                                         <option selected value={gateway}>{gateway}</option>
-                                                    :
+                                                        :
                                                         <option value={gateway}>{gateway}</option>
                                                     }
-                        
+
                                                 </>
                                             )
                                         })}
@@ -261,7 +261,7 @@ const BundlesEdit = (props) => {
                                     <CFormGroup>
                                         <CLabel>{attr}</CLabel>
                                         <CInputGroup>
-                                            <CInput name={attr} defaultValue={bundleAttrState[attr]} onChange={handleAttrChange}/>
+                                            <CInput name={attr} defaultValue={bundleAttrState[attr]} onChange={handleAttrChange} />
                                         </CInputGroup>
                                         <CFormText>Use commas to delimit multiple values.</CFormText>
                                     </CFormGroup>
