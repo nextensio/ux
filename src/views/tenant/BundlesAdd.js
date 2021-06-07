@@ -37,7 +37,6 @@ const BundlesAdd = (props) => {
         bid: "",
         name: "",
         services: "",
-        gateway: "",
     });
     const initBundleAttrData = Object.freeze({
         bid: ""
@@ -47,7 +46,6 @@ const BundlesAdd = (props) => {
     const [existingBidData, updateExistingBidData] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     // gw data for the dropdown
-    const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [invalidFormState, setInvalidFormState] = useState(false);
 
     const [overwriteModal, setOverwriteModal] = useState(false);
@@ -80,16 +78,6 @@ const BundlesAdd = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allgateways'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                var gatewayNames = []
-                for (var i = 0; i < data.length; i++) {
-                    gatewayNames.push(data[i].name);
-                }
-                gatewayNames.sort()
-                updateGatewayData(gatewayNames)
-            });
     }, []);
 
     const handleBundleChange = (e) => {
@@ -144,7 +132,7 @@ const BundlesAdd = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 bid: bundleData.bid, name: bundleData.name,
-                gateway: bundleData.gateway, services: services,
+                services: services,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
@@ -246,24 +234,6 @@ const BundlesAdd = (props) => {
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} />
-                                    </CInputGroup>
-                                </CFormGroup>
-                                <CFormGroup>
-                                    <CLabel>Gateway</CLabel>
-                                    <CInputGroup>
-                                        <CInputGroupPrepend>
-                                            <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-sitemap" />
-                                            </CInputGroupText>
-                                        </CInputGroupPrepend>
-                                        <CSelect name="gateway" custom onChange={handleBundleChange}>
-                                            <option value={undefined}>Please select a gateway</option>
-                                            {gatewayData.map(gateway => {
-                                                return (
-                                                    <option value={gateway}>{gateway}</option>
-                                                )
-                                            })}
-                                        </CSelect>
                                     </CInputGroup>
                                 </CFormGroup>
                             </CForm>
