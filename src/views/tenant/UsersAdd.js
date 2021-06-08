@@ -3,22 +3,25 @@ import {
     CButton,
     CCard,
     CCardBody,
-    CCardGroup,
+    CCardHeader,
+    CCardFooter,
     CCol,
-    CContainer,
     CForm,
+    CFormGroup,
+    CFormText,
     CInput,
     CInputCheckbox,
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
+    CInputRadio,
     CInvalidFeedback,
+    CModal,
+    CModalBody,
+    CModalHeader,
+    CModalFooter,
     CRow,
     CLabel,
-    CCardHeader,
-    CFormGroup,
-    CFormText,
-    CCardFooter
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -36,9 +39,18 @@ const UsersAdd = (props) => {
     });
     const [userData, updateUserData] = useState(initUserData);
     const [userAttrData, updateUserAttrData] = useState(initUserAttrData);
+
+    // Object that has existing uid as key vals
+    const [existingUidData, updateExistingUidData] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
+
+    // If the uid is not in email form, trigger this warning.
     const [invalidFormState, setInvalidFormState] = useState(false);
 
+    // If the uid already exists in tenant db, ask if the tenant 
+    // wants to overwrite the existing entry
+    const [overwriteModal, setOverwriteModal] = useState(false);
+    const [overwriteUid, setOverwriteUid] = useState("");
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -49,13 +61,16 @@ const UsersAdd = (props) => {
     };
 
     useEffect(() => {
+        if (typeof props.location.state != 'undefined') {
+            updateExistingUidData(props.location.state)
+        }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var fields = [];
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == 'Users') {
-                        fields.push(data[i].name);
+                        fields.push(data[i]);
                     }
                 }
                 fields.sort()
@@ -93,6 +108,11 @@ const UsersAdd = (props) => {
         e.preventDefault()
         if (!validateEmail(userData.uid)) {
             setInvalidFormState(true)
+            return
+        }
+        if (userData.uid in existingUidData && overwriteModal == false) {
+            setOverwriteModal(true)
+            setOverwriteUid(userData.uid)
             return
         }
         const requestOptions = {
@@ -158,62 +178,121 @@ const UsersAdd = (props) => {
     };
 
     return (
-        <CCard>
-            <CCardHeader>
-                <strong>Add User</strong>
-            </CCardHeader>
-            <CCardBody className="roboto-font">
-                <CRow>
-                    <CCol sm="8">
-                        <CForm>
-                            <CFormGroup>
-                                <CLabel>User ID</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-user"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="uid" placeholder={userData.uid} onChange={e => {handleUserChange(e); handleAttrChange(e)}} invalid={invalidFormState}/>
-                                    <CInvalidFeedback>Please enter a valid email!</CInvalidFeedback>
-                                </CInputGroup>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>Name</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="name" placeholder={userData.name} onChange={handleUserChange} />
-                                </CInputGroup>
-                            </CFormGroup>
-                        </CForm>
-                        <div className="title py-3">Attributes</div>
-                        {attrData.map(attr => {
-                            return (
-                                <CForm>
-                                    <CFormGroup>
-                                        <CLabel htmlFor="nf-password">{attr}</CLabel>
-                                        <CInputGroup>
-                                            <CInput name={attr} placeholder={attr} onChange={handleAttrChange} />
-                                        </CInputGroup>
-                                        <CFormText>Use commas to delimit multiple values.</CFormText>
-                                    </CFormGroup>
-                                </CForm>
-                            )
-                        })}
-                    </CCol>
-                </CRow>
-            </CCardBody>
-            <CCardFooter>
-                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
-                    <CIcon name="cil-scrubber" />
-                    <strong>{" "}Add</strong>
-                </CButton>
-            </CCardFooter>
-        </CCard>
+        <>
+            <CCard>
+                <CCardHeader>
+                    <strong>Add User</strong>
+                    <CButton onClick={() => {console.log(attrData)}}>LOG</CButton>
+                </CCardHeader>
+                <CCardBody className="roboto-font">
+                    <CRow>
+                        <CCol sm="8">
+                            <CForm>
+                                <CFormGroup>
+                                    <CLabel>User ID</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-user"/>
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CInput name="uid" placeholder={userData.uid} onChange={e => {handleUserChange(e); handleAttrChange(e)}} invalid={invalidFormState}/>
+                                        <CInvalidFeedback visible={invalidFormState}>Please enter a valid email!</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CFormGroup>
+                                <CFormGroup>
+                                    <CLabel>Name</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-tag"/>
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CInput name="name" placeholder={userData.name} onChange={handleUserChange} />
+                                    </CInputGroup>
+                                </CFormGroup>
+                            </CForm>
+                            <div className="title py-3">Attributes</div>
+                            {attrData.map(attr => {
+                                return (
+                                    <CForm>
+                                        {attr.type == "String" && 
+                                            <CFormGroup>
+                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                                <CInputGroup>
+                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                </CInputGroup>
+                                                <CFormText>Use commas to delimit multiple values.</CFormText>
+                                            </CFormGroup>
+                                        }
+                                        {attr.type == "Boolean" &&
+                                            <>
+                                                <div>
+                                                    <CLabel>{attr.name}</CLabel>
+                                                </div>
+                                                <div className="mb-3">
+                                                    <CFormGroup variant="custom-radio" inline>
+                                                        <CInputRadio custom id="inline-radio1" name={attr.name} value={true} onChange={handleAttrChange} />
+                                                        <CLabel variant="custom-checkbox" htmlFor="inline-radio1">True</CLabel>
+                                                    </CFormGroup>
+                                                    <CFormGroup variant="custom-radio" inline>
+                                                        <CInputRadio custom id="inline-radio2" name={attr.name} value={false} onChange={handleAttrChange} />
+                                                        <CLabel variant="custom-checkbox" htmlFor="inline-radio2">False</CLabel>
+                                                    </CFormGroup>
+                                                </div>
+                                            </>
+                                        }
+                                        {attr.type == "Number" &&
+                                            <CFormGroup>
+                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                                <CInputGroup>
+                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                </CInputGroup>
+                                                <CFormText>Use commas to delimit multiple values.</CFormText>
+                                            </CFormGroup>
+                                        }
+                                        {attr.type == "Date" &&
+                                            <CFormGroup>
+                                                <CLabel>{attr.name}</CLabel>
+                                                <CInputGroup>
+                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                </CInputGroup>
+                                            </CFormGroup>
+                                        }
+                                    </CForm>
+                                )
+                            })}
+                        </CCol>
+                    </CRow>
+                </CCardBody>
+                <CCardFooter>
+                    <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                        <CIcon name="cil-scrubber" />
+                        <strong>{" "}Add</strong>
+                    </CButton>
+                </CCardFooter>
+            </CCard>
+            <CModal show={overwriteModal} onClose={() => setOverwriteModal(!overwriteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Are you sure you want to overwrite?</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>{overwriteUid} already exists in your user collection. Submitting will overwrite the entry.
+                        Do you wish to proceed?
+                    </strong>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={handleSubmit}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setOverwriteModal(!overwriteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+        </>
     )
 }
 

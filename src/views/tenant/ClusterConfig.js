@@ -28,14 +28,14 @@ var common = require('../../common')
 
 const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
-        cluster: "",
+        gateway: "",
         image: "",
     });
     const [configData, updateConfigData] = useState(initConfigData);
-    // cluster data for the dropdown
-    const [clusterData, updateClusterData] = useState(Object.freeze([]));
-    const [apodCount, incrementApodCount] = useState(0);
-    const [cpodCount, incrementCpodCount] = useState(0);
+    // gateway data for the dropdown
+    const [gatewayData, updategatewayData] = useState(Object.freeze([]));
+    const [apodCount, setApodCount] = useState(0);
+    const [cpodCount, setCpodCount] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -46,15 +46,15 @@ const ClusterConfig = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allgateways'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var clusterNames = []
+                var gatewayNames = []
                 for (var i = 0; i < data.length; i++) {
-                    clusterNames.push(data[i].cluster);
+                    gatewayNames.push(data[i].name);
                 }
-                clusterNames.sort()
-                updateClusterData(clusterNames)
+                gatewayNames.sort()
+                updategatewayData(gatewayNames)
             });
     }, []);
 
@@ -63,19 +63,41 @@ const ClusterConfig = (props) => {
             ...configData,
             [e.target.name]: e.target.value.trim()
         });
+        if (e.target.name == "gateway") {
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
+                .then(response => response.json())
+                .then(data => {
+                    setApodCount(data.TenantCl.apods)
+                    setCpodCount(data.TenantCl.cpods)
+                });
+        }
+    };
+
+    const handleApodChange = (e) => {
+        var input = e.target.value.trim().toString()
+        setApodCount(parseInt(input, 10))
+    };
+
+    const handleCpodChange = (e) => {
+        var input = e.target.value.trim().toString()
+        setCpodCount(parseInt(input, 10))
     };
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        if (!configData.gateway) {
+            alert('please select a gateway');
+            return
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                cluster: configData.cluster, image: configData.image, apods: apodCount,
+                gateway: configData.gateway, image: configData.image, apods: apodCount,
                 cpods: cpodCount
             }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tenantcluster'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -97,11 +119,11 @@ const ClusterConfig = (props) => {
             });
     };
 
-   
+
     return (
         <CCard>
             <CCardHeader>
-                <strong>Cluster Configuration</strong>
+                <strong>gateway Configuration</strong>
                 <CButton onClick={e => console.log(configData)}>LOG</CButton>
             </CCardHeader>
             <CCardBody>
@@ -109,18 +131,18 @@ const ClusterConfig = (props) => {
                     <CCol sm="8">
                         <CForm>
                             <CFormGroup>
-                                <CLabel>Cluster</CLabel>
+                                <CLabel>gateway</CLabel>
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-sitemap"/>
+                                            <CIcon name="cil-sitemap" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CSelect name="cluster" custom onChange={handleChange}>
-                                        <option value={undefined}>Please select a cluster</option>
-                                        {clusterData.map(cluster => {
+                                    <CSelect name="gateway" custom onChange={handleChange}>
+                                        <option value={undefined}>Please select a gateway</option>
+                                        {gatewayData.map(gateway => {
                                             return (
-                                                <option value={cluster}>{cluster}</option>
+                                                <option value={gateway}>{gateway}</option>
                                             )
                                         })}
                                     </CSelect>
@@ -128,21 +150,19 @@ const ClusterConfig = (props) => {
                             </CFormGroup>
                             <CFormGroup>
                                 <CLabel>Image</CLabel>
-                                <CInput name="image" onChange={handleChange}/>
+                                <CInput name="image" onChange={handleChange} />
                             </CFormGroup>
                             <CRow>
                                 <CCol>
-                                    APods
+                                    APods {apodCount}
                                     <div>
-                                        {apodCount}
-                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementApodCount(apodCount + 1)}>+</CButton>
+                                        <CInput name="apods" onChange={handleApodChange} />
                                     </div>
                                 </CCol>
                                 <CCol>
-                                    CPods
+                                    CPods {cpodCount}
                                     <div>
-                                        {cpodCount}
-                                        <CButton className="ml-3" variant="outline" color="dark" onClick={() => incrementCpodCount(cpodCount + 1)}>+</CButton>
+                                        <CInput name="cpods" onChange={handleCpodChange} />
                                     </div>
                                 </CCol>
                             </CRow>
@@ -151,7 +171,7 @@ const ClusterConfig = (props) => {
                 </CRow>
             </CCardBody>
             <CCardFooter>
-                <CButton className="button-footer-success" color="success" variant="outline">
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
                     <CIcon name="cil-scrubber" />
                     <strong>{" "}Add</strong>
                 </CButton>

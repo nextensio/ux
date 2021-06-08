@@ -1,5 +1,8 @@
 import { logo } from './logo'
 import {
+    cibKubernetes
+} from '@coreui/icons'
+import {
     cil3d,
     cilAccountLogout,
     cilAsterisk,
@@ -18,6 +21,7 @@ import {
     cilGroup,
     cilHeart,
     cilHome,
+    cilInfo,
     cilInputPower,
     cilLaptop,
     cilLink,
@@ -26,6 +30,7 @@ import {
     cilMap,
     cilMinus,
     cilMoney,
+    cilMoon,
     cilNoteAdd,
     cilNotes,
     cilPencil,
@@ -35,6 +40,7 @@ import {
     cilScrubber,
     cilSettings,
     cilSitemap,
+    cilSpeech,
     cilSpeedometer,
     cilTag,
     cilTouchApp,
@@ -48,7 +54,9 @@ import {
 
 export const icons = Object.assign({}, {
     logo,
-},  {
+}, {
+    cibKubernetes
+}, {
     cil3d,
     cilAccountLogout,
     cilAsterisk,
@@ -67,12 +75,14 @@ export const icons = Object.assign({}, {
     cilGroup,
     cilHeart,
     cilHome,
+    cilInfo,
     cilInputPower,
     cilLockLocked,
     cilMagnifyingGlass,
     cilMap,
     cilMinus,
     cilMoney,
+    cilMoon,
     cilNoteAdd,
     cilNotes,
     cilLaptop,
@@ -84,6 +94,7 @@ export const icons = Object.assign({}, {
     cilScrubber,
     cilSettings,
     cilSitemap,
+    cilSpeech,
     cilSpeedometer,
     cilTag,
     cilTouchApp,

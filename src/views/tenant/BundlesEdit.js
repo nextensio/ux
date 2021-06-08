@@ -30,9 +30,8 @@ var common = require('../../common')
 const BundlesEdit = (props) => {
     const [bundleState, updateBundleState] = useState("");
     const [bundleAttrState, updateBundleAttrState] = useState("");
-    const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [attrData, updateAttrData] = useState(Object.freeze([]));
-   
+
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
@@ -60,16 +59,6 @@ const BundlesEdit = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/allgateways'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                var gatewayNames = []
-                for (var i = 0; i < data.length; i++) {
-                    gatewayNames.push(data[i].name);
-                }
-                gatewayNames.sort()
-                updateGatewayData(gatewayNames)
-            });
     }, []);
 
     useEffect(() => {
@@ -78,8 +67,8 @@ const BundlesEdit = (props) => {
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].bid == bundleState.bid) {
-                        var {bid, _gateway, _name, _pod, ...rest} = data[i]
-                        updateBundleAttrState({bid, ...rest})
+                        var { bid, _name, _pod, ...rest } = data[i]
+                        updateBundleAttrState({ bid, ...rest })
                     }
                 }
             })
@@ -123,7 +112,7 @@ const BundlesEdit = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 bid: bundleState.bid, name: bundleState.name,
-                gateway: bundleState.gateway, services: services,
+                services: services,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
@@ -195,13 +184,13 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-notes"/>
+                                            <CIcon name="cil-notes" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="bid" value={bundleState.bid} readOnly/>
+                                    <CInput name="bid" value={bundleState.bid} readOnly />
                                     <CInputGroupAppend>
                                         <CInputGroupText>
-                                            <CIcon name="cil-lock-locked"/>
+                                            <CIcon name="cil-lock-locked" />
                                         </CInputGroupText>
                                     </CInputGroupAppend>
                                 </CInputGroup>
@@ -211,7 +200,7 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
+                                            <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="name" defaultValue={bundleState.name} onChange={handleBundleChange} />
@@ -222,35 +211,10 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-settings"/>
+                                            <CIcon name="cil-settings" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="services" defaultValue={bundleState.services} onChange={handleBundleChange} />
-                                </CInputGroup>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>Gateway</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-sitemap"/>
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CSelect name="gateway" custom onChange={handleBundleChange}>
-                                        {gatewayData.map(gateway => {
-                                            return (
-                                                <>
-                                                    {gateway == bundleState.gateway
-                                                    ?
-                                                        <option selected value={gateway}>{gateway}</option>
-                                                    :
-                                                        <option value={gateway}>{gateway}</option>
-                                                    }
-                        
-                                                </>
-                                            )
-                                        })}
-                                    </CSelect>
                                 </CInputGroup>
                             </CFormGroup>
                         </CForm>
@@ -261,7 +225,7 @@ const BundlesEdit = (props) => {
                                     <CFormGroup>
                                         <CLabel>{attr}</CLabel>
                                         <CInputGroup>
-                                            <CInput name={attr} defaultValue={bundleAttrState[attr]} onChange={handleAttrChange}/>
+                                            <CInput name={attr} defaultValue={bundleAttrState[attr]} onChange={handleAttrChange} />
                                         </CInputGroup>
                                         <CFormText>Use commas to delimit multiple values.</CFormText>
                                     </CFormGroup>

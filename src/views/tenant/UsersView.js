@@ -66,6 +66,7 @@ const UsersView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
     const [userAttrData, updateUserAttrData] = useState(initTableData);
+    const [uidData, updateUidData] = useState("")
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
 
@@ -93,7 +94,9 @@ const UsersView = (props) => {
     // Might be an inefficient way of rendering both user and user attrs
     useEffect(() => {
         const zipper = []
+        const uidObj = {}
         for (let i = 0; i < usersData.length; i++) {
+            uidObj[usersData[i].uid] = true
             // Match userData object with userAttrData and combine the two into one
             if (userAttrData.find((obj) => obj.uid === usersData[i].uid)) {
                 const zipObj = {
@@ -104,9 +107,9 @@ const UsersView = (props) => {
             // Will need to be fixed in controller repo later
                 const {connectid, cluster, email, gateway, pod, services, _gateway, _email, _pod, ...rest} = zipObj
                 zipper.push(rest)
-                console.log(rest)
             }
         }
+        updateUidData(uidObj)
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
@@ -120,8 +123,13 @@ const UsersView = (props) => {
             .then(data => updateUserAttrData(data))
     }
 
+    // Passing uidData to handleAdd for validation
+    // if a tenant tries to create a uid that already exists, I will reject this. 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/users/add')
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/users/add',
+            state: uidData
+        })
     }
 
     const handleEdit = (index) => {
@@ -209,52 +217,42 @@ const UsersView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        {/** item.length - 3 because there are 3 user info properties */}
-                                                        {Object.keys(item).length - 2 > 0 
-                                                            ?
-                                                            <table className="my-1 table table-outline d-sm-table">
-                                                                <tr>
-                                                                    <th className="attributes header roboto-font">Attributes</th>
-                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                                </tr>
-                                                                {Object.keys(item).filter(key => {
-                                                                    if (["uid", "name"].includes(key)) {
-                                                                        return false
-                                                                    }
-                                                                    else {
-                                                                        return true
-                                                                    }
-                                                                }).map(key => {
-                                                                    return(
-                                                                        <tr>
-                                                                            <th className="attributes roboto-font">{key}</th>
-                                                                            <td className="roboto-font">
+                                                        <table className="my-1 table table-outline d-sm-table">
+                                                            <tr>
+                                                                <th className="attributes header roboto-font">Attributes</th>
+                                                                <td className="attributes header roboto-font"><strong>Values</strong></td>
+                                                            </tr>
+                                                            {Object.keys(item).filter(key => {
+                                                                if (["uid", "name"].includes(key)) {
+                                                                    return false
+                                                                }
+                                                                else {
+                                                                    return true
+                                                                }
+                                                            }).map(key => {
+                                                                return(
+                                                                    <tr>
+                                                                        <th className="attributes roboto-font">{key}</th>
+                                                                        <td className="roboto-font">
+                                                                            <div>
+                                                                                {item[key] != null ?
                                                                                 <div>
-                                                                                    {item[key] != null ?
-                                                                                    <div>
-                                                                                        {Array.isArray(item[key]) 
-                                                                                        ? <div>{item[key].join(' &')}</div>
-                                                                                        : <div>{item[key]}</div>
-                                                                                        }
-                                                                                    </div>
-                                                                                    :
-                                                                                    <div className="text-warning">
-                                                                                        No value assigned
-                                                                                    </div>
+                                                                                    {Array.isArray(item[key]) 
+                                                                                    ? <div>{item[key].join(' &')}</div>
+                                                                                    : <div>{item[key]}</div>
                                                                                     }
                                                                                 </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                })}
-                                                            </table>
-                                                            :
-                                                            <div>
-                                                                <FontAwesomeIcon icon="info-circle" className="text-info"/>
-                                                                 {' '}No attributes assigned to user. <a className="text-primary" onClick={() => handleEdit(index)}>Click here</a> 
-                                                                 {' '}to assign attributes.
-                                                            </div>
-                                                        }
+                                                                                :
+                                                                                <div className="text-warning">
+                                                                                    No value assigned
+                                                                                </div>
+                                                                                }
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            })}
+                                                        </table>
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
@@ -328,6 +326,7 @@ const UsersView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
+                
             </CRow>
         </>
     )

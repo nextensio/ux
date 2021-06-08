@@ -27,17 +27,21 @@ const TheHeader = () => {
   }
 
   return (
-    <CHeader withSubheader colorScheme='dark'>
-      <CHeaderNav className='px-3'>
+    <CHeader withSubheader>
+      <CToggler
+        inHeader
+        className="ml-md-3 d-lg-none"
+        onClick={toggleSidebarMobile}
+      />
+      <CToggler
+        inHeader
+        className="ml-3 d-md-down-none"
+        onClick={toggleSidebar}
+      />
+
+      <CHeaderNav className='ml-auto px-3'>
         <TheHeaderDropdown/>
       </CHeaderNav>
-
-      <CSubheader className='px-3 justify-content-between'>
-        <CBreadcrumbRouter
-          className='border-0 c-subheader-nav m-0 px-0 px-md-3'
-          routes={routes}
-        />
-      </CSubheader>
     </CHeader>
   )
 }

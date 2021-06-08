@@ -4,6 +4,7 @@ import {
     CCard,
     CCardBody,
     CCardGroup,
+    CCardFooter,
     CCol,
     CContainer,
     CForm,
@@ -16,7 +17,8 @@ import {
     CCardHeader,
     CFormGroup,
     CFormText,
-    CCardFooter
+    CSelect,
+    CInputGroupAppend
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -27,7 +29,12 @@ var common = require('../../../common')
 const GatewaysEdit = (props) => {
     const initGwData = Object.freeze({
         name: "",
+        location: "",
+        region: "",
+        zone: "",
+        provider: ""
     });
+    const providers = ['AWS', 'Azure', 'Digital Ocean', 'Google Cloud']
     const [gwData, updateGwData] = useState(initGwData);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -58,7 +65,10 @@ const GatewaysEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify({ name: gwData.name, ipaddr: gwData.ipaddr }),
+            body: JSON.stringify({
+                name: gwData.name + '.nextensio.net', location: gwData.location, region: gwData.region,
+                zone: gwData.zone, provider: gwData.provider
+            }),
         };
         fetch(common.api_href('/api/v1/global/add/gateway'), requestOptions)
             .then(async response => {
@@ -90,7 +100,40 @@ const GatewaysEdit = (props) => {
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Hostname</CLabel>
-                        <CInput name="name" placeholder={gwData.name} onChange={handleChange} />
+                        <CInputGroup>
+                            <CInput name="name" placeholder={gwData.name} onChange={handleChange} />
+                            <CInputGroupAppend>
+                                <CInputGroupText>
+                                    .nextensio.net
+                                </CInputGroupText>
+                            </CInputGroupAppend>
+                        </CInputGroup>
+                        <CFormText>DNS name is (Hostname).nextensio.net</CFormText>
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel>Location</CLabel>
+                        <CInput name="location" placeholder={gwData.location} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel>Region</CLabel>
+                        <CInput name="region" placeholder={gwData.region} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel>Zone</CLabel>
+                        <CInput name="zone" placeholder={gwData.zone} onChange={handleChange} />
+                    </CFormGroup>
+                    <CFormGroup>
+                        <CLabel>Provider</CLabel>
+                        <CInputGroup>
+                            <CSelect name="provider" custom onChange={handleChange}>
+                                <option value={undefined}>Please select a provider</option>
+                                {providers.map(provider => {
+                                    return (
+                                        <option value={provider}>{provider}</option>
+                                    )
+                                })}
+                            </CSelect>
+                        </CInputGroup>
                     </CFormGroup>
                 </CForm>
             </CCardBody>

@@ -26,7 +26,7 @@ import { withRouter } from 'react-router-dom';
 
 var common = require('../../common')
 
-const Settings = () => {
+const Settings = (props) => {
  
     return (
         <CCard>
@@ -35,12 +35,12 @@ const Settings = () => {
             </CCardHeader>
             <CCardBody className="roboto-font">
                 <CRow>
-                    <CForm>
-                        <CFormGroup>
-                            <CLabel>User ID</CLabel>
-                            <CSwitch></CSwitch>
-                        </CFormGroup>
-                    </CForm>
+                    <CCol sm="2">
+                        <div><CIcon className="mr-3" name="cil-moon"/>Dark Mode</div>
+                    </CCol>
+                    <CCol sm="10">
+                        <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} defaultChecked/>
+                    </CCol>
                 </CRow>
             </CCardBody>
         </CCard>

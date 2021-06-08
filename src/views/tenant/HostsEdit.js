@@ -30,7 +30,7 @@ import './tenantviews.scss'
 var common = require('../../common')
 
 const HostEdit = (props) => {
-    
+
     const [hostState, updateHostState] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     const [selectedAttr, setSelectedAttr] = useState([]);
@@ -52,7 +52,7 @@ const HostEdit = (props) => {
 
     useEffect(() => {
         if (hostState != "") {
-            const {tag, ...configAttrs} = hostState.routeattrs[0];
+            const { tag, ...configAttrs } = hostState.routeattrs[0];
             setSelectedAttr(Object.keys(configAttrs))
         }
     }, [props, hostState])
@@ -92,7 +92,7 @@ const HostEdit = (props) => {
         setSelectedAttr(selected)
     }
 
-    const handleDeselect= (e) => {
+    const handleDeselect = (e) => {
         const selected = [...selectedAttr]
         const i = selected.indexOf(e.target.name)
         if (i > -1) {
@@ -180,13 +180,13 @@ const HostEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-link"/>
+                                            <CIcon name="cil-link" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput disabled name="host" defaultValue={hostState.host} onChange={handleChange} />
                                     <CInputGroupAppend>
                                         <CInputGroupText>
-                                            <CIcon name="cil-lock-locked"/>
+                                            <CIcon name="cil-lock-locked" />
                                         </CInputGroupText>
                                     </CInputGroupAppend>
                                 </CInputGroup>
@@ -196,7 +196,7 @@ const HostEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
+                                            <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="name" defaultValue={hostState.name} onChange={handleChange} />
@@ -208,7 +208,7 @@ const HostEdit = (props) => {
                             {selectedAttr.map(attr => {
                                 return (
                                     <CListGroupItem color="primary" accent="primary">
-                                        {attr}<CButtonClose className="ml-1" buttonClass="text-white close" name={attr} onClick={(e) => handleDeselect(e)}/>
+                                        {attr}<CButtonClose className="ml-1" buttonClass="text-white close" name={attr} onClick={(e) => handleDeselect(e)} />
                                     </CListGroupItem>
                                 )
                             })}
@@ -225,8 +225,8 @@ const HostEdit = (props) => {
                                         <CIcon name="cil-magnifying-glass" />
                                     </CInputGroupText>
                                 </CInputGroupPrepend>
-                                <CInput 
-                                    type="text" 
+                                <CInput
+                                    type="text"
                                     placeholder="Host Attribute"
                                     value={searchInput}
                                     onChange={handleSearchChange}
@@ -235,7 +235,7 @@ const HostEdit = (props) => {
                             {searchResults.map(attr => {
                                 return (
                                     <CFormGroup variant="checkbox" className="checkbox">
-                                        <CInputCheckbox value={attr} onChange={(e) => {handleSelect(e)}} checked={selectedAttr.includes(attr)}/>
+                                        <CInputCheckbox value={attr} onChange={(e) => { handleSelect(e) }} checked={selectedAttr.includes(attr)} />
                                         <CLabel variant="checkbox" className="form-check-label">{attr}</CLabel>
                                     </CFormGroup>
                                 )

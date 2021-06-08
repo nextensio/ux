@@ -12,12 +12,12 @@ import {
     CDataTable,
     CProgress,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react';
 import { withRouter } from 'react-router-dom';
 import { CChartBar, CChartDoughnut } from '@coreui/react-chartjs'
 import usersUsageData from './UsersUsageData'
 import bundlesUsageData from './BundlesUsageData'
 import '../tenantviews.scss'
-import { cilHome } from '@coreui/icons';
 
 const usersUsageFields = [
     {
@@ -48,35 +48,59 @@ const bundlesUsageFields = [
 const Home = (props) => {
     const [user, setUser] = useState('');
     const [bundle, setBundle] = useState('');
+    const toClusterConfig = (e) => {
+        props.history.push('/tenant/' + props.match.params.id + '/clusterconfig')
+    }
     return(
         <>
             <CCallout color="primary" className="bg-title mb-3">
-                <h4 className="title">Home
-                
-                <CButton onClick={() => console.log(props)}>LOG</CButton></h4>
+                <h4 className="title">Home</h4>
             </CCallout>
             <CRow>
                 <CCol lg="4">
-                    <CChartDoughnut
-                        className="mt-5"
-                        datasets={[
-                            {
-                                backgroundColor: [
-                                    '#2eb85c',
-                                    '#39f'
-                                ],
-                                data: [4700, 8900]
-                            }
-                        ]}
-                        labels={['Users Online', 'Total Users']}
-                        options={{
-                            tooltips: {
-                                enabled: true
-                            }
-                        }}
-                    />
+                    <CCard className="shadow border-rounded">
+                        <CChartDoughnut
+                            className="py-5"
+                            datasets={[
+                                {
+                                    backgroundColor: [
+                                        '#2eb85c',
+                                        '#39f'
+                                    ],
+                                    data: [4700, 8900]
+                                }
+                            ]}
+                            labels={['Users Online', 'Total Users']}
+                            options={{
+                                tooltips: {
+                                    enabled: true
+                                }
+                            }}
+                        />
+                    </CCard>
                 </CCol>
                 <CCol lg="8">
+                    <CCard className="border-rounded shadow">
+                        <CCardHeader>
+                            Cluster Configuration
+                            <CButton 
+                                className="float-right" 
+                                color="primary"
+                                onClick={toClusterConfig}
+                            >
+                                <CIcon className="mr-1" name="cil-settings"/>
+                                Configure
+                            </CButton>
+                        </CCardHeader>
+                        <CCardBody>
+                            Sorry, you do not have any configuration yet.
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+                
+            </CRow>
+            <CRow>
+                <CCol lg="12">
                     <CCard>
                         <CCardHeader>
                             Top Accessed Apps
