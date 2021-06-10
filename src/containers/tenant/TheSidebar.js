@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+    CButton,
     CCreateElement,
     CSidebar,
     CSidebarBrand,
@@ -35,7 +36,7 @@ const TheSidebar = (props) => {
             }
             updateNav(newNav)
         }
-    }, []);
+    }, [JSON.stringify(props.match.params)]);
 
     const logoutURL = '/tenant/' + props.match.params.id + '/logout';
 
@@ -56,6 +57,12 @@ const TheSidebar = (props) => {
 
             <CSidebarNav>
                 <CSidebarNavTitle>Home</CSidebarNavTitle>
+                <CButton onClick={() => console.log(JSON.stringify(props.match.params))}>
+                    Props ID
+                </CButton>
+                <CButton onClick={() => console.log(navExact)}>
+                    Navexact
+                </CButton>
                 <CCreateElement
                     items={navExact}
                     components={{

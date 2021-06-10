@@ -127,99 +127,94 @@ const AttributeEditor = (props) => {
         }
     }
 
-    const rangeCheck = (e) => {
-        if (!attributeData.rangeCheck) {
-            updateAttributeData({
-                ...attributeData,
-                rangeCheck: 10
-            })
-        } else {
-            updateAttributeData({
-                ...attributeData,
-                rangeCheck: undefined
-            })
-        }
+
+    function resetErrs() {
+        updateErrObj({})
     }
 
-
     const reset = (e) => {
+        resetErrs()
         updateAttributeData({ name: '', appliesTo: '', type: 'Type' });
         setResetWarning(false);
     }
-
-    // function used to validate that all input fields are filled correctly
-    const validate = (e) => {
-        if (attributeData.name.trim() == "" && attributeData.type == "Type") {
-            updateErrObj({
-                ...errObj,
-                typeErr: true
-            })
+    
+    // function used to update errObj
+    function triggerErrors() {
+        resetErrs()
+        var errors = {}
+        // If the tenant does not select an appliesTo value errObj will have appliesToErr
+        if (attributeData.appliesTo == "") {
+            errors.appliesToErr = true
         }
-        if (attributeData.type == "String" && !attributeData.isArray) {
-            updateErrObj({
-                ...errObj,
-                isArrayErr: true
-            })
+        // If the tenant does not input any value for name or select a type errObj will have typeErr
+        if (attributeData.name.trim() == "" || attributeData.type == "Type") {
+            errors.typeErr = true
         }
-        if (attributeData.type == "Number") {
-            if (!attributeData.numType) {
-                updateErrObj({
-                    ...errObj,
-                    numTypeErr: true
-                })
-            }
-            if (!attributeData.singleMultipleOrRange) {
-                updateErrObj({
-                    ...errObj,
-                    singleMultipleOrRangeErr: true
-                })
-            }
+        // If the tenant has String || Number type and does not select single or multi value errObj
+        // will have isArrayErr
+        if ((attributeData.type == "String" || attributeData.type == "Number") && !attributeData.isArray) {
+            errors.isArrayErr = true
         }
-        if (attributeData.type == "Date" && !attributeData.dateRange) {
-            updateErrObj({
-                ...errObj,
-                dateRangeErr: true
-            })
+        // If the tenant has Number type and does not select int or float type errObj will have numTypeErr
+        if (attributeData.type == "Number" && !attributeData.numType) {
+            errors.numTypeErr = true
         }
-
-        return
+        updateErrObj(errors)
     }
 
-    const commitAttrs = (e) => {
-        // Remove empty rows, also remove elements that already exist
-        // /^[a-z0-9]+$/i
-        for (var i = 0; i < inuseAttr.length; i++) {
-            if (inuseAttr[i].name == attributeData.name &&
-                inuseAttr[i].appliesTo == attributeData.appliesTo) {
-                setOverwriteModal(true)
-                return
-            }
+    // Function used to validate all of the tenant's entries
+    // If anything is missing errObj length will be greater than 0
+    function validate() {
+        if (Object.keys(errObj).length === 0) {
+            return true
+        } else {
+            return false
         }
-        e.preventDefault()
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify([attributeData]),
-        };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
+    }
+
+    // Description of error:
+    // When I push an empty attribute ie {name: "", type: "Type", appliesTo: ""} the db gets the value
+    // Even though theoretically from the code below, errObj will look like {typeErr: true, appliesToErr: true},
+    // and the code should terminate before sending to db.
+    // So I think triggerErrors() is not running either when it is supposed to or improperly validating....
+    const commitAttrs = (e) => {
+        // /^[a-z0-9]+$/i
+        triggerErrors()
+        if (validate()) {
+            console.log('Validate was true')
+            for (var i = 0; i < inuseAttr.length; i++) {
+                if (inuseAttr[i].name == attributeData.name &&
+                    inuseAttr[i].appliesTo == attributeData.appliesTo) {
+                    setOverwriteModal(true)
+                    return
                 }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"]);
-                } else {
-                    updateInuseAttr(inuseAttr.concat(attributeData));
-                }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
+            }
+            e.preventDefault()
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: bearer },
+                body: JSON.stringify([attributeData]),
+            };
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) {
+                        // get error message from body or default to response status
+                        alert(error);
+                        const error = (data && data.message) || response.status;
+                        return Promise.reject(error);
+                    }
+                    // check for error response
+                    if (data["Result"] != "ok") {
+                        alert(data["Result"]);
+                    } else {
+                        updateInuseAttr(inuseAttr.concat(attributeData));
+                    }
+                })
+                .catch(error => {
+                    alert('Error contacting server', error);
+                });
+        }
     }
 
     const toggleDelete = (index) => {
@@ -265,6 +260,7 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
+                            <CButton onClick={e => console.log(Object.keys(errObj).length)}>ERR</CButton>
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
@@ -276,24 +272,25 @@ const AttributeEditor = (props) => {
                                     <CCol md="8">
                                         <div>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" checked={attributeData.appliesTo == "Users"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Bundles" onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-notes" /> AppGroup</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Hosts" onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-input-power" /> Host</CLabel>
                                             </CFormGroup>
                                         </div>
                                     </CCol>
+                                    {errObj.appliesToErr == true ? <div className="invalid-form-text">Please select which category this attribute applies to.</div> : <></>}
                                 </CFormGroup>
                                 <CFormGroup>
                                     <CLabel htmlFor="nf-attribute">Attribute Name</CLabel>
                                     <CInputGroup>
-                                        <CInput name="name" placeholder="Enter Attribute.." onChange={handleChange} />
+                                        <CInput name="name" placeholder="Enter Attribute.." value={attributeData.name} onChange={handleChange} invalid={errObj.typeErr}/>
                                         <CDropdown className="input-group-append">
                                             <CDropdownToggle caret className="border-success bg-success-light text-success">
                                                 {attributeData.type}
@@ -306,7 +303,7 @@ const AttributeEditor = (props) => {
                                             </CDropdownMenu>
                                         </CDropdown>
                                         {' '}
-                                        <CInvalidFeedback>Please use alphanumerics for your attribute Name!</CInvalidFeedback>
+                                        <CInvalidFeedback>Please enter an attribute name and select a type.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 {attributeData.type == "String" &&
@@ -333,6 +330,7 @@ const AttributeEditor = (props) => {
                                                     <CLabel variant="custom-checkbox" htmlFor="inline-radio5">Multi Value</CLabel>
                                                 </CFormGroup>
                                             </CCol>
+                                            {errObj.isArrayErr == true ? <div className="invalid-form-text">Please select a value.</div> : <></>}
                                         </CFormGroup>
                                         <CFormGroup row>
                                             <CCol md="6">
@@ -378,6 +376,7 @@ const AttributeEditor = (props) => {
                                                     <CLabel variant="custom-checkbox" htmlFor="inline-radio5">Float</CLabel>
                                                 </CFormGroup>
                                             </CCol>
+                                            {errObj.numTypeErr == true ? <div className="invalid-form-text">Please select a value.</div> : <></>}
                                         </CFormGroup>
                                         <CFormGroup row>
                                             <CCol md="4">
@@ -393,6 +392,7 @@ const AttributeEditor = (props) => {
                                                     <CLabel variant="custom-checkbox" htmlFor="inline-radio7">Multiple</CLabel>
                                                 </CFormGroup>
                                             </CCol>
+                                            {errObj.isArrayErr == true ? <div className="invalid-form-text">Please select a value.</div> : <></>}
                                         </CFormGroup>
                                         <CFormGroup row>
                                             <CCol md="4">
@@ -417,24 +417,16 @@ const AttributeEditor = (props) => {
                                         </CFormGroup>
                                     </>
                                 }
+                                {attributeData.type == "Boolean" &&
+                                    <>
+                                        <div className="mb-3"><strong>Checksums</strong></div>
+                                        <div>No checksums for boolean type attributes.</div>
+                                    </>
+                                }
                                 {attributeData.type == "Date" &&
                                     <>
                                         <div className="mb-3"><strong>Checksums</strong></div>
-                                        <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Single Date or Range of Dates</CLabel>
-                                            </CCol>
-                                            <CCol md="8">
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio4" name="dateRange" value={false} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio4">Single</CLabel>
-                                                </CFormGroup>
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio5" name="dateRange" value={true} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio5">Range</CLabel>
-                                                </CFormGroup>
-                                            </CCol>
-                                        </CFormGroup>
+                                        <div>No checksums for date type attributes.</div>
                                     </>
                                 }
                             </CForm>
