@@ -111,8 +111,19 @@ const HostEdit = (props) => {
         });
     };
 
+    function validateIP(ip) {
+        var re = /^(?=.*[^\.]$)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.?){4}\/[0-9][0-9]?$/igm
+        return re.test(ip)
+    }
+
     function validateURL(url) {
+        // special host name to indicate that all default internet traffic needs
+        // to be sent to nextensio
         if (url == 'nextensio-default-internet') {
+            return true
+        }
+        // an ip-address/mask is a valid host too
+        if (validateIP(url)) {
             return true
         }
         const re = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
