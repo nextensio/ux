@@ -24,6 +24,11 @@ import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
+function validateEnterprise(tenant) {
+    var re = /^[a-z0-9]+$/;
+    return re.test(tenant)
+}
+
 const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
@@ -59,11 +64,15 @@ const TenantsEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        if (!validateEnterprise(tenantData._id.trim())) {
+            alert(tenantData._id.trim() + " <- has to be one word, only lower case alphabets and numbers allowed")
+            return
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                _id: tenantData._id,
+                _id: tenantData._id.trim(),
                 image: tenantData.image,
             }),
         };

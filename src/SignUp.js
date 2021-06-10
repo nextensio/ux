@@ -30,9 +30,10 @@ function validateEmail(email) {
 }
 
 function validateEnterprise(tenant) {
-    var format = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/;
-    return !format.test(tenant)
+    var re = /^[a-z0-9]+$/;
+    return re.test(tenant)
 }
+
 const SignUp = (props) => {
     const initSignupData = Object.freeze({
         email: "",
@@ -57,7 +58,8 @@ const SignUp = (props) => {
             return
         }
         if (!validateEnterprise(signupData.tenant.trim())) {
-            alert(signupData.tenant + " <- has to be one word with no special characters")
+            alert(signupData.tenant + " <- has to be one word, only lower case alphabets and numbers allowed")
+            return
         }
 
         const requestOptions = {
@@ -100,7 +102,7 @@ const SignUp = (props) => {
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">An Enterprise ID, like pepsi / pepsi100 / sprite etc.. (One word with upper/lower case alphabets, numbers or underscore)</CLabel>
+                        <CLabel htmlFor="nf-email">An Enterprise ID, like pepsi / pepsi100 / sprite etc.. (One word with only lower case alphabets, numbers)</CLabel>
                         <CInput name="tenant" placeholder="" onChange={handleChange} />
                         <CLabel htmlFor="nf-email">Your Email ID</CLabel>
                         <CInput name="email" placeholder="" onChange={handleChange} />
