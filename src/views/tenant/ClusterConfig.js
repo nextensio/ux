@@ -29,7 +29,7 @@ var common = require('../../common')
 const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
         gateway: "",
-        image: "",
+        image: "registry.gitlab.com/nextensio/cluster/minion:latest",
     });
     const [configData, updateConfigData] = useState(initConfigData);
     // gateway data for the dropdown
@@ -142,7 +142,7 @@ const ClusterConfig = (props) => {
                             </CFormGroup>
                             <CFormGroup>
                                 <CLabel>Image</CLabel>
-                                <CInput name="image" onChange={handleChange} />
+                                <CInput name="image" placeholder="registry.gitlab.com/nextensio/cluster/minion:latest" onChange={handleChange} />
                             </CFormGroup>
                             <CRow>
                                 <CCol>

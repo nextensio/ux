@@ -51,10 +51,6 @@ const fields = [
         _classes: "data-field"
     },
     {
-        key: "image",
-        _classes: "data-field"
-    },
-    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -102,8 +98,6 @@ const TenantsView = (props) => {
         props.history.push('/home/tenants/add')
     }
 
-    // TODO: We dont support an edit today, the edit can allow modifying tenant
-    // data like tenant name or tenant image or number of pods tenant wants etc..
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/home/tenants/add',
