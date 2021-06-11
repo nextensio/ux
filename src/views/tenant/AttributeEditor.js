@@ -70,7 +70,7 @@ const AttributeEditor = (props) => {
         []
     );
     const [inuseAttr, updateInuseAttr] = useState(initAttrData);
-    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'Type' })
+    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'Type', isArray: '', numType: '', rangeCheck: '' })
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
@@ -134,7 +134,7 @@ const AttributeEditor = (props) => {
 
     const reset = (e) => {
         resetErrs()
-        updateAttributeData({ name: '', appliesTo: '', type: 'Type' });
+        updateAttributeData({ name: '', appliesTo: '', type: 'Type', numType: '', isArray: '', rangeCheck: '' });
         setResetWarning(false);
     }
     
@@ -193,7 +193,10 @@ const AttributeEditor = (props) => {
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: bearer },
-                body: JSON.stringify([attributeData]),
+                body: JSON.stringify([{
+                    name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type,
+                    numType: attributeData.numType, rangeCheck: attributeData.rangeCheck, isArray: new Boolean(attributeData.appliesTo)
+                }]),
             };
             fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
                 .then(async response => {
