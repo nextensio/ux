@@ -51,6 +51,7 @@ const UsersAdd = (props) => {
     // wants to overwrite the existing entry
     const [overwriteModal, setOverwriteModal] = useState(false);
     const [overwriteUid, setOverwriteUid] = useState("");
+    const [errObj, updateErrObj] = useState({})
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -67,14 +68,13 @@ const UsersAdd = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var fields = [];
+                var dataObjs = [];
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == 'Users') {
-                        fields.push(data[i]);
+                        dataObjs.push(data[i]);
                     }
                 }
-                fields.sort()
-                updateAttrData(fields);
+                updateAttrData(dataObjs);
             });
     }, []);
    
@@ -86,28 +86,54 @@ const UsersAdd = (props) => {
     };
 
     const handleAttrChange = (e) => {
-        let input
+        let input 
         if (e.target.value.indexOf(',') > -1) {
-            input = e.target.value.split(',')
+            input = e.target.value.split(',').map(item => item.trim());
+            updateUserAttrData({
+                ...userAttrData,
+                [e.target.name]: [input]
+            })
         }
         else {
             input = e.target.value.trim().toString()
+            updateUserAttrData({
+                ...userAttrData,
+                [e.target.name]: input
+            })
         }
+       
+    }
+
+    const handleAttrDateChange = (e) => {
+        let input
+        input = e.target.value.split('-')
         updateUserAttrData({
             ...userAttrData,
-            [e.target.name]: input
-        });
-    };
+            [e.target.name]: [input]
+        })
+    }
 
-    function validateEmail(email) {
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
+    function checkErrObj() {
+        if (Object.keys(errObj).length === 0) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    function validate() {
+        var funcErrObj = {}
+        var emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!emailReg.test(String(userData.uid).toLowerCase())) {
+            funcErrObj.uid = true
+        }
+        updateErrObj(funcErrObj)
+        setTimeout(checkErrObj, 0)
     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!validateEmail(userData.uid)) {
-            setInvalidFormState(true)
+        if (!validate()) {
             return
         }
         if (userData.uid in existingUidData && overwriteModal == false) {
@@ -182,7 +208,8 @@ const UsersAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add User</strong>
-                    <CButton onClick={() => {console.log(attrData)}}>LOG</CButton>
+                    <CButton onClick={() => {console.log(errObj)}}>LOG</CButton>
+                    <CButton onClick={() => {console.log(userAttrData)}}>LOG</CButton>
                 </CCardHeader>
                 <CCardBody className="roboto-font">
                     <CRow>
@@ -242,20 +269,11 @@ const UsersAdd = (props) => {
                                                 </div>
                                             </>
                                         }
-                                        {attr.type == "Number" &&
-                                            <CFormGroup>
-                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
-                                                <CInputGroup>
-                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
-                                                </CInputGroup>
-                                                <CFormText>Use commas to delimit multiple values.</CFormText>
-                                            </CFormGroup>
-                                        }
                                         {attr.type == "Date" &&
                                             <CFormGroup>
                                                 <CLabel>{attr.name}</CLabel>
                                                 <CInputGroup>
-                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrDateChange} />
                                                 </CInputGroup>
                                             </CFormGroup>
                                         }

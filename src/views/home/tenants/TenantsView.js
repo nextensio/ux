@@ -97,7 +97,7 @@ const TenantsView = (props) => {
     }
 
     const handleDetails = (item) => {
-        props.history.push({pathname: '/tenant/' + item._id + '/'})
+        props.history.push('/tenant/' + item._id + '/')
     }
 
     const handleDelete = (index) => {

@@ -34,8 +34,9 @@ const TheSidebar = (props) => {
             if (navigation[i].hasOwnProperty('to')) {
                 newNav[i].to = navigation[i].to.replace(":id", props.match.params.id)
             }
-            updateNav(newNav)
+            
         }
+        updateNav(newNav)
     }, [JSON.stringify(props.match.params)]);
 
     const logoutURL = '/tenant/' + props.match.params.id + '/logout';
@@ -57,12 +58,6 @@ const TheSidebar = (props) => {
 
             <CSidebarNav>
                 <CSidebarNavTitle>Home</CSidebarNavTitle>
-                <CButton onClick={() => console.log(JSON.stringify(props.match.params))}>
-                    Props ID
-                </CButton>
-                <CButton onClick={() => console.log(navExact)}>
-                    Navexact
-                </CButton>
                 <CCreateElement
                     items={navExact}
                     components={{

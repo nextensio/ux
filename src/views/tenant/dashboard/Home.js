@@ -53,7 +53,7 @@ const Home = (props) => {
     }
     return(
         <>
-            <CCallout color="primary" className="bg-title mb-3">
+            <CCallout color="primary">
                 <h4 className="title">Home</h4>
             </CCallout>
             <CRow>
