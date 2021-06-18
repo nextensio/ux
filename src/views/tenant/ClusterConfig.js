@@ -29,13 +29,12 @@ var common = require('../../common')
 const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
         gateway: "",
-        image: "",
+        image: "registry.gitlab.com/nextensio/cluster/minion:latest",
     });
     const [configData, updateConfigData] = useState(initConfigData);
     // gateway data for the dropdown
     const [gatewayData, updategatewayData] = useState(Object.freeze([]));
     const [apodCount, setApodCount] = useState(0);
-    const [cpodCount, setCpodCount] = useState(0);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -67,8 +66,7 @@ const ClusterConfig = (props) => {
             fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
                 .then(response => response.json())
                 .then(data => {
-                    setApodCount(data.TenantCl.apods)
-                    setCpodCount(data.TenantCl.cpods)
+                    setApodCount(data.TenantCl.apodrepl)
                 });
         }
     };
@@ -76,11 +74,6 @@ const ClusterConfig = (props) => {
     const handleApodChange = (e) => {
         var input = e.target.value.trim().toString()
         setApodCount(parseInt(input, 10))
-    };
-
-    const handleCpodChange = (e) => {
-        var input = e.target.value.trim().toString()
-        setCpodCount(parseInt(input, 10))
     };
 
     const handleSubmit = (e) => {
@@ -93,8 +86,7 @@ const ClusterConfig = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                gateway: configData.gateway, image: configData.image, apods: apodCount,
-                cpods: cpodCount
+                gateway: configData.gateway, image: configData.image, apodrepl: apodCount,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tenantcluster'), requestOptions)
@@ -110,7 +102,7 @@ const ClusterConfig = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    // bundle attribute http post must be run after bundle http post
+                    alert("Request succesful, modified values can be seen on page reload")
                     return
                 }
             })
@@ -150,19 +142,13 @@ const ClusterConfig = (props) => {
                             </CFormGroup>
                             <CFormGroup>
                                 <CLabel>Image</CLabel>
-                                <CInput name="image" onChange={handleChange} />
+                                <CInput name="image" placeholder="registry.gitlab.com/nextensio/cluster/minion:latest" onChange={handleChange} />
                             </CFormGroup>
                             <CRow>
                                 <CCol>
-                                    APods {apodCount}
+                                    Ingress (user) compute pods {apodCount}
                                     <div>
                                         <CInput name="apods" onChange={handleApodChange} />
-                                    </div>
-                                </CCol>
-                                <CCol>
-                                    CPods {cpodCount}
-                                    <div>
-                                        <CInput name="cpods" onChange={handleCpodChange} />
                                     </div>
                                 </CCol>
                             </CRow>

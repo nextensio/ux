@@ -167,6 +167,9 @@ const HostsView = (props) => {
     }
 
     const confirmDelete = (host) => {
+        // The IP/Mask combo will be sent as IP_Mask since the / will get interpreted
+        // as an element in the URL path
+        host = host.replace("/", "_")
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostattr/') + host, hdrs)
             .then(async response => {
                 const data = await response.json();
@@ -226,7 +229,7 @@ const HostsView = (props) => {
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
-    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
     return (
         <>
@@ -247,7 +250,7 @@ const HostsView = (props) => {
                                 sorter
                                 pagination
                                 clickableRows
-                                onRowClick={(item, index) => {toggleDetails(index)}}
+                                onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
                                     'show_details':
                                         (item, index) => {
@@ -262,7 +265,7 @@ const HostsView = (props) => {
                                             return (
                                                 <td className="py-auto">
                                                     <CBadge color="success">{item.routeattrs.length}</CBadge>
-                                                </td>  
+                                                </td>
                                             )
                                         },
                                     'edit':
@@ -293,7 +296,7 @@ const HostsView = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => {toggleDelete(item)}}
+                                                            onClick={() => { toggleDelete(item) }}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
@@ -306,21 +309,21 @@ const HostsView = (props) => {
                                             const routeConfig = item.routeattrs
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>   
+                                                    <CCardBody>
                                                         {/** 
                                                          * If item.routeattrs[0] has only one key:val pair 
                                                          * i.e. only tag exists ==> {tag: ""} then we ask the 
                                                          * tenant to configure attributes.
                                                          */}
-                                                        {Object.entries(routeConfig[0]).length === 1 
-                                                        ?   <div className="roboto-font">
-                                                                You have no attributes configured on this host. 
+                                                        {Object.entries(routeConfig[0]).length === 1
+                                                            ? <div className="roboto-font">
+                                                                You have no attributes configured on this host.
                                                                 {' '}<a className="text-primary" onClick={() => { handleEdit(index) }}>
-                                                                    <FontAwesomeIcon icon="pen"/> Click Here
+                                                                    <FontAwesomeIcon icon="pen" /> Click Here
                                                                 </a>
                                                                 {' '}to add attributes
                                                             </div>
-                                                        :
+                                                            :
                                                             <>
                                                                 {/**If host attributes exist, render below */}
                                                                 {/**This button is used to add another route */}
@@ -328,7 +331,7 @@ const HostsView = (props) => {
                                                                     className="ml-auto"
                                                                     color="primary"
                                                                     size="sm"
-                                                                    onClick={(e)=>{addTag(e, item)}}
+                                                                    onClick={(e) => { addTag(e, item) }}
                                                                 >
                                                                     Add Route
                                                                 </CButton>
@@ -342,9 +345,9 @@ const HostsView = (props) => {
                                                                                      * else, render in progress
                                                                                      */}
                                                                                     <div>
-                                                                                        {route.tag != "" 
-                                                                                        ? <CBadge color="success">{route.tag}</CBadge> 
-                                                                                        : <CBadge color="warning">In Progress</CBadge>
+                                                                                        {route.tag != ""
+                                                                                            ? <CBadge color="success">{route.tag}</CBadge>
+                                                                                            : <CBadge color="warning">In Progress</CBadge>
                                                                                         }
                                                                                     </div>
                                                                                     <div>
@@ -353,17 +356,17 @@ const HostsView = (props) => {
                                                                                             variant="ghost"
                                                                                             color="primary"
                                                                                             size="sm"
-                                                                                            onClick={()=>{handleAttrConfig(index, i)}}
+                                                                                            onClick={() => { handleAttrConfig(index, i) }}
                                                                                         >
-                                                                                            <FontAwesomeIcon icon="key" className="icon-table-edit"/>
+                                                                                            <FontAwesomeIcon icon="key" className="icon-table-edit" />
                                                                                         </CButton>
                                                                                         <CButton
                                                                                             className="ml-1 button-table"
                                                                                             variant="ghost"
                                                                                             color="danger"
                                                                                             size="sm"
-                                                                                            onClick={(e) => routeConfig.length > 1 ? 
-                                                                                                delConfig(e, item, i) : 
+                                                                                            onClick={(e) => routeConfig.length > 1 ?
+                                                                                                delConfig(e, item, i) :
                                                                                                 setRoutingModal(true)}
                                                                                         >
                                                                                             {/**
@@ -371,7 +374,7 @@ const HostsView = (props) => {
                                                                                              * if you try to delete a route when only one exists, a popup will
                                                                                              * occur telling you this is not possible. 
                                                                                              */}
-                                                                                            <FontAwesomeIcon icon="trash-alt" className="icon-table-delete"/>
+                                                                                            <FontAwesomeIcon icon="trash-alt" className="icon-table-delete" />
                                                                                         </CButton>
                                                                                     </div>
                                                                                 </td>
@@ -396,22 +399,22 @@ const HostsView = (props) => {
                                                                                 {routeConfig.map((route, i) => {
                                                                                     return (
                                                                                         <td className="roboto-font">
-                                                                                            {route[key] == "" 
-                                                                                            ? <div className="text-warning">No value assigned</div>
-                                                                                            
-                                                                                            : <div>
-                                                                                                {/**If the value is an array, join the values by ampersand */}
-                                                                                                {Array.isArray(route[key]) 
-                                                                                                ? route[key].join(' &')
-                                                                                                : route[key]}
-                                                                                            </div>
+                                                                                            {route[key] == ""
+                                                                                                ? <div className="text-warning">No value assigned</div>
+
+                                                                                                : <div>
+                                                                                                    {/**If the value is an array, join the values by ampersand */}
+                                                                                                    {Array.isArray(route[key])
+                                                                                                        ? route[key].join(' &')
+                                                                                                        : route[key]}
+                                                                                                </div>
                                                                                             }
                                                                                         </td>
 
                                                                                     )
                                                                                 })}
                                                                             </tr>
-                                                                        ) 
+                                                                        )
                                                                     })}
                                                                 </table>
                                                             </>
@@ -459,8 +462,8 @@ const HostsView = (props) => {
                     <strong>Notice!</strong>
                 </CModalHeader>
                 <CModalBody className='text-lg-left'>
-                        <strong>You need at least one route for this host.</strong>
-                    </CModalBody>
+                    <strong>You need at least one route for this host.</strong>
+                </CModalBody>
                 <CModalFooter>
                     <CButton
                         color="secondary"

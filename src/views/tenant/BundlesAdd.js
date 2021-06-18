@@ -37,6 +37,7 @@ const BundlesAdd = (props) => {
         bid: "",
         name: "",
         services: "",
+        cpodrepl: 1,
     });
     const initBundleAttrData = Object.freeze({
         bid: ""
@@ -127,12 +128,16 @@ const BundlesAdd = (props) => {
         } else {
             services = []
         }
+        var cpodrepl = 1
+        if (bundleData.cpodrepl) {
+            cpodrepl = parseInt(bundleData.cpodrepl, 10)
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 bid: bundleData.bid, name: bundleData.name,
-                services: services,
+                services: services, cpodrepl: cpodrepl,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundle'), requestOptions)
@@ -223,6 +228,17 @@ const BundlesAdd = (props) => {
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange} />
+                                    </CInputGroup>
+                                </CFormGroup>
+                                <CFormGroup>
+                                    <CLabel>AppGroup Compute pods</CLabel>
+                                    <CInputGroup>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-tag" />
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
+                                        <CInput name="cpodrepl" defaultValue="1" onChange={handleBundleChange} />
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
