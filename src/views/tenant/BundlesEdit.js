@@ -13,6 +13,7 @@ import {
     CInputGroupPrepend,
     CInputGroupText,
     CRow,
+    CPopover,
     CSelect,
     CLabel,
     CCardHeader,
@@ -59,9 +60,6 @@ const BundlesEdit = (props) => {
     }, []);
 
     useEffect(() => {
-    }, []);
-
-    useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -84,15 +82,20 @@ const BundlesEdit = (props) => {
     const handleAttrChange = (e) => {
         let input
         if (e.target.value.indexOf(',') > -1) {
-            input = e.target.value.split(',')
+            input = e.target.value.split(',').map(item => item.trim());
+            updateBundleAttrState({
+                ...bundleAttrState,
+                [e.target.name]: [input]
+            })
         }
         else {
             input = e.target.value.trim().toString()
+            updateBundleAttrState({
+                ...bundleAttrState,
+                [e.target.name]: input
+            })
         }
-        updateBundleAttrState({
-            ...bundleAttrState,
-            [e.target.name]: input
-        });
+        
     };
 
     const handleSubmit = (e) => {
@@ -215,7 +218,7 @@ const BundlesEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag" />
+                                            <CIcon name="cil-3d" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
                                     <CInput name="cpodrepl" defaultValue="1" onChange={handleBundleChange} />
@@ -238,11 +241,17 @@ const BundlesEdit = (props) => {
                             {attrData.map(attr => {
                                 return (
                                     <CFormGroup>
-                                        <CLabel>{attr}</CLabel>
+                                        <CPopover 
+                                            title="Popover title"
+                                            content="If attribute is expected to have multiple values, use commas to delimit."
+                                        >
+                                            <FontAwesomeIcon icon="info-circle"/>
+                                        </CPopover>
+                                        {' '}<CLabel>{attr}</CLabel>
                                         <CInputGroup>
                                             <CInput name={attr} defaultValue={bundleAttrState[attr]} onChange={handleAttrChange} />
                                         </CInputGroup>
-                                        <CFormText>Use commas to delimit multiple values.</CFormText>
+                                        <CFormText>Enter attribute value(s).</CFormText>
                                     </CFormGroup>
                                 )
                             })}

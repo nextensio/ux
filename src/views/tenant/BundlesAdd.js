@@ -147,7 +147,6 @@ const BundlesAdd = (props) => {
         } else {
             services = []
         }
-        console.log("return passed")
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
