@@ -7,14 +7,13 @@ import {
     CForm,
     CFormText,
     CInput,
-    CInputCheckbox,
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
     CInputRadio,
     CInvalidFeedback,
     CRow,
-    CSelect,
+    CPopover,
     CLabel,
     CModal,
     CModalBody,
@@ -47,7 +46,7 @@ const BundlesAdd = (props) => {
     const [existingBidData, updateExistingBidData] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     // gw data for the dropdown
-    const [invalidFormState, setInvalidFormState] = useState(false);
+    const [errObj, updateErrObj] = useState({});
 
     const [overwriteModal, setOverwriteModal] = useState(false);
     const [overwriteBid, setOverwriteBid] = useState("");
@@ -78,9 +77,6 @@ const BundlesAdd = (props) => {
             });
     }, []);
 
-    useEffect(() => {
-    }, []);
-
     const handleBundleChange = (e) => {
         updateBundleData({
             ...bundleData,
@@ -91,26 +87,48 @@ const BundlesAdd = (props) => {
     const handleAttrChange = (e) => {
         let input
         if (e.target.value.indexOf(',') > -1) {
-            input = e.target.value.split(',')
+            input = e.target.value.split(',').map(item => item.trim());
+            updateBundleAttrData({
+                ...bundleAttrData,
+                [e.target.name]: [input]
+            });
         }
         else {
-            input = e.target.value.trim().toString()
+            input = e.target.value.trim().toString();
+            updateBundleAttrData({
+                ...bundleAttrData,
+                [e.target.name]: input
+            });
         }
-        updateBundleAttrData({
-            ...bundleAttrData,
-            [e.target.name]: input
-        });
+        
     };
 
-    function validateEmail(email) {
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
+    function validate() {
+        let errs = {}
+        const emailRe = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const podRe = /^[-+]?\d+$/
+        if (!emailRe.test(String(bundleData.bid).toLowerCase())) {
+            errs.bid = true
+        }
+        if (!/\S/.test(bundleData.name)) {
+            errs.name = true
+        }
+        if (!podRe.test(String(bundleData.cpodrepl).trim())) {
+            errs.cpodrepl = true
+        }
+        if (!/\S/.test(bundleData.services)) {
+            errs.services = true
+        }
+        updateErrObj(errs)
+        return errs
     }
+
+    
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!validateEmail(bundleData.bid)) {
-            setInvalidFormState(true)
+        let errs = validate()
+        if (Object.keys(errs).length !== 0) {
             return
         }
         if (bundleData.bid in existingBidData && overwriteModal == false) {
@@ -118,6 +136,7 @@ const BundlesAdd = (props) => {
             setOverwriteBid(bundleData.bid)
             return
         }
+        var cpodrepl = parseInt(bundleData.cpodrepl, 10)
         var services = bundleData.services
         if (bundleData.services) {
             if (!Array.isArray(bundleData.services)) {
@@ -128,10 +147,7 @@ const BundlesAdd = (props) => {
         } else {
             services = []
         }
-        var cpodrepl = 1
-        if (bundleData.cpodrepl) {
-            cpodrepl = parseInt(bundleData.cpodrepl, 10)
-        }
+        console.log("return passed")
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -202,6 +218,7 @@ const BundlesAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add AppGroup</strong>
+                    <CButton onClick={() => console.log(errObj)}>ERR</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CRow>
@@ -215,8 +232,8 @@ const BundlesAdd = (props) => {
                                                 <CIcon name="cil-notes" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="bid" placeholder={bundleData.bid} onChange={e => { handleBundleChange(e); handleAttrChange(e) }} invalid={invalidFormState} />
-                                        <CInvalidFeedback className="help-block">Please enter a valid email</CInvalidFeedback>
+                                        <CInput name="bid" onChange={e => { handleBundleChange(e); handleAttrChange(e) }} invalid={errObj.bid} />
+                                        <CInvalidFeedback >Please enter a valid email</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
@@ -227,18 +244,20 @@ const BundlesAdd = (props) => {
                                                 <CIcon name="cil-tag" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="name" placeholder={bundleData.name} onChange={handleBundleChange} />
+                                        <CInput name="name" onChange={handleBundleChange} invalid={errObj.name}/>
+                                        <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>AppGroup Compute pods</CLabel>
+                                    <CLabel>AppGroup Compute Pods</CLabel>
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-tag" />
+                                                <CIcon name="cil-3d" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="cpodrepl" defaultValue="1" onChange={handleBundleChange} />
+                                        <CInput name="cpodrepl" defaultValue="1" onChange={handleBundleChange} invalid={errObj.cpodrepl}/>
+                                        <CInvalidFeedback >Please enter an integer.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
@@ -249,7 +268,8 @@ const BundlesAdd = (props) => {
                                                 <CIcon name="cil-settings" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} />
+                                        <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} invalid={errObj.services}/>
+                                        <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                             </CForm>
@@ -259,7 +279,13 @@ const BundlesAdd = (props) => {
                                     <CForm>
                                         {attr.type == "String" &&
                                             <CFormGroup>
-                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
+                                                <CPopover 
+                                                    title="Popover title"
+                                                    content="If attribute is expected to have multiple values, use commas to delimit."
+                                                >
+                                                    <FontAwesomeIcon icon="info-circle"/>
+                                                </CPopover>
+                                                {' '}<CLabel htmlFor="nf-password">{attr.name}</CLabel>
                                                 <CInputGroup>
                                                     <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
                                                 </CInputGroup>
@@ -282,15 +308,6 @@ const BundlesAdd = (props) => {
                                                     </CFormGroup>
                                                 </div>
                                             </>
-                                        }
-                                        {attr.type == "Number" &&
-                                            <CFormGroup>
-                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
-                                                <CInputGroup>
-                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
-                                                </CInputGroup>
-                                                <CFormText>Use commas to delimit multiple values.</CFormText>
-                                            </CFormGroup>
                                         }
                                         {attr.type == "Date" &&
                                             <CFormGroup>

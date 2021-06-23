@@ -10,7 +10,6 @@ import {
     CFormGroup,
     CFormText,
     CInput,
-    CInputCheckbox,
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
@@ -20,12 +19,14 @@ import {
     CModalBody,
     CModalHeader,
     CModalFooter,
+    CPopover,
     CRow,
     CLabel,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 var common = require('../../common')
 
@@ -44,8 +45,6 @@ const UsersAdd = (props) => {
     const [existingUidData, updateExistingUidData] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
 
-    // If the uid is not in email form, trigger this warning.
-    const [invalidFormState, setInvalidFormState] = useState(false);
 
     // If the uid already exists in tenant db, ask if the tenant 
     // wants to overwrite the existing entry
@@ -87,6 +86,22 @@ const UsersAdd = (props) => {
 
     const handleAttrChange = (e) => {
         let input 
+        // length check to ensure bad guy does not send a massive string to DB
+        let targetLen = e.target.value.length
+        // Change maxLength to whatever you want for maximum length of input fields.
+        const maxLength = 10
+        // if maxLength is reached trigger error Obj and message.
+        if (targetLen === maxLength) {
+            updateErrObj({
+                ...errObj,
+                [e.target.name]: true
+            })
+        } 
+        if (targetLen < maxLength && errObj[e.target.name]) {
+            delete errObj[e.target.name]
+        }
+        // If input field is supplied with a comma, assume it is a multivalue type and 
+        // send value in array form. 
         if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => item.trim());
             updateUserAttrData({
@@ -113,27 +128,23 @@ const UsersAdd = (props) => {
         })
     }
 
-    function checkErrObj() {
-        if (Object.keys(errObj).length === 0) {
-            return true
-        } else {
-            return false
-        }
-    }
-
     function validate() {
-        var funcErrObj = {}
-        var emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!emailReg.test(String(userData.uid).toLowerCase())) {
-            funcErrObj.uid = true
+        let errs = {}
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!re.test(String(userData.uid).toLowerCase())){
+            errs.uid = true
         }
-        updateErrObj(funcErrObj)
-        setTimeout(checkErrObj, 0)
+        if (!/\S/.test(userData.name)) {
+            errs.name = true
+        }
+        updateErrObj(errs)
+        return errs
     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!validate()) {
+        let errs = validate()
+        if (Object.keys(errs).length != 0) {
             return
         }
         if (userData.uid in existingUidData && overwriteModal == false) {
@@ -197,9 +208,9 @@ const UsersAdd = (props) => {
                 .catch(error => {
                     alert('Error contacting server', error);
                 })
-            } else {
-                props.history.push('/tenant/' + props.match.params.id + '/users')
-            }
+        } else {
+            props.history.push('/tenant/' + props.match.params.id + '/users')
+        }
 
     };
 
@@ -208,7 +219,6 @@ const UsersAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add User</strong>
-                    <CButton onClick={() => {console.log(errObj)}}>LOG</CButton>
                     <CButton onClick={() => {console.log(userAttrData)}}>LOG</CButton>
                 </CCardHeader>
                 <CCardBody className="roboto-font">
@@ -223,8 +233,8 @@ const UsersAdd = (props) => {
                                                 <CIcon name="cil-user"/>
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="uid" placeholder={userData.uid} onChange={e => {handleUserChange(e); handleAttrChange(e)}} invalid={invalidFormState}/>
-                                        <CInvalidFeedback visible={invalidFormState}>Please enter a valid email!</CInvalidFeedback>
+                                        <CInput name="uid" placeholder={userData.uid} onChange={e => {handleUserChange(e); handleAttrChange(e)}} invalid={errObj.uid}/>
+                                        <CInvalidFeedback>Please enter a valid email!</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
@@ -235,7 +245,8 @@ const UsersAdd = (props) => {
                                                 <CIcon name="cil-tag"/>
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="name" placeholder={userData.name} onChange={handleUserChange} />
+                                        <CInput name="name" placeholder={userData.name} onChange={handleUserChange} invalid={errObj.name}/>
+                                        <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                             </CForm>
@@ -245,11 +256,18 @@ const UsersAdd = (props) => {
                                     <CForm>
                                         {attr.type == "String" && 
                                             <CFormGroup>
-                                                <CLabel htmlFor="nf-password">{attr.name}</CLabel>
-                                                <CInputGroup>
-                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
-                                                </CInputGroup>
-                                                <CFormText>Use commas to delimit multiple values.</CFormText>
+                                                <CPopover 
+                                                        title="Popover title"
+                                                        content="If attribute is expected to have multiple values, use commas to delimit."
+                                                >
+                                                    <FontAwesomeIcon icon="info-circle"/>
+                                                </CPopover>
+                                                {' '}<CLabel>{attr.name}</CLabel>
+                                                <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength="10" invalid={errObj[attr.name]}/>
+                                                {errObj[attr.name] ?
+                                                    <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                    <CFormText>Enter attribute value(s).</CFormText> 
+                                                }
                                             </CFormGroup>
                                         }
                                         {attr.type == "Boolean" &&

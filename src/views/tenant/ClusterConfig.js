@@ -5,13 +5,10 @@ import {
     CCardBody,
     CCol,
     CForm,
-    CFormText,
     CInput,
-    CInputCheckbox,
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
-    CInvalidFeedback,
     CRow,
     CSelect,
     CLabel,
@@ -115,7 +112,7 @@ const ClusterConfig = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>gateway Configuration</strong>
+                <strong>Gateway Configuration</strong>
                 <CButton onClick={e => console.log(configData)}>LOG</CButton>
             </CCardHeader>
             <CCardBody>
@@ -123,7 +120,7 @@ const ClusterConfig = (props) => {
                     <CCol sm="8">
                         <CForm>
                             <CFormGroup>
-                                <CLabel>gateway</CLabel>
+                                <CLabel>Gateway</CLabel>
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
@@ -144,14 +141,10 @@ const ClusterConfig = (props) => {
                                 <CLabel>Image</CLabel>
                                 <CInput name="image" placeholder="registry.gitlab.com/nextensio/cluster/minion:latest" onChange={handleChange} />
                             </CFormGroup>
-                            <CRow>
-                                <CCol>
-                                    Ingress (user) compute pods {apodCount}
-                                    <div>
-                                        <CInput name="apods" onChange={handleApodChange} />
-                                    </div>
-                                </CCol>
-                            </CRow>
+                            <CFormGroup>
+                                <CLabel>Ingress (user) compute pods: {apodCount}</CLabel>
+                                <CInput name="apods" onChange={handleApodChange} />
+                            </CFormGroup>
                         </CForm>
                     </CCol>
                 </CRow>

@@ -22,10 +22,8 @@ import {
     CModalBody,
     CModalTitle,
     CModalFooter,
-    CPopover,
     CRow,
     CInvalidFeedback,
-    CSwitch,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -117,82 +115,66 @@ const AttributeEditor = (props) => {
     }
 
     const reset = (e) => {
-        resetErrs()
         updateAttributeData({ name: '', appliesTo: '', type: 'String'});
         setResetWarning(false);
     }
     
     // function used to update errObj
-    function triggerErrors() {
-        resetErrs()
+    function validate() {
         var errors = {}
         // If the tenant does not select an appliesTo value errObj will have appliesToErr
         if (attributeData.appliesTo == "") {
             errors.appliesToErr = true
         }
         // If the tenant does not input any value for name or select a type errObj will have typeErr
-        if (attributeData.name.trim() == "" || attributeData.type == "Type") {
+        if (attributeData.name.trim() == "") {
             errors.typeErr = true
         }
         updateErrObj(errors)
+        return errors
     }
 
-    // Function used to validate all of the tenant's entries
-    // If anything is missing errObj length will be greater than 0
-    function validate() {
-        if (Object.keys(errObj).length === 0) {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    // Description of error:
-    // When I push an empty attribute ie {name: "", type: "Type", appliesTo: ""} the db gets the value
-    // Even though theoretically from the code below, errObj will look like {typeErr: true, appliesToErr: true},
-    // and the code should terminate before sending to db.
-    // So I think triggerErrors() is not running either when it is supposed to or improperly validating....
     const commitAttrs = (e) => {
-        // /^[a-z0-9]+$/i
-        triggerErrors()
-        if (validate()) {
-            console.log('Validate was true')
-            for (var i = 0; i < inuseAttr.length; i++) {
-                if (inuseAttr[i].name == attributeData.name &&
-                    inuseAttr[i].appliesTo == attributeData.appliesTo) {
-                    setOverwriteModal(true)
-                    return
-                }
+        let errs = validate()
+        if (Object.keys(errs).length !== 0) {
+            return
+        }            
+        for (var i = 0; i < inuseAttr.length; i++) {
+            if (inuseAttr[i].name == attributeData.name &&
+                inuseAttr[i].appliesTo == attributeData.appliesTo) {
+                setOverwriteModal(true)
+                return
             }
-            e.preventDefault()
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: bearer },
-                body: JSON.stringify({
-                    name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type,
-                }),
-            };
-            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) {
-                        // get error message from body or default to response status
-                        alert(error);
-                        const error = (data && data.message) || response.status;
-                        return Promise.reject(error);
-                    }
-                    // check for error response
-                    if (data["Result"] != "ok") {
-                        alert(data["Result"]);
-                    } else {
-                        updateInuseAttr(inuseAttr.concat(attributeData));
-                        reset()
-                    }
-                })
-                .catch(error => {
-                    alert('Error contacting server', error);
-                });
         }
+        e.preventDefault()
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify({
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type,
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"]);
+                } else {
+                    updateInuseAttr(inuseAttr.concat(attributeData));
+                    reset()
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+        
     }
 
     const toggleDelete = (index) => {
@@ -205,7 +187,7 @@ const AttributeEditor = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify(item.name),
+            body: JSON.stringify(item),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/attrset'), requestOptions)
             .then(async response => {

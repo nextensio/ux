@@ -234,7 +234,7 @@ const UsersView = (props) => {
                                                                     <tr>
                                                                         <th className="attributes roboto-font">{key}</th>
                                                                         <td className="roboto-font">
-                                                                            <div>
+                                                                            <>
                                                                                 {item[key] != null ?
                                                                                 <div>
                                                                                     {Array.isArray(item[key]) 
@@ -247,7 +247,7 @@ const UsersView = (props) => {
                                                                                     No value assigned
                                                                                 </div>
                                                                                 }
-                                                                            </div>
+                                                                            </>
                                                                         </td>
                                                                     </tr>
                                                                 )

@@ -158,8 +158,8 @@ const PolicyView = (props) => {
         setDeleteIndex(index)
     }
 
-    const showIcon = <FontAwesomeIcon icon="angle-double-down" size="lg" className="icon-table-edit" />
-    const hideIcon = <FontAwesomeIcon icon="angle-double-up" size="lg" className="icon-table-edit" />
+    const showingIcon = <FontAwesomeIcon icon="angle-right" />
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
 
     return (
         <>
@@ -230,7 +230,7 @@ const PolicyView = (props) => {
                                                             size="sm"
                                                             onClick={() => { toggleDetails(index) }}
                                                         >
-                                                            {details.includes(index) ? hideIcon : showIcon}
+                                                            {details.includes(index) ? hidingIcon : showingIcon}
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
