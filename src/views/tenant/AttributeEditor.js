@@ -22,10 +22,8 @@ import {
     CModalBody,
     CModalTitle,
     CModalFooter,
-    CPopover,
     CRow,
     CInvalidFeedback,
-    CSwitch,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -70,7 +68,7 @@ const AttributeEditor = (props) => {
         []
     );
     const [inuseAttr, updateInuseAttr] = useState(initAttrData);
-    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'Type' })
+    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String'})
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
@@ -98,7 +96,6 @@ const AttributeEditor = (props) => {
             .then(data => { updateInuseAttr(data); });
     }
 
-
     const handleChange = (e) => {
         updateAttributeData({
             ...attributeData,
@@ -113,67 +110,35 @@ const AttributeEditor = (props) => {
         });
     }
 
-    const rangeCheck = (e) => {
-        if (!attributeData.rangeCheck) {
-            updateAttributeData({
-                ...attributeData,
-                rangeCheck: 10
-            })
-        } else {
-            updateAttributeData({
-                ...attributeData,
-                rangeCheck: undefined
-            })
-        }
+    function resetErrs() {
+        updateErrObj({})
     }
-
 
     const reset = (e) => {
-        updateAttributeData({ name: '', appliesTo: '', type: 'Type' });
+        updateAttributeData({ name: '', appliesTo: '', type: 'String'});
         setResetWarning(false);
     }
-
-    // function used to validate that all input fields are filled correctly
-    const validate = (e) => {
-        if (attributeData.name.trim() == "" && attributeData.type == "Type") {
-            updateErrObj({
-                ...errObj,
-                typeErr: true
-            })
+    
+    // function used to update errObj
+    function validate() {
+        var errors = {}
+        // If the tenant does not select an appliesTo value errObj will have appliesToErr
+        if (attributeData.appliesTo == "") {
+            errors.appliesToErr = true
         }
-        if (attributeData.type == "String" && !attributeData.isArray) {
-            updateErrObj({
-                ...errObj,
-                isArrayErr: true
-            })
+        // If the tenant does not input any value for name or select a type errObj will have typeErr
+        if (attributeData.name.trim() == "") {
+            errors.typeErr = true
         }
-        if (attributeData.type == "Number") {
-            if (!attributeData.numType) {
-                updateErrObj({
-                    ...errObj,
-                    numTypeErr: true
-                })
-            }
-            if (!attributeData.singleMultipleOrRange) {
-                updateErrObj({
-                    ...errObj,
-                    singleMultipleOrRangeErr: true
-                })
-            }
-        }
-        if (attributeData.type == "Date" && !attributeData.dateRange) {
-            updateErrObj({
-                ...errObj,
-                dateRangeErr: true
-            })
-        }
-
-        return
+        updateErrObj(errors)
+        return errors
     }
 
     const commitAttrs = (e) => {
-        // Remove empty rows, also remove elements that already exist
-        // /^[a-z0-9]+$/i
+        let errs = validate()
+        if (Object.keys(errs).length !== 0) {
+            return
+        }            
         for (var i = 0; i < inuseAttr.length; i++) {
             if (inuseAttr[i].name == attributeData.name &&
                 inuseAttr[i].appliesTo == attributeData.appliesTo) {
@@ -185,7 +150,9 @@ const AttributeEditor = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify([attributeData]),
+            body: JSON.stringify({
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type,
+            }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
             .then(async response => {
@@ -201,11 +168,13 @@ const AttributeEditor = (props) => {
                     alert(data["Result"]);
                 } else {
                     updateInuseAttr(inuseAttr.concat(attributeData));
+                    reset()
                 }
             })
             .catch(error => {
                 alert('Error contacting server', error);
             });
+        
     }
 
     const toggleDelete = (index) => {
@@ -213,13 +182,12 @@ const AttributeEditor = (props) => {
         setDeleteIndex(index)
     }
 
-    const handleDelete = (index) => {
-        var delData = [];
-        delData.push(inuseAttr[index]);
+    const handleDelete = (item) => {
+        let index = inuseAttr.indexOf(item)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify(delData),
+            body: JSON.stringify(item),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/attrset'), requestOptions)
             .then(async response => {
@@ -251,6 +219,8 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
+                            <CButton onClick={e => console.log(Object.keys(errObj).length)}>ERR</CButton>
+                            <CButton onClick={e => console.log(attributeData)}>ATTR</CButton>
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
@@ -262,24 +232,25 @@ const AttributeEditor = (props) => {
                                     <CCol md="8">
                                         <div>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" checked={attributeData.appliesTo == "Users"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Bundles" onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-notes" /> AppGroup</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Hosts" onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-input-power" /> Host</CLabel>
                                             </CFormGroup>
                                         </div>
                                     </CCol>
+                                    {errObj.appliesToErr == true ? <div className="invalid-form-text">Please select which category this attribute applies to.</div> : <></>}
                                 </CFormGroup>
                                 <CFormGroup>
                                     <CLabel htmlFor="nf-attribute">Attribute Name</CLabel>
                                     <CInputGroup>
-                                        <CInput name="name" placeholder="Enter Attribute.." onChange={handleChange} />
+                                        <CInput name="name" placeholder="Enter Attribute.." value={attributeData.name} onChange={handleChange} invalid={errObj.typeErr}/>
                                         <CDropdown className="input-group-append">
                                             <CDropdownToggle caret className="border-success bg-success-light text-success">
                                                 {attributeData.type}
@@ -288,141 +259,12 @@ const AttributeEditor = (props) => {
                                                 <CDropdownItem onClick={(e) => handleType(e, "String")}>String</CDropdownItem>
                                                 <CDropdownItem onClick={(e) => handleType(e, "Boolean")}>Boolean</CDropdownItem>
                                                 <CDropdownItem onClick={(e) => handleType(e, "Date")}>Date</CDropdownItem>
-                                                <CDropdownItem onClick={(e) => handleType(e, "Number")}>Number</CDropdownItem>
                                             </CDropdownMenu>
                                         </CDropdown>
                                         {' '}
-                                        <CInvalidFeedback>Please use alphanumerics for your attribute Name!</CInvalidFeedback>
+                                        <CInvalidFeedback>Please enter an attribute name and select a type.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
-                                {attributeData.type == "String" &&
-                                    <>
-                                        <div className="mb-3"><strong>Checksums</strong></div>
-                                        <CFormGroup row>
-                                            <CCol md="6">
-                                                <CPopover
-                                                    header="What is Single or Multi Value Type?"
-                                                    content="If this attribute is expected to have more than one value, select Multi Value.
-                                                    For example, a department attribute for a user might need multiple values. John might
-                                                    be in the sales department & marketing department"
-                                                >
-                                                    <CLabel><FontAwesomeIcon icon="info-circle" /> Single or Multi Value Type</CLabel>
-                                                </CPopover>
-                                            </CCol>
-                                            <CCol md="6">
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio4" name="isArray" value={false} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio4">Single Value</CLabel>
-                                                </CFormGroup>
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio5" name="isArray" value={true} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio5">Multi Value</CLabel>
-                                                </CFormGroup>
-                                            </CCol>
-                                        </CFormGroup>
-                                        <CFormGroup row>
-                                            <CCol md="6">
-                                                <CPopover
-                                                    header="What is Length Check?"
-                                                    content="Description of length check"
-                                                >
-                                                    <CLabel><FontAwesomeIcon icon="info-circle" /> Length Check</CLabel>
-                                                </CPopover>
-                                            </CCol>
-                                            <CCol md="6">
-                                                <div>
-                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck} />
-                                                </div>
-                                                {attributeData.rangeCheck &&
-                                                    <CRow className="mt-3">
-                                                        <CCol md="3">
-                                                            <div>
-                                                                <CInput name="rangeCheck" defaultValue={attributeData.rangeCheck} onChange={handleChange} />
-                                                            </div>
-                                                        </CCol>
-                                                    </CRow>
-                                                }
-                                            </CCol>
-                                        </CFormGroup>
-                                    </>
-
-                                }
-                                {attributeData.type == "Number" &&
-                                    <>
-                                        <div className="mb-3"><strong>Checksums</strong></div>
-                                        <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Integer or Float</CLabel>
-                                            </CCol>
-                                            <CCol md="8">
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio4" name="numType" value="int" onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio4">Integer</CLabel>
-                                                </CFormGroup>
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio5" name="numType" value="float" onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio5">Float</CLabel>
-                                                </CFormGroup>
-                                            </CCol>
-                                        </CFormGroup>
-                                        <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Single or Multi Value Type</CLabel>
-                                            </CCol>
-                                            <CCol md="8">
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio6" name="isArray" value={false} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio6">Single</CLabel>
-                                                </CFormGroup>
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio7" name="isArray" value={true} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio7">Multiple</CLabel>
-                                                </CFormGroup>
-                                            </CCol>
-                                        </CFormGroup>
-                                        <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Range Check</CLabel>
-                                            </CCol>
-                                            <CCol md="8">
-                                                <div>
-                                                    <CSwitch className={'mx-1'} variant={'3d'} color={'primary'} onChange={rangeCheck} />
-                                                </div>
-                                                {attributeData.rangeCheck &&
-                                                    <CRow className="mt-3">
-                                                        <CCol md="3">
-                                                            Min: <CInput defaultValue={attributeData.rangeCheck} />
-                                                        </CCol>
-                                                        <CCol md="3">
-                                                            Max: <CInput defaultValue={attributeData.rangeCheck} />
-                                                        </CCol>
-                                                    </CRow>
-
-                                                }
-                                            </CCol>
-                                        </CFormGroup>
-                                    </>
-                                }
-                                {attributeData.type == "Date" &&
-                                    <>
-                                        <div className="mb-3"><strong>Checksums</strong></div>
-                                        <CFormGroup row>
-                                            <CCol md="4">
-                                                <CLabel>Single Date or Range of Dates</CLabel>
-                                            </CCol>
-                                            <CCol md="8">
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio4" name="dateRange" value={false} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio4">Single</CLabel>
-                                                </CFormGroup>
-                                                <CFormGroup variant="custom-radio" inline>
-                                                    <CInputRadio custom id="inline-radio5" name="dateRange" value={true} onChange={handleChange} />
-                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio5">Range</CLabel>
-                                                </CFormGroup>
-                                            </CCol>
-                                        </CFormGroup>
-                                    </>
-                                }
                             </CForm>
                         </CCardBody>
                         <CCardFooter>
@@ -503,7 +345,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { toggleDelete(index) }}
+                                                            onClick={() => {handleDelete(item)}}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>

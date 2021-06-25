@@ -18,7 +18,6 @@ import {
     CLabel,
     CCardHeader,
     CFormGroup,
-    CFormText,
     CCardFooter
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -30,9 +29,6 @@ import './tenantviews.scss'
 var common = require('../../common')
 
 const HostEdit = (props) => {
-    var initInuseData = Object.freeze(
-        []
-    );
     const initHostData = Object.freeze({
         host: "",
         name: "",
@@ -42,7 +38,7 @@ const HostEdit = (props) => {
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     const [selectedAttr, setSelectedAttr] = useState([]);
     const [searchInput, setSearchInput] = useState("");
-    const [invalidFormState, setInvalidFormState] = useState(false);
+    const [errObj, updateErrObj] = useState({});
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -111,31 +107,31 @@ const HostEdit = (props) => {
         });
     };
 
-    function validateIP(ip) {
-        var re = /^(?=.*[^\.]$)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.?){4}\/[0-9][0-9]?$/igm
-        return re.test(ip)
-    }
-
-    function validateURL(url) {
+    function validate() {
+        let errs = {}
+        // regex to check if IP Address/mask
+        const reIP = /^(?=.*[^\.]$)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.?){4}\/[0-9][0-9]?$/igm;
+        // regex to check if URL
+        const reURL = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
         // special host name to indicate that all default internet traffic needs
         // to be sent to nextensio
-        if (url == 'nextensio-default-internet') {
-            return true
+        const nextensioURL = 'nextensio-default-internet'
+        if (!(reIP.test(hostData.host) || reURL.test(String(hostData.host).toLowerCase()) || hostData.host == nextensioURL)) {
+            errs.host = true
         }
-        // an ip-address/mask is a valid host too
-        if (validateIP(url)) {
-            return true
+        if (!/\S/.test(hostData.name)) {
+            errs.name = true
         }
-        const re = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-        return re.test(String(url).toLowerCase());
+        updateErrObj(errs)
+        return errs
     }
 
     const handleSubmit = (e) => {
-        if (!validateURL(hostData.host)) {
-            setInvalidFormState(true)
+        e.preventDefault()
+        let errs = validate()
+        if (Object.keys(errs).length !== 0) {
             return
         }
-        e.preventDefault()
         for (var i = 0; i < selectedAttr.length; i++) {
             hostData.routeattrs[0][selectedAttr[i]] = ''
         }
@@ -182,7 +178,7 @@ const HostEdit = (props) => {
                                             <CIcon name="cil-link" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="host" placeholder="google.com" onChange={handleChange} invalid={invalidFormState} />
+                                    <CInput name="host" placeholder="google.com" onChange={handleChange} invalid={errObj.host} />
                                     <CInvalidFeedback>Please enter a valid URL!</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
@@ -194,7 +190,8 @@ const HostEdit = (props) => {
                                             <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="name" placeholder="google" onChange={handleChange} />
+                                    <CInput name="name" placeholder="google" onChange={handleChange} invalid={errObj.name}/>
+                                    <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
                         </CForm>

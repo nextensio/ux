@@ -8,9 +8,7 @@ import {
     CCardFooter,
     CCardHeader,
     CCol,
-    CProgress,
     CRow,
-    CCallout,
     CDataTable,
     CDropdown,
     CDropdownToggle,
@@ -20,17 +18,10 @@ import {
     CModalHeader,
     CModalBody,
     CModalFooter,
-    CNav,
-    CNavItem,
-    CNavLink,
-    CTabs,
-    CTabContent,
-    CTabPane,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
-import { CChartBar, CChartPie } from '@coreui/react-chartjs'
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -70,7 +61,7 @@ const TenantsView = (props) => {
     const initTableData = Object.freeze(
         []
     );
-    const [usersData, updateUserData] = useState(initTableData);
+    const [tenantsData, updateTenantData] = useState(initTableData);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
 
@@ -85,13 +76,13 @@ const TenantsView = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => updateTenantData(data));
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => updateTenantData(data));
     }
 
     const handleAdd = (e) => {
@@ -101,7 +92,7 @@ const TenantsView = (props) => {
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/home/tenants/add',
-            state: usersData[index]
+            state: tenantsData[index]
         })
     }
 
@@ -110,7 +101,7 @@ const TenantsView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/global/del/tenant/') + usersData[index]._id, hdrs)
+        fetch(common.api_href('/api/v1/global/del/tenant/') + tenantsData[index]._id, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -148,7 +139,7 @@ const TenantsView = (props) => {
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
-                                items={usersData}
+                                items={tenantsData}
                                 fields={fields}
                                 tableFilter={{ placeholder: 'By name, gateways...', label: 'Search: ' }}
                                 itemsPerPageSelect

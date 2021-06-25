@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+    CButton,
     CCreateElement,
     CSidebar,
     CSidebarBrand,
@@ -33,9 +34,10 @@ const TheSidebar = (props) => {
             if (navigation[i].hasOwnProperty('to')) {
                 newNav[i].to = navigation[i].to.replace(":id", props.match.params.id)
             }
-            updateNav(newNav)
+            
         }
-    }, []);
+        updateNav(newNav)
+    }, [JSON.stringify(props.match.params)]);
 
     const logoutURL = '/tenant/' + props.match.params.id + '/logout';
 

@@ -47,7 +47,8 @@ const fields = [
         _classes: "data-field"
     },
     {
-        key: "gateway",
+        key: "cpodrepl",
+        label: "Compute Pods",
         _classes: "data-field"
     },
     {
@@ -120,8 +121,9 @@ const BundlesView = (props) => {
                     ...bundleData[i],
                     ...bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)
                 }
-                const {connectid, cluster, pod, _gateway, _name, _pod, ...rest} = zipObj
+                const {connectid, cluster, gateway, pod, _gateway, _name, _pod, ...rest} = zipObj
                 zipper.push(rest)
+                console.log(rest)
             }
         }
         updateZippedData(zipper)
@@ -210,6 +212,9 @@ const BundlesView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
+                            <CButton onClick={() => console.log(bundleData)}>LOG</CButton>
+                            <CButton onClick={() => console.log(bundleAttrData)}>LOG</CButton>
+
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -244,7 +249,7 @@ const BundlesView = (props) => {
                                                                     <td className="attributes header roboto-font"><strong>Values</strong></td>
                                                                 </tr>
                                                                 {Object.keys(item).filter(key => {
-                                                                    if (["bid", "gateway", "name", "services"].includes(key)) {
+                                                                    if (["bid", "gateway", "name", "services", "cpodrepl"].includes(key)) {
                                                                         return false
                                                                     }
                                                                     else {
