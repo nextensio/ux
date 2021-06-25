@@ -44,7 +44,7 @@ const Home = (props) => {
                 <CCol lg="6">
                     <CCard className="border-rounded shadow">
                         <CCardHeader>
-                            Cluster Configuration
+                            <CIcon name="cib-kubernetes"/> Cluster Configuration
                             <CButton 
                                 className="float-right" 
                                 color="primary"

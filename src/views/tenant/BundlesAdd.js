@@ -32,6 +32,7 @@ import './tenantviews.scss'
 var common = require('../../common')
 
 const BundlesAdd = (props) => {
+    const maxCharLength = 20
     const initBundleData = Object.freeze({
         bid: "",
         name: "",
@@ -77,6 +78,10 @@ const BundlesAdd = (props) => {
             });
     }, []);
 
+    const toAttributeEditor = (e) => {
+        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+    }
+
     const handleBundleChange = (e) => {
         updateBundleData({
             ...bundleData,
@@ -86,6 +91,17 @@ const BundlesAdd = (props) => {
 
     const handleAttrChange = (e) => {
         let input
+        let targetLen = e.target.value.length
+        // if maxLength is reached trigger error Obj and message.
+        if (targetLen === maxCharLength) {
+            updateErrObj({
+                ...errObj,
+                [e.target.name]: true
+            })
+        } 
+        if (targetLen < maxCharLength && errObj[e.target.name]) {
+            delete errObj[e.target.name]
+        }
         if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => item.trim());
             updateBundleAttrData({
@@ -217,7 +233,7 @@ const BundlesAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add AppGroup</strong>
-                    <CButton onClick={() => console.log(errObj)}>ERR</CButton>
+                    <CButton onClick={() => console.log(attrData)}>ERR</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CRow>
@@ -273,6 +289,11 @@ const BundlesAdd = (props) => {
                                 </CFormGroup>
                             </CForm>
                             <div className="title py-3">Attributes</div>
+                            {attrData.length === 0 &&
+                                <div><FontAwesomeIcon icon="info-circle" className="text-info"/>{' '}
+                                You have no attributes for AppGroups. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                                </div>
+                            }
                             {attrData.map(attr => {
                                 return (
                                     <CForm>
@@ -285,10 +306,12 @@ const BundlesAdd = (props) => {
                                                     <FontAwesomeIcon icon="info-circle"/>
                                                 </CPopover>
                                                 {' '}<CLabel htmlFor="nf-password">{attr.name}</CLabel>
-                                                <CInputGroup>
-                                                    <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
-                                                </CInputGroup>
-                                                <CFormText>Use commas to delimit multiple values.</CFormText>
+
+                                                <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name]}/>
+                                                {errObj[attr.name] ?
+                                                    <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                    <CFormText>Enter attribute value(s).</CFormText> 
+                                                }
                                             </CFormGroup>
                                         }
                                         {attr.type == "Boolean" &&

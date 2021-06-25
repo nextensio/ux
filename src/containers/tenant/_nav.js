@@ -13,16 +13,6 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Cluster Config',
-        to: '/tenant/:id/clusterconfig',
-        className: 'roboto-font',
-        icon: {
-            name: 'cib-kubernetes',
-            size: 'lg'
-        }
-    },
-    {
-        _tag: 'CSidebarNavItem',
         name: 'Users',
         to: '/tenant/:id/users',
         className: 'roboto-font',

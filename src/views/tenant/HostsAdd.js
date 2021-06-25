@@ -58,7 +58,7 @@ const HostEdit = (props) => {
             .then(data => {
                 var fields = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Users') {
+                    if (data[i].appliesTo == 'Hosts') {
                         fields.push(data[i].name);
                     }
                 }

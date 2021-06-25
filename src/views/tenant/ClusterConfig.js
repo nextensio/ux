@@ -184,9 +184,11 @@ const ClusterConfig = (props) => {
                                 <CFormGroup>
                                     <CLabel>Ingress (user) compute pods. Current: {apodCount}</CLabel>
                                     <CInputGroup>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-3d" />
-                                        </CInputGroupText>
+                                        <CInputGroupPrepend>
+                                            <CInputGroupText className="bg-primary-light text-primary">
+                                                <CIcon name="cil-3d" />
+                                            </CInputGroupText>
+                                        </CInputGroupPrepend>
                                         <CInput name="apods" onChange={handleApodChange} invalid={errObj.apodrepl}/>
                                         <CInvalidFeedback>Please enter an integer value.</CInvalidFeedback>
                                     </CInputGroup>

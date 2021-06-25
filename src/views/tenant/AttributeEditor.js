@@ -71,7 +71,7 @@ const AttributeEditor = (props) => {
     const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String'})
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
-    const [deleteIndex, setDeleteIndex] = useState(0);
+    const [deleteItem, setDeleteItem] = useState(0);
     const [overwriteModal, setOverwriteModal] = useState(false);
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
@@ -177,9 +177,9 @@ const AttributeEditor = (props) => {
         
     }
 
-    const toggleDelete = (index) => {
+    const toggleDelete = (item) => {
         setDeleteModal(!deleteModal);
-        setDeleteIndex(index)
+        setDeleteItem(item)
     }
 
     const handleDelete = (item) => {
@@ -219,8 +219,6 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <CButton onClick={e => console.log(Object.keys(errObj).length)}>ERR</CButton>
-                            <CButton onClick={e => console.log(attributeData)}>ATTR</CButton>
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
@@ -293,11 +291,14 @@ const AttributeEditor = (props) => {
                     </CModalHeader>
                     <CModalBody className='text-lg-left'>
                         <strong>Are you sure you want to delete this attribute?</strong>
+                        <div>Name: {deleteItem.name}</div>
+                        <div>Applies To: {deleteItem.appliesTo}</div>
+                        <div>Type: {deleteItem.type}</div>
                     </CModalBody>
                     <CModalFooter>
                         <CButton
                             color="danger"
-                            onClick={() => { handleDelete(deleteIndex) }}
+                            onClick={() => { handleDelete(deleteItem) }}
                         >Confirm</CButton>
                         <CButton
                             color="secondary"
@@ -345,7 +346,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => {handleDelete(item)}}
+                                                            onClick={() => {toggleDelete(item)}}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>

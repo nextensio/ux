@@ -118,9 +118,6 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
             .then(response => response.json())
             .then(data => updateUserData(data));
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
-            .then(response => response.json())
-            .then(data => updateUserAttrData(data))
     }
 
     // Passing uidData to handleAdd for validation
@@ -238,7 +235,7 @@ const UsersView = (props) => {
                                                                                 {item[key] != null ?
                                                                                 <div>
                                                                                     {Array.isArray(item[key]) 
-                                                                                    ? <div>{item[key].join(' &')}</div>
+                                                                                    ? <div>{item[key].join(' & ')}</div>
                                                                                     : <div>{item[key]}</div>
                                                                                     }
                                                                                 </div>

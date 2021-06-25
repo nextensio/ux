@@ -25,6 +25,13 @@ var common = require('../../common')
 
 const fields = [
     {
+        key: 'show_details',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: "pid",
         label: "Policy ID",
         _classes: "data-head"
@@ -36,13 +43,6 @@ const fields = [
     {
         key: "minver",
         _classes: "data-field"
-    },
-    {
-        key: 'show_details',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
     },
     {
         key: 'edit',
@@ -168,6 +168,7 @@ const PolicyView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Policies</strong>
+                            <div className="text-muted small">Click on a row to see policy code.</div>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -178,7 +179,17 @@ const PolicyView = (props) => {
                                 noItemsView={{ noItems: 'No policies exist ' }}
                                 sorter
                                 pagination
+                                clickableRows
+                                onRowClick={(item, index) => {toggleDetails(index)}}
                                 scopedSlots={{
+                                    'show_details':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto">
+                                                    {details.includes(index) ? hidingIcon : showingIcon}
+                                                </td>
+                                            )
+                                        },
                                     'edit':
                                         (item, index) => {
                                             return (
@@ -210,27 +221,6 @@ const PolicyView = (props) => {
                                                             onClick={() => { toggleDelete(index) }}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                        </CButton>
-                                                    </CTooltip>
-                                                </td>
-                                            )
-                                        },
-                                    'show_details':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CTooltip
-                                                        content={details.includes(index) ? 'Hide' : 'Details'}
-                                                        placement='top'
-                                                    >
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='primary'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => { toggleDetails(index) }}
-                                                        >
-                                                            {details.includes(index) ? hidingIcon : showingIcon}
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>

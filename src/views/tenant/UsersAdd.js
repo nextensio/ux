@@ -31,6 +31,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 var common = require('../../common')
 
 const UsersAdd = (props) => {
+    // Change maxCharLength to whatever you want for maximum length of input fields.
+    const maxCharLength = 20
     const initUserData = Object.freeze({
         uid: "",
         name: ""
@@ -76,7 +78,11 @@ const UsersAdd = (props) => {
                 updateAttrData(dataObjs);
             });
     }, []);
-   
+    
+    const toAttributeEditor = (e) => {
+        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+    }
+
     const handleUserChange = (e) => {
         updateUserData({
             ...userData,
@@ -88,16 +94,14 @@ const UsersAdd = (props) => {
         let input 
         // length check to ensure bad guy does not send a massive string to DB
         let targetLen = e.target.value.length
-        // Change maxLength to whatever you want for maximum length of input fields.
-        const maxLength = 10
         // if maxLength is reached trigger error Obj and message.
-        if (targetLen === maxLength) {
+        if (targetLen === maxCharLength) {
             updateErrObj({
                 ...errObj,
                 [e.target.name]: true
             })
         } 
-        if (targetLen < maxLength && errObj[e.target.name]) {
+        if (targetLen < maxCharLength && errObj[e.target.name]) {
             delete errObj[e.target.name]
         }
         // If input field is supplied with a comma, assume it is a multivalue type and 
@@ -116,16 +120,6 @@ const UsersAdd = (props) => {
                 [e.target.name]: input
             })
         }
-       
-    }
-
-    const handleAttrDateChange = (e) => {
-        let input
-        input = e.target.value.split('-')
-        updateUserAttrData({
-            ...userAttrData,
-            [e.target.name]: [input]
-        })
     }
 
     function validate() {
@@ -251,19 +245,24 @@ const UsersAdd = (props) => {
                                 </CFormGroup>
                             </CForm>
                             <div className="title py-3">Attributes</div>
+                            {attrData.length === 0 &&
+                                <div><FontAwesomeIcon icon="info-circle" className="text-info"/>{' '}
+                                You have no attributes for AppGroups. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                                </div>
+                            }
                             {attrData.map(attr => {
                                 return (
                                     <CForm>
                                         {attr.type == "String" && 
                                             <CFormGroup>
                                                 <CPopover 
-                                                        title="Popover title"
-                                                        content="If attribute is expected to have multiple values, use commas to delimit."
+                                                    title="Popover title"
+                                                    content="If attribute is expected to have multiple values, use commas to delimit."
                                                 >
                                                     <FontAwesomeIcon icon="info-circle"/>
                                                 </CPopover>
                                                 {' '}<CLabel>{attr.name}</CLabel>
-                                                <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength="10" invalid={errObj[attr.name]}/>
+                                                <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name]}/>
                                                 {errObj[attr.name] ?
                                                     <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
                                                     <CFormText>Enter attribute value(s).</CFormText> 
@@ -291,7 +290,7 @@ const UsersAdd = (props) => {
                                             <CFormGroup>
                                                 <CLabel>{attr.name}</CLabel>
                                                 <CInputGroup>
-                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrDateChange} />
+                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
                                                 </CInputGroup>
                                             </CFormGroup>
                                         }

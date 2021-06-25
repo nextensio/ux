@@ -47,16 +47,6 @@ const TheHeader = (props) => {
             />
 
             <CHeaderNav className='ml-auto px-3'>
-                <CHeaderNavItem className="px-3">
-                    <CHeaderNavItem onClick={() => console.log(props.match.params.id)}>
-                        PROPS.MATCH.PARAMS.ID
-                    </CHeaderNavItem>
-                </CHeaderNavItem>
-                <CHeaderNavItem className="px-3">
-                    <CHeaderNavItem onClick={() => console.log(props)}>
-                        PROPS
-                    </CHeaderNavItem>
-                </CHeaderNavItem>
                 <CHeaderNavItem className="px-3" >
                     <CHeaderNavLink onClick={toFeedback}>
                         <CIcon size="lg" name="cil-speech"/>
