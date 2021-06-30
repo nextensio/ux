@@ -122,6 +122,17 @@ const AttributeEditor = (props) => {
     // function used to update errObj
     function validate() {
         var errors = {}
+        // We have some reserved keywords for uid and bid, hosts dont have the
+        // the issue because every user added attribute in hosts is sent under field
+        // name "routeattrs" - wish we had done the same for user and bundle
+        if (attributeData.name == "uid" && attributeData.appliesTo == "Users") {
+            alert("uid is a reserved keyword, please choose another name");
+            errors.typeErr = true
+        }
+        if (attributeData.name == "bid" && attributeData.appliesTo == "Bundles") {
+            alert("bid is a reserved keyword, please choose another name");
+            errors.typeErr = true
+        }
         // If the tenant does not select an appliesTo value errObj will have appliesToErr
         if (attributeData.appliesTo == "") {
             errors.appliesToErr = true
