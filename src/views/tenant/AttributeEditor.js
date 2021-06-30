@@ -219,6 +219,8 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
+                            <CButton onClick={e => console.log(Object.keys(errObj).length)}>ERR</CButton>
+                            <CButton onClick={e => console.log(attributeData)}>ATTR</CButton>
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>

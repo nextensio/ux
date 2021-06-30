@@ -290,7 +290,7 @@ const UsersAdd = (props) => {
                                             <CFormGroup>
                                                 <CLabel>{attr.name}</CLabel>
                                                 <CInputGroup>
-                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
+                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrDateChange} />
                                                 </CInputGroup>
                                             </CFormGroup>
                                         }
