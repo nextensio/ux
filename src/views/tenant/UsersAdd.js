@@ -90,6 +90,9 @@ const UsersAdd = (props) => {
         });
     };
 
+    const handleAttrDateChange = (e) => {
+    }
+
     const handleAttrChange = (e) => {
         let input 
         // length check to ensure bad guy does not send a massive string to DB
