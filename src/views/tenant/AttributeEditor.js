@@ -122,11 +122,7 @@ const AttributeEditor = (props) => {
     // function used to update errObj
     function validate() {
         var errors = {}
-        // We have some reserved keywords for uid and bid, wish we had designed our
-        // structures without having to resort to this ugliness of reserved keywords,
-        // now its a lil complicated to go and change all the places, well its not
-        // really complicated, the fact is at this point of writing this comment, 
-        // no one has the time to deal with this
+        // We have some reserved keywords for uid and bid and tag
         if (attributeData.name == "uid" && attributeData.appliesTo == "Users") {
             alert("uid is a reserved keyword, please choose another name");
             errors.typeErr = true
