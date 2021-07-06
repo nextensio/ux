@@ -20,11 +20,9 @@ function create_ui {
     $kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
     $kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/metallb.yaml
     $kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
-    # hostpath-provisioner for mongodb pods to get persistent storage from kubernetes host disk
+    # Mongo needs some storage, just use local storage
     $kubectl delete storageclass standard
-    $helm repo add rimusz https://charts.rimusz.net
-    $helm repo update
-    $helm upgrade --install hostpath-provisioner --namespace kube-system rimusz/hostpath-provisioner
+    $kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 }
 
 function bootstrap_ui {
