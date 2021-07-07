@@ -2,7 +2,6 @@
 
 tmpdir=/tmp/nextensio-ux
 kubectl=$tmpdir/kubectl
-helm=$tmpdir/linux-amd64/helm
 export PATH=$PATH:~/go/bin
 
 function create_ui {
@@ -41,12 +40,8 @@ function bootstrap_ui {
 kind delete cluster --name ui
 mkdir $tmpdir
 # Download kubectl
-curl -fsL https://storage.googleapis.com/kubernetes-release/release/v1.18.5/bin/linux/amd64/kubectl -o $tmpdir/kubectl
+curl -fsL https://storage.googleapis.com/kubernetes-release/release/v1.21.2/bin/linux/amd64/kubectl -o $tmpdir/kubectl
 chmod +x $tmpdir/kubectl
-curl -fsL https://get.helm.sh/helm-v3.4.0-linux-amd64.tar.gz -o $tmpdir/helm.tgz
-tar -zxvf $tmpdir/helm.tgz -C $tmpdir/
-chmod +x $tmpdir/linux-amd64/helm
-rm $tmpdir/helm.tgz
 
 create_ui
 bootstrap_ui $ctrl_ip
