@@ -64,6 +64,12 @@
     margin-left: 1rem;
     margin-top: 0
 }
+.invalid-form-text-attr-field {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: small;
+    color: $danger;
+    margin-top: 0
+}
 .nav-tabs .nav-link {
     color: $dark;
 }
