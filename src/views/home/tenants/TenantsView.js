@@ -64,6 +64,7 @@ const TenantsView = (props) => {
     const [tenantsData, updateTenantData] = useState(initTableData);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
+    const [dummyRedir, setDummyRedir] = useState(false);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -97,7 +98,8 @@ const TenantsView = (props) => {
     }
 
     const handleDetails = (item) => {
-        props.history.push('/tenant/' + item._id + '/')
+        window.location.href = '/tenant/' + item._id + '/';
+        setDummyRedir(true);
     }
 
     const handleDelete = (index) => {
@@ -126,7 +128,6 @@ const TenantsView = (props) => {
         setDeleteModal(!deleteModal);
         setDeleteIndex(index)
     }
-
 
     return (
         <>

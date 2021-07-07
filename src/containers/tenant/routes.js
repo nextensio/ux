@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Home = React.lazy(() => import('../../views/tenant/Home'));
+const Home = React.lazy(() => import('../../views/tenant/home/Home'));
 const ClusterConfig = React.lazy(() => import('../../views/tenant/ClusterConfig'));
 const UsersView = React.lazy(() => import('../../views/tenant/UsersView'));
 const UsersAdd = React.lazy(() => import('../../views/tenant/UsersAdd'));

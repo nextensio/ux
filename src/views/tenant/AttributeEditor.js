@@ -47,6 +47,10 @@ const fields = [
         key: "type",
         _classes: "data-field"
     },
+    {   
+        key: "isArray",
+        _classes: "data-field"
+    },
     {
         key: "edit",
         label: '',
@@ -68,7 +72,7 @@ const AttributeEditor = (props) => {
         []
     );
     const [inuseAttr, updateInuseAttr] = useState(initAttrData);
-    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String'})
+    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String', isArray: ''})
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState(0);
@@ -110,12 +114,9 @@ const AttributeEditor = (props) => {
         });
     }
 
-    function resetErrs() {
-        updateErrObj({})
-    }
-
     const reset = (e) => {
-        updateAttributeData({ name: '', appliesTo: '', type: 'String'});
+        updateErrObj({})
+        updateAttributeData({ name: '', appliesTo: '', type: 'String', isArray: ''});
         setResetWarning(false);
     }
     
@@ -143,6 +144,9 @@ const AttributeEditor = (props) => {
         if (attributeData.name.trim() == "") {
             errors.typeErr = true
         }
+        if (attributeData.isArray == "") {
+            errors.isArrayErr = true
+        }
         updateErrObj(errors)
         return errors
     }
@@ -164,7 +168,7 @@ const AttributeEditor = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type,
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
@@ -232,8 +236,7 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <CButton onClick={e => console.log(Object.keys(errObj).length)}>ERR</CButton>
-                            <CButton onClick={e => console.log(attributeData)}>ATTR</CButton>
+                            <CButton onClick={() => console.log(attributeData)}>LOG</CButton>
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
@@ -271,12 +274,31 @@ const AttributeEditor = (props) => {
                                             <CDropdownMenu>
                                                 <CDropdownItem onClick={(e) => handleType(e, "String")}>String</CDropdownItem>
                                                 <CDropdownItem onClick={(e) => handleType(e, "Boolean")}>Boolean</CDropdownItem>
+                                                <CDropdownItem onClick={(e) => handleType(e, "Number")}>Number</CDropdownItem>
                                                 <CDropdownItem onClick={(e) => handleType(e, "Date")}>Date</CDropdownItem>
                                             </CDropdownMenu>
                                         </CDropdown>
                                         {' '}
                                         <CInvalidFeedback>Please enter an attribute name and select a type.</CInvalidFeedback>
                                     </CInputGroup>
+                                </CFormGroup>
+                                <CFormGroup row>
+                                    <CCol md="4">
+                                        <CLabel>Array</CLabel>
+                                    </CCol>
+                                    <CCol md="8">
+                                        <div>
+                                            <CFormGroup variant="custom-radio" inline>
+                                                <CInputRadio custom id="inline-radio4" name="isArray" value={true} checked={attributeData.isArray == "true"} onChange={handleChange} />
+                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio4">True</CLabel>
+                                            </CFormGroup>
+                                            <CFormGroup variant="custom-radio" inline>
+                                                <CInputRadio custom id="inline-radio5" name="isArray" value={false} checked={attributeData.isArray == "false"} onChange={handleChange} />
+                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio5">False</CLabel>
+                                            </CFormGroup>
+                                        </div>
+                                    </CCol>
+                                    {errObj.isArrayErr == true ? <div className="invalid-form-text">Please select whether or not this attribute will take multiple values.</div> : <></>}
                                 </CFormGroup>
                             </CForm>
                         </CCardBody>
@@ -333,6 +355,8 @@ const AttributeEditor = (props) => {
                             <CDataTable
                                 fields={fields}
                                 items={inuseAttr}
+                                pagination
+                                sorter
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {

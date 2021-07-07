@@ -5,13 +5,15 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CCardFooter,
     CCol,
+    CEmbed,
     CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react';
 import { withRouter } from 'react-router-dom';
-import './tenantviews.scss'
+import '../tenantviews.scss'
+import Map from './mapbox/Mapbox'
+
 
 const Home = (props) => {
     const toClusterConfig = (e) => {
@@ -22,6 +24,20 @@ const Home = (props) => {
             <CCallout color="primary">
                 <h4 className="title">Home</h4>
             </CCallout>
+            <CRow>
+                <CCol sm="12">
+                    <CCard>
+                        <CCardHeader className="bg-gradient-primary">
+                            Gateways Heatmap
+                        </CCardHeader>
+                        <CCardBody className="parent-container">
+                            <CEmbed>
+                                <Map className="fit-snug" />
+                            </CEmbed>
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+            </CRow>
             <CRow>
                 <CCol lg="6">
                     <CCard className="border-rounded shadow">
