@@ -119,6 +119,7 @@ const UsersAdd = (props) => {
     const handleMultiStringAttrChange = (e) => {
         let input
         handleLengthCheck(e)
+        // Check if input contains comma, if so separate the values
         if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => item.trim());
         } else {
@@ -146,15 +147,22 @@ const UsersAdd = (props) => {
         if (e.target.value.trim() === "") {
             input = 0
         }
+        // Check if input contains comma, if so separate the values
         else if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => {
                 if (intRegex.test(item.trim())) {
                     return parseInt(item.trim())
+                } else {
+                    // ERR! will be a keyword string used in the validation function
+                    return "ERR!"
                 }
             })
         } else {
             if (intRegex.test(e.target.value.trim())) {
                 input = parseInt(e.target.value.trim())
+            } else {
+                // ERR! will be a keyword string used in the validation function
+                input = "ERR!"
             }
         }
         updateUserAttrData({
@@ -180,12 +188,16 @@ const UsersAdd = (props) => {
         let input
         if (e.target.value.trim() === "") {
             input = false
+            // Check if input contains comma, if so separate the values
         } else if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => {
                 if (item.trim().toLowerCase() === "true") {
                     return true
                 } else if (item.trim().toLowerCase() === "false") {
                     return false
+                } else {
+                    // ERR! will be a keyword string used in the validation function
+                    return "ERR!"
                 }
             })
         } else {
@@ -193,6 +205,9 @@ const UsersAdd = (props) => {
                 input = true
             } else if (e.target.value.trim().toLowerCase() === "false") {
                 input = false
+            } else {
+                // ERR! will be a keyword string used in the validation function
+                input = "ERR!"
             }
         }
         updateUserAttrData({
@@ -212,19 +227,26 @@ const UsersAdd = (props) => {
     }
     const handleMultiDateAttrChange = (e) => {
         let input
+        // Regex for YYYY-MM-DD format
         const dateRe = /^\d{4}-\d{2}-\d{2}$/;
         if (e.target.value.trim() === "") {
             input = ""
+        // Check if input contains comma, if so separate the values
         } else if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => {
                 // convert to Epoch GMT
                 if (dateRe.test(item.trim())) {
                     return new Date(item.trim()).getTime() / 1000
+                } else {
+                    // ERR! will be a keyword string used in the validation function
+                    return "ERR!"
                 }
             })
         } else {
             if (dateRe.test(e.target.value.trim())) {
                 input = new Date(e.target.value.trim()).getTime() / 1000
+            } else {
+                input = "ERR!"
             }
         }
         updateUserAttrData({
@@ -232,32 +254,40 @@ const UsersAdd = (props) => {
             [e.target.name]: [input]
         })
     }
-    // function updateLater() {
-    //     if (data[i].isArray == "true") {
-    //         if (data[i].type == "String" || data[i].type == "Date") {
-    //             attrState[data[i].name] = [""]
-    //         } 
-    //         if (data[i].type == "Number") {
-    //             attrState[data[i].name] = [0]
-    //         }
-    //         if (data[i].type == "Boolean") {
-    //             attrState[data[i].name] = [false]
-    //         }
-    //     }
-    //     if (data[i].isArray == "false") {
-    //         if (data[i].type == "String" || data[i].type == "Date") {
-    //             attrState[data[i].name] = ""
-    //         } 
-    //         if (data[i].type == "Number") {
-    //             attrState[data[i].name] = 0
-    //         }
-    //         if (data[i].type == "Boolean") {
-    //             attrState[data[i].name] = false
-    //         }
-    //     }
-    // }
 
-    function validate() {
+    function fillEmptyInputs() {
+        let attrState = {...userAttrData}
+        attrData.forEach((item) => { 
+            if (!(item.name in attrState)) { 
+                if (item.isArray == "true") {
+                    if (item.type == "String" || item.type == "Date") {
+                        attrState[item.name] = [""]
+                    } 
+                    if (item.type == "Number") {
+                        attrState[item.name] = [0]
+                    }
+                    if (item.type == "Boolean") {
+                        attrState[item.name] = [false]
+                    }
+                }
+                if (item.isArray == "false") {
+                    if (item.type == "String" || item.type == "Date") {
+                        attrState[item.name] = ""
+                    } 
+                    if (item.type == "Number") {
+                        attrState[item.name] = 0
+                    }
+                    if (item.type == "Boolean") {
+                        attrState[item.name] = false
+                    }
+                }
+            }
+        })
+        updateUserAttrData(attrState)
+        return attrState
+    }
+
+    function validate(attrState) {
         let errs = {}
         const emailRe = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRe.test(String(userData.uid).toLowerCase())){
@@ -266,6 +296,11 @@ const UsersAdd = (props) => {
         if (!/\S/.test(userData.name)) {
             errs.name = true
         } 
+        attrData.forEach((item) => { 
+            if (item.isArray == "true" && JSON.stringify(attrState[item.name]).includes("ERR!")) {
+                errs[item.name] = true
+            }
+        })
         
         updateErrObj(errs)
         return errs
@@ -273,7 +308,8 @@ const UsersAdd = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        let errs = validate()
+        let attrState = fillEmptyInputs()
+        let errs = validate(attrState)
         if (Object.keys(errs).length != 0) {
             return
         }
@@ -352,6 +388,7 @@ const UsersAdd = (props) => {
                     <CButton onClick={() => {console.log(userAttrData)}}>userAttrData</CButton>
                     <CButton onClick={() => {console.log(errObj)}}>ERR</CButton>
                     <CButton onClick={() => console.log(attrData)}>attrData</CButton>
+                    <CButton onClick={fillEmptyInputs}>Function</CButton>
                 </CCardHeader>
                 <CCardBody className="roboto-font">
                     <CRow>
@@ -437,9 +474,9 @@ const UsersAdd = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiNumberAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Type"]}/>
-                                                        {errObj[attr.name + "Type"] ?
-                                                            <CInvalidFeedback>This attribute is designated for integers.</CInvalidFeedback> :
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]}/>
+                                                        {errObj[attr.name] ?
+                                                            <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
                                                         }
                                                     </CFormGroup>
@@ -469,9 +506,9 @@ const UsersAdd = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name + "Type"]}/>
-                                                        {errObj[attr.name + "Type"] ?
-                                                            <CInvalidFeedback>This attribute is designated for booleans.</CInvalidFeedback> :
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]}/>
+                                                        {errObj[attr.name] ?
+                                                            <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
                                                         }
                                                     </CFormGroup>
@@ -498,9 +535,9 @@ const UsersAdd = (props) => {
                                                         <FontAwesomeIcon icon="info-circle"/>
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name + "Type"]}/>
-                                                    {errObj[attr.name + "Type"] ?
-                                                        <CInvalidFeedback>This attribute is designated for dates. Please enter your format as YYYY-MM-DD.</CInvalidFeedback> :
+                                                    <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]}/>
+                                                    {errObj[attr.name] ?
+                                                        <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
                                                         <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
                                                     }
                                                 </CFormGroup>
