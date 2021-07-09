@@ -22,6 +22,7 @@ import {
     CCardHeader,
     CFormGroup,
     CCardFooter,
+    CSelect,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -89,37 +90,203 @@ const BundlesAdd = (props) => {
         });
     };
 
-    const handleAttrChange = (e) => {
-        let input
+    const handleLengthCheck = (e) => {
         let targetLen = e.target.value.length
+        let attrName = e.target.name
         // if maxLength is reached trigger error Obj and message.
         if (targetLen === maxCharLength) {
             updateErrObj({
                 ...errObj,
-                [e.target.name]: true
+                [attrName + "Length"]: true
             })
         } 
-        if (targetLen < maxCharLength && errObj[e.target.name]) {
-            delete errObj[e.target.name]
+        if (targetLen < maxCharLength && errObj[attrName + "Length"]) {
+            delete errObj[attrName + "Length"]
         }
+    }
+
+    const handleAttrChange = (e) => {
+        let input 
+        handleLengthCheck(e)
+        input = e.target.value.trim()
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: input
+        })
+    }
+
+    const handleMultiStringAttrChange = (e) => {
+        let input
+        handleLengthCheck(e)
         if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => item.trim());
-            updateBundleAttrData({
-                ...bundleAttrData,
-                [e.target.name]: [input]
-            });
+        } else {
+            input = e.target.value.trim()
         }
-        else {
-            input = e.target.value.trim().toString();
-            updateBundleAttrData({
-                ...bundleAttrData,
-                [e.target.name]: input
-            });
-        }
-        
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: [input]
+        })
     };
 
-    function validate() {
+    const handleSingleNumberAttrChange = (e) => {
+        let input = parseInt(e.target.value)
+        handleLengthCheck(e)
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: input
+        })
+    }
+
+    const handleMultiNumberAttrChange = (e) => {
+        let input
+        var intRegex = /^[-+]?\d+$/
+        const attrName = e.target.name
+        if (e.target.value.trim() === "") {
+            input = 0
+        }
+        // Check if input contains comma, if so separate the values
+        else if (e.target.value.indexOf(',') > -1) {
+            input = e.target.value.split(',').map(item => {
+                if (intRegex.test(item.trim())) {
+                    return parseInt(item.trim())
+                } else {
+                    // ERR! will be a keyword string used in the validation function
+                    return "ERR!"
+                }
+            })
+        } else {
+            if (intRegex.test(e.target.value.trim())) {
+                input = parseInt(e.target.value.trim())
+            } else {
+                // ERR! will be a keyword string used in the validation function
+                input = "ERR!"
+            }
+        }
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [attrName]: [input]
+        })
+    }
+
+    const handleSingleBoolAttrChange = (e) => {
+        let input
+        if (e.target.value === "true") {
+            input = true
+        } else if (e.target.value === "false") {
+            input = false
+        }
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: input
+        })
+    }
+
+    
+    const handleMultiBoolAttrChange = (e) => {
+        let input
+        if (e.target.value.trim() === "") {
+            input = false
+            // Check if input contains comma, if so separate the values
+        } else if (e.target.value.indexOf(',') > -1) {
+            input = e.target.value.split(',').map(item => {
+                if (item.trim().toLowerCase() === "true") {
+                    return true
+                } else if (item.trim().toLowerCase() === "false") {
+                    return false
+                } else {
+                    // ERR! will be a keyword string used in the validation function
+                    return "ERR!"
+                }
+            })
+        } else {
+            if (e.target.value.trim().toLowerCase() === "true") {
+                input = true
+            } else if (e.target.value.trim().toLowerCase() === "false") {
+                input = false
+            } else {
+                // ERR! will be a keyword string used in the validation function
+                input = "ERR!"
+            }
+        }
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: [input]
+        })
+    }
+
+    const handleSingleDateAttrChange = (e) => {
+        let input 
+        // convert to Epoch GMT
+        input = new Date(e.target.value).getTime() / 1000
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: input
+        })
+    }
+    const handleMultiDateAttrChange = (e) => {
+        let input
+        // Regex for YYYY-MM-DD format
+        const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+        if (e.target.value.trim() === "") {
+            input = ""
+        // Check if input contains comma, if so separate the values
+        } else if (e.target.value.indexOf(',') > -1) {
+            input = e.target.value.split(',').map(item => {
+                // convert to Epoch GMT
+                if (dateRe.test(item.trim())) {
+                    return new Date(item.trim()).getTime() / 1000
+                } else {
+                    // ERR! will be a keyword string used in the validation function
+                    return "ERR!"
+                }
+            })
+        } else {
+            if (dateRe.test(e.target.value.trim())) {
+                input = new Date(e.target.value.trim()).getTime() / 1000
+            } else {
+                input = "ERR!"
+            }
+        }
+        updateBundleAttrData({
+            ...bundleAttrData,
+            [e.target.name]: [input]
+        })
+    }
+
+    function fillEmptyInputs() {
+        let attrState = {...bundleAttrData}
+        attrData.forEach((item) => { 
+            if (!(item.name in attrState)) { 
+                if (item.isArray == "true") {
+                    if (item.type == "String" || item.type == "Date") {
+                        attrState[item.name] = [""]
+                    } 
+                    if (item.type == "Number") {
+                        attrState[item.name] = [0]
+                    }
+                    if (item.type == "Boolean") {
+                        attrState[item.name] = [false]
+                    }
+                }
+                if (item.isArray == "false") {
+                    if (item.type == "String" || item.type == "Date") {
+                        attrState[item.name] = ""
+                    } 
+                    if (item.type == "Number") {
+                        attrState[item.name] = 0
+                    }
+                    if (item.type == "Boolean") {
+                        attrState[item.name] = false
+                    }
+                }
+            }
+        })
+        updateBundleAttrData(attrState)
+        return attrState
+    }
+
+    function validate(attrState) {
         let errs = {}
         const emailRe = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const podRe = /^[-+]?\d+$/
@@ -135,6 +302,11 @@ const BundlesAdd = (props) => {
         if (!/\S/.test(bundleData.services)) {
             errs.services = true
         }
+        attrData.forEach((item) => { 
+            if (item.isArray == "true" && JSON.stringify(attrState[item.name]).includes("ERR!")) {
+                errs[item.name] = true
+            }
+        })
         updateErrObj(errs)
         return errs
     }
@@ -143,7 +315,8 @@ const BundlesAdd = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        let errs = validate()
+        let attrState = fillEmptyInputs()
+        let errs = validate(attrState)
         if (Object.keys(errs).length !== 0) {
             return
         }
@@ -233,7 +406,7 @@ const BundlesAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add AppGroup</strong>
-                    <CButton onClick={() => console.log(attrData)}>ERR</CButton>
+                    <CButton onClick={() => console.log(bundleAttrData)}>ERR</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CRow>
@@ -298,46 +471,127 @@ const BundlesAdd = (props) => {
                                 return (
                                     <CForm>
                                         {attr.type == "String" &&
-                                            <CFormGroup>
-                                                <CPopover 
-                                                    title="Popover title"
-                                                    content="If attribute is expected to have multiple values, use commas to delimit."
-                                                >
-                                                    <FontAwesomeIcon icon="info-circle"/>
-                                                </CPopover>
-                                                {' '}<CLabel htmlFor="nf-password">{attr.name}</CLabel>
-
-                                                <CInput name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name]}/>
-                                                {errObj[attr.name] ?
-                                                    <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                    <CFormText>Enter attribute value(s).</CFormText> 
+                                            <>
+                                                {attr.isArray == "true" ?
+                                                    <CFormGroup>
+                                                        <CPopover 
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as string type and accepts multiple values."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle"/>
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
+                                                        {errObj[attr.name + "Length"] ?
+                                                            <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        }
+                                                    </CFormGroup>
+                                                :
+                                                    <CFormGroup>
+                                                        <CPopover 
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as string type and accepts a single value."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle"/>
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
+                                                        {errObj[attr.name + "Length"] ?
+                                                            <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute value.</CFormText> 
+                                                        }
+                                                    </CFormGroup>
                                                 }
-                                            </CFormGroup>
+                                            </>
+                                        }
+                                        {attr.type == "Number" && 
+                                            <>
+                                                {attr.isArray == "true" ?
+                                                    <CFormGroup>
+                                                        <CPopover 
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as number type and accepts multiple values."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle"/>
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]}/>
+                                                        {errObj[attr.name] ?
+                                                            <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        }
+                                                    </CFormGroup>
+                                                :
+                                                    <CFormGroup>
+                                                        <CPopover 
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as number type and accepts a single value."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle"/>
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="number" name={attr.name} placeholder={attr.name} onChange={handleSingleNumberAttrChange}/>
+                                                        <CFormText>Enter attribute value.</CFormText> 
+                                                    </CFormGroup>
+                                                }
+                                            </>
                                         }
                                         {attr.type == "Boolean" &&
                                             <>
-                                                <div>
-                                                    <CLabel>{attr.name}</CLabel>
-                                                </div>
-                                                <div className="mb-3">
-                                                    <CFormGroup variant="custom-radio" inline>
-                                                        <CInputRadio custom id="inline-radio1" name={attr.name} value={true} onChange={handleAttrChange} />
-                                                        <CLabel variant="custom-checkbox" htmlFor="inline-radio1">True</CLabel>
+                                                {attr.isArray == "true" ?
+                                                    <CFormGroup>
+                                                        <CPopover 
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as boolean type and accepts multiple values."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle"/>
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]}/>
+                                                        {errObj[attr.name] ?
+                                                            <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        }
                                                     </CFormGroup>
-                                                    <CFormGroup variant="custom-radio" inline>
-                                                        <CInputRadio custom id="inline-radio2" name={attr.name} value={false} onChange={handleAttrChange} />
-                                                        <CLabel variant="custom-checkbox" htmlFor="inline-radio2">False</CLabel>
+                                                :
+                                                    <CFormGroup>
+                                                        <CLabel>{attr.name}</CLabel>
+                                                        <CSelect name={attr.name} custom onChange={handleSingleBoolAttrChange}>
+                                                            <option value={undefined}>Please select a boolean</option>
+                                                            <option value={true}>True</option>
+                                                            <option value={false}>False</option>
+                                                        </CSelect>
                                                     </CFormGroup>
-                                                </div>
+                                                }
                                             </>
                                         }
                                         {attr.type == "Date" &&
-                                            <CFormGroup>
-                                                <CLabel>{attr.name}</CLabel>
-                                                <CInputGroup>
-                                                    <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} />
-                                                </CInputGroup>
-                                            </CFormGroup>
+                                            <>
+                                            {attr.isArray == "true" ?
+                                                <CFormGroup>
+                                                    <CPopover 
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as date type and accepts multiple values."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]}/>
+                                                    {errObj[attr.name] ?
+                                                        <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                    }
+                                                </CFormGroup>
+                                            :
+                                                <CFormGroup>
+                                                    <CLabel>{attr.name}</CLabel>
+                                                    <CInputGroup>
+                                                        <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleSingleDateAttrChange} />
+                                                    </CInputGroup>
+                                                </CFormGroup>
+                                            }
+                                            </>
                                         }
                                     </CForm>
                                 )

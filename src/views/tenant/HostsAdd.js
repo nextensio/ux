@@ -221,7 +221,7 @@ const HostEdit = (props) => {
                                 </CInputGroupPrepend>
                                 <CInput
                                     type="text"
-                                    placeholder="User Attribute"
+                                    placeholder="Host Attribute"
                                     value={searchInput}
                                     onChange={handleSearchChange}
                                 />
