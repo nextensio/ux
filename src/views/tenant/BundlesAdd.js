@@ -325,7 +325,7 @@ const BundlesAdd = (props) => {
             setOverwriteBid(bundleData.bid)
             return
         }
-        var cpodrepl = parseInt(bundleData.cpodrepl, 10)
+        var cpodrepl = parseInt(bundleData.cpodrepl)
         var services = bundleData.services
         if (bundleData.services) {
             if (!Array.isArray(bundleData.services)) {
@@ -368,45 +368,41 @@ const BundlesAdd = (props) => {
 
     // user attribute http post function
     const handleAttrSubmit = (e) => {
-        if (Object.keys(bundleAttrData).length > 1) {
-            e.preventDefault()
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: bearer },
-                body: JSON.stringify(bundleAttrData),
-            };
-            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) {
-                        // get error message from body or default to response status
-                        alert(error);
-                        const error = (data && data.message) || response.status;
-                        return Promise.reject(error);
-                    }
-                    // check for error response
-                    if (data["Result"] != "ok") {
-                        alert(data["Result"])
-                    }
-                    else {
-                        props.history.push('/tenant/' + props.match.params.id + '/bundles')
-                    }
-                })
-                .catch(error => {
-                    alert('Error contacting server', error);
-                })
-        } else {
-            props.history.push('/tenant/' + props.match.params.id + '/bundles')
-        }
-
-    };
+        e.preventDefault()
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify(bundleAttrData),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+                else {
+                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            })
+    }
 
     return (
         <>
             <CCard>
                 <CCardHeader>
                     <strong>Add AppGroup</strong>
-                    <CButton onClick={() => console.log(bundleAttrData)}>ERR</CButton>
+                    <CButton onClick={() => console.log(bundleAttrData)}>bundleAttrData</CButton>
+                    <CButton onClick={() => console.log(attrData)}>attrData</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CRow>

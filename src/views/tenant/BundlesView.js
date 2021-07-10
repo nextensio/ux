@@ -212,8 +212,7 @@ const BundlesView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
-                            <CButton onClick={() => console.log(bundleData)}>LOG</CButton>
-                            <CButton onClick={() => console.log(bundleAttrData)}>LOG</CButton>
+                            <CButton onClick={() => console.log(zippedData)}>LOG</CButton>
 
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
@@ -242,49 +241,47 @@ const BundlesView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        {Object.keys(item).length - 4 > 0 ?
-                                                            <table className="my-1 table table-outline d-sm-table">
-                                                                <tr>
-                                                                    <th className="attributes header roboto-font">Attributes</th>
-                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                                </tr>
-                                                                {Object.keys(item).filter(key => {
-                                                                    if (["bid", "gateway", "name", "services", "cpodrepl"].includes(key)) {
-                                                                        return false
-                                                                    }
-                                                                    else {
-                                                                        return true
-                                                                    }
-                                                                }).map(key => {
-                                                                    return(
-                                                                        <tr>
-                                                                            <th className="attributes roboto-font">{key}</th>
-                                                                            <td className="roboto-font">
-                                                                                {item[key] != null 
-                                                                                ? 
-                                                                                    <div>
-                                                                                        {Array.isArray(item[key]) 
-                                                                                        ? item[key].join(' &')
-                                                                                        : item[key]
-                                                                                        }
+                                                        <table className="my-1 table table-outline d-sm-table">
+                                                            <tr>
+                                                                <th className="attributes header roboto-font">Attributes</th>
+                                                                <td className="attributes header roboto-font"><strong>Values</strong></td>
+                                                            </tr>
+                                                            {Object.keys(item).filter(key => {
+                                                                if (["bid", "name", "cpodrepl", "services"].includes(key)) {
+                                                                    return false
+                                                                }
+                                                                else {
+                                                                    return true
+                                                                }
+                                                            }).map(key => {
+                                                                return(
+                                                                    <tr>
+                                                                        <th className="attributes roboto-font">{key}</th>
+                                                                        <td className="roboto-font">
+                                                                            <>
+                                                                                {/**Check if attribute value equals false, 0, "",
+                                                                                 * [false], 0, [""] which we have defined as default values.
+                                                                                 */}
+                                                                                {[false, 0, "",].indexOf(item[key]) > -1 || 
+                                                                                (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
+                                                                                    <div className="text-warning">
+                                                                                        Default value assigned
                                                                                     </div>
                                                                                 :
-                                                                                    <div className="text-warning">
-                                                                                        No value assigned
+                                                                                    <div>
+                                                                                        {Array.isArray(item[key]) 
+                                                                                        ? <div>{item[key].join(' & ')}</div>
+                                                                                        : <div>{item[key].toString()}</div>
+                                                                                        }
                                                                                     </div>
                                                                                 }
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                })}
-                                                            </table>
-                                                        :
-                                                            <div>
-                                                                <FontAwesomeIcon icon="info-circle" className="text-info"/>
-                                                                 {' '}No attributes assigned to user. <a className="text-primary" onClick={() => handleEdit(index)}>Click here</a> 
-                                                                 {' '}to assign attributes.
-                                                            </div>
-                                                        }
+                                                                            </>
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            })}
+                                                        </table>
+                                                       
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
