@@ -17,6 +17,8 @@ import {
     CInputGroup,
     CInputRadio,
     CLabel,
+    CListGroup,
+    CListGroupItem,
     CModal,
     CModalHeader,
     CModalBody,
@@ -24,6 +26,9 @@ import {
     CModalFooter,
     CRow,
     CInvalidFeedback,
+    CTabContent,
+    CTabs,
+    CTabPane,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -76,6 +81,7 @@ const AttributeEditor = (props) => {
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState(0);
+    const [activeTab, setActiveTab] = useState("Overview")
     const [overwriteModal, setOverwriteModal] = useState(false);
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
@@ -91,13 +97,13 @@ const AttributeEditor = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data); });
+            .then(data => { updateInuseAttr(data)});
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data); });
+            .then(data => { updateInuseAttr(data)});
     }
 
     const handleChange = (e) => {
@@ -236,7 +242,6 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <CButton onClick={() => console.log(attributeData)}>LOG</CButton>
                             <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
                         </CCardHeader>
                         <CCardBody>
@@ -319,6 +324,71 @@ const AttributeEditor = (props) => {
                             <CButton color="secondary" onClick={() => setResetWarning(false)}>Cancel</CButton>
                         </CModalFooter>
                     </CModal>
+                </CCol>
+                <CCol sm="12" lg="6">
+                    <CCard className="shadow rounded">
+                        <CCardHeader>
+                            Editor Information
+                        </CCardHeader>
+                        <CCardBody>
+                            <CRow>
+                                <CCol xs="4">
+                                    <CListGroup id="list-tab" role="tablist">
+                                        <CListGroupItem onClick={() => setActiveTab("Overview")} action active={activeTab === "Overview"} >Overview</CListGroupItem>
+                                        <CListGroupItem onClick={() => setActiveTab("Applies To")} action active={activeTab === "Applies To"} >Applies To</CListGroupItem>
+                                        <CListGroupItem onClick={() => setActiveTab("Type")} action active={activeTab === "Type"} >Type</CListGroupItem>
+                                        <CListGroupItem onClick={() => setActiveTab("Arrays")} action active={activeTab === "Arrays"} >Arrays</CListGroupItem>
+                                        <CListGroupItem onClick={() => setActiveTab("Examples")} action active={activeTab === "Examples"} >Examples</CListGroupItem>
+                                        <CListGroupItem onClick={() => setActiveTab("Policies")} action active={activeTab === "Policies"} >Policies</CListGroupItem>
+                                    </CListGroup>
+                                </CCol>
+                                <CCol xs="8">
+                                    <CTabContent>
+                                        <CTabPane active={activeTab === "Overview"} >
+                                            <p>Velit aute mollit ipsum ad dolor consectetur nulla officia culpa adipisicing exercitation fugiat tempor. Voluptate deserunt sit sunt
+                                            nisi aliqua fugiat proident ea ut. Mollit voluptate reprehenderit occaecat nisi ad non minim
+                                            tempor sunt voluptate consectetur exercitation id ut nulla. Ea et fugiat aliquip nostrud sunt incididunt consectetur culpa aliquip
+                                            eiusmod dolor. Anim ad Lorem aliqua in cupidatat nisi enim eu nostrud do aliquip veniam minim.</p>
+                                        </CTabPane>
+                                        <CTabPane active={activeTab === "Applies To"}>
+                                            <p>Cupidatat quis ad sint excepteur laborum in esse qui. Et excepteur consectetur ex nisi eu do cillum ad laborum. Mollit et eu officia
+                                            dolore sunt Lorem culpa qui commodo velit ex amet id ex. Officia anim incididunt laboris deserunt
+                                            anim aute dolor incididunt veniam aute dolore do exercitation. Dolor nisi culpa ex ad irure in elit eu dolore. Ad laboris ipsum
+                                            reprehenderit irure non commodo enim culpa commodo veniam incididunt veniam ad.</p>
+                                        </CTabPane>
+                                        <CTabPane active={activeTab === "Type"}>
+                                            <p>Ut ut do pariatur aliquip aliqua aliquip exercitation do nostrud commodo reprehenderit aute ipsum voluptate. Irure Lorem et laboris
+                                            nostrud amet cupidatat cupidatat anim do ut velit mollit consequat enim tempor. Consectetur
+                                            est minim nostrud nostrud consectetur irure labore voluptate irure. Ipsum id Lorem sit sint voluptate est pariatur eu ad cupidatat et
+                                            deserunt culpa sit eiusmod deserunt. Consectetur et fugiat anim do eiusmod aliquip nulla
+                                            laborum elit adipisicing pariatur cillum.</p>
+                                        </CTabPane>
+                                        <CTabPane active={activeTab === "Arrays"}>
+                                            <p>Irure enim occaecat labore sit qui aliquip reprehenderit amet velit. Deserunt ullamco ex elit nostrud ut dolore nisi officia magna
+                                            sit occaecat laboris sunt dolor. Nisi eu minim cillum occaecat aute est cupidatat aliqua labore
+                                            aute occaecat ea aliquip sunt amet. Aute mollit dolor ut exercitation irure commodo non amet consectetur quis amet culpa. Quis ullamco
+                                            nisi amet qui aute irure eu. Magna labore dolor quis ex labore id nostrud deserunt dolor
+                                            eiusmod eu pariatur culpa mollit in irure.</p>
+                                        </CTabPane>
+                                        <CTabPane active={activeTab === "Examples"}>
+                                            <p>Irure enim occaecat labore sit qui aliquip reprehenderit amet velit. Deserunt ullamco ex elit nostrud ut dolore nisi officia magna
+                                            sit occaecat laboris sunt dolor. Nisi eu minim cillum occaecat aute est cupidatat aliqua labore
+                                            aute occaecat ea aliquip sunt amet. Aute mollit dolor ut exercitation irure commodo non amet consectetur quis amet culpa. Quis ullamco
+                                            nisi amet qui aute irure eu. Magna labore dolor quis ex labore id nostrud deserunt dolor
+                                            eiusmod eu pariatur culpa mollit in irure.</p>
+                                        </CTabPane>
+                                        <CTabPane active={activeTab === "Policies"}>
+                                            <p>Irure enim occaecat labore sit qui aliquip reprehenderit amet velit. Deserunt ullamco ex elit nostrud ut dolore nisi officia magna
+                                            sit occaecat laboris sunt dolor. Nisi eu minim cillum occaecat aute est cupidatat aliqua labore
+                                            aute occaecat ea aliquip sunt amet. Aute mollit dolor ut exercitation irure commodo non amet consectetur quis amet culpa. Quis ullamco
+                                            nisi amet qui aute irure eu. Magna labore dolor quis ex labore id nostrud deserunt dolor
+                                            eiusmod eu pariatur culpa mollit in irure.</p>
+                                        </CTabPane>
+                                    </CTabContent>
+                                </CCol>
+                            </CRow>
+                        </CCardBody>
+                    </CCard>
                 </CCol>
 
                 {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}

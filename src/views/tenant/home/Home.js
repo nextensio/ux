@@ -19,12 +19,12 @@ const Home = (props) => {
     const toClusterConfig = (e) => {
         props.history.push('/tenant/' + props.match.params.id + '/clusterconfig')
     }
+    
     return(
         <>
             <CCallout color="primary">
                 <h4 className="title">Home</h4>
             </CCallout>
-            
             <CRow>
                 <CCol lg="6">
                     <CCard className="border-rounded shadow">
