@@ -51,19 +51,19 @@ const TheSidebar = (props) => {
             <CSidebarBrand className="d-md-down-none" to="/">
                 <div className="c-sidebar-brand-full sidebar-brand">
                     <CIcon name="cil-videogame" />{' '}
-                    Nextensio Controller
+                    Nextensio
                 </div>
                 <CIcon className="c-sidebar-brand-minimized" name="cil-videogame" size="2xl" />
             </CSidebarBrand>
 
             <CSidebarNav>
-                <CSidebarNavTitle>Home</CSidebarNavTitle>
                 <CCreateElement
                     items={navExact}
                     components={{
                         CSidebarNavDivider,
                         CSidebarNavDropdown,
                         CSidebarNavItem,
+                        CSidebarNavTitle
                     }}
                 />
             </CSidebarNav>
@@ -71,7 +71,7 @@ const TheSidebar = (props) => {
                 <CNavItem>
                     <CNavLink to={logoutURL}>
                         <CIcon name="cil-account-logout" /> Log Out
-          </CNavLink>
+                    </CNavLink>
                 </CNavItem>
             </CSidebarFooter>
             <CSidebarMinimizer className="c-d-md-down-none" />

@@ -2,6 +2,10 @@ import './tenant.scss'
 
 export default [
     {
+        _tag: 'CSidebarNavTitle',
+        _children: ['Home']
+    },
+    {
         _tag: 'CSidebarNavItem',
         name: 'Home',
         to: '/tenant/:id/home',
@@ -64,6 +68,30 @@ export default [
     {
         _tag: 'CSidebarNavDivider',
         className: 'm-2'
-    }
+    },
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['Additional']
+    },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'Docs',
+        to: '/tenant/:id/documentation',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-info',
+            size: 'lg'
+        },
+    },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'Feedback',
+        to: '/tenant/:id/feedback',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-speech',
+            size: 'lg'
+        },
+    },
 ]
 

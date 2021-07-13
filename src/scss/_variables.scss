@@ -24,13 +24,13 @@ $theme-colors: (
   "dark-light": $dark-light,
 );
 // Sidebar 
-$sidebar-width: 230px;
+$sidebar-width: 200px;
 $sidebar-theme-color: $primary;
 
 // Sidebar brand
 $sidebar-light-brand-bg: $white;   
 $sidebar-light-brand-color: $sidebar-theme-color;
-$sidebar-brand-height:  70px;
+$sidebar-brand-height:  50px;
 
 // Sidebar items
 $sidebar-light-nav-title-color: $black;
@@ -51,7 +51,7 @@ $sidebar-light-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
 $sidebar-light-footer-bg: transparent; 
 
 // Header height
-$header-height: 70px;
+$header-height: 50px;
 
 // Body
 $body-bg: $white;
