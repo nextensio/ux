@@ -11,8 +11,8 @@ import {
 mapboxgl.workerClass = MapboxWorker;
 mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dC0xMjMiLCJhIjoiY2treGZ1ZDE5MXlrZTJ2cDZib2U1djZlMiJ9.5GTBI6mCCRGkNvRw6Hixew';
 
-const onlineNum = 21
-const offlineNum = 10
+const onlineNum = 2
+const offlineNum = 21
 
 const Map = () => {
   const mapContainer = useRef();

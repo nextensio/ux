@@ -131,7 +131,6 @@ const BundlesAdd = (props) => {
 
     const handleSingleNumberAttrChange = (e) => {
         let input = parseInt(e.target.value)
-        handleLengthCheck(e)
         updateBundleAttrData({
             ...bundleAttrData,
             [e.target.name]: input
@@ -326,16 +325,9 @@ const BundlesAdd = (props) => {
             return
         }
         var cpodrepl = parseInt(bundleData.cpodrepl)
-        var services = bundleData.services
-        if (bundleData.services) {
-            if (!Array.isArray(bundleData.services)) {
-                services = bundleData.services.split(',').map(function (item) {
-                    return item.trim();
-                })
-            }
-        } else {
-            services = []
-        }
+        var services = bundleData.services.split(',').map(function (item) {
+            return item.trim();
+        })
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -401,6 +393,7 @@ const BundlesAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add AppGroup</strong>
+                    <CButton onClick={() => console.log(bundleData)}>Bundle Data</CButton>
                     <CButton onClick={() => console.log(bundleAttrData)}>bundleAttrData</CButton>
                     <CButton onClick={() => console.log(attrData)}>attrData</CButton>
                 </CCardHeader>

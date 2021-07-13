@@ -27,13 +27,7 @@ const TheHeaderDropdown = (props) => {
             direction='down'
         >
             <CDropdownToggle className='c-header-nav-link' caret={false}>
-                <div className='c-avatar'>
-                    <CImg
-                        src={'boris.jpg'}
-                        className='c-avatar-img'
-                        alt='user@nextensio.com'
-                    />
-                </div>
+                user@nextensio.com
             </CDropdownToggle>
             <CDropdownMenu className='pt-0' placement='bottom-end'>
                 <CDropdownItem
