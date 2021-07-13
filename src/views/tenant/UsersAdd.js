@@ -347,36 +347,33 @@ const UsersAdd = (props) => {
 
     // user attribute http post function
     const handleAttrSubmit = (e) => {
-        if (Object.keys(userAttrData).length > 1) {
-            e.preventDefault()
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: bearer },
-                body: JSON.stringify(userAttrData),
-            };
-            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) {
-                        // get error message from body or default to response status
-                        alert(error);
-                        const error = (data && data.message) || response.status;
-                        return Promise.reject(error);
-                    }
-                    // check for error response
-                    if (data["Result"] != "ok") {
-                        alert(data["Result"])
-                    }
-                    else {
-                        props.history.push('/tenant/' + props.match.params.id + '/users')
-                    }
-                })
-                .catch(error => {
-                    alert('Error contacting server', error);
-                })
-        } else {
-            props.history.push('/tenant/' + props.match.params.id + '/users')
-        }
+        e.preventDefault()
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify(userAttrData),
+        };
+        console.log(userAttrData)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+                else {
+                    props.history.push('/tenant/' + props.match.params.id + '/users')
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            })
 
     };
 

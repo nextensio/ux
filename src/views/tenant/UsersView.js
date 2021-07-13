@@ -185,6 +185,7 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
+                            <CButton onClick={() => console.log(zippedData)}>zippedData</CButton>
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -232,17 +233,21 @@ const UsersView = (props) => {
                                                                         <th className="attributes roboto-font">{key}</th>
                                                                         <td className="roboto-font">
                                                                             <>
-                                                                                {item[key] != null ?
-                                                                                <div>
-                                                                                    {Array.isArray(item[key]) 
-                                                                                    ? <div>{item[key].join(' & ')}</div>
-                                                                                    : <div>{item[key]}</div>
-                                                                                    }
-                                                                                </div>
+                                                                                {/**Check if attribute value equals false, 0, "",
+                                                                                 * [false], 0, [""] which we have defined as default values.
+                                                                                 */}
+                                                                                {[false, 0, "",].indexOf(item[key]) > -1 || 
+                                                                                (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
+                                                                                    <div className="text-warning">
+                                                                                        Default value assigned
+                                                                                    </div>
                                                                                 :
-                                                                                <div className="text-warning">
-                                                                                    No value assigned
-                                                                                </div>
+                                                                                    <div>
+                                                                                        {Array.isArray(item[key]) 
+                                                                                        ? <div>{item[key].join(' & ')}</div>
+                                                                                        : <div>{item[key].toString()}</div>
+                                                                                        }
+                                                                                    </div>
                                                                                 }
                                                                             </>
                                                                         </td>
@@ -250,6 +255,7 @@ const UsersView = (props) => {
                                                                 )
                                                             })}
                                                         </table>
+
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

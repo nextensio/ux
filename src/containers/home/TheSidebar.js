@@ -41,8 +41,8 @@ const TheSidebar = () => {
             <CSidebarBrand className="d-md-down-none" to="/">
                 <div className="c-sidebar-brand-full sidebar-brand">
                     <CIcon name="cil-videogame" />{' '}
-          Nextensio Controller
-        </div>
+                    Nextensio Controller
+                </div>
                 <CIcon className="c-sidebar-brand-minimized" name="cil-videogame" size="2xl" />
             </CSidebarBrand>
             <CSidebarNav>
