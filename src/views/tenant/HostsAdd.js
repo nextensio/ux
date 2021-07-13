@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import {
     CButton,
-    CButtonClose,
     CCard,
     CCardBody,
     CCol,
     CForm,
     CInput,
-    CInputCheckbox,
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
     CInvalidFeedback,
-    CListGroup,
-    CListGroupItem,
     CRow,
     CLabel,
     CCardHeader,
@@ -23,7 +19,6 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -36,8 +31,6 @@ const HostEdit = (props) => {
     });
     const [hostData, updateHostData] = useState(initHostData);
     const [attrData, updateAttrData] = useState(Object.freeze([]));
-    const [selectedAttr, setSelectedAttr] = useState([]);
-    const [searchInput, setSearchInput] = useState("");
     const [errObj, updateErrObj] = useState({});
 
     const { oktaAuth, authState } = useOktaAuth();
