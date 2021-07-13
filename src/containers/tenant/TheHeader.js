@@ -25,14 +25,6 @@ const TheHeader = (props) => {
         dispatch({ type: 'set', sidebarShow: val })
     }
 
-    const toFeedback = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/feedback')
-    }
-
-    const toDocs = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/documentation')
-    }
-
     return (
         <CHeader withSubheader>
             <CToggler
@@ -47,16 +39,6 @@ const TheHeader = (props) => {
             />
 
             <CHeaderNav className='ml-auto px-3'>
-                <CHeaderNavItem className="px-3" >
-                    <CHeaderNavLink onClick={toFeedback}>
-                        <CIcon size="lg" name="cil-speech"/>
-                    </CHeaderNavLink>
-                </CHeaderNavItem>
-                <CHeaderNavItem className="px-3" >
-                    <CHeaderNavLink onClick={toDocs}>
-                        <CIcon size="lg" name="cil-info"/>
-                    </CHeaderNavLink>
-                </CHeaderNavItem>
                 <TheHeaderDropdown {...props}/>
             </CHeaderNav>
 

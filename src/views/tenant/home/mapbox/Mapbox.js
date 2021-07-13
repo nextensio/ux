@@ -16,14 +16,14 @@ const offlineNum = 10
 
 const Map = () => {
   const mapContainer = useRef();
-  const [lng, setLng] = useState(-97.57);
-  const [lat, setLat] = useState(38.46);
-  const [zoom, setZoom] = useState(3);
+  const [lng, setLng] = useState(0);
+  const [lat, setLat] = useState(30);
+  const [zoom, setZoom] = useState(.75);
 
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/matt-123/ckkyvk8t707y617peqpfmfp73',
+      style: 'mapbox://styles/matt-123/ckqznozpy29zk17pcvwaz7hwo',
       center: [lng, lat],
       zoom: zoom
     });
@@ -40,7 +40,7 @@ const Map = () => {
 
     map.on('click', function(e) {
       var features = map.queryRenderedFeatures(e.point, {
-          layers: ['silicon-valley'] // replace this with the name of the layer
+          layers: ['datacenters'] // replace this with the name of the layer
       });
 
       if (!features.length) {
@@ -60,6 +60,9 @@ const Map = () => {
 
   return (
     <div>
+      <div className="sidebar">
+        3 Hosts | 17 Locations | 21 Data Centers
+      </div>
       <div className="legend">
         <CBadge className="mr-1" color="success">{onlineNum}</CBadge>
         <CBadge className="mr-1" color="secondary">{offlineNum}</CBadge>
