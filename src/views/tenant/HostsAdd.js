@@ -48,11 +48,8 @@ const HostEdit = (props) => {
         },
     };
 
-    useEffect(() => {
-        getAttrData();
-    }, []);
 
-    const getAttrData = (e) => {
+    useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -62,43 +59,9 @@ const HostEdit = (props) => {
                         fields.push(data[i].name);
                     }
                 }
-                fields.sort()
                 updateAttrData(fields);
             });
-    }
-
-    const searchResults = !searchInput
-        ? attrData
-        : attrData.filter(name =>
-            name.toLowerCase().includes(searchInput.toLocaleLowerCase())
-        );
-
-    const handleSelect = (e) => {
-        const selected = [...selectedAttr]
-        if (e.target.checked) {
-            selected.push(e.target.value)
-        }
-        if (!e.target.checked) {
-            const i = selected.indexOf(e.target.value)
-            if (i > -1) {
-                selected.splice(i, 1)
-            }
-        }
-        setSelectedAttr(selected)
-    }
-
-    const handleDeselect = (e) => {
-        const selected = [...selectedAttr]
-        const i = selected.indexOf(e.target.name)
-        if (i > -1) {
-            selected.splice(i, 1)
-        }
-        setSelectedAttr(selected)
-    }
-
-    const handleSearchChange = (e) => {
-        setSearchInput(e.target.value)
-    }
+    })
 
     const handleChange = (e) => {
         updateHostData({
@@ -132,8 +95,8 @@ const HostEdit = (props) => {
         if (Object.keys(errs).length !== 0) {
             return
         }
-        for (var i = 0; i < selectedAttr.length; i++) {
-            hostData.routeattrs[0][selectedAttr[i]] = ''
+        for (var i = 0; i < attrData.length; i++) {
+            hostData.routeattrs[0][attrData[i]] = ''
         }
         const requestOptions = {
             method: 'POST',
@@ -195,46 +158,6 @@ const HostEdit = (props) => {
                                 </CInputGroup>
                             </CFormGroup>
                         </CForm>
-                        <div className="title py-3">Attributes</div>
-                        <CCol sm="6">
-                            <CListGroup accent>
-                                {selectedAttr.map(attr => {
-                                    return (
-                                        <CListGroupItem color="primary" accent="primary">
-                                            {attr}<CButtonClose className="ml-1" buttonClass="text-white close" name={attr} onClick={(e) => handleDeselect(e)} />
-                                        </CListGroupItem>
-                                    )
-                                })}
-                            </CListGroup>
-                        </CCol>
-                        <div className="roboto-font mt-3"><FontAwesomeIcon icon="info-circle" className="text-info" /> Add an attribute from the checklist on the right.</div>
-                    </CCol>
-
-                    <CCol sm="4">
-                        <div className="sticky-scroll p-3">
-                            <div className="title mb-3">Attribute List</div>
-                            <CInputGroup className="mb-3">
-                                <CInputGroupPrepend>
-                                    <CInputGroupText className="bg-primary text-white">
-                                        <CIcon name="cil-magnifying-glass" />
-                                    </CInputGroupText>
-                                </CInputGroupPrepend>
-                                <CInput
-                                    type="text"
-                                    placeholder="Host Attribute"
-                                    value={searchInput}
-                                    onChange={handleSearchChange}
-                                />
-                            </CInputGroup>
-                            {searchResults.map(attr => {
-                                return (
-                                    <CFormGroup variant="checkbox" className="checkbox">
-                                        <CInputCheckbox value={attr} onChange={(e) => { handleSelect(e) }} checked={selectedAttr.includes(attr)} />
-                                        <CLabel variant="checkbox" className="form-check-label">{attr}</CLabel>
-                                    </CFormGroup>
-                                )
-                            })}
-                        </div>
                     </CCol>
                 </CRow>
             </CCardBody>

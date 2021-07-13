@@ -399,14 +399,17 @@ const HostsView = (props) => {
                                                                                 {routeConfig.map((route, i) => {
                                                                                     return (
                                                                                         <td className="roboto-font">
-                                                                                            {route[key] == ""
-                                                                                                ? <div className="text-warning">No value assigned</div>
-
-                                                                                                : <div>
-                                                                                                    {/**If the value is an array, join the values by ampersand */}
-                                                                                                    {Array.isArray(route[key])
-                                                                                                        ? route[key].join(' &')
-                                                                                                        : route[key]}
+                                                                                            {[false, 0, "",].indexOf(route[key]) > -1 || 
+                                                                                            (Array.isArray(route[key]) && route[key].length === 1 && [false, 0, ""].indexOf(route[key][0]) > -1)?
+                                                                                                <div className="text-warning">
+                                                                                                    Default value assigned
+                                                                                                </div>
+                                                                                            :
+                                                                                                <div>
+                                                                                                    {Array.isArray(route[key]) 
+                                                                                                    ? <div>{route[key].join(' & ')}</div>
+                                                                                                    : <div>{route[key].toString()}</div>
+                                                                                                    }
                                                                                                 </div>
                                                                                             }
                                                                                         </td>
