@@ -314,6 +314,8 @@ const BundlesEdit = (props) => {
             services = bundleState.services.split(',').map(function (item) {
                 return item.trim();
             })
+        } else {
+            services = bundleState.services
         }
         const requestOptions = {
             method: 'POST',
