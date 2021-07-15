@@ -93,6 +93,13 @@ const PolicyView = (props) => {
             });
     }, []);
 
+    const toDocs = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/documentation',
+            state: "Policies"
+        });
+    }
+
     const handleRefresh = (e) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
@@ -168,7 +175,15 @@ const PolicyView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Policies</strong>
-                            <div className="text-muted small">Click on a row to see policy code.</div>
+                            <CButton 
+                                className="float-right" 
+                                color="primary"
+                                onClick={toDocs}
+                            >
+                                <CIcon className="mr-1" name="cil-info"/>
+                                Policy Docs
+                            </CButton>
+                            <div className="text-muted small">Click on a row to see policy code</div>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable

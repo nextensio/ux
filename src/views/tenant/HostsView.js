@@ -102,6 +102,13 @@ const HostsView = (props) => {
             .then(data => updateHostData(data));
     }, []);
 
+    const toDocs = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/documentation',
+            state: "Hosts"
+        });
+    }
+
     const handleRefresh = (e) => {
         setDetails([])
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
@@ -238,6 +245,14 @@ const HostsView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Hosts</strong>
+                            <CButton 
+                                className="float-right" 
+                                color="primary"
+                                onClick={toDocs}
+                            >
+                                <CIcon className="mr-1" name="cil-info"/>
+                                Host Docs
+                            </CButton>
                             <div className="text-muted small">Click on a row to see all routes</div>
                         </CCardHeader>
                         <CCardBody>

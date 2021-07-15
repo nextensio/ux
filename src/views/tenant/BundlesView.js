@@ -129,6 +129,13 @@ const BundlesView = (props) => {
         updateZippedData(zipper)
         updateBidData(bidObj)
     }, [bundleData, bundleAttrData])
+    
+    const toDocs = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/documentation',
+            state: "Bundles"
+        });
+    }
 
     const handleRefresh = (e) => {
         setDetails([]);
@@ -212,9 +219,17 @@ const BundlesView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
+                            <CButton 
+                                className="float-right" 
+                                color="primary"
+                                onClick={toDocs}
+                            >
+                                <CIcon className="mr-1" name="cil-info"/>
+                                AppGroup Docs
+                            </CButton>
                             <CButton onClick={() => console.log(zippedData)}>LOG</CButton>
-
                             <div className="text-muted small">Click on a row to see attributes</div>
+                            
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable

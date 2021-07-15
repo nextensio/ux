@@ -113,6 +113,13 @@ const UsersView = (props) => {
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
+    const toDocs = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/documentation',
+            state: "Users"
+        });
+    }
+    
     const handleRefresh = (e) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
@@ -185,6 +192,14 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
+                            <CButton 
+                                className="float-right" 
+                                color="primary"
+                                onClick={toDocs}
+                            >
+                                <CIcon className="mr-1" name="cil-info"/>
+                                User Docs
+                            </CButton>
                             <CButton onClick={() => console.log(zippedData)}>zippedData</CButton>
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>

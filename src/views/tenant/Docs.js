@@ -4,31 +4,31 @@ import {
     CButton,
     CCallout,
     CCard,
-    CCardHeader,
     CCardBody,
     CCol,
-    CCarousel,
-    CCarouselCaption,
-    CCarouselControl,
-    CCarouselIndicators,
-    CCarouselInner,
-    CCarouselItem,
     CListGroup,
     CListGroupItem,
     CTabContent,
     CTabPane,
     CRow,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import './tenantviews.scss'
 
-const Docs = () => {
+const Docs = (props) => {
     const [activeTab, setActiveTab] = useState("Getting Started")
+
+    useEffect(() => {
+        if (JSON.stringify(props.location.state) != 'null') {
+            setActiveTab(props.location.state)
+        }
+    }, []);
+    
     return (
         <>
             <CCallout color="primary">
                 <h4 className="title">Documentation</h4>
+                <CButton onClick={() => console.log(typeof JSON.stringify(props.location.state))}>propsState</CButton>
             </CCallout>
             <CRow>
                 <CCol md="3">    
