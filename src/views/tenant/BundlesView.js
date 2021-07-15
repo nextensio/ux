@@ -75,6 +75,7 @@ const BundlesView = (props) => {
     );
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
+    // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
     const [zippedData, updateZippedData] = useState(initTableData);
 
@@ -286,7 +287,7 @@ const BundlesView = (props) => {
                                                                                     <div>
                                                                                         {Array.isArray(item[key]) 
                                                                                         ? <div>{item[key].join(' & ')}</div>
-                                                                                        : <div>{item[key].toString()}</div>
+                                                                                        : <div>{item[key]}</div>
                                                                                         }
                                                                                     </div>
                                                                                 }

@@ -28,7 +28,6 @@ const Docs = (props) => {
         <>
             <CCallout color="primary">
                 <h4 className="title">Documentation</h4>
-                <CButton onClick={() => console.log(typeof JSON.stringify(props.location.state))}>propsState</CButton>
             </CCallout>
             <CRow>
                 <CCol md="3">    

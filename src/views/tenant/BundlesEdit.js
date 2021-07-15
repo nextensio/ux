@@ -45,7 +45,8 @@ const BundlesEdit = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            updateBundleState(props.location.state)
+            const {bid, name, cpodrepl, services, ...rest} = props.location.state
+            updateBundleState({bid, name, cpodrepl, services})
         }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -66,7 +67,7 @@ const BundlesEdit = (props) => {
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].bid == bundleState.bid) {
-                        var { bid, _name, _pod, ...rest } = data[i]
+                        var { bid, _name, _pod, _gateway, ...rest } = data[i]
                         updateBundleAttrState({ bid, ...rest })
                     }
                 }
@@ -308,9 +309,12 @@ const BundlesEdit = (props) => {
             return
         }
         var cpodrepl = parseInt(bundleState.cpodrepl)
-        var services = bundleState.services.split(',').map(function (item) {
-            return item.trim();
-        })
+        var services
+        if (!Array.isArray(bundleState.services)) {
+            services = bundleState.services.split(',').map(function (item) {
+                return item.trim();
+            })
+        }
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -341,11 +345,6 @@ const BundlesEdit = (props) => {
     };
 
     const handleAttrSubmit = (e) => {
-        Object.keys(bundleAttrState).forEach(key => {
-            if (bundleAttrState[key].length == 0) {
-                bundleAttrState[key] = null
-            }
-        })
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
@@ -378,6 +377,10 @@ const BundlesEdit = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Edit Details for {bundleState.bid}</strong>
+                <CButton onClick={e=>console.log(bundleState)}>bundleState</CButton>
+                <CButton onClick={e=>console.log(bundleAttrState)}>bundleAttrState</CButton>
+                <CButton onClick={e=>console.log(props.location.state)}>propsState</CButton>
+
             </CCardHeader>
             <CCardBody>
                 <CRow>
@@ -419,7 +422,7 @@ const BundlesEdit = (props) => {
                                             <CIcon name="cil-3d" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="cpodrepl" defaultValue="1" onChange={handleBundleChange} invalid={errObj.cpodrepl}/>
+                                    <CInput type="number" name="cpodrepl" defaultValue={bundleState.cpodrepl} onChange={handleBundleChange} invalid={errObj.cpodrepl}/>
                                     <CInvalidFeedback>Please enter an integer.</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>

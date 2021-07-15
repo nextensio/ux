@@ -325,7 +325,7 @@ const BundlesAdd = (props) => {
             return
         }
         var cpodrepl = parseInt(bundleData.cpodrepl)
-        var services = bundleData.services.split(',').map(function (item) {
+        var services = bundleData.services.toString().split(',').map(function (item) {
             return item.trim();
         })
         const requestOptions = {
@@ -433,7 +433,7 @@ const BundlesAdd = (props) => {
                                                 <CIcon name="cil-3d" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="cpodrepl" defaultValue="1" onChange={handleBundleChange} invalid={errObj.cpodrepl}/>
+                                        <CInput type="number" name="cpodrepl" defaultValue="1" onChange={handleBundleChange} invalid={errObj.cpodrepl}/>
                                         <CInvalidFeedback >Please enter an integer.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
