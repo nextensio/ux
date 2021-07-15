@@ -52,7 +52,7 @@ const fields = [
         key: "type",
         _classes: "data-field"
     },
-    {   
+    {
         key: "isArray",
         _classes: "data-field"
     },
@@ -77,7 +77,7 @@ const AttributeEditor = (props) => {
         []
     );
     const [inuseAttr, updateInuseAttr] = useState(initAttrData);
-    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String', isArray: ''})
+    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String', isArray: '' })
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteItem, setDeleteItem] = useState(0);
@@ -97,13 +97,13 @@ const AttributeEditor = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data)});
+            .then(data => { updateInuseAttr(data) });
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data)});
+            .then(data => { updateInuseAttr(data) });
     }
 
     const handleChange = (e) => {
@@ -122,10 +122,10 @@ const AttributeEditor = (props) => {
 
     const reset = (e) => {
         updateErrObj({})
-        updateAttributeData({ name: '', appliesTo: '', type: 'String', isArray: ''});
+        updateAttributeData({ name: '', appliesTo: '', type: 'String', isArray: '' });
         setResetWarning(false);
     }
-    
+
     // function used to update errObj
     function validate() {
         var errors = {}
@@ -161,7 +161,7 @@ const AttributeEditor = (props) => {
         let errs = validate()
         if (Object.keys(errs).length !== 0) {
             return
-        }            
+        }
         for (var i = 0; i < inuseAttr.length; i++) {
             if (inuseAttr[i].name == attributeData.name &&
                 inuseAttr[i].appliesTo == attributeData.appliesTo) {
@@ -197,7 +197,7 @@ const AttributeEditor = (props) => {
             .catch(error => {
                 alert('Error contacting server', error);
             });
-        
+
     }
 
     const toggleDelete = (item) => {
@@ -271,7 +271,7 @@ const AttributeEditor = (props) => {
                                 <CFormGroup>
                                     <CLabel htmlFor="nf-attribute">Attribute Name</CLabel>
                                     <CInputGroup>
-                                        <CInput name="name" placeholder="Enter Attribute.." value={attributeData.name} onChange={handleChange} invalid={errObj.typeErr}/>
+                                        <CInput name="name" placeholder="Enter Attribute.." value={attributeData.name} onChange={handleChange} invalid={errObj.typeErr} />
                                         <CDropdown className="input-group-append">
                                             <CDropdownToggle caret className="border-success bg-success-light text-success">
                                                 {attributeData.type}
@@ -345,44 +345,31 @@ const AttributeEditor = (props) => {
                                 <CCol xs="8">
                                     <CTabContent>
                                         <CTabPane active={activeTab === "Overview"} >
-                                            <p>Velit aute mollit ipsum ad dolor consectetur nulla officia culpa adipisicing exercitation fugiat tempor. Voluptate deserunt sit sunt
-                                            nisi aliqua fugiat proident ea ut. Mollit voluptate reprehenderit occaecat nisi ad non minim
-                                            tempor sunt voluptate consectetur exercitation id ut nulla. Ea et fugiat aliquip nostrud sunt incididunt consectetur culpa aliquip
-                                            eiusmod dolor. Anim ad Lorem aliqua in cupidatat nisi enim eu nostrud do aliquip veniam minim.</p>
+                                            <p>Attributes are a set of properties with values, ie key/value pairs. The keys are just strings, values can be
+                                            one of string, array of strings, number, array of numbers, boolean, array of booleans.
+                                            </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Applies To"}>
-                                            <p>Cupidatat quis ad sint excepteur laborum in esse qui. Et excepteur consectetur ex nisi eu do cillum ad laborum. Mollit et eu officia
-                                            dolore sunt Lorem culpa qui commodo velit ex amet id ex. Officia anim incididunt laboris deserunt
-                                            anim aute dolor incididunt veniam aute dolore do exercitation. Dolor nisi culpa ex ad irure in elit eu dolore. Ad laboris ipsum
-                                            reprehenderit irure non commodo enim culpa commodo veniam incididunt veniam ad.</p>
+                                            <p>Each attribute either applies to (ie is a property of) a user, appGroup or Host. If the same attribute/key
+                                            is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
+                                            </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Type"}>
-                                            <p>Ut ut do pariatur aliquip aliqua aliquip exercitation do nostrud commodo reprehenderit aute ipsum voluptate. Irure Lorem et laboris
-                                            nostrud amet cupidatat cupidatat anim do ut velit mollit consequat enim tempor. Consectetur
-                                            est minim nostrud nostrud consectetur irure labore voluptate irure. Ipsum id Lorem sit sint voluptate est pariatur eu ad cupidatat et
-                                            deserunt culpa sit eiusmod deserunt. Consectetur et fugiat anim do eiusmod aliquip nulla
-                                            laborum elit adipisicing pariatur cillum.</p>
+                                            <p>Type indicates the type of the attribute's Value. It is either string, number or boolean</p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Arrays"}>
-                                            <p>Irure enim occaecat labore sit qui aliquip reprehenderit amet velit. Deserunt ullamco ex elit nostrud ut dolore nisi officia magna
-                                            sit occaecat laboris sunt dolor. Nisi eu minim cillum occaecat aute est cupidatat aliqua labore
-                                            aute occaecat ea aliquip sunt amet. Aute mollit dolor ut exercitation irure commodo non amet consectetur quis amet culpa. Quis ullamco
-                                            nisi amet qui aute irure eu. Magna labore dolor quis ex labore id nostrud deserunt dolor
-                                            eiusmod eu pariatur culpa mollit in irure.</p>
+                                            <p>Each attribute can have an array of values, each array element of the same Type</p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Examples"}>
-                                            <p>Irure enim occaecat labore sit qui aliquip reprehenderit amet velit. Deserunt ullamco ex elit nostrud ut dolore nisi officia magna
-                                            sit occaecat laboris sunt dolor. Nisi eu minim cillum occaecat aute est cupidatat aliqua labore
-                                            aute occaecat ea aliquip sunt amet. Aute mollit dolor ut exercitation irure commodo non amet consectetur quis amet culpa. Quis ullamco
-                                            nisi amet qui aute irure eu. Magna labore dolor quis ex labore id nostrud deserunt dolor
-                                            eiusmod eu pariatur culpa mollit in irure.</p>
+                                            <p>allowTeams: ["engineering", "support"] is an example of array of strings. trustScore: 90 is an example
+                                            of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
+                                            example where the attribute says that an app access is allowed only monday-friday
+                                            </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Policies"}>
-                                            <p>Irure enim occaecat labore sit qui aliquip reprehenderit amet velit. Deserunt ullamco ex elit nostrud ut dolore nisi officia magna
-                                            sit occaecat laboris sunt dolor. Nisi eu minim cillum occaecat aute est cupidatat aliqua labore
-                                            aute occaecat ea aliquip sunt amet. Aute mollit dolor ut exercitation irure commodo non amet consectetur quis amet culpa. Quis ullamco
-                                            nisi amet qui aute irure eu. Magna labore dolor quis ex labore id nostrud deserunt dolor
-                                            eiusmod eu pariatur culpa mollit in irure.</p>
+                                            <p>Policies are written in an industry standard language getting wide acceptance - Rego. Rego provides
+                                            simple constructs to do access control etc.., using the attributes and their values
+                                            </p>
                                         </CTabPane>
                                     </CTabContent>
                                 </CCol>
@@ -455,7 +442,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => {toggleDelete(item)}}
+                                                            onClick={() => { toggleDelete(item) }}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>

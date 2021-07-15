@@ -27,7 +27,7 @@ const TheHeaderDropdown = (props) => {
             direction='down'
         >
             <CDropdownToggle className='c-header-nav-link' caret={false}>
-                user@nextensio.com
+
             </CDropdownToggle>
             <CDropdownMenu className='pt-0' placement='bottom-end'>
                 <CDropdownItem

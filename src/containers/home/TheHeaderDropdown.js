@@ -1,12 +1,12 @@
 import React from 'react'
 import {
-  CBadge,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
-  CLink,
-  CImg
+    CBadge,
+    CDropdown,
+    CDropdownItem,
+    CDropdownMenu,
+    CDropdownToggle,
+    CLink,
+    CImg
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
@@ -22,7 +22,7 @@ const TheHeaderDropdown = () => {
                     <CImg
                         src={'boris.jpg'}
                         className='c-avatar-img'
-                        alt='user@nextensio.com'
+                        alt=''
                     />
                 </div>
             </CDropdownToggle>
@@ -40,7 +40,7 @@ const TheHeaderDropdown = () => {
                     Updates
                     <CBadge color='info' className='mfs-auto'>42</CBadge>
                 </CDropdownItem>
-                <CDropdownItem 
+                <CDropdownItem
                     header
                     tag='div'
                     color='light'
