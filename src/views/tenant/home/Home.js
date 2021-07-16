@@ -47,7 +47,7 @@ const Home = (props) => {
                 <CCol lg="6">
                     <CCard className="border-rounded shadow">
                         <CCardHeader>
-                            <CIcon name="cib-kubernetes" /> Cluster Configuration
+                            <CIcon name="cib-kubernetes" /> Gateway Configuration
                             <CButton
                                 className="float-right"
                                 color="primary"
@@ -58,7 +58,7 @@ const Home = (props) => {
                             </CButton>
                         </CCardHeader>
                         <CCardBody>
-                            Customize each Nextensio Cluster to suit the needs of this tenant, example - customize number of kubernetes pods.
+                            Customize each Nextensio Gateway to suit the needs of this tenant, example - customize number of kubernetes pods.
                         </CCardBody>
                     </CCard>
                 </CCol>
