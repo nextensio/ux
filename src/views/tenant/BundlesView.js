@@ -229,6 +229,10 @@ const BundlesView = (props) => {
                                 AppGroup Docs
                             </CButton>
                             <CButton onClick={() => console.log(zippedData)}>LOG</CButton>
+                            <CButton onClick={() => console.log(bundleData)}>bundleData</CButton>
+                            <CButton onClick={() => console.log(bundleAttrData)}>bundleAttrData</CButton>
+
+
                             <div className="text-muted small">Click on a row to see attributes</div>
                             
                         </CCardHeader>

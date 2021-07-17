@@ -252,45 +252,13 @@ const UsersEdit = (props) => {
         })
     }
 
-    function fillEmptyInputs() {
-        let attrState = {...userAttrState}
-        attrData.forEach((item) => { 
-            if (!(item.name in attrState)) { 
-                if (item.isArray == "true") {
-                    if (item.type == "String" || item.type == "Date") {
-                        attrState[item.name] = [""]
-                    } 
-                    if (item.type == "Number") {
-                        attrState[item.name] = [0]
-                    }
-                    if (item.type == "Boolean") {
-                        attrState[item.name] = [false]
-                    }
-                }
-                if (item.isArray == "false") {
-                    if (item.type == "String" || item.type == "Date") {
-                        attrState[item.name] = ""
-                    } 
-                    if (item.type == "Number") {
-                        attrState[item.name] = 0
-                    }
-                    if (item.type == "Boolean") {
-                        attrState[item.name] = false
-                    }
-                }
-            }
-        })
-        updateUserAttrState(attrState)
-        return attrState
-    }
-
-    function validate(attrState) {
+    function validate() {
         let errs = {}
         if (!/\S/.test(userState.name)) {
             errs.name = true
         } 
         attrData.forEach((item) => { 
-            if (item.isArray == "true" && JSON.stringify(attrState[item.name]).includes("ERR!")) {
+            if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
                 errs[item.name] = true
             }
         })
@@ -301,8 +269,7 @@ const UsersEdit = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        let attrState = fillEmptyInputs()
-        let errs = validate(attrState)
+        let errs = validate()
         if (Object.keys(errs).length !== 0) {
             return
         }
@@ -334,11 +301,6 @@ const UsersEdit = (props) => {
 
     // user attribute http post function
     const handleAttrSubmit = (e) => {
-        Object.keys(userAttrState).forEach(key => {
-            if (userAttrState[key].length == 0) {
-                userAttrState[key] = null
-            }
-        })
         e.preventDefault()
         const requestOptions = {
             method: 'POST',

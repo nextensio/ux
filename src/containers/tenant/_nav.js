@@ -86,7 +86,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Images',
-        href: 'http://nextensio-images.s3-website-us-west-1.amazonaws.com/',
+        to: '/tenant/:id/images',
         className: 'roboto-font',
         icon: {
             name: 'cil-3d',

@@ -260,7 +260,7 @@ const UsersView = (props) => {
                                                                                     <div>
                                                                                         {Array.isArray(item[key]) 
                                                                                         ? <div>{item[key].join(' & ')}</div>
-                                                                                        : <div>{item[key].toString()}</div>
+                                                                                        : <div>{item[key]}</div>
                                                                                         }
                                                                                     </div>
                                                                                 }

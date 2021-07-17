@@ -1,6 +1,9 @@
 import { logo } from './logo'
 import {
-    cibKubernetes
+    cibApple,
+    cibAndroidAlt,
+    cibKubernetes,
+    cibLinux
 } from '@coreui/icons'
 import {
     cil3d,
@@ -58,7 +61,10 @@ import {
 export const icons = Object.assign({}, {
     logo,
 }, {
-    cibKubernetes
+    cibApple,
+    cibAndroidAlt,
+    cibKubernetes,
+    cibLinux
 }, {
     cil3d,
     cilAccountLogout,

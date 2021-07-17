@@ -25,6 +25,13 @@
     line-height: 2;
     border-bottom: none;
 }
+.card-title {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 600;
+    font-size: large;
+    line-height: 2;
+    border-bottom: none;
+}
 .title {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: large;
@@ -95,4 +102,17 @@ td.header {
     position: -webkit-sticky;
     position: sticky;
     top: calc(56px + 3rem)
+}
+.image-component {
+    transition: box-shadow .3s;
+    border-radius:10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    
+  }
+.image-component:hover {
+    box-shadow: 0 0 11px rgba(33,33,33,.2); 
+}
+.image-wrapper {
+    width: 10%
 }
