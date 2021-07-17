@@ -461,7 +461,7 @@ const BundlesEdit = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
+                                                        <CInput type="text" defaultValue={bundleAttrState[attr.name]} name={attr.name} placeholder={attr.name} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
                                                         {errObj[attr.name + "Length"] ?
                                                             <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
@@ -511,7 +511,7 @@ const BundlesEdit = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="number" name={attr.name} placeholder={attr.name} onChange={handleSingleNumberAttrChange}/>
+                                                        <CInput type="number" defaultValue={bundleAttrState[attr.name]} name={attr.name} placeholder={attr.name} onChange={handleSingleNumberAttrChange}/>
                                                         <CFormText>Enter attribute value.</CFormText> 
                                                     </CFormGroup>
                                                 }

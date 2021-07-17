@@ -37,11 +37,6 @@ const TheHeader = (props) => {
                 className="ml-3 d-md-down-none"
                 onClick={toggleSidebar}
             />
-
-            <CHeaderNav className='ml-auto px-3'>
-                <TheHeaderDropdown {...props}/>
-            </CHeaderNav>
-
         </CHeader>
     )
 }

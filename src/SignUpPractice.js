@@ -97,30 +97,35 @@ const SignUp = (props) => {
                                 <CForm>
                                     <h1>Sign Up</h1>
                                     <p className="text-muted">Create your account</p>
-                                    <CLabel>Enterprise ID</CLabel>
                                     <CInputGroup className="mb-3">
+                                        <CLabel>Enterprise ID</CLabel>
                                         <CInputGroupPrepend>
                                             <CInputGroupText>
                                                 <CIcon name="cil-user" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput type="text" name="tenant" onChange={handleChange} invalid={errObj.tenant}/>
+                                        <CFormText>Enter your Enterprise ID.</CFormText>
                                         <CInvalidFeedback>Please only use lowercase alphanumeric for your Enterprise ID.</CInvalidFeedback>
                                     </CInputGroup>
-                                    <CLabel>Email</CLabel>
                                     <CInputGroup className="mb-3">
+                                        <CLabel>Email</CLabel>
                                         <CInputGroupPrepend>
                                             <CInputGroupText>
                                                 <CIcon name="cil-envelope-closed"/>
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput type="text" name="email" onChange={handleChange} invalid={errObj.email}/>
+                                        <CFormText>Enter your email.</CFormText>
                                         <CInvalidFeedback>Please enter a valid email.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CForm>
                             </CCardBody>
                             <CCardFooter className="p-4">
-                                <CButton color="success" block onClick={handleSubmit}>Create Account</CButton>
+                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                                <CIcon email="cil-scrubber"/>
+                                <strong>Signup!</strong>
+                            </CButton>
                             </CCardFooter>
                         </CCard>
                     </CCol>

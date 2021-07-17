@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     CButton,
     CCallout,
@@ -12,10 +12,31 @@ import {
 import CIcon from '@coreui/icons-react';
 import { withRouter } from 'react-router-dom';
 import '../tenantviews.scss'
+import { useOktaAuth } from '@okta/okta-react';
 import Map from './mapbox/Mapbox'
 
+var common = require('../../../common')
 
 const Home = (props) => {
+
+    const [clusterData, updateClusterData] = useState("")
+
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            Authorization: bearer,
+        },
+    };
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                updateClusterData(data)
+            });
+    }, [])
+
     const toClusterConfig = (e) => {
         props.history.push('/tenant/' + props.match.params.id + '/clusterconfig')
     }
@@ -58,7 +79,11 @@ const Home = (props) => {
                             </CButton>
                         </CCardHeader>
                         <CCardBody>
-                            Customize each Nextensio Gateway to suit the needs of this tenant, example - customize number of kubernetes pods.
+                            {clusterData === "" ?
+                                <div>Sorry, you do not have any configuration yet.</div>
+                                :
+                                <div>clusterData</div>
+                            }
                         </CCardBody>
                     </CCard>
                 </CCol>
