@@ -13,6 +13,7 @@ const BundlesView = React.lazy(() => import('../../views/tenant/BundlesView'));
 const BundlesAdd = React.lazy(() => import('../../views/tenant/BundlesAdd'));
 const BundlesEdit = React.lazy(() => import('../../views/tenant/BundlesEdit'));
 const PolicyView = React.lazy(() => import('../../views/tenant/PolicyView'));
+const PolicyAdd = React.lazy(() => import('../../views/tenant/PolicyAdd'));
 const PolicyEdit = React.lazy(() => import('../../views/tenant/PolicyEdit'));
 const AttributeEditor = React.lazy(() => import('../../views/tenant/AttributeEditor'));
 const Profile = React.lazy(() => import('../../views/tenant/Profile'));
@@ -37,7 +38,8 @@ const routes = [
     { path: '/tenant/:id/bundles/add', name: 'Add', component: BundlesAdd },
     { path: '/tenant/:id/bundles/edit', name: 'Edit', component: BundlesEdit },
     { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
-    { path: '/tenant/:id/policy/add', name: 'Edit', component: PolicyEdit },
+    { path: '/tenant/:id/policy/add', name: 'Add', component: PolicyAdd },
+    { path: '/tenant/:id/policy/edit', name: 'Edit', component: PolicyEdit },
     { path: '/tenant/:id/attreditor', name: 'Attribute Editor', component: AttributeEditor },
     { path: '/tenant/:id/profile', name: 'Profile', component: Profile, exact: true },
     { path: '/tenant/:id/settings', name: 'Settings', component: Settings, exact: true },

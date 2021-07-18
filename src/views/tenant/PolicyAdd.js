@@ -6,7 +6,6 @@ import {
     CForm,
     CInput,
     CInputGroup,
-    CInputGroupAppend,
     CInputGroupPrepend,
     CInputGroupText,
     CLabel,
@@ -21,7 +20,7 @@ import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
-const PolicyEdit = (props) => {
+const PolicyAdd = (props) => {
     const initPolicyData = Object.freeze({
         pid: "",
         tenant: props.match.params.id,
@@ -36,12 +35,6 @@ const PolicyEdit = (props) => {
             Authorization: bearer,
         },
     };
-
-    useEffect(() => {
-        if (typeof props.location.state != 'undefined') {
-            updatePolicyData(props.location.state)
-        }
-    }, []);
 
     const handleChange = (e) => {
         if (e.target.name == "rego") {
@@ -90,25 +83,20 @@ const PolicyEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Edit Policy ID: {policyData.pid}</strong>
+                <strong>Add Policy</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Policy ID</CLabel>
-                            <CInputGroup>
-                                <CInputGroupPrepend>
-                                    <CInputGroupText className="bg-primary-light text-primary">
-                                        <CIcon name="cil-fingerprint" />
-                                    </CInputGroupText>
-                                </CInputGroupPrepend>
-                                <CInput name="pid" value={policyData.pid} readOnly/>
-                                <CInputGroupAppend>
-                                    <CInputGroupText>
-                                        <CIcon name="cil-lock-locked" />
-                                    </CInputGroupText>
-                                </CInputGroupAppend>
-                            </CInputGroup>
+                        <CInputGroup>
+                            <CInputGroupPrepend>
+                                <CInputGroupText className="bg-primary-light text-primary">
+                                    <CIcon name="cil-fingerprint" />
+                                </CInputGroupText>
+                            </CInputGroupPrepend>
+                            <CInput name="pid" onChange={handleChange} />
+                        </CInputGroup>
                     </CFormGroup>
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">REGO Policy</CLabel>
@@ -126,4 +114,4 @@ const PolicyEdit = (props) => {
     )
 }
 
-export default withRouter(PolicyEdit)
+export default withRouter(PolicyAdd)

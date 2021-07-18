@@ -66,7 +66,7 @@ const PolicyView = (props) => {
     const initTableData = Object.freeze(
         []
     );
-    const [usersData, updateUserData] = useState(initTableData);
+    const [policyData, updatePolicyData] = useState(initTableData);
     const [details, setDetails] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
@@ -89,7 +89,7 @@ const PolicyView = (props) => {
                         data[i].rego = String.fromCharCode(...data[i].rego);
                     }
                 }
-                updateUserData(data);
+                updatePolicyData(data);
             });
     }, []);
 
@@ -110,7 +110,7 @@ const PolicyView = (props) => {
                         data[i].rego = String.fromCharCode(...data[i].rego);
                     }
                 }
-                updateUserData(data);
+                updatePolicyData(data);
             });
     }
 
@@ -120,15 +120,15 @@ const PolicyView = (props) => {
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/policy/add',
-            state: usersData[index]
+            pathname: '/tenant/' + props.match.params.id + '/policy/edit',
+            state: policyData[index]
         });
         setDetails([])
     }
 
     const handleDelete = (index) => {
         setDetails([])
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/policy/') + usersData[index].pid, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/policy/') + policyData[index].pid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -187,7 +187,7 @@ const PolicyView = (props) => {
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
-                                items={usersData}
+                                items={policyData}
                                 fields={fields}
                                 itemsPerPageSelect
                                 tableFilter={{ placeholder: 'By policy ID, majver...', label: 'Search: ' }}
