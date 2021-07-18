@@ -105,7 +105,7 @@ const UsersView = (props) => {
                 }
             // Deconstruct the zipped object, remove unecessary properties
             // Will need to be fixed in controller repo later
-                const {connectid, cluster, email, gateway, pod, services, _gateway, _email, _pod, ...rest} = zipObj
+                const {connectid, cluster, email, gateway, pod, services, majver, minver, _gateway, _email, _pod, ...rest} = zipObj
                 zipper.push(rest)
             }
         }

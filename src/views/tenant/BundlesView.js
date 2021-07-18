@@ -122,7 +122,7 @@ const BundlesView = (props) => {
                     ...bundleData[i],
                     ...bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)
                 }
-                const {connectid, cluster, gateway, pod, _gateway, _name, _pod, ...rest} = zipObj
+                const {connectid, cluster, gateway, pod, majver, minver, _gateway, _name, _pod, ...rest} = zipObj
                 zipper.push(rest)
                 console.log(rest)
             }
