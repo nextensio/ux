@@ -328,8 +328,6 @@ const HostRouteConfig = (props) => {
                             <></>
                         }
                     </div>
-                    <CButton onClick={() => console.log(errObj)}>errObj</CButton>
-                    <CButton onClick={() => console.log(routeObj)}>routeObj</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CForm>

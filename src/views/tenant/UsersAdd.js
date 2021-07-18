@@ -353,7 +353,6 @@ const UsersAdd = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify(userAttrData),
         };
-        console.log(userAttrData)
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)
             .then(async response => {
                 const data = await response.json();
@@ -382,10 +381,6 @@ const UsersAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add User</strong>
-                    <CButton onClick={() => {console.log(userAttrData)}}>userAttrData</CButton>
-                    <CButton onClick={() => {console.log(errObj)}}>ERR</CButton>
-                    <CButton onClick={() => console.log(attrData)}>attrData</CButton>
-                    <CButton onClick={fillEmptyInputs}>Function</CButton>
                 </CCardHeader>
                 <CCardBody className="roboto-font">
                     <CRow>

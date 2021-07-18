@@ -106,7 +106,6 @@ const BundlesView = (props) => {
                     }
                 }
                 updateBundleAttrData(data)
-                console.log(bundleData)
             });
     }, []);
 
@@ -123,7 +122,6 @@ const BundlesView = (props) => {
                 }
                 const {connectid, cluster, gateway, pod, majver, minver, _gateway, _name, _pod, ...rest} = zipObj
                 zipper.push(rest)
-                console.log(rest)
             }
         }
         updateZippedData(zipper)
@@ -233,13 +231,7 @@ const BundlesView = (props) => {
                                 <CIcon className="mr-1" name="cil-info"/>
                                 AppGroup Docs
                             </CButton>
-                            <CButton onClick={() => console.log(zippedData)}>LOG</CButton>
-                            <CButton onClick={() => console.log(bundleData)}>bundleData</CButton>
-                            <CButton onClick={() => console.log(bundleAttrData)}>bundleAttrData</CButton>
-
-
                             <div className="text-muted small">Click on a row to see attributes</div>
-                            
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable

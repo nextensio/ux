@@ -73,7 +73,6 @@ const ClusterConfig = (props) => {
             fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                     setApodCount(data.TenantCl.apodrepl)
                 });
         }
@@ -145,7 +144,6 @@ const ClusterConfig = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Gateway Configuration</strong>
-                    <CButton onClick={e => console.log(configData)}>LOG</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CRow>

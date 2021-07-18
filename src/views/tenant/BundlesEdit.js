@@ -379,10 +379,6 @@ const BundlesEdit = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Edit Details for {bundleState.bid}</strong>
-                <CButton onClick={e=>console.log(bundleState)}>bundleState</CButton>
-                <CButton onClick={e=>console.log(bundleAttrState)}>bundleAttrState</CButton>
-                <CButton onClick={e=>console.log(props.location.state)}>propsState</CButton>
-
             </CCardHeader>
             <CCardBody>
                 <CRow>

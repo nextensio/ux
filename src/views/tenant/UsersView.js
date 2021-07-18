@@ -203,7 +203,6 @@ const UsersView = (props) => {
                                 <CIcon className="mr-1" name="cil-info"/>
                                 User Docs
                             </CButton>
-                            <CButton onClick={() => console.log(zippedData)}>zippedData</CButton>
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
                         <CCardBody>

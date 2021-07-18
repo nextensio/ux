@@ -392,9 +392,6 @@ const BundlesAdd = (props) => {
             <CCard>
                 <CCardHeader>
                     <strong>Add AppGroup</strong>
-                    <CButton onClick={() => console.log(bundleData)}>Bundle Data</CButton>
-                    <CButton onClick={() => console.log(bundleAttrData)}>bundleAttrData</CButton>
-                    <CButton onClick={() => console.log(attrData)}>attrData</CButton>
                 </CCardHeader>
                 <CCardBody>
                     <CRow>
