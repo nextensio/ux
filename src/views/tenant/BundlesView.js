@@ -138,6 +138,12 @@ const BundlesView = (props) => {
         });
     }
 
+    const toAttributeEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+    
     const handleRefresh = (e) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundles'), hdrs)
@@ -261,6 +267,8 @@ const BundlesView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
+                                                        {Object.keys(item).length < 5 ?
+                                                        <div className="roboto-font">No bundle attributes exist. <a onClick={toAttributeEditor} className="text-primary"><CIcon name="cil-code"/> Click here</a> to add a bundle attribute.</div> :
                                                         <table className="my-1 table table-outline d-sm-table">
                                                             <tr>
                                                                 <th className="attributes header roboto-font">Attributes</th>
@@ -300,7 +308,7 @@ const BundlesView = (props) => {
                                                                     </tr>
                                                                 )
                                                             })}
-                                                        </table>
+                                                        </table>}
                                                        
                                                     </CCardBody>
                                                 </CCollapse>

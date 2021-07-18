@@ -119,6 +119,12 @@ const UsersView = (props) => {
             state: "Users"
         });
     }
+
+    const toAttributeEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
     
     const handleRefresh = (e) => {
         setDetails([]);
@@ -230,47 +236,50 @@ const UsersView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        <table className="my-1 table table-outline d-sm-table">
-                                                            <tr>
-                                                                <th className="attributes header roboto-font">Attributes</th>
-                                                                <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                            </tr>
-                                                            {Object.keys(item).filter(key => {
-                                                                if (["uid", "name"].includes(key)) {
-                                                                    return false
-                                                                }
-                                                                else {
-                                                                    return true
-                                                                }
-                                                            }).map(key => {
-                                                                return(
-                                                                    <tr>
-                                                                        <th className="attributes roboto-font">{key}</th>
-                                                                        <td className="roboto-font">
-                                                                            <>
-                                                                                {/**Check if attribute value equals false, 0, "",
-                                                                                 * [false], 0, [""] which we have defined as default values.
-                                                                                 */}
-                                                                                {[false, 0, "",].indexOf(item[key]) > -1 || 
-                                                                                (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
-                                                                                    <div className="text-warning">
-                                                                                        Default value assigned
-                                                                                    </div>
-                                                                                :
-                                                                                    <div>
-                                                                                        {Array.isArray(item[key]) 
-                                                                                        ? <div>{item[key].join(' & ')}</div>
-                                                                                        : <div>{item[key]}</div>
-                                                                                        }
-                                                                                    </div>
-                                                                                }
-                                                                            </>
-                                                                        </td>
-                                                                    </tr>
-                                                                )
-                                                            })}
-                                                        </table>
-
+                                                        {Object.keys(item).length < 3 ? 
+                                                            <div className="roboto-font">No user attributes exist. <a className="text-primary" onClick={toAttributeEditor}><CIcon name="cil-code"/> Click here</a> to add a user attribute.</div>
+                                                            :
+                                                            <table className="my-1 table table-outline d-sm-table">
+                                                                <tr>
+                                                                    <th className="attributes header roboto-font">Attributes</th>
+                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
+                                                                </tr>
+                                                                {Object.keys(item).filter(key => {
+                                                                    if (["uid", "name"].includes(key)) {
+                                                                        return false
+                                                                    }
+                                                                    else {
+                                                                        return true
+                                                                    }
+                                                                }).map(key => {
+                                                                    return(
+                                                                        <tr>
+                                                                            <th className="attributes roboto-font">{key}</th>
+                                                                            <td className="roboto-font">
+                                                                                <>
+                                                                                    {/**Check if attribute value equals false, 0, "",
+                                                                                     * [false], 0, [""] which we have defined as default values.
+                                                                                     */}
+                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 || 
+                                                                                    (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
+                                                                                        <div className="text-warning">
+                                                                                            Default value assigned
+                                                                                        </div>
+                                                                                    :
+                                                                                        <div>
+                                                                                            {Array.isArray(item[key]) 
+                                                                                            ? <div>{item[key].join(' & ')}</div>
+                                                                                            : <div>{item[key]}</div>
+                                                                                            }
+                                                                                        </div>
+                                                                                    }
+                                                                                </>
+                                                                            </td>
+                                                                        </tr>
+                                                                    )
+                                                                })}
+                                                            </table>
+                                                        }
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

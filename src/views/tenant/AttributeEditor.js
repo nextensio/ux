@@ -1,6 +1,7 @@
 import React, { lazy, useState, useEffect } from 'react'
 import {
     CButton,
+    CCallout,
     CCard,
     CCardHeader,
     CCardBody,
@@ -235,6 +236,18 @@ const AttributeEditor = (props) => {
             });
     }
 
+    function appliesToStringify(appliesTo) {
+        switch (appliesTo) {
+            case "Users":
+                return "user"
+            case "Bundles":
+                return "bundle"
+            case "Hosts":
+                return "host"
+        }
+
+    }
+
     return (
         <>
             <CRow>
@@ -383,11 +396,14 @@ const AttributeEditor = (props) => {
                     <CModalHeader className='bg-danger text-white py-n5' closeButton>
                         <strong>Confirm Deletion</strong>
                     </CModalHeader>
-                    <CModalBody className='text-lg-left'>
-                        <strong>Are you sure you want to delete this attribute?</strong>
-                        <div>Name: {deleteItem.name}</div>
-                        <div>Applies To: {deleteItem.appliesTo}</div>
-                        <div>Type: {deleteItem.type}</div>
+                    <CModalBody className='text-lg-left roboto-font'>
+                        <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
+                        <CCallout color="danger">
+                            <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
+                            <div><strong>Applies To: </strong><strong className="text-danger">{deleteItem.appliesTo}</strong></div>
+                            <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
+                            <div><strong>Is Array: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
+                        </CCallout>
                     </CModalBody>
                     <CModalFooter>
                         <CButton
