@@ -1,14 +1,11 @@
-import React, { lazy, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
     CCardBody,
-    CCardGroup,
     CCol,
-    CContainer,
     CForm,
     CInput,
-    CInputCheckbox,
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
@@ -17,7 +14,6 @@ import {
     CLabel,
     CCardHeader,
     CFormGroup,
-    CFormText,
     CCardFooter
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'

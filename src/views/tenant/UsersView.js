@@ -1,6 +1,5 @@
-import React, { lazy, useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
-    CBadge,
     CButton,
     CCard,
     CCardBody,
@@ -8,8 +7,6 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
-    CListGroup,
-    CListGroupItem,
     CRow,
     CDataTable,
     CModal,

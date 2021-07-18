@@ -5,25 +5,17 @@ import {
     CCardBody,
     CCardFooter,
     CCol,
-    CContainer,
     CForm,
     CInput,
-    CInputCheckbox,
-    CInputGroup,
-    CInputGroupPrepend,
-    CInputGroupText,
-    CInvalidFeedback,
     CRow,
     CLabel,
     CCardHeader,
     CFormGroup,
-    CFormText,
     CTextarea
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 var common = require('../../common')
 

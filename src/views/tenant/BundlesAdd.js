@@ -10,7 +10,6 @@ import {
     CInputGroup,
     CInputGroupPrepend,
     CInputGroupText,
-    CInputRadio,
     CInvalidFeedback,
     CRow,
     CPopover,

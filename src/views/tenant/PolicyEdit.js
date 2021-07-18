@@ -1,21 +1,13 @@
-import React, { lazy, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CButton,
     CCard,
     CCardBody,
-    CCardGroup,
-    CCol,
-    CContainer,
     CForm,
     CInput,
-    CInputGroup,
-    CInputGroupPrepend,
-    CInputGroupText,
-    CRow,
     CLabel,
     CCardHeader,
     CFormGroup,
-    CFormText,
     CCardFooter,
     CTextarea
 } from '@coreui/react'

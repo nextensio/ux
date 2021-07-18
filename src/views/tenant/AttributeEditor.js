@@ -1,4 +1,4 @@
-import React, { lazy, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     CButton,
     CCallout,
@@ -28,7 +28,6 @@ import {
     CRow,
     CInvalidFeedback,
     CTabContent,
-    CTabs,
     CTabPane,
     CTooltip,
 } from '@coreui/react'
