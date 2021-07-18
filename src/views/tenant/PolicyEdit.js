@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react'
+import { render } from 'react-dom'
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools"
 import {
     CButton,
     CCard,
@@ -13,13 +19,14 @@ import {
     CCardHeader,
     CFormGroup,
     CCardFooter,
-    CTextarea
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
+require(`ace-builds/src-noconflict/theme-tomorrow`)
+require(`ace-builds/src-noconflict/mode-markdown`)
 
 const PolicyEdit = (props) => {
     const initPolicyData = Object.freeze({
@@ -43,17 +50,12 @@ const PolicyEdit = (props) => {
         }
     }, []);
 
-    const handleChange = (e) => {
-        if (e.target.name == "rego") {
-            var ucode = e.target.value;
-        } else {
-            var ucode = e.target.value.trim();
-        }
+    function handleRegoChange(newValue) {
         updatePolicyData({
             ...policyData,
-            [e.target.name]: ucode
-        });
-    };
+            rego: newValue
+        })
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -110,16 +112,28 @@ const PolicyEdit = (props) => {
                                 </CInputGroupAppend>
                             </CInputGroup>
                     </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-email">REGO Policy</CLabel>
-                        <CTextarea name="rego" placeholder={policyData.rego} onChange={handleChange} />
-                    </CFormGroup>
+                    <CLabel>OPA Policy</CLabel>
+                    <AceEditor
+                        name="rego"
+                        mode="markdown"
+                        theme="tomorrow"
+                        onChange={handleRegoChange}
+                        fontSize={18}
+                        value={policyData.rego.toString()}
+                        editorProps={{ $blockScrolling: true }}
+                        setOptions={{
+                            enableBasicAutocompletion: true,
+                            enableLiveAutocompletion: true,
+                            enableSnippets: true,
+                            tabSize: 2,
+                        }}
+                    />
                 </CForm>
             </CCardBody>
             <CCardFooter>
                 <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
                     <CIcon name="cil-scrubber" />
-                    <strong>{" "}Add</strong>
+                    <strong>{" "}Confirm</strong>
                 </CButton>
             </CCardFooter>
         </CCard>

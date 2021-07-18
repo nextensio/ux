@@ -246,7 +246,7 @@ const PolicyView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        <strong>Details: {'\n'}</strong>
+                                                        <strong className="roboto-font text-primary">Code{'\n'}</strong>
                                                         <pre>
                                                             {item.rego}
                                                         </pre>

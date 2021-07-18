@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { render } from 'react-dom'
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools"
+
 import {
     CButton,
     CCard,
@@ -12,13 +19,14 @@ import {
     CCardHeader,
     CFormGroup,
     CCardFooter,
-    CTextarea
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
+require(`ace-builds/src-noconflict/theme-tomorrow`)
+require(`ace-builds/src-noconflict/mode-markdown`)
 
 const PolicyAdd = (props) => {
     const initPolicyData = Object.freeze({
@@ -36,12 +44,15 @@ const PolicyAdd = (props) => {
         },
     };
 
+    function handleRegoChange(newValue) {
+        updatePolicyData({
+            ...policyData,
+            rego: newValue
+        })
+    }
+
     const handleChange = (e) => {
-        if (e.target.name == "rego") {
-            var ucode = e.target.value;
-        } else {
-            var ucode = e.target.value.trim();
-        }
+        var ucode = e.target.value.trim();
         updatePolicyData({
             ...policyData,
             [e.target.name]: ucode
@@ -98,10 +109,22 @@ const PolicyAdd = (props) => {
                             <CInput name="pid" onChange={handleChange} />
                         </CInputGroup>
                     </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-email">REGO Policy</CLabel>
-                        <CTextarea name="rego" placeholder={policyData.rego} onChange={handleChange} />
-                    </CFormGroup>
+                    <CLabel>OPA Policy</CLabel>
+                    <AceEditor
+                        name="rego"
+                        mode="markdown"
+                        theme="tomorrow"
+                        onChange={handleRegoChange}
+                        fontSize={18}
+                        editorProps={{ $blockScrolling: true }}
+                        setOptions={{
+                            enableBasicAutocompletion: true,
+                            enableLiveAutocompletion: true,
+                            enableSnippets: true,
+                            tabSize: 2,
+                        }}
+                    />
+            
                 </CForm>
             </CCardBody>
             <CCardFooter>
