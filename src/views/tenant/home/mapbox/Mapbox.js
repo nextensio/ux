@@ -7,7 +7,6 @@ import {
   CBadge,
   CPopover,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react';
 
 mapboxgl.workerClass = MapboxWorker;
 mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dC0xMjMiLCJhIjoiY2treGZ1ZDE5MXlrZTJ2cDZib2U1djZlMiJ9.5GTBI6mCCRGkNvRw6Hixew';
@@ -20,13 +19,6 @@ const Map = () => {
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(30);
   const [zoom, setZoom] = useState(.75);
-  const popupIcon = (description) => {
-    if (description != "Stay tuned...") {
-      return <CIcon name="cib-grafana"/>
-    } else {
-      return "Stay tuned..."
-    }
-  }
 
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -48,7 +40,7 @@ const Map = () => {
 
     map.on('click', function(e) {
       var features = map.queryRenderedFeatures(e.point, {
-          layers: ['data-centers2'] // replace this with the name of the layer
+          layers: ['data-centers5'] // replace this with the name of the layer
       });
 
       if (!features.length) {
