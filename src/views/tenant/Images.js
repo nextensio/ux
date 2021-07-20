@@ -31,7 +31,7 @@ const Images = () => {
                             <CCardText>
                                 Connector Image for use in Data Center Servers
                             </CCardText>
-                            <CButton href="http://nextensio-images.s3-website-us-west-1.amazonaws.com/stable/connector">Download</CButton>
+                            <CButton href="https://images.nextensio.net/stable/connector">Download</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -45,7 +45,7 @@ const Images = () => {
                             <CCardText>
                                 Linux Agent
                             </CCardText>
-                            <CButton href="http://nextensio-images.s3-website-us-west-1.amazonaws.com/stable/linux">Download</CButton>
+                            <CButton href="https://images.nextensio.net/stable/linux">Download</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -59,7 +59,7 @@ const Images = () => {
                             <CCardText>
                                 Android Agent
                             </CCardText>
-                            <CButton href="http://nextensio-images.s3-website-us-west-1.amazonaws.com/stable/android.apk">Download</CButton>
+                            <CButton href="https://images.nextensio.net/stable/android.apk">Download</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -73,7 +73,7 @@ const Images = () => {
                             <CCardText>
                                 Mac Agent
                             </CCardText>
-                            <CButton href="http://nextensio-images.s3-website-us-west-1.amazonaws.com/stable/mac.zip">Download</CButton>
+                            <CButton href="https://images.nextensio.net/stable/mac.zip">Download</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>
