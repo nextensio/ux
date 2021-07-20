@@ -3,6 +3,7 @@ import {
     cibApple,
     cibAndroidAlt,
     cibKubernetes,
+    cibGrafana,
     cibLinux
 } from '@coreui/icons'
 import {
@@ -64,6 +65,7 @@ export const icons = Object.assign({}, {
     cibApple,
     cibAndroidAlt,
     cibKubernetes,
+    cibGrafana,
     cibLinux
 }, {
     cil3d,

@@ -33,3 +33,11 @@
 .header {
   background-color: blue
 }
+.mapboxgl-popup-content {
+  max-width: 400px;
+  font-family: 'Roboto Condensed', sans-serif;
+  text-align: center
+}
+.mapboxgl-popup-close-button {
+  display: none
+}

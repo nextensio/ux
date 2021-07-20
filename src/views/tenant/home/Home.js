@@ -60,7 +60,7 @@ const Home = (props) => {
                             </CButton>
                         </CCardHeader>
                         <CCardBody>
-                            Satistics and Tracing.
+                            Statistics and Tracing.
                         </CCardBody>
 
                     </CCard>

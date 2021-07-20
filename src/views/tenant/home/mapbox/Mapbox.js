@@ -7,18 +7,26 @@ import {
   CBadge,
   CPopover,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react';
 
 mapboxgl.workerClass = MapboxWorker;
 mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dC0xMjMiLCJhIjoiY2treGZ1ZDE5MXlrZTJ2cDZib2U1djZlMiJ9.5GTBI6mCCRGkNvRw6Hixew';
 
-const onlineNum = 2
-const offlineNum = 21
+const onlineNum = 3
+const offlineNum = 18
 
 const Map = () => {
   const mapContainer = useRef();
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(30);
   const [zoom, setZoom] = useState(.75);
+  const popupIcon = (description) => {
+    if (description != "Stay tuned...") {
+      return <CIcon name="cib-grafana"/>
+    } else {
+      return "Stay tuned..."
+    }
+  }
 
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -40,7 +48,7 @@ const Map = () => {
 
     map.on('click', function(e) {
       var features = map.queryRenderedFeatures(e.point, {
-          layers: ['datacenters'] // replace this with the name of the layer
+          layers: ['data-centers2'] // replace this with the name of the layer
       });
 
       if (!features.length) {
@@ -51,7 +59,7 @@ const Map = () => {
 
       var popup = new mapboxgl.Popup({ offset: [0, -15] })
           .setLngLat(feature.geometry.coordinates)
-          .setHTML('<h3>' + feature.properties.title + '</h3><p>' + feature.properties.description + '</p>')
+          .setHTML('<h3>' + feature.properties.title + '</h3><h6>' + feature.properties.description + '</h6>')
           .addTo(map);
     });
             
@@ -61,7 +69,7 @@ const Map = () => {
   return (
     <div>
       <div className="sidebar">
-        3 Hosts | 17 Locations | 21 Data Centers
+        3 Hosts | 21 Locations
       </div>
       <div className="legend">
         <CBadge className="mr-1" color="success">{onlineNum}</CBadge>
