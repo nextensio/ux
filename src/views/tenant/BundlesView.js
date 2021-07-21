@@ -7,6 +7,7 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
+    CLink,
     CRow,
     CDataTable,
     CModal,
@@ -128,13 +129,6 @@ const BundlesView = (props) => {
         updateBidData(bidObj)
     }, [bundleData, bundleAttrData])
     
-    const toDocs = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/documentation',
-            state: "Bundles"
-        });
-    }
-
     const toAttributeEditor = (e) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/attreditor'
@@ -223,14 +217,16 @@ const BundlesView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
-                            <CButton 
+                            <CLink
                                 className="float-right" 
                                 color="primary"
-                                onClick={toDocs}
+                                href="https://docs.nextensio.net/bundles"
+                                target="_blank"
+                                rel="noopener noreferrer"
                             >
                                 <CIcon className="mr-1" name="cil-info"/>
                                 AppGroup Docs
-                            </CButton>
+                            </CLink>
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
                         <CCardBody>

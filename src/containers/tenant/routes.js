@@ -18,8 +18,6 @@ const PolicyEdit = React.lazy(() => import('../../views/tenant/PolicyEdit'));
 const AttributeEditor = React.lazy(() => import('../../views/tenant/AttributeEditor'));
 const Profile = React.lazy(() => import('../../views/tenant/Profile'));
 const Settings = React.lazy(() => import('../../views/tenant/Settings'));
-const Feedback = React.lazy(() => import('../../views/tenant/Feedback'));
-const Docs = React.lazy(() => import('../../views/tenant/Docs'));
 const Images = React.lazy(() => import('../../views/tenant/Images'));
 const Logout = React.lazy(() => import('../../views/tenant/Logout'));
 
@@ -43,8 +41,6 @@ const routes = [
     { path: '/tenant/:id/attreditor', name: 'Attribute Editor', component: AttributeEditor },
     { path: '/tenant/:id/profile', name: 'Profile', component: Profile, exact: true },
     { path: '/tenant/:id/settings', name: 'Settings', component: Settings, exact: true },
-    { path: '/tenant/:id/feedback', name: 'Feedback', component: Feedback, exact: true },
-    { path: '/tenant/:id/documentation', name: 'Documentation', component: Docs, exact: true },
     { path: '/tenant/:id/images', name: 'Images', component: Images, exact: true },
     { path: '/tenant/:id/logout', name: 'Log Out', component: Logout },
 ];

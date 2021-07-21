@@ -7,6 +7,7 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
+    CLink,
     CRow,
     CDataTable,
     CModal,
@@ -110,13 +111,6 @@ const UsersView = (props) => {
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
-    const toDocs = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/documentation',
-            state: "Users"
-        });
-    }
-
     const toAttributeEditor = (e) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/attreditor'
@@ -195,14 +189,16 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
-                            <CButton 
+                            <CLink 
                                 className="float-right" 
                                 color="primary"
-                                onClick={toDocs}
+                                href="https://docs.nextensio.net/users"
+                                target="_blank"
+                                rel="noopener noreferrer"
                             >
                                 <CIcon className="mr-1" name="cil-info"/>
                                 User Docs
-                            </CButton>
+                            </CLink>
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
                         <CCardBody>

@@ -76,7 +76,9 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Docs',
-        to: '/tenant/:id/documentation',
+        href: 'https://docs.nextensio.net/',
+        target: '_blank',
+        rel: 'noopener noreferrer',
         className: 'roboto-font',
         icon: {
             name: 'cil-info',
@@ -96,7 +98,9 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Feedback',
-        to: '/tenant/:id/feedback',
+        href: 'https://github.com/nextensio',
+        target: '_blank',
+        rel: 'noopener noreferrer',
         className: 'roboto-font',
         icon: {
             name: 'cil-speech',

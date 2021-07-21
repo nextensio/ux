@@ -9,6 +9,7 @@ import {
     CCol,
     CRow,
     CDataTable,
+    CLink,
     CModal,
     CModalHeader,
     CModalBody,
@@ -93,13 +94,6 @@ const PolicyView = (props) => {
             });
     }, []);
 
-    const toDocs = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/documentation',
-            state: "Policies"
-        });
-    }
-
     const handleRefresh = (e) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
@@ -175,14 +169,16 @@ const PolicyView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Policies</strong>
-                            <CButton 
+                            <CLink
                                 className="float-right" 
                                 color="primary"
-                                onClick={toDocs}
+                                href="https://docs.nextensio.net/policies"
+                                target="_blank"
+                                rel="noopener noreferrer"
                             >
                                 <CIcon className="mr-1" name="cil-info"/>
                                 Policy Docs
-                            </CButton>
+                            </CLink>
                             <div className="text-muted small">Click on a row to see policy code</div>
                         </CCardHeader>
                         <CCardBody>

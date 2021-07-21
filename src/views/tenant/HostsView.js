@@ -8,6 +8,7 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
+    CLink,
     CDataTable,
     CModal,
     CModalHeader,
@@ -101,13 +102,6 @@ const HostsView = (props) => {
             .then(response => response.json())
             .then(data => updateHostData(data));
     }, []);
-
-    const toDocs = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/documentation',
-            state: "Hosts"
-        });
-    }
 
     const handleRefresh = (e) => {
         setDetails([])
@@ -245,14 +239,16 @@ const HostsView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Hosts</strong>
-                            <CButton 
+                            <CLink
                                 className="float-right" 
                                 color="primary"
-                                onClick={toDocs}
+                                href="https://docs.nextensio.net/hosts"
+                                target="_blank"
+                                rel="noopener noreferrer"
                             >
                                 <CIcon className="mr-1" name="cil-info"/>
                                 Host Docs
-                            </CButton>
+                            </CLink>
                             <div className="text-muted small">Click on a row to see all routes</div>
                         </CCardHeader>
                         <CCardBody>
