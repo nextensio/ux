@@ -75,6 +75,16 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
+        name: 'Images',
+        to: '/tenant/:id/images',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-3d',
+            size: 'lg'
+        },
+    },
+    {
+        _tag: 'CSidebarNavItem',
         name: 'Docs',
         href: 'https://docs.nextensio.net/',
         target: '_blank',
@@ -87,17 +97,7 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Images',
-        to: '/tenant/:id/images',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-3d',
-            size: 'lg'
-        },
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Feedback',
+        name: 'Support',
         href: 'https://github.com/nextensio',
         target: '_blank',
         rel: 'noopener noreferrer',
