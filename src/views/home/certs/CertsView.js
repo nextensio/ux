@@ -30,16 +30,16 @@ var common = require('../../../common')
 
 const fields = [
     {
-        key: "certid",
-        label: "Certificate ID",
-        _classes: "data-head",
-    },
-    {
         key: 'show_details',
         label: '',
         _style: { width: '1%' },
         sorter: false,
         filter: false
+    },
+    {
+        key: "certid",
+        label: "Certificate ID",
+        _classes: "data-head",
     },
     {
         key: 'edit',
@@ -175,6 +175,8 @@ const CertsView = (props) => {
                                 tableFilter={{ placeholder: 'By certicate ID...', label: 'Search: ' }}
                                 sorter
                                 pagination
+                                clickableRows
+                                onRowClick={(item, index) => {toggleDetails(index)}}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {

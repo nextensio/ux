@@ -1,13 +1,7 @@
 import React, { lazy, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-    CContainer,
     CCreateElement,
-    CDataTable,
-    CModal,
-    CModalTitle,
-    CModalHeader,
-    CModalBody,
     CNavItem,
     CNavLink,
     CSidebar,
@@ -41,7 +35,7 @@ const TheSidebar = () => {
             <CSidebarBrand className="d-md-down-none" to="/">
                 <div className="c-sidebar-brand-full sidebar-brand">
                     <CIcon name="cil-videogame" />{' '}
-                    Nextensio Controller
+                    Nextensio
                 </div>
                 <CIcon className="c-sidebar-brand-minimized" name="cil-videogame" size="2xl" />
             </CSidebarBrand>

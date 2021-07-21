@@ -34,10 +34,6 @@ const fields = [
         _classes: "data-head",
     },
     {
-        key: "name",
-        _classes: "data-field"
-    },
-    {
         key: "domains",
         _classes: "data-field"
     },
