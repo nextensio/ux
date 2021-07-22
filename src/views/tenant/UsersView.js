@@ -189,6 +189,7 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
+                            <CButton onClick={() => console.log(zippedData)}>zippedData</CButton>
                             <CLink
                                 className="float-right"
                                 color="primary"
@@ -261,7 +262,7 @@ const UsersView = (props) => {
                                                                                         <div>
                                                                                             {Array.isArray(item[key])
                                                                                                 ? <div>{item[key].join(' & ')}</div>
-                                                                                                : <div>{item[key]}</div>
+                                                                                                : <div>{item[key].toString()}</div>
                                                                                             }
                                                                                         </div>
                                                                                     }

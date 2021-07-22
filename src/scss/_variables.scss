@@ -26,12 +26,13 @@ $theme-colors: (
   "secondary-light": $secondary-light
 );
 
-$sidebar-nextensio-bg: #161d20;
+$nextensio-dark: #161d20;
+$nextensio-cream: #cccccc;
 // Sidebar 
 $sidebar-width: 200px;
 $sidebar-theme-color: $success;
-$sidebar-backdrop-opacity: 1;
-$sidebar-dark-bg: $sidebar-nextensio-bg;
+$sidebar-backdrop-opacity: 0;
+$sidebar-dark-bg: $nextensio-dark;
 
 // Sidebar brand
 $sidebar-brand-height:  50px;
@@ -61,6 +62,10 @@ $sidebar-dark-footer-bg: transparent;
 
 // Header height
 $header-height: 50px;
+
+// Header styling
+$header-light-bg: $nextensio-cream;
+$header-light-color: $nextensio-dark;
 
 // Body
 $body-bg: $white;
