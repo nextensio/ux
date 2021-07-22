@@ -121,20 +121,20 @@ const BundlesView = (props) => {
                     ...bundleData[i],
                     ...bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)
                 }
-                const {connectid, cluster, gateway, pod, majver, minver, _gateway, _name, _pod, ...rest} = zipObj
+                const { connectid, cluster, gateway, pod, majver, minver, _gateway, _name, _pod, ...rest } = zipObj
                 zipper.push(rest)
             }
         }
         updateZippedData(zipper)
         updateBidData(bidObj)
     }, [bundleData, bundleAttrData])
-    
+
     const toAttributeEditor = (e) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/attreditor'
         })
     }
-    
+
     const handleRefresh = (e) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundles'), hdrs)
@@ -208,7 +208,7 @@ const BundlesView = (props) => {
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
-    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
     return (
         <>
@@ -218,13 +218,13 @@ const BundlesView = (props) => {
                         <CCardHeader>
                             <strong>AppGroup</strong>
                             <CLink
-                                className="float-right" 
+                                className="float-right"
                                 color="primary"
-                                href="https://docs.nextensio.net/bundles"
+                                href="https://docs.nextensio.net/configurations/appgroups.html"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <CIcon className="mr-1" name="cil-info"/>
+                                <CIcon className="mr-1" name="cil-info" />
                                 AppGroup Docs
                             </CLink>
                             <div className="text-muted small">Click on a row to see attributes</div>
@@ -239,7 +239,7 @@ const BundlesView = (props) => {
                                 sorter
                                 pagination
                                 clickableRows
-                                onRowClick={(item, index) => {toggleDetails(index)}}
+                                onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
                                     'show_details':
                                         (item, index) => {
@@ -255,48 +255,48 @@ const BundlesView = (props) => {
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
                                                         {Object.keys(item).length < 5 ?
-                                                        <div className="roboto-font">No bundle attributes exist. <a onClick={toAttributeEditor} className="text-primary"><CIcon name="cil-code"/> Click here</a> to add a bundle attribute.</div> :
-                                                        <table className="my-1 table table-outline d-sm-table">
-                                                            <tr>
-                                                                <th className="attributes header roboto-font">Attributes</th>
-                                                                <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                            </tr>
-                                                            {Object.keys(item).filter(key => {
-                                                                if (["bid", "name", "cpodrepl", "services"].includes(key)) {
-                                                                    return false
-                                                                }
-                                                                else {
-                                                                    return true
-                                                                }
-                                                            }).map(key => {
-                                                                return(
-                                                                    <tr>
-                                                                        <th className="attributes roboto-font">{key}</th>
-                                                                        <td className="roboto-font">
-                                                                            <>
-                                                                                {/**Check if attribute value equals false, 0, "",
+                                                            <div className="roboto-font">No bundle attributes exist. <a onClick={toAttributeEditor} className="text-primary"><CIcon name="cil-code" /> Click here</a> to add a bundle attribute.</div> :
+                                                            <table className="my-1 table table-outline d-sm-table">
+                                                                <tr>
+                                                                    <th className="attributes header roboto-font">Attributes</th>
+                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
+                                                                </tr>
+                                                                {Object.keys(item).filter(key => {
+                                                                    if (["bid", "name", "cpodrepl", "services"].includes(key)) {
+                                                                        return false
+                                                                    }
+                                                                    else {
+                                                                        return true
+                                                                    }
+                                                                }).map(key => {
+                                                                    return (
+                                                                        <tr>
+                                                                            <th className="attributes roboto-font">{key}</th>
+                                                                            <td className="roboto-font">
+                                                                                <>
+                                                                                    {/**Check if attribute value equals false, 0, "",
                                                                                  * [false], 0, [""] which we have defined as default values.
                                                                                  */}
-                                                                                {[false, 0, "",].indexOf(item[key]) > -1 || 
-                                                                                (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
-                                                                                    <div className="text-warning">
-                                                                                        Default value assigned
+                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 ||
+                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1) ?
+                                                                                        <div className="text-warning">
+                                                                                            Default value assigned
                                                                                     </div>
-                                                                                :
-                                                                                    <div>
-                                                                                        {Array.isArray(item[key]) 
-                                                                                        ? <div>{item[key].join(' & ')}</div>
-                                                                                        : <div>{item[key]}</div>
-                                                                                        }
-                                                                                    </div>
-                                                                                }
-                                                                            </>
-                                                                        </td>
-                                                                    </tr>
-                                                                )
-                                                            })}
-                                                        </table>}
-                                                       
+                                                                                        :
+                                                                                        <div>
+                                                                                            {Array.isArray(item[key])
+                                                                                                ? <div>{item[key].join(' & ')}</div>
+                                                                                                : <div>{item[key]}</div>
+                                                                                            }
+                                                                                        </div>
+                                                                                    }
+                                                                                </>
+                                                                            </td>
+                                                                        </tr>
+                                                                    )
+                                                                })}
+                                                            </table>}
+
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

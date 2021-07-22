@@ -160,7 +160,7 @@ const PolicyView = (props) => {
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
-    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
     return (
         <>
@@ -170,13 +170,13 @@ const PolicyView = (props) => {
                         <CCardHeader>
                             <strong>Policies</strong>
                             <CLink
-                                className="float-right" 
+                                className="float-right"
                                 color="primary"
-                                href="https://docs.nextensio.net/policies"
+                                href="https://docs.nextensio.net/configurations/policies.html"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <CIcon className="mr-1" name="cil-info"/>
+                                <CIcon className="mr-1" name="cil-info" />
                                 Policy Docs
                             </CLink>
                             <div className="text-muted small">Click on a row to see policy code</div>
@@ -191,7 +191,7 @@ const PolicyView = (props) => {
                                 sorter
                                 pagination
                                 clickableRows
-                                onRowClick={(item, index) => {toggleDetails(index)}}
+                                onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
                                     'show_details':
                                         (item, index) => {

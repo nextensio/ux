@@ -240,13 +240,13 @@ const HostsView = (props) => {
                         <CCardHeader>
                             <strong>Hosts</strong>
                             <CLink
-                                className="float-right" 
+                                className="float-right"
                                 color="primary"
-                                href="https://docs.nextensio.net/hosts"
+                                href="https://docs.nextensio.net/configurations/hosts.html"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <CIcon className="mr-1" name="cil-info"/>
+                                <CIcon className="mr-1" name="cil-info" />
                                 Host Docs
                             </CLink>
                             <div className="text-muted small">Click on a row to see all routes</div>
@@ -410,16 +410,16 @@ const HostsView = (props) => {
                                                                                 {routeConfig.map((route, i) => {
                                                                                     return (
                                                                                         <td className="roboto-font">
-                                                                                            {[false, 0, "",].indexOf(route[key]) > -1 || 
-                                                                                            (Array.isArray(route[key]) && route[key].length === 1 && [false, 0, ""].indexOf(route[key][0]) > -1)?
+                                                                                            {[false, 0, "",].indexOf(route[key]) > -1 ||
+                                                                                                (Array.isArray(route[key]) && route[key].length === 1 && [false, 0, ""].indexOf(route[key][0]) > -1) ?
                                                                                                 <div className="text-warning">
                                                                                                     Default value assigned
                                                                                                 </div>
-                                                                                            :
+                                                                                                :
                                                                                                 <div>
-                                                                                                    {Array.isArray(route[key]) 
-                                                                                                    ? <div>{route[key].join(' & ')}</div>
-                                                                                                    : <div>{route[key].toString()}</div>
+                                                                                                    {Array.isArray(route[key])
+                                                                                                        ? <div>{route[key].join(' & ')}</div>
+                                                                                                        : <div>{route[key].toString()}</div>
                                                                                                     }
                                                                                                 </div>
                                                                                             }

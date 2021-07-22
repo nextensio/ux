@@ -101,9 +101,9 @@ const UsersView = (props) => {
                     ...usersData[i],
                     ...(userAttrData.find((obj) => obj.uid === usersData[i].uid))
                 }
-            // Deconstruct the zipped object, remove unecessary properties
-            // Will need to be fixed in controller repo later
-                const {connectid, cluster, email, gateway, pod, services, majver, minver, _gateway, _email, _pod, ...rest} = zipObj
+                // Deconstruct the zipped object, remove unecessary properties
+                // Will need to be fixed in controller repo later
+                const { connectid, cluster, email, gateway, pod, services, majver, minver, _gateway, _email, _pod, ...rest } = zipObj
                 zipper.push(rest)
             }
         }
@@ -116,7 +116,7 @@ const UsersView = (props) => {
             pathname: '/tenant/' + props.match.params.id + '/attreditor'
         })
     }
-    
+
     const handleRefresh = (e) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
@@ -180,7 +180,7 @@ const UsersView = (props) => {
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
-    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
     return (
         <>
@@ -189,14 +189,14 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
-                            <CLink 
-                                className="float-right" 
+                            <CLink
+                                className="float-right"
                                 color="primary"
-                                href="https://docs.nextensio.net/users"
+                                href="https://docs.nextensio.net/configurations/users.html"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <CIcon className="mr-1" name="cil-info"/>
+                                <CIcon className="mr-1" name="cil-info" />
                                 User Docs
                             </CLink>
                             <div className="text-muted small">Click on a row to see attributes</div>
@@ -211,7 +211,7 @@ const UsersView = (props) => {
                                 sorter
                                 pagination
                                 clickableRows
-                                onRowClick={(item, index) => {toggleDetails(index)}}
+                                onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
                                     'show_details':
                                         (item, index) => {
@@ -228,8 +228,8 @@ const UsersView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        {Object.keys(item).length < 3 ? 
-                                                            <div className="roboto-font">No user attributes exist. <a className="text-primary" onClick={toAttributeEditor}><CIcon name="cil-code"/> Click here</a> to add a user attribute.</div>
+                                                        {Object.keys(item).length < 3 ?
+                                                            <div className="roboto-font">No user attributes exist. <a className="text-primary" onClick={toAttributeEditor}><CIcon name="cil-code" /> Click here</a> to add a user attribute.</div>
                                                             :
                                                             <table className="my-1 table table-outline d-sm-table">
                                                                 <tr>
@@ -244,7 +244,7 @@ const UsersView = (props) => {
                                                                         return true
                                                                     }
                                                                 }).map(key => {
-                                                                    return(
+                                                                    return (
                                                                         <tr>
                                                                             <th className="attributes roboto-font">{key}</th>
                                                                             <td className="roboto-font">
@@ -252,16 +252,16 @@ const UsersView = (props) => {
                                                                                     {/**Check if attribute value equals false, 0, "",
                                                                                      * [false], 0, [""] which we have defined as default values.
                                                                                      */}
-                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 || 
-                                                                                    (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
+                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 ||
+                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1) ?
                                                                                         <div className="text-warning">
                                                                                             Default value assigned
                                                                                         </div>
-                                                                                    :
+                                                                                        :
                                                                                         <div>
-                                                                                            {Array.isArray(item[key]) 
-                                                                                            ? <div>{item[key].join(' & ')}</div>
-                                                                                            : <div>{item[key]}</div>
+                                                                                            {Array.isArray(item[key])
+                                                                                                ? <div>{item[key].join(' & ')}</div>
+                                                                                                : <div>{item[key]}</div>
                                                                                             }
                                                                                         </div>
                                                                                     }
@@ -345,7 +345,7 @@ const UsersView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
-                
+
             </CRow>
         </>
     )
