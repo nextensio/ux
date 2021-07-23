@@ -189,9 +189,14 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
+<<<<<<< HEAD
                             <CButton onClick={() => console.log(zippedData)}>zippedData</CButton>
                             <CLink
                                 className="float-right"
+=======
+                            <CLink 
+                                className="float-right" 
+>>>>>>> Default values in place for input fields on bundles edit page.
                                 color="primary"
                                 href="https://docs.nextensio.net/configurations/users.html"
                                 target="_blank"

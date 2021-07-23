@@ -332,7 +332,6 @@ const UsersEdit = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Edit Details for {userState.uid}</strong>
-                <CButton onClick={() => console.log(userAttrState)}>userAttrState</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
                 <CRow>
