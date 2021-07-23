@@ -50,10 +50,16 @@ $sidebar-light-nav-link-hover-bg: rgba($gray-100, .5);
 $sidebar-light-nav-link-hover-icon-color: $sidebar-light-nav-link-icon-color;
 $sidebar-light-nav-link-hover-color: $sidebar-light-nav-link-color;
 
+$sidebar-dark-nav-link-hover-bg: rgba($success, .5);
+
 $sidebar-light-nav-link-active-bg: rgba($sidebar-theme-color, .1);
 $sidebar-light-nav-link-active-color: $sidebar-theme-color;
 $sidebar-light-nav-link-active-icon-color: $sidebar-theme-color;
 $sidebar-light-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
+
+$sidebar-dark-nav-link-active-icon-color: $sidebar-theme-color;
+$sidebar-dark-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
+
 
 
 // Sidebar footer
@@ -68,6 +74,13 @@ $header-light-bg: $nextensio-cream;
 $header-light-color: $nextensio-dark;
 
 // Body
-$body-bg: $white;
+$body-bg: rgba($nextensio-dark, 0.8);
+
+// Cards
+$card-border-color:  $nextensio-dark;
+$card-cap-color: $nextensio-cream;
+$card-cap-bg:        rgba($nextensio-dark, 0.6);
+$card-bg: rgba($nextensio-dark, 0.6);
+$card-color: $nextensio-cream;
 
 @import "../../node_modules/@coreui/coreui/scss/bootstrap.scss";
