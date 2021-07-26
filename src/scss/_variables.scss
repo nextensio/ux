@@ -73,14 +73,6 @@ $header-height: 50px;
 $header-light-bg: $nextensio-cream;
 $header-light-color: $nextensio-dark;
 
-// Body
-$body-bg: rgba($nextensio-dark, 0.8);
 
-// Cards
-$card-border-color:  $nextensio-dark;
-$card-cap-color: $nextensio-cream;
-$card-cap-bg:        rgba($nextensio-dark, 0.6);
-$card-bg: rgba($nextensio-dark, 0.6);
-$card-color: $nextensio-cream;
 
 @import "../../node_modules/@coreui/coreui/scss/bootstrap.scss";
