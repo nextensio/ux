@@ -129,6 +129,15 @@ const AttributeEditor = (props) => {
     // function used to update errObj
     function validate() {
         var errors = {}
+        attributeData.name = attributeData.name.trim()
+        // If the tenant does not input any value for name or select a type errObj will have typeErr
+        if (attributeData.name == "") {
+            errors.typeErr = true
+        }
+        if (attributeData.name[0] == "_") {
+            alert("names starting with _ are reserved keywords, please choose another name");
+            errors.typeErr = true
+        }
         // We have some reserved keywords for uid and bid and tag
         if (attributeData.name == "uid" && attributeData.appliesTo == "Users") {
             alert("uid is a reserved keyword, please choose another name");
@@ -145,10 +154,6 @@ const AttributeEditor = (props) => {
         // If the tenant does not select an appliesTo value errObj will have appliesToErr
         if (attributeData.appliesTo == "") {
             errors.appliesToErr = true
-        }
-        // If the tenant does not input any value for name or select a type errObj will have typeErr
-        if (attributeData.name.trim() == "") {
-            errors.typeErr = true
         }
         if (attributeData.isArray == "") {
             errors.isArrayErr = true

@@ -67,7 +67,7 @@ const BundlesEdit = (props) => {
             .then(data => {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].bid == bundleState.bid) {
-                        var { bid, _name, _pod, _gateway, ...rest } = data[i]
+                        var { bid,  ...rest } = data[i]
                         updateBundleAttrState({ bid, ...rest })
                     }
                 }

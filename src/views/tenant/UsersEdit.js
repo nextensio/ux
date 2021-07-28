@@ -68,7 +68,7 @@ const UsersEdit = (props) => {
                     if (data[i].uid == userState.uid) {
                         // remove email, gateway, pod from userAttrState
                         // ...rest is all the user attributes
-                        var {uid, _email, _gateway, _pod, ...rest} = data[i]
+                        var {uid, ...rest} = data[i]
                         updateUserAttrState({uid, ...rest})
                     }
                 }

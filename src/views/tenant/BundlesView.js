@@ -99,13 +99,6 @@ const BundlesView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    // The AttrHeader should not show up among attributes
-                    if (data[i].hasOwnProperty('bid') && data[i].bid == 'AppAttr') {
-                        data.splice(i, 1);
-                        break;
-                    }
-                }
                 updateBundleAttrData(data)
             });
     }, []);
@@ -121,7 +114,7 @@ const BundlesView = (props) => {
                     ...bundleData[i],
                     ...bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)
                 }
-                const { connectid, cluster, gateway, pod, majver, minver, _gateway, _name, _pod, ...rest } = zipObj
+                const { connectid, cluster, gateway, pod, majver, minver, ...rest } = zipObj
                 zipper.push(rest)
             }
         }
@@ -143,13 +136,6 @@ const BundlesView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    // The AttrHeader should not show up among attributes
-                    if (data[i].hasOwnProperty('bid') && data[i].bid == 'AppAttr') {
-                        data.splice(i, 1);
-                        break;
-                    }
-                }
                 updateBundleAttrData(data)
             });
     }
