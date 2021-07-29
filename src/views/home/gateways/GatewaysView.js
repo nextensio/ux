@@ -127,8 +127,6 @@ const GatewaysView = (props) => {
                                 pagination
                                 sorter
                                 hover
-                                clickableRows
-                                onRowClick={(e) => props.history.push(`/home/gateways/data`)}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
@@ -148,7 +146,7 @@ const GatewaysView = (props) => {
                                                                 e.stopPropagation()
                                                             }}
                                                         >
-                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit"/>
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
