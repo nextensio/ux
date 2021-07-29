@@ -27,6 +27,7 @@ import {
     CFormGroup,
     CCardFooter,
     CRow,
+    CSelect,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -48,7 +49,6 @@ const PolicyAdd = (props) => {
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]));
     const [bundleAttrs, updateBundleAttrs] = useState(Object.freeze([]));
     const [hostAttrs, updateHostAttrs] = useState(Object.freeze([]));
-    const [bundleOrHostAttrs, updateBundleOrHostAttrs] = useState("Bundle Attrs")
     const [dummyCodeSnippet, updateDummyCodeSnippet] = useState(Object.freeze(["", "", ""]))
     const [dummyCode, updateDummyCode] = useState(Object.freeze([]))
 
@@ -86,14 +86,6 @@ const PolicyAdd = (props) => {
                 updateHostAttrs(host.sort())
             });
     }, []);
-
-    function swapBetweenBundleAndHost() {
-        if (bundleOrHostAttrs == "Bundle Attrs") {
-            updateBundleOrHostAttrs("Host Attrs")
-        } else {
-            updateBundleOrHostAttrs("Bundle Attrs")
-        }
-    }
 
     function handleDummyCode(dummy) {
         let code = [...dummyCode]
@@ -193,6 +185,7 @@ const PolicyAdd = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Add Policy</strong>
+                <CButton onClick={e => console.log(dummyCode)}>dummyCode</CButton>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -204,7 +197,11 @@ const PolicyAdd = (props) => {
                                     <CIcon name="cil-fingerprint" />
                                 </CInputGroupText>
                             </CInputGroupPrepend>
-                            <CInput name="pid" onChange={handleChange} />
+                            <CSelect name="pid" custom onChange={handleChange}>
+                                <option>Please select a policy</option>
+                                <option value={"applicationAccess"}>applicationAccess</option>
+                                <option value={"applicationRouting"}>applicationRouting</option>
+                            </CSelect>
                         </CInputGroup>
                     </CFormGroup>
                 </CForm>
@@ -214,10 +211,11 @@ const PolicyAdd = (props) => {
                         <CCard>
                             <CCardHeader>
                                 Policy Builder
+                                <div className="text-muted small">Select a Policy ID to use bundle or host attributes.</div>
                             </CCardHeader>
                             <CCardBody>
                                 <CRow>
-                                    <CCol md="4">
+                                    <CCol md="5">
                                         <CDropdown className="roboto-font mb-3">
                                             <CDropdownToggle size="sm" caret color="info">
                                                 User Attrs
@@ -253,52 +251,53 @@ const PolicyAdd = (props) => {
                                             </CDropdownMenu>
                                         </CDropdown>
                                     </CCol>
-                                    <CCol md="4">
-                                        <CDropdown className="roboto-font mb-3">
-                                            <CDropdownToggle size="sm" caret color="info">
-                                                {bundleOrHostAttrs}
-                                            </CDropdownToggle>
-                                            <CDropdownMenu>
-                                                {bundleOrHostAttrs == "Bundle Attrs" ?
-                                                    <div className="roboto-font">
-                                                        {bundleAttrs.map((item, index) => {
-                                                            return (
-                                                                <div>
-                                                                    <CDropdownItem
-                                                                        size="sm"
-                                                                        key={item}
-                                                                        color={item == dummyCodeSnippet[2] ? "success" : "transparent"}
-                                                                        onClick={e => handleDummyCodeSnippet(e, item, 2)}
-                                                                    >
-                                                                        {item}
-                                                                    </CDropdownItem>
-                                                                </div>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                    :
-                                                    <div>
-                                                        {hostAttrs.map((item, index) => {
-                                                            return (
-                                                                <div>
-                                                                    <CDropdownItem
-                                                                        size="sm"
-                                                                        key={item}
-                                                                        color={item == dummyCodeSnippet[2] ? "success" : "transparent"}
-                                                                        onClick={e => handleDummyCodeSnippet(e, item, 2)}
-                                                                    >
-                                                                        {item}
-                                                                    </CDropdownItem>
-                                                                </div>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                }
-                                            </CDropdownMenu>
-                                        </CDropdown>
-                                    </CCol>
-                                    <CCol md="2">
-                                        <CButton color="info" size="sm" onClick={swapBetweenBundleAndHost}><CIcon name="cil-swap-horizontal" /></CButton>
+                                    <CCol md="5">
+                                        {!policyData.pid ?
+                                            <div className="roboto-font text-info">Select a Policy ID</div>
+                                            :
+                                            <CDropdown className="roboto-font mb-3">
+                                                <CDropdownToggle size="sm" caret color="info">
+                                                    {policyData.pid == "applicationAccess" ? "Bundle Attrs" : "Host Attrs"}
+                                                </CDropdownToggle>
+                                                <CDropdownMenu>
+                                                    {policyData.pid == "applicationAccess" ?
+                                                        <div className="roboto-font">
+                                                            {bundleAttrs.map((item, index) => {
+                                                                return (
+                                                                    <div>
+                                                                        <CDropdownItem
+                                                                            size="sm"
+                                                                            key={item}
+                                                                            color={item == dummyCodeSnippet[2] ? "success" : "transparent"}
+                                                                            onClick={e => handleDummyCodeSnippet(e, item, 2)}
+                                                                        >
+                                                                            {item}
+                                                                        </CDropdownItem>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                        :
+                                                        <div>
+                                                            {hostAttrs.map((item, index) => {
+                                                                return (
+                                                                    <div>
+                                                                        <CDropdownItem
+                                                                            size="sm"
+                                                                            key={item}
+                                                                            color={item == dummyCodeSnippet[2] ? "success" : "transparent"}
+                                                                            onClick={e => handleDummyCodeSnippet(e, item, 2)}
+                                                                        >
+                                                                            {item}
+                                                                        </CDropdownItem>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    }
+                                                </CDropdownMenu>
+                                            </CDropdown>
+                                        }
                                     </CCol>
                                 </CRow>
                                 <CRow>
@@ -307,14 +306,14 @@ const PolicyAdd = (props) => {
                                     </CCol>
                                 </CRow>
                                 <CRow>
-                                    <CCol md="4">
-                                        <div className="code-box">{dummyCodeSnippet[0]}</div>
+                                    <CCol md="5">
+                                        <div className={dummyCodeSnippet[0] ? "code-box-active" : "code-box"}>{dummyCodeSnippet[0]}</div>
                                     </CCol>
                                     <CCol md="2">
-                                        <div className="code-box">{dummyCodeSnippet[1]}</div>
+                                        <div className={dummyCodeSnippet[1] ? "code-box-active" : "code-box"}>{dummyCodeSnippet[1]}</div>
                                     </CCol>
-                                    <CCol md="4">
-                                        <div className="code-box">{dummyCodeSnippet[2]}</div>
+                                    <CCol md="5">
+                                        <div className={dummyCodeSnippet[2] ? "code-box-active" : "code-box"}>{dummyCodeSnippet[2]}</div>
                                     </CCol>
                                 </CRow>
 
@@ -355,7 +354,7 @@ const PolicyAdd = (props) => {
                                 <CRow className="mt-3">
                                     <CCol md="12">
                                         <CButton className="button-footer-danger" variant="outline" color="danger" onClick={resetDummyCode}><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                                        <CButton className="button-footer-success" variant="outline" color="success"><CIcon name="cil-scrubber" /> <strong>Convert</strong></CButton>
+                                        <CButton className="button-footer-success" variant="outline" color="success"><strong>Convert</strong> <CIcon name="cil-arrow-right" /></CButton>
                                     </CCol>
                                 </CRow>
                             </CCardBody>

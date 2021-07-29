@@ -9,6 +9,7 @@ import {
 import {
     cil3d,
     cilAccountLogout,
+    cilArrowRight,
     cilAsterisk,
     cilBan,
     cilBell,
@@ -71,6 +72,7 @@ export const icons = Object.assign({}, {
 }, {
     cil3d,
     cilAccountLogout,
+    cilArrowRight,
     cilAsterisk,
     cilBan,
     cilBell,
