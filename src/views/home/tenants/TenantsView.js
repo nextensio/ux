@@ -73,13 +73,23 @@ const TenantsView = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
             .then(response => response.json())
-            .then(data => updateTenantData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    data[i].domains = JSON.stringify(data[i].domains)
+                }
+                updateTenantData(data)
+            });
     }, []);
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
             .then(response => response.json())
-            .then(data => updateTenantData(data));
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    data[i].domains = JSON.stringify(data[i].domains)
+                }
+                updateTenantData(data)
+            });
     }
 
     const handleAdd = (e) => {
