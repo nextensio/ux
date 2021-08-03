@@ -103,7 +103,7 @@ const UsersView = (props) => {
                 }
                 // Deconstruct the zipped object, remove unecessary properties
                 // Will need to be fixed in controller repo later
-                const { connectid, cluster, email, gateway, pod, services, majver, minver, ...rest } = zipObj
+                const { connectid, cluster, email, gateway, pod, services, majver, minver, _email, _gateway, _pod, ...rest } = zipObj
                 zipper.push(rest)
             }
         }
@@ -189,14 +189,8 @@ const UsersView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>Users</strong>
-<<<<<<< HEAD
-                            <CButton onClick={() => console.log(zippedData)}>zippedData</CButton>
                             <CLink
                                 className="float-right"
-=======
-                            <CLink 
-                                className="float-right" 
->>>>>>> Default values in place for input fields on bundles edit page.
                                 color="primary"
                                 href="https://docs.nextensio.net/configurations/users.html"
                                 target="_blank"

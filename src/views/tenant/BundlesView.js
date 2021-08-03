@@ -114,7 +114,7 @@ const BundlesView = (props) => {
                     ...bundleData[i],
                     ...bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)
                 }
-                const { connectid, cluster, gateway, pod, majver, minver, ...rest } = zipObj
+                const { connectid, cluster, gateway, pod, majver, minver, _gateway, _pod, _name, ...rest } = zipObj
                 zipper.push(rest)
             }
         }
@@ -263,30 +263,16 @@ const BundlesView = (props) => {
                                                                                     {/**Check if attribute value equals false, 0, "",
                                                                                  * [false], 0, [""] which we have defined as default values.
                                                                                  */}
-<<<<<<< HEAD
                                                                                     {[false, 0, "",].indexOf(item[key]) > -1 ||
                                                                                         (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1) ?
                                                                                         <div className="text-warning">
                                                                                             Default value assigned
-=======
-                                                                                {[false, 0, "",].indexOf(item[key]) > -1 || 
-                                                                                (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1)?
-                                                                                    <div className="text-warning">
-                                                                                        Default value assigned
-                                                                                    </div>
-                                                                                :
-                                                                                    <div>
-                                                                                        {Array.isArray(item[key]) 
-                                                                                        ? <div>{item[key].join(' & ')}</div>
-                                                                                        : <div>{item[key].toString()}</div>
-                                                                                        }
->>>>>>> Default values in place for input fields on bundles edit page.
-                                                                                    </div>
+                                                                                        </div>
                                                                                         :
                                                                                         <div>
                                                                                             {Array.isArray(item[key])
                                                                                                 ? <div>{item[key].join(' & ')}</div>
-                                                                                                : <div>{item[key]}</div>
+                                                                                                : <div>{item[key].toString()}</div>
                                                                                             }
                                                                                         </div>
                                                                                     }
