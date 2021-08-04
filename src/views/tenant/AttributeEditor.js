@@ -139,11 +139,11 @@ const AttributeEditor = (props) => {
             errors.typeErr = true
         }
         // We have some reserved keywords for uid and bid and tag
-        if (attributeData.name == "uid" && attributeData.appliesTo == "Users") {
+        if (attributeData.name == "uid") {
             alert("uid is a reserved keyword, please choose another name");
             errors.typeErr = true
         }
-        if (attributeData.name == "bid" && attributeData.appliesTo == "Bundles") {
+        if (attributeData.name == "bid") {
             alert("bid is a reserved keyword, please choose another name");
             errors.typeErr = true
         }
