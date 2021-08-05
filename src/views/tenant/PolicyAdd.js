@@ -55,6 +55,7 @@ const PolicyAdd = (props) => {
 
     const [dummySnippet, updateDummySnippet] = useState(Object.freeze(["", "", ""]))
     const [dummyCode, updateDummyCode] = useState(Object.freeze([]))
+    const [snippetConstStatus, updateSnippetConstStatus] = useState(null)
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -91,24 +92,28 @@ const PolicyAdd = (props) => {
             });
     }, []);
 
-    function handleDummyCode(dummy) {
+    const handleDummyCode = (e) => {
+        let snippet = [...dummySnippet]
         let code = [...dummyCode]
+        let index = colorIndex
         // test if every index of dummySnippet is filled
         // dummySnippet example: [userAttr, operand, bundleAttr]
-        let test = dummy.every(i => i != "")
-        let index = colorIndex
+        let test = snippet.every(i => i != "")
         if (test) {
             // Append a number associated with color to dummySnippet
-            dummy.push(index)
+            snippet.push(index)
             // Increment colors index if length of colors array is not reached
             if (index < colors.length - 1) {
                 setColorIndex(index + 1)
+            } else {
+                setColorIndex(0)
             }
-            code.push(dummy)
+            code.push(snippet)
             // Reset dummySnippet
             updateDummySnippet(["", "", ""])
             updateDummyCode(code)
             updateSnippetType(initSnippetType)
+            updateSnippetConstStatus(null)
         }
     }
 
@@ -116,6 +121,7 @@ const PolicyAdd = (props) => {
         // This function is used to keep track of
         // what type of attribute is selected
         let type = { ...snippetType }
+        console.log(type)
         type.isArray = item.isArray
         type.type = item.type
         updateSnippetType(type)
@@ -126,14 +132,23 @@ const PolicyAdd = (props) => {
         let dummy = [...dummySnippet]
         dummy[index] = item.name
         updateDummySnippet(dummy)
-        handleDummyCode(dummy)
+
     }
 
-    const handleSnippetOperatorOrCONST = (e, item, index) => {
+    const handleSnippetOperator = (e, item) => {
         let dummy = [...dummySnippet]
-        dummy[index] = item
+        dummy[1] = item
         updateDummySnippet(dummy)
-        handleDummyCode(dummy)
+    }
+
+    const handleSnippetConstSelection = (e, index) => {
+        updateSnippetConstStatus(index)
+    }
+
+    const handleSnippetConst = (e, index) => {
+        let dummy = [...dummySnippet]
+        dummy[index] = e.target.value
+        updateDummySnippet(dummy)
     }
 
     const snippetColorChange = (e, item) => {
@@ -214,6 +229,10 @@ const PolicyAdd = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Add Policy</strong>
+                <CButton onClick={e => console.log(snippetType)}>snippetType</CButton>
+                <CButton onClick={e => console.log(dummySnippet)}>dummySnippet</CButton>
+                <CButton onClick={e => console.log(snippetConstStatus)}>snippetConstStatus</CButton>
+
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -239,7 +258,9 @@ const PolicyAdd = (props) => {
                         <CCard>
                             <CCardHeader>
                                 Policy Builder
-                                <div className="text-muted small">Select a Policy ID to use bundle or host attributes.</div>
+                                <div className="text-muted small">
+                                    Select a user attribute, operand, and a bundle/host attribute to build your code!
+                                </div>
                             </CCardHeader>
                             <CCardBody>
                                 <CRow>
@@ -251,9 +272,9 @@ const PolicyAdd = (props) => {
                                             <CDropdownMenu>
                                                 <CDropdownItem
                                                     size="sm"
-                                                    color={"CONST" == dummySnippet[0] ? "success-light" : "transparent"}
-                                                    onClick={e => handleSnippetOperatorOrCONST(e, "CONST", 0)}
-                                                    disabled={"CONST" == dummySnippet[2]}
+                                                    color={0 == snippetConstStatus ? "success-light" : "transparent"}
+                                                    onClick={e => handleSnippetConstSelection(e, 0)}
+                                                    disabled={2 == snippetConstStatus}
                                                 >
                                                     CONST
                                                 </CDropdownItem>
@@ -280,12 +301,12 @@ const PolicyAdd = (props) => {
                                                 <strong>=</strong>
                                             </CDropdownToggle>
                                             <CDropdownMenu>
-                                                <CDropdownItem color={"==" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperatorOrCONST(e, '==', 1)}>{'=='}</CDropdownItem>
-                                                <CDropdownItem color={"!=" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperatorOrCONST(e, '!=', 1)}>{'!='}</CDropdownItem>
-                                                <CDropdownItem color={"<" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperatorOrCONST(e, '<', 1)}>{'<'}</CDropdownItem>
-                                                <CDropdownItem color={">" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperatorOrCONST(e, '>', 1)}>{'>'}</CDropdownItem>
-                                                <CDropdownItem color={"<=" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperatorOrCONST(e, '<=', 1)}>{'<='}</CDropdownItem>
-                                                <CDropdownItem color={">=" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperatorOrCONST(e, '>=', 1)}>{'>='}</CDropdownItem>
+                                                <CDropdownItem color={"==" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperator(e, '==', 1)}>{'=='}</CDropdownItem>
+                                                <CDropdownItem color={"!=" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperator(e, '!=', 1)}>{'!='}</CDropdownItem>
+                                                <CDropdownItem color={"<" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperator(e, '<', 1)}>{'<'}</CDropdownItem>
+                                                <CDropdownItem color={">" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperator(e, '>', 1)}>{'>'}</CDropdownItem>
+                                                <CDropdownItem color={"<=" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperator(e, '<=', 1)}>{'<='}</CDropdownItem>
+                                                <CDropdownItem color={">=" == dummySnippet[1] ? "success-light" : "transparent"} onClick={e => handleSnippetOperator(e, '>=', 1)}>{'>='}</CDropdownItem>
                                             </CDropdownMenu>
                                         </CDropdown>
                                     </CCol>
@@ -302,9 +323,9 @@ const PolicyAdd = (props) => {
                                                         <div className="roboto-font">
                                                             <CDropdownItem
                                                                 size="sm"
-                                                                color={"CONST" == dummySnippet[2] ? "success-light" : "transparent"}
-                                                                onClick={e => handleSnippetOperatorOrCONST(e, "CONST", 2)}
-                                                                disabled={"CONST" == dummySnippet[0]}
+                                                                color={2 == snippetConstStatus ? "success-light" : "transparent"}
+                                                                onClick={e => handleSnippetConstSelection(e, 2)}
+                                                                disabled={0 == snippetConstStatus}
                                                             >
                                                                 CONST
                                                             </CDropdownItem>
@@ -328,9 +349,9 @@ const PolicyAdd = (props) => {
                                                         <div>
                                                             <CDropdownItem
                                                                 size="sm"
-                                                                color={"CONST" == dummySnippet[2] ? "success-light" : "transparent"}
-                                                                onClick={e => handleSnippetOperatorOrCONST(e, "CONST", 2)}
-                                                                disabled={"CONST" == dummySnippet[0]}
+                                                                color={2 == snippetConstStatus ? "success-light" : "transparent"}
+                                                                onClick={e => handleSnippetConstSelection(e, 2)}
+                                                                disabled={0 == snippetConstStatus}
                                                             >
                                                                 CONST
                                                             </CDropdownItem>
@@ -356,6 +377,7 @@ const PolicyAdd = (props) => {
                                         }
                                     </CCol>
                                 </CRow>
+
                                 <CRow>
                                     <CCol sm="12">
                                         <CLabel className="roboto-font">Current</CLabel>
@@ -363,13 +385,28 @@ const PolicyAdd = (props) => {
                                 </CRow>
                                 <CRow>
                                     <CCol sm="5">
-                                        <div className={dummySnippet[0] ? "code-box-active" : "code-box"}>{dummySnippet[0]}</div>
+                                        {snippetConstStatus == 0 ?
+                                            <CInput onChange={e => handleSnippetConst(e, 0)} />
+                                            :
+                                            <div className={dummySnippet[0] ? "code-box-active" : "code-box"}>{dummySnippet[0]}</div>
+                                        }
+
                                     </CCol>
                                     <CCol sm="2">
                                         <div className={dummySnippet[1] ? "code-box-active" : "code-box"}>{dummySnippet[1]}</div>
                                     </CCol>
                                     <CCol sm="5">
-                                        <div className={dummySnippet[2] ? "code-box-active" : "code-box"}>{dummySnippet[2]}</div>
+                                        {snippetConstStatus == 2 ?
+                                            <CInput onChange={e => handleSnippetConst(e, 2)} />
+                                            :
+                                            <div className={dummySnippet[2] ? "code-box-active" : "code-box"}>{dummySnippet[2]}</div>
+                                        }
+                                    </CCol>
+                                </CRow>
+
+                                <CRow>
+                                    <CCol sm="12">
+                                        <CButton className="mt-3" block color="success" onClick={handleDummyCode}>ADD</CButton>
                                     </CCol>
                                 </CRow>
 
