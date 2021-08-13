@@ -259,13 +259,13 @@ const PolicyAdd = (props) => {
 		routePolicyHdr = ""
 	    }
 	    let routePolicyHost = ""
-	    let routeTag = ""
+	    let routeTagValue = ""
 	    for (let snippet of dummyCode) {
 		if (snippet[0] === "Host") {
 		    routePolicyHost = "    input.host == " + snippet[2] + "\n"
 		    hostSelected = 1
 		} else if (snippet[0] === "Route") {
-		    routeTag = snippet[2]
+		    routeTagValue = snippet[2]
 		    tagSpecified = 1
 		} else {
 		    let uatype = getAttrObj(snippet[0], "Users")
@@ -299,15 +299,15 @@ const PolicyAdd = (props) => {
 	    let routePolicy = ""
 	    if (tagSpecified == 0) {
 		// Error - route tag needs to be specified
-		routeTag = "Error - ** route tag unspecified **"
+		routeTagValue = "Error - ** route tag value unspecified **"
 	    }
-	    let routePolicyRuleStart = "route_tag = " + routeTag + " {\n"
-	    let routePolicyTag = "    " + routeTag + " := \"foobar\"\n"
+	    let routePolicyRuleStart = "route_tag = rtag {\n"
+	    let routePolicyTag = "    rtag := " + routeTagValue + "\n"
 	    if (indexNeeded === 1) {
 		// One or more user attribute match expressions need values from AppGroup attributes collection
 		routePolicyRuleIndex = "    some hostidx\n    some route\n"
 		routePolicyHost = "    input.host == data.hosts[hostidx].host\n"
-		routePolicyTag = "    " + routeTag + " := data.hosts[hostidx].routeattrs[route].tag\n"
+		routePolicyTag = "    rtag := data.hosts[hostidx].routeattrs[route].tag\n"
 	    } else if (hostSelected === 0) {
 		// All user attribute match expressions use constants but bundle ID match unspecified
 		routePolicyHost = "Error - ** Host match missing **\n"
