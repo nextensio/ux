@@ -169,7 +169,6 @@ const PolicyAdd = (props) => {
         updateDummyCode(Object.freeze([]))
     }
 
-    // FOR ASHWIN --------------------------------------
     const generatePolicy = (e, dummyCode) => {
         // All you need to focus on is dummyCode object -->
         // dummyCode example:
@@ -184,7 +183,90 @@ const PolicyAdd = (props) => {
         // Where can I find if it is applicationAccess or applicationRouting?
         //          policyData.pid == applicationAccess || applicationRouting 
 
-        console.log('OPA code')
+	if (policyData.pid === "applicationAccess") {
+	    // Access policy generation
+	    //  Assume a snippet is of one of these two forms and of same color (for single rule)
+	    //  [userattr, operator, const | AppGroupAttr],
+	    //  ["Bundle ID", ==, const]
+	    let indexNeeded = 0
+	    let bidSelected = 0
+	    let Exprs = ""
+	    let accessPolicyHdr = "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
+	    if (policyData.rego.length > 36) {
+		// Policy exists, we are appending a rule, so skip header lines
+		accessPolicyHdr = ""
+	    }
+	    let accessPolicyRuleStart = "is_allowed {\n"
+	    let accessPolicyBid = ""
+	    for (let snippet of dummyCode) {
+		if (snippet[2] === "Bundle ID") {
+		    accessPolicyBid = "    input.bid == " + snippet[0] + "\n"
+		    bidSelected = 1
+		} else {
+		    let uatype = getAttrObj(snippet[0], "Users")
+		    let batype = getAttrObj(snippet[2], "Bundles")
+		    if (uatype === "true") {
+			// snippet[0] is an array type user attribute
+			Exprs += "    input.user." + snippet[0] + "[_] " + snippet[1] + " "
+		    } else if (uatype === "false") {
+			// snippet[0] is a scalar user attribute
+			Exprs += "    input.user." + snippet[0] + " " + snippet[1] + " "
+		    } else if (uatype === "none") {
+			// snippet[0] is not a user attribute. Not valid as this should only happen for bundle ID.
+			continue
+		    }
+		    if (batype === "true") {
+			// snippet[2] is an array type AppGroup attribute
+			Exprs += "data.bundles[bundle]." + snippet[2] + "[_]\n"
+			indexNeeded = 1
+		    } else if (batype === "false") {
+			// snippet[2] is a scalar AppGroup attribute
+			Exprs += "data.bundles[bundle]." + snippet[2] + "\n"
+			indexNeeded = 1
+		    } else if (batype === "none") {
+			// snippet[2] is not an AppGroup attribute but a constant
+			Exprs += snippet[2] + "\n"
+		    }
+		}
+	    }
+	    let accessPolicyRuleEnd = "}\n\n"
+	    let accessPolicyRuleIndex = ""
+	    let accessPolicy = ""
+	    if (indexNeeded === 1) {
+		// One or more user attribute match expressions need values from AppGroup attributes collection
+		accessPolicyRuleIndex = "    some bundle\n"
+		accessPolicyBid = "    input.bid == data.bundles[bundle].bid\n"
+	    } else if (bidSelected === 0) {
+		// All user attribute match expressions use constants but bundle ID match unspecified
+		accessPolicyBid = "Error - ** Bundle ID match missing **\n"
+	    }
+	    accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBid + Exprs + accessPolicyRuleEnd
+	    console.log('OPA code:\n', accessPolicy)
+	}
+    }
+
+    function getAttrObj(name, appliesTo) {
+        if (appliesTo == "Users") {
+            for (var i = 0; i < userAttrs.length; i++) {
+                if (name == userAttrs[i].name) {
+                    return userAttrs[i].isArray
+                }
+            } return "none"
+        }
+        else if (appliesTo == "Bundles") {
+            for (var i = 0; i < bundleAttrs.length; i++) {
+                if (name == bundleAttrs[i].name) {
+                    return bundleAttrs[i].isArray
+                }
+            } return "none"
+        }
+        else if (appliesTo == "Users") {
+            for (var i = 0; i < hostAttrs.length; i++) {
+                if (name == hostAttrs[i].name) {
+                    return hostAttrs[i].isArray
+                }
+            } return "none"
+        }
     }
 
     function handleRegoChange(newValue) {
@@ -494,8 +576,8 @@ const PolicyAdd = (props) => {
                                 </CRow>
                                 <CRow className="mt-3">
                                     <CCol sm="12">
-                                        <CButton className="button-footer-danger" variant="outline" color="danger" onClick={resetDummyCode}><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                                        <CButton className="button-footer-success" variant="outline" color="success"><strong>Convert</strong> <CIcon name="cil-arrow-right" /></CButton>
+                                      <CButton className="button-footer-danger" variant="outline" color="danger" onClick={resetDummyCode}><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+	                              <CButton className="button-footer-success" variant="outline" color="success" onClick={e => generatePolicy(e, dummyCode)}> <CIcon name="cil-arrow-right" /><strong>Convert</strong></CButton>
                                     </CCol>
                                 </CRow>
                             </CCardBody>
