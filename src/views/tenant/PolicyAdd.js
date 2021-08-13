@@ -187,7 +187,7 @@ const PolicyAdd = (props) => {
 	    // Access policy generation
 	    //  Assume a snippet is of one of these two forms and of same color (for single rule)
 	    //  [userattr, operator, const | AppGroupAttr],
-	    //  ["Bundle ID", ==, const]
+	    //  ["Bundle ID", ==, const] (optional)
 	    let indexNeeded = 0
 	    let bidSelected = 0
 	    let Exprs = ""
@@ -243,6 +243,78 @@ const PolicyAdd = (props) => {
 	    accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBid + Exprs + accessPolicyRuleEnd
 	    console.log('OPA code:\n', accessPolicy)
 	}
+	if (policyData.pid === "applicationRouting") {
+	    // Routing policy generation
+	    //  Assume a snippet is of one of these two forms and of same color (for single rule)
+	    //  [userattr, operator, const | HostRouteAttr],
+	    //  ["Host ID", ==, const]  (optional)
+	    //  [routeTag, ==, const]
+	    let indexNeeded = 0
+	    let hostSelected = 0
+	    let tagSpecified = 0
+	    let Exprs = ""
+	    let routePolicyHdr = "package user.routing\ndefault route_tag = \"\"\n\n"
+	    if (policyData.rego.length > 36) {
+		// Policy exists, we are appending a rule, so skip header lines
+		routePolicyHdr = ""
+	    }
+	    let routePolicyHost = ""
+	    let routeTag = ""
+	    for (let snippet of dummyCode) {
+		if (snippet[0] === "Host") {
+		    routePolicyHost = "    input.host == " + snippet[2] + "\n"
+		    hostSelected = 1
+		} else if (snippet[0] === "Route") {
+		    routeTag = snippet[2]
+		    tagSpecified = 1
+		} else {
+		    let uatype = getAttrObj(snippet[0], "Users")
+		    let hatype = getAttrObj(snippet[2], "Hosts")
+		    if (uatype === "true") {
+			// snippet[0] is an array type user attribute
+			Exprs += "    input.user." + snippet[0] + "[_] " + snippet[1] + " "
+		    } else if (uatype === "false") {
+			// snippet[0] is a scalar user attribute
+			Exprs += "    input.user." + snippet[0] + " " + snippet[1] + " "
+		    } else if (uatype === "none") {
+			// snippet[0] is not a user attribute. Not valid as this should only happen for bundle ID.
+			continue
+		    }
+		    if (hatype === "true") {
+			// snippet[2] is an array type Host attribute
+			Exprs += "data.hosts[hostidx].routeattrs[route]." + snippet[2] + "[_]\n"
+			indexNeeded = 1
+		    } else if (hatype === "false") {
+			// snippet[2] is a scalar Host attribute
+			Exprs += "data.hosts[hostidx].routeattrs[route]." + snippet[2] + "\n"
+			indexNeeded = 1
+		    } else if (hatype === "none") {
+			// snippet[2] is not a Host attribute but a constant
+			Exprs += snippet[2] + "\n"
+		    }
+		}
+	    }
+	    let routePolicyRuleEnd = "}\n\n"
+	    let routePolicyRuleIndex = ""
+	    let routePolicy = ""
+	    if (tagSpecified == 0) {
+		// Error - route tag needs to be specified
+		routeTag = "Error - ** route tag unspecified **"
+	    }
+	    let routePolicyRuleStart = "route_tag = " + routeTag + " {\n"
+	    let routePolicyTag = "    " + routeTag + " := \"foobar\"\n"
+	    if (indexNeeded === 1) {
+		// One or more user attribute match expressions need values from AppGroup attributes collection
+		routePolicyRuleIndex = "    some hostidx\n    some route\n"
+		routePolicyHost = "    input.host == data.hosts[hostidx].host\n"
+		routePolicyTag = "    " + routeTag + " := data.hosts[hostidx].routeattrs[route].tag\n"
+	    } else if (hostSelected === 0) {
+		// All user attribute match expressions use constants but bundle ID match unspecified
+		routePolicyHost = "Error - ** Host match missing **\n"
+	    }
+	    routePolicy = routePolicyHdr + routePolicyRuleStart + routePolicyRuleIndex + routePolicyHost + Exprs + routePolicyTag + routePolicyRuleEnd
+	    console.log('OPA code:\n', routePolicy)
+	}
     }
 
     function getAttrObj(name, appliesTo) {
@@ -260,7 +332,7 @@ const PolicyAdd = (props) => {
                 }
             } return "none"
         }
-        else if (appliesTo == "Users") {
+        else if (appliesTo == "Hosts") {
             for (var i = 0; i < hostAttrs.length; i++) {
                 if (name == hostAttrs[i].name) {
                     return hostAttrs[i].isArray
