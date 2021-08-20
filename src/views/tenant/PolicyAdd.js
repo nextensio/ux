@@ -159,10 +159,7 @@ const PolicyAdd = (props) => {
         let dummy = [...dummySnippet]
         let type = { ...snippetType }
         dummy[0] = item
-        if (["Bundle ID", "Host", "Route"].includes(item)) {
-            type.isArray = "false"
-            type.type = "ID"
-        } else if (item == "User ID") {
+        if (["User ID", "Bundle ID", "Host", "Route"].includes(item)) {
             type.isArray = "false"
             type.type = "String"
         }
@@ -377,16 +374,9 @@ const PolicyAdd = (props) => {
 
     function disableOperators(type) {
         let operators = { ...operatorStatus }
-        if (["String", "Boolean"].includes(type.type) || type.isArray == "true") {
+        if (["String", "Boolean"].includes(type.type)) {
             updateOperatorStatus({
                 ...operators,
-                inequalities: false
-            })
-        }
-        if (type.type == "ID") {
-            updateOperatorStatus({
-                ...operators,
-                "!=": false,
                 inequalities: false
             })
         }
@@ -400,11 +390,22 @@ const PolicyAdd = (props) => {
     }
 
     const handleChange = (e) => {
-        var ucode = e.target.value.trim();
-        updatePolicyData({
-            ...policyData,
-            [e.target.name]: ucode
-        });
+        const ucode = e.target.value.trim();
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].pid == ucode) {
+                        const rego = String.fromCharCode(...data[i].rego);
+                        updatePolicyData({
+                            ...policyData,
+                            pid: ucode,
+                            rego: rego
+                        })
+                    }
+                }
+            });
+
     };
 
     const handleSubmit = (e) => {
@@ -443,6 +444,7 @@ const PolicyAdd = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Add Policy</strong>
+                <CButton onClick={e => console.log(policyData)}>policyDatas</CButton>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -483,6 +485,15 @@ const PolicyAdd = (props) => {
                                                 }
                                             </CDropdownToggle>
                                             <CDropdownMenu>
+                                                {policyData.pid == "" &&
+                                                    <CDropdownItem
+                                                        size="sm"
+                                                        className="text-info"
+                                                        disabled
+                                                    >
+                                                        Select PID
+                                                    </CDropdownItem>
+                                                }
                                                 {policyData.pid == "applicationAccess" &&
                                                     <CDropdownItem
                                                         size="sm"
@@ -584,9 +595,7 @@ const PolicyAdd = (props) => {
                                                                         key={item.name}
                                                                         color={item.name == dummySnippet[2] ? "success-light" : "transparent"}
                                                                         onClick={e => handleSnippet(e, item, 2)}
-                                                                        disabled={!(snippetType.type == "" || item.type == snippetType.type) ||
-                                                                            (dummySnippet[0] == "Bundle ID")
-                                                                        }
+                                                                        disabled={!(snippetType.type == "" || item.type == snippetType.type)}
 
                                                                     >
                                                                         {item.name}
@@ -612,9 +621,7 @@ const PolicyAdd = (props) => {
                                                                         key={item.name}
                                                                         color={item.name == dummySnippet[2] ? "success-light" : "transparent"}
                                                                         onClick={e => handleSnippet(e, item, 2)}
-                                                                        disabled={!(snippetType.type == "" || item.type == snippetType.type) ||
-                                                                            (dummySnippet[0] == "Bundle ID")
-                                                                        }
+                                                                        disabled={!(snippetType.type == "" || item.type == snippetType.type)}
 
                                                                     >
                                                                         {item.name}
