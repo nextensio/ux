@@ -402,8 +402,13 @@ const PolicyAdd = (props) => {
                             pid: ucode,
                             rego: rego
                         })
+                        return
                     }
-                }
+                } updatePolicyData({
+                    ...policyData,
+                    pid: ucode,
+                    rego: ""
+                })
             });
 
     };
