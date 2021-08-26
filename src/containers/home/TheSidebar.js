@@ -31,7 +31,7 @@ const TheSidebar = () => {
         <CSidebar
             show={show}
             onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
-            colorScheme="light">
+            colorScheme="dark">
             <CSidebarBrand className="d-md-down-none" to="/">
                 <div className="c-sidebar-brand-full sidebar-brand">
                     <CIcon name="cil-videogame" />{' '}

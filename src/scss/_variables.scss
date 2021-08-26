@@ -25,14 +25,21 @@ $theme-colors: (
   "dark-light": $dark-light,
   "secondary-light": $secondary-light
 );
+
+$nextensio-dark: #161d20;
+$nextensio-cream: #cccccc;
 // Sidebar 
 $sidebar-width: 200px;
-$sidebar-theme-color: $primary;
+$sidebar-theme-color: $success;
+$sidebar-backdrop-opacity: 0;
+$sidebar-dark-bg: $nextensio-dark;
 
 // Sidebar brand
+$sidebar-brand-height:  50px;
 $sidebar-light-brand-bg: $white;   
 $sidebar-light-brand-color: $sidebar-theme-color;
-$sidebar-brand-height:  50px;
+$sidebar-dark-brand-bg: transparent;
+$sidebar-dark-brand-color: $sidebar-theme-color;
 
 // Sidebar items
 $sidebar-light-nav-title-color: $black;
@@ -43,19 +50,29 @@ $sidebar-light-nav-link-hover-bg: rgba($gray-100, .5);
 $sidebar-light-nav-link-hover-icon-color: $sidebar-light-nav-link-icon-color;
 $sidebar-light-nav-link-hover-color: $sidebar-light-nav-link-color;
 
+$sidebar-dark-nav-link-hover-bg: rgba($success, .5);
+
 $sidebar-light-nav-link-active-bg: rgba($sidebar-theme-color, .1);
 $sidebar-light-nav-link-active-color: $sidebar-theme-color;
 $sidebar-light-nav-link-active-icon-color: $sidebar-theme-color;
 $sidebar-light-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
 
+$sidebar-dark-nav-link-active-icon-color: $sidebar-theme-color;
+$sidebar-dark-nav-link-active-borders: (right: 3px solid $sidebar-theme-color);
+
+
 
 // Sidebar footer
-$sidebar-light-footer-bg: transparent; 
+$sidebar-light-footer-bg: transparent;
+$sidebar-dark-footer-bg: transparent; 
 
 // Header height
 $header-height: 50px;
 
-// Body
-$body-bg: $white;
+// Header styling
+$header-light-bg: $nextensio-cream;
+$header-light-color: $nextensio-dark;
+
+
 
 @import "../../node_modules/@coreui/coreui/scss/bootstrap.scss";

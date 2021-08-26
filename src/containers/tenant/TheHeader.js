@@ -26,7 +26,7 @@ const TheHeader = (props) => {
     }
 
     return (
-        <CHeader withSubheader>
+        <CHeader>
             <CToggler
                 inHeader
                 className="ml-md-3 d-lg-none"

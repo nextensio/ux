@@ -103,7 +103,7 @@ const UsersView = (props) => {
                 }
                 // Deconstruct the zipped object, remove unecessary properties
                 // Will need to be fixed in controller repo later
-                const { connectid, cluster, email, gateway, pod, services, majver, minver, ...rest } = zipObj
+                const { connectid, cluster, email, gateway, pod, services, _email, _gateway, _pod, ...rest } = zipObj
                 zipper.push(rest)
             }
         }
@@ -245,23 +245,24 @@ const UsersView = (props) => {
                                                                     }
                                                                 }).map(key => {
                                                                     return (
-                                                                        <tr>
+                                                                        <tr className={[0, "",].indexOf(item[key]) > -1 ||
+                                                                            (Array.isArray(item[key]) && item[key].length === 1 && [0, ""].indexOf(item[key][0]) > -1) ? "bg-secondary" : null}>
                                                                             <th className="attributes roboto-font">{key}</th>
                                                                             <td className="roboto-font">
                                                                                 <>
                                                                                     {/**Check if attribute value equals false, 0, "",
                                                                                      * [false], 0, [""] which we have defined as default values.
                                                                                      */}
-                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 ||
-                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1) ?
-                                                                                        <div className="text-warning">
-                                                                                            Default value assigned
+                                                                                    {[0, "",].indexOf(item[key]) > -1 ||
+                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [0, ""].indexOf(item[key][0]) > -1) ?
+                                                                                        <div>
+                                                                                            No value assigned
                                                                                         </div>
                                                                                         :
                                                                                         <div>
                                                                                             {Array.isArray(item[key])
                                                                                                 ? <div>{item[key].join(' & ')}</div>
-                                                                                                : <div>{item[key]}</div>
+                                                                                                : <div>{item[key].toString()}</div>
                                                                                             }
                                                                                         </div>
                                                                                     }

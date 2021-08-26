@@ -210,12 +210,9 @@ const BundlesEdit = (props) => {
     }
 
     const handleSingleDateAttrChange = (e) => {
-        let input 
-        // convert to Epoch GMT
-        input = new Date(e.target.value).getTime() / 1000
         updateBundleAttrState({
             ...bundleAttrState,
-            [e.target.name]: input
+            [e.target.name]: e.target.value
         })
     }
     const handleMultiDateAttrChange = (e) => {
@@ -229,7 +226,7 @@ const BundlesEdit = (props) => {
             input = e.target.value.split(',').map(item => {
                 // convert to Epoch GMT
                 if (dateRe.test(item.trim())) {
-                    return new Date(item.trim()).getTime() / 1000
+                    return item.trim()
                 } else {
                     // ERR! will be a keyword string used in the validation function
                     return "ERR!"
@@ -237,7 +234,7 @@ const BundlesEdit = (props) => {
             })
         } else {
             if (dateRe.test(e.target.value.trim())) {
-                input = new Date(e.target.value.trim()).getTime() / 1000
+                input = e.target.value.trim()
             } else {
                 input = "ERR!"
             }
@@ -472,7 +469,7 @@ const BundlesEdit = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
+                                                        <CInput type="text" name={attr.name} defaultValue={bundleAttrState[attr.name]} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
                                                         {errObj[attr.name + "Length"] ?
                                                             <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute value.</CFormText> 
@@ -492,7 +489,7 @@ const BundlesEdit = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]}/>
+                                                        <CInput type="text" name={attr.name} defaultValue={bundleAttrState[attr.name]} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]}/>
                                                         {errObj[attr.name] ?
                                                             <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
@@ -524,7 +521,7 @@ const BundlesEdit = (props) => {
                                                             <FontAwesomeIcon icon="info-circle"/>
                                                         </CPopover>
                                                         {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]}/>
+                                                        <CInput type="text" name={attr.name} defaultValue={bundleAttrState[attr.name]} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]}/>
                                                         {errObj[attr.name] ?
                                                             <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
@@ -533,8 +530,7 @@ const BundlesEdit = (props) => {
                                                 :
                                                     <CFormGroup>
                                                         <CLabel>{attr.name}</CLabel>
-                                                        <CSelect name={attr.name} custom onChange={handleSingleBoolAttrChange}>
-                                                            <option value={undefined}>Please select a boolean</option>
+                                                        <CSelect name={attr.name} value={bundleAttrState[attr.name]} custom onChange={handleSingleBoolAttrChange}>
                                                             <option value={true}>True</option>
                                                             <option value={false}>False</option>
                                                         </CSelect>
@@ -553,7 +549,7 @@ const BundlesEdit = (props) => {
                                                         <FontAwesomeIcon icon="info-circle"/>
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]}/>
+                                                    <CInput type="text" name={attr.name} defaultValue={bundleAttrState[attr.name]} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]}/>
                                                     {errObj[attr.name] ?
                                                         <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
                                                         <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
@@ -563,7 +559,7 @@ const BundlesEdit = (props) => {
                                                 <CFormGroup>
                                                     <CLabel>{attr.name}</CLabel>
                                                     <CInputGroup>
-                                                        <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleSingleDateAttrChange} />
+                                                        <CInput type="date" id="date-input" value={bundleAttrState[attr.name]} name={attr.name} onChange={handleSingleDateAttrChange} />
                                                     </CInputGroup>
                                                 </CFormGroup>
                                             }

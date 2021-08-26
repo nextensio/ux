@@ -9,6 +9,7 @@ import {
 import {
     cil3d,
     cilAccountLogout,
+    cilArrowRight,
     cilAsterisk,
     cilBan,
     cilBell,
@@ -49,6 +50,7 @@ import {
     cilSitemap,
     cilSpeech,
     cilSpeedometer,
+    cilSwapHorizontal,
     cilTag,
     cilTouchApp,
     cilUser,
@@ -70,6 +72,7 @@ export const icons = Object.assign({}, {
 }, {
     cil3d,
     cilAccountLogout,
+    cilArrowRight,
     cilAsterisk,
     cilBan,
     cilBell,
@@ -110,6 +113,7 @@ export const icons = Object.assign({}, {
     cilSitemap,
     cilSpeech,
     cilSpeedometer,
+    cilSwapHorizontal,
     cilTag,
     cilTouchApp,
     cilUser,
@@ -118,5 +122,5 @@ export const icons = Object.assign({}, {
     cilWarning,
     cilX,
     cilXCircle,
-    
+
 })

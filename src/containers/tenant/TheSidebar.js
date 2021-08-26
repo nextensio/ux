@@ -46,7 +46,7 @@ const TheSidebar = (props) => {
         <CSidebar
             show={show}
             onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}
-            colorScheme="light"
+            colorScheme="dark"
         >
             <CSidebarBrand className="d-md-down-none" to="/">
                 <div className="c-sidebar-brand-full sidebar-brand">
@@ -69,7 +69,7 @@ const TheSidebar = (props) => {
             </CSidebarNav>
             <CSidebarFooter>
                 <CNavItem>
-                    <CNavLink to={logoutURL}>
+                    <CNavLink to={logoutURL} className="text-success roboto-font">
                         <CIcon name="cil-account-logout" /> Log Out
                     </CNavLink>
                 </CNavItem>

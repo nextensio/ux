@@ -116,3 +116,40 @@ td.header {
 .image-wrapper {
     width: 10%
 }
+.code-box {
+    min-height: 40px;
+    border: 1px solid $dark;
+    min-width: 20px;
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 16px;
+}
+.code-box-active {
+    min-height: 40px;
+    border: 1px solid $success;
+    min-width: 20px;
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 16px;
+}
+.embed-responsive {
+    overflow-y: scroll
+}
+.editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 100%
+}
+.editor-wrapper {
+    height: 10vh
+}
