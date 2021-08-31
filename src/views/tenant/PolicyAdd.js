@@ -305,14 +305,14 @@ const PolicyAdd = (props) => {
             accessPolicyHdr = ""
         }
         let accessPolicyRuleStart = "is_allowed {\n"
-        let accessPolicyBid = ""
+        let accessPolicyBidConst = ""
         for (let snippet of dummyCode) {
 	    let ltoken = getLeftToken(snippet)
 	    let rtoken = getRightToken(snippet)
 	    let optoken = getOpToken(snippet)
 
             if (ltoken === "Bundle ID") {
-                accessPolicyBid = "    input.bid == " + rtoken + "\n"
+                accessPolicyBidConst = "    input.bid == " + rtoken + "\n"
                 bidSelected = 1
             } else {
                 let uatype = getTokenType(ltoken, "Users")
@@ -344,16 +344,17 @@ const PolicyAdd = (props) => {
         let accessPolicyRuleEnd = "}\n\n"
         let accessPolicyRuleIndex = ""
         let accessPolicy = ""
+	let accessPolicyBidAttr = ""
         if (indexNeeded === 1) {
             // One or more user attribute match expressions need values from AppGroup attributes collection
             accessPolicyRuleIndex = "    some bundle\n"
-            accessPolicyBid = "    input.bid == data.bundles[bundle].bid\n"
+            accessPolicyBidAttr = "    input.bid == data.bundles[bundle].bid\n"
         } else if (bidSelected === 0) {
             // All user attribute match expressions use constants but bundle ID match unspecified
-            accessPolicyBid = "Error - ** Bundle ID match missing **\n"
+            accessPolicyBidConst = "Error - ** Bundle ID match missing **\n"
         }
-        accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBid +
-	    Exprs + accessPolicyRuleEnd
+        accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBidConst +
+	    accessPolicyBidAttr + Exprs + accessPolicyRuleEnd
         handleRegoChange(policyData.rego + accessPolicy)
         resetDummyCode(e)
     }
@@ -373,7 +374,7 @@ const PolicyAdd = (props) => {
             // Policy exists, we are appending a rule, so skip header lines
             routePolicyHdr = ""
         }
-        let routePolicyHost = ""
+        let routePolicyHostConst = ""
         let routeTagValue = ""
         for (let snippet of dummyCode) {
 	    let ltoken = getLeftToken(snippet)
@@ -381,7 +382,7 @@ const PolicyAdd = (props) => {
 	    let optoken = getOpToken(snippet)
 
             if (ltoken === "Host") {
-                routePolicyHost = "    input.host == " + rtoken + "\n"
+                routePolicyHostConst = "    input.host == " + rtoken + "\n"
                 hostSelected = 1
             } else if (ltoken === "Route") {
                 routeTagValue = rtoken
@@ -416,6 +417,7 @@ const PolicyAdd = (props) => {
         let routePolicyRuleEnd = "}\n\n"
         let routePolicyRuleIndex = ""
         let routePolicy = ""
+	let routePolicyHostAttr = ""
         if (tagSpecified == 0) {
             // Error - route tag needs to be specified
             routeTagValue = "Error - ** route tag value unspecified **"
@@ -425,14 +427,14 @@ const PolicyAdd = (props) => {
         if (indexNeeded === 1) {
             // One or more user attribute match expressions need values from AppGroup attributes collection
             routePolicyRuleIndex = "    some hostidx\n    some route\n"
-            routePolicyHost = "    input.host == data.hosts[hostidx].host\n"
+            routePolicyHostAttr = "    input.host == data.hosts[hostidx].host\n"
             routePolicyTag = "    rtag := data.hosts[hostidx].routeattrs[route].tag\n"
         } else if (hostSelected === 0) {
             // All user attribute match expressions use constants but bundle ID match unspecified
-            routePolicyHost = "Error - ** Host match missing **\n"
+            routePolicyHostConst = "Error - ** Host match missing **\n"
         }
-        routePolicy = routePolicyHdr + routePolicyRuleStart + routePolicyRuleIndex + routePolicyHost +
-	    Exprs + routePolicyTag + routePolicyRuleEnd
+        routePolicy = routePolicyHdr + routePolicyRuleStart + routePolicyRuleIndex + routePolicyHostConst +
+	    routePolicyHostAttr + Exprs + routePolicyTag + routePolicyRuleEnd
         handleRegoChange(policyData.rego + routePolicy)
         resetDummyCode(e)
     }
