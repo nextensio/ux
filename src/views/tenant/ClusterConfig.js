@@ -32,7 +32,7 @@ var common = require('../../common')
 const ClusterConfig = (props) => {
     const initConfigData = Object.freeze({
         gateway: "",
-        image: "registry.gitlab.com/nextensio/cluster/minion:latest",
+        image: "",
         apodrepl: ""
     });
     const [configData, updateConfigData] = useState(initConfigData);
@@ -40,6 +40,7 @@ const ClusterConfig = (props) => {
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     // apodCount is used to configure PREVIOUS apod
     const [apodCount, setApodCount] = useState(0);
+    const [podImage, setpodImage] = useState("registry.gitlab.com/nextensio/cluster/minion:latest");
     const [errObj, updateErrObj] = useState({});
     const [requestModal, setRequestModal] = useState(false)
 
@@ -73,7 +74,13 @@ const ClusterConfig = (props) => {
             fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
                 .then(response => response.json())
                 .then(data => {
-                    setApodCount(data.TenantCl.apodrepl)
+                    setApodCount(data.TenantCl.apodrepl);
+                    setpodImage(data.TenantCl.image);
+                    updateConfigData({
+                        ...configData,
+                        apodrepl: data.TenantCl.apodrepl,
+                        image: data.TenantCl.image,
+                    });
                 });
         }
     };
@@ -169,14 +176,14 @@ const ClusterConfig = (props) => {
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>Image</CLabel>
+                                    <CLabel>Image (Current: {podImage})</CLabel>
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-image"/>
+                                                <CIcon name="cil-image" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="image" defaultValue="registry.gitlab.com/nextensio/cluster/minion:latest" onChange={handleChange} invalid={errObj.image}/>
+                                        <CInput name="image" defaultValue={podImage} onChange={handleChange} invalid={errObj.image} />
                                         <CInvalidFeedback>Please enter an image.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
@@ -188,7 +195,7 @@ const ClusterConfig = (props) => {
                                                 <CIcon name="cil-3d" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="apods" onChange={handleApodChange} invalid={errObj.apodrepl}/>
+                                        <CInput name="apods" defaultValue={apodCount} onChange={handleApodChange} invalid={errObj.apodrepl} />
                                         <CInvalidFeedback>Please enter an integer value.</CInvalidFeedback>
                                     </CInputGroup>
                                     {!errObj.apodrepl && <CFormText>Update the compute pods.</CFormText>}
