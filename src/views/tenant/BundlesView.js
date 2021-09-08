@@ -52,6 +52,13 @@ const fields = [
         _classes: "data-field"
     },
     {
+        key: 'rule',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -144,6 +151,13 @@ const BundlesView = (props) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/bundles/add',
             state: bidData
+        })
+    }
+
+    const handleRule = (item) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            state: item.bid
         })
     }
 
@@ -240,51 +254,30 @@ const BundlesView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        {Object.keys(item).length < 5 ?
-                                                            <div className="roboto-font">No bundle attributes exist. <a onClick={toAttributeEditor} className="text-primary"><CIcon name="cil-code" /> Click here</a> to add a bundle attribute.</div> :
-                                                            <table className="my-1 table table-outline d-sm-table">
-                                                                <tr>
-                                                                    <th className="attributes header roboto-font">Attributes</th>
-                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                                </tr>
-                                                                {Object.keys(item).filter(key => {
-                                                                    if (["bid", "name", "cpodrepl", "services"].includes(key)) {
-                                                                        return false
-                                                                    }
-                                                                    else {
-                                                                        return true
-                                                                    }
-                                                                }).map(key => {
-                                                                    return (
-                                                                        <tr>
-                                                                            <th className="attributes roboto-font">{key}</th>
-                                                                            <td className="roboto-font">
-                                                                                <>
-                                                                                    {/**Check if attribute value equals false, 0, "",
-                                                                                 * [false], 0, [""] which we have defined as default values.
-                                                                                 */}
-                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 ||
-                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1) ?
-                                                                                        <div className="text-warning">
-                                                                                            Default value assigned
-                                                                                        </div>
-                                                                                        :
-                                                                                        <div>
-                                                                                            {Array.isArray(item[key])
-                                                                                                ? <div>{item[key].join(' & ')}</div>
-                                                                                                : <div>{item[key].toString()}</div>
-                                                                                            }
-                                                                                        </div>
-                                                                                    }
-                                                                                </>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                })}
-                                                            </table>}
-
+                                                        Rules
                                                     </CCardBody>
                                                 </CCollapse>
+                                            )
+                                        },
+                                    'rule':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Rule'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleRule(item) }}
+                                                        >
+                                                            <FontAwesomeIcon icon="fingerprint" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
                                             )
                                         },
                                     'edit':

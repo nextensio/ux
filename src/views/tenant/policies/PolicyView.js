@@ -20,9 +20,9 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import './tenantviews.scss'
+import '../tenantviews.scss'
 
-var common = require('../../common')
+var common = require('../../../common')
 
 const fields = [
     {

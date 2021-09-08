@@ -114,6 +114,10 @@ const HostsView = (props) => {
         props.history.push('/tenant/' + props.match.params.id + '/hosts/add')
     }
 
+    const handleRule = (item) => {
+        props.history.push('/tenant/' + props.match.params.id + '/hosts/rule')
+    }
+
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/hosts/edit',

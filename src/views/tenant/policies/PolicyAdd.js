@@ -1,40 +1,39 @@
 import React, { useState, useEffect } from 'react'
-import { render } from 'react-dom'
-import AceEditor from "react-ace";
 
-import "ace-builds/src-noconflict/mode-java";
-import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/ext-language_tools"
 import {
     CButton,
     CCard,
     CCardBody,
     CForm,
-    CInput,
     CInputGroup,
-    CInputGroupAppend,
     CInputGroupPrepend,
     CInputGroupText,
     CLabel,
     CCardHeader,
     CFormGroup,
     CCardFooter,
+    CSelect,
+    CSwitch
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import '../tenantviews.scss'
+import BuilderGUI from './BuilderGUI'
+import RegoEditor from './RegoEditor'
 
-var common = require('../../common')
-require(`ace-builds/src-noconflict/theme-tomorrow`)
-require(`ace-builds/src-noconflict/mode-markdown`)
+var common = require('../../../common')
 
-const PolicyEdit = (props) => {
+const PolicyAdd = (props) => {
     const initPolicyData = Object.freeze({
         pid: "",
         tenant: props.match.params.id,
-        rego: []
+        rego: ""
     });
-    const [policyData, updatePolicyData] = useState(initPolicyData);
+
+    const [policyData, updatePolicyData] = useState(initPolicyData)
+    const [helper, updateHelper] = useState(true)
+
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -44,18 +43,16 @@ const PolicyEdit = (props) => {
         },
     };
 
-    useEffect(() => {
-        if (typeof props.location.state != 'undefined') {
-            updatePolicyData(props.location.state)
-        }
-    }, []);
 
-    function handleRegoChange(newValue) {
+    const handleChange = (e) => {
+        const ucode = e.target.value.trim();
         updatePolicyData({
             ...policyData,
-            rego: newValue
+            pid: ucode
         })
-    }
+
+
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -92,52 +89,44 @@ const PolicyEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Edit Policy ID: {policyData.pid}</strong>
+                <strong>Add Policy</strong>
+                <div className="float-right d-flex align-items-center">
+                    Enable Editor Helper? <CSwitch className="ml-3" onChange={e => updateHelper(!helper)} defaultChecked color="success" variant="3d" />
+                </div>
             </CCardHeader>
             <CCardBody>
                 <CForm>
                     <CFormGroup>
                         <CLabel htmlFor="nf-password">Policy ID</CLabel>
-                            <CInputGroup>
-                                <CInputGroupPrepend>
-                                    <CInputGroupText className="bg-primary-light text-primary">
-                                        <CIcon name="cil-fingerprint" />
-                                    </CInputGroupText>
-                                </CInputGroupPrepend>
-                                <CInput name="pid" value={policyData.pid} readOnly/>
-                                <CInputGroupAppend>
-                                    <CInputGroupText>
-                                        <CIcon name="cil-lock-locked" />
-                                    </CInputGroupText>
-                                </CInputGroupAppend>
-                            </CInputGroup>
+                        <CInputGroup>
+                            <CInputGroupPrepend>
+                                <CInputGroupText className="bg-primary-light text-primary">
+                                    <CIcon name="cil-fingerprint" />
+                                </CInputGroupText>
+                            </CInputGroupPrepend>
+                            <CSelect name="pid" custom onChange={handleChange}>
+                                <option>Please select a policy</option>
+                                <option value={"applicationAccess"}>applicationAccess</option>
+                                <option value={"applicationRouting"}>applicationRouting</option>
+                            </CSelect>
+                        </CInputGroup>
                     </CFormGroup>
-                    <CLabel>OPA Policy</CLabel>
-                    <AceEditor
-                        name="rego"
-                        mode="markdown"
-                        theme="tomorrow"
-                        onChange={handleRegoChange}
-                        fontSize={18}
-                        value={policyData.rego.toString()}
-                        editorProps={{ $blockScrolling: true }}
-                        setOptions={{
-                            enableBasicAutocompletion: true,
-                            enableLiveAutocompletion: true,
-                            enableSnippets: true,
-                            tabSize: 2,
-                        }}
-                    />
                 </CForm>
+                {helper ?
+                    <BuilderGUI ID={props.match.params.id} PID={policyData.pid} />
+                    :
+                    <RegoEditor {...props} />
+                }
+
             </CCardBody>
             <CCardFooter>
                 <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
                     <CIcon name="cil-scrubber" />
-                    <strong>{" "}Confirm</strong>
+                    <strong>{" "}Add</strong>
                 </CButton>
             </CCardFooter>
-        </CCard>
+        </CCard >
     )
 }
 
-export default withRouter(PolicyEdit)
+export default withRouter(PolicyAdd)
