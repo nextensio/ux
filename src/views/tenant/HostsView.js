@@ -114,8 +114,11 @@ const HostsView = (props) => {
         props.history.push('/tenant/' + props.match.params.id + '/hosts/add')
     }
 
-    const handleRule = (item) => {
-        props.history.push('/tenant/' + props.match.params.id + '/hosts/rule')
+    const handleRule = (e, host, routetag) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            state: [host, routetag]
+        })
     }
 
     const handleEdit = (index) => {
@@ -371,9 +374,9 @@ const HostsView = (props) => {
                                                                                             variant="ghost"
                                                                                             color="primary"
                                                                                             size="sm"
-                                                                                            onClick={() => { handleAttrConfig(index, i) }}
+                                                                                            onClick={e => handleRule(e, item.host, route.tag)}
                                                                                         >
-                                                                                            <FontAwesomeIcon icon="key" className="icon-table-edit" />
+                                                                                            <FontAwesomeIcon icon="fingerprint" className="icon-table-edit" />
                                                                                         </CButton>
                                                                                         <CButton
                                                                                             className="ml-1 button-table"
@@ -396,44 +399,7 @@ const HostsView = (props) => {
                                                                             )
                                                                         })}
                                                                     </tr>
-                                                                    {/**
-                                                                        * Iterate over the routeattrs property keys (which are just the attributes)
-                                                                        * One table column will be the attributes
-                                                                        * the other will be the assigned attribute values
-                                                                        */}
-                                                                    {Object.keys(routeConfig[0]).filter(key => {
-                                                                        if (key != "tag") {
-                                                                            return true
-                                                                        }
-                                                                    }).map(key => {
-                                                                        return (
-                                                                            <tr>
-                                                                                <th className="attributes roboto-font border-right">{key}</th>
 
-                                                                                {/** If the attribute has a value assigned, print it, otherwise print no val assigned */}
-                                                                                {routeConfig.map((route, i) => {
-                                                                                    return (
-                                                                                        <td className="roboto-font">
-                                                                                            {[false, 0, "",].indexOf(route[key]) > -1 ||
-                                                                                                (Array.isArray(route[key]) && route[key].length === 1 && [false, 0, ""].indexOf(route[key][0]) > -1) ?
-                                                                                                <div className="text-warning">
-                                                                                                    Default value assigned
-                                                                                                </div>
-                                                                                                :
-                                                                                                <div>
-                                                                                                    {Array.isArray(route[key])
-                                                                                                        ? <div>{route[key].join(' & ')}</div>
-                                                                                                        : <div>{route[key].toString()}</div>
-                                                                                                    }
-                                                                                                </div>
-                                                                                            }
-                                                                                        </td>
-
-                                                                                    )
-                                                                                })}
-                                                                            </tr>
-                                                                        )
-                                                                    })}
                                                                 </table>
                                                             </>
                                                         }
