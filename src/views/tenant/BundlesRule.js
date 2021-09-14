@@ -206,7 +206,7 @@ const BundlesRule = (props) => {
         if (Object.keys(err).length != 0) {
             return
         }
-        let rule = JSON.stringify(ruleData.rule)
+        let rule = JSON.stringify(ruleData.code)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },

@@ -82,6 +82,8 @@ const BundlesView = (props) => {
     );
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
+    const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
+
     // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
     const [zippedData, updateZippedData] = useState(initTableData);
@@ -105,10 +107,14 @@ const BundlesView = (props) => {
             .then(data => updateBundleData(data));
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
-            .then(data => {
-                updateBundleAttrData(data)
-            });
+            .then(data => updateBundleAttrData(data));
     }, []);
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
+            .then(response => response.json())
+            .then(data => updateBundleRuleData(data));
+    }, [])
 
     useEffect(() => {
         const zipper = []
@@ -217,6 +223,7 @@ const BundlesView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
+                            <CButton onClick={e => console.log(bundleRuleData)}>bundleRuleData</CButton>
                             <CLink
                                 className="float-right"
                                 color="primary"
