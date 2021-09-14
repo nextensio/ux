@@ -41,6 +41,7 @@ const BundlesRule = (props) => {
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
+    const [editingSnippet, setEditingSnippet] = useState("")
     const initRuleData = Object.freeze({
         bid: "",
         rid: "",
@@ -170,6 +171,11 @@ const BundlesRule = (props) => {
         // snippet example: [userAttr, operand, bundleAttr]
         let test = snippet.every(i => i != "")
         if (test) {
+
+            if (editingSnippet) {
+                removeSnippetFromRule(editingSnippet)
+                setEditingSnippet("")
+            }
             // Append the type for use later
             snippet.push(snippetType.type)
             rule.rule.push(snippet)
@@ -186,6 +192,7 @@ const BundlesRule = (props) => {
     }
 
     const populateSnippetEditor = (item) => {
+        setEditingSnippet(item)
         let snippet = [...item]
         resetSnippetData()
         updateSnippetType({
@@ -227,7 +234,6 @@ const BundlesRule = (props) => {
         if (Object.keys(err).length != 0) {
             return
         }
-
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -332,7 +338,7 @@ const BundlesRule = (props) => {
                                 <CRow>
                                     <CCol sm="12">
                                         <CButton className="mt-3 mr-3" shape="pill" size="lg" color="danger" onClick={resetSnippetData}>Clear</CButton>
-                                        <CButton className="mt-3" shape="pill" size="lg" color="success" onClick={pushSnippetToRule}>Add</CButton>
+                                        <CButton className="mt-3" shape="pill" size="lg" color="success" onClick={pushSnippetToRule}>{editingSnippet ? "Modify" : "Add"}</CButton>
                                     </CCol>
                                 </CRow>
                             </CCardBody>
@@ -356,7 +362,7 @@ const BundlesRule = (props) => {
                                                 value={item}
                                                 className="mb-1"
                                                 size="sm"
-                                                color="success"
+                                                color={item == editingSnippet ? "warning" : "success"}
                                             >
                                                 {item.slice(0, 3).join(' ')}
                                                 <CButton
