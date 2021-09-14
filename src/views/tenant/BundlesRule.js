@@ -12,6 +12,10 @@ import {
     CLabel,
     CListGroup,
     CListGroupItem,
+    CModal,
+    CModalBody,
+    CModalHeader,
+    CModalFooter,
     CInput,
     CInvalidFeedback,
     CRow,
@@ -31,6 +35,7 @@ const BundlesRule = (props) => {
     const initSnippetType = { type: "", isArray: "" }
     const initSnippetData = ["", "==", ""]
 
+    const [bid, setBid] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
@@ -38,11 +43,12 @@ const BundlesRule = (props) => {
     const [snippetType, updateSnippetType] = useState(initSnippetType)
     const initRuleData = Object.freeze({
         bid: "",
-        name: "",
-        code: []
+        rid: "",
+        rule: []
     })
     const [ruleData, updateRuleData] = useState(initRuleData)
     const [errObj, updateErrObj] = useState({})
+    const [deleteModal, setDeleteModal] = useState(false)
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -54,10 +60,17 @@ const BundlesRule = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            updateRuleData({
-                ...ruleData,
-                bid: props.location.state
-            })
+            if (props.location.state[1] == "Add") {
+                setBid(props.location.state[0])
+                updateRuleData({
+                    ...ruleData,
+                    bid: props.location.state[0]
+                })
+            }
+            if (props.location.state[1] == "Edit") {
+                setBid(props.location.state[0].bid)
+                updateRuleData(props.location.state[0])
+            }
         }
     }, [])
 
@@ -159,7 +172,7 @@ const BundlesRule = (props) => {
         if (test) {
             // Append the type for use later
             snippet.push(snippetType.type)
-            rule.code.push(snippet)
+            rule.rule.push(snippet)
             updateRuleData(rule)
             // Reset snippetData
             resetSnippetData()
@@ -185,20 +198,28 @@ const BundlesRule = (props) => {
 
     const removeSnippetFromRule = (item) => {
         let rule = { ...ruleData }
-        const index = rule.code.indexOf(item)
-        rule.code.splice(index, 1)
+        const index = rule.rule.indexOf(item)
+        rule.rule.splice(index, 1)
         updateRuleData(rule)
     }
 
     function validate() {
         let err = {}
-        if (!ruleData.name) {
-            err.name = true
-        } if (ruleData.code.length == 0) {
-            err.code = true
+        if (!ruleData.rid) {
+            err.rid = true
+        } if (ruleData.rule.length == 0) {
+            err.rule = true
         }
         updateErrObj(err)
         return err
+    }
+
+    const resetRuleData = (e) => {
+        setDeleteModal(!deleteModal)
+        updateRuleData({
+            ...initRuleData,
+            bid: bid,
+        })
     }
 
     const handleSubmit = (e) => {
@@ -206,13 +227,13 @@ const BundlesRule = (props) => {
         if (Object.keys(err).length != 0) {
             return
         }
-        let rule = JSON.stringify(ruleData.code)
+
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                bid: ruleData.bid, rid: ruleData.name,
-                rule: rule
+                bid: ruleData.bid, rid: ruleData.rid,
+                rule: ruleData.rule
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundlerule/'), requestOptions)
@@ -241,7 +262,6 @@ const BundlesRule = (props) => {
         <CCard>
             <CCardHeader>
                 Rule Generator for {ruleData.bid}
-                <CButton onClick={e => console.log(JSON.stringify(ruleData.code))}>ruleData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
 
@@ -250,8 +270,8 @@ const BundlesRule = (props) => {
                         <CForm>
                             <CFormGroup className="mt-n3">
                                 <CLabel>Rule Name</CLabel>
-                                <CInput name="name" className="mb-3" value={ruleData.name} onChange={handleChange} invalid={errObj.name} />
-                                {!errObj.name ?
+                                <CInput name="rid" value={ruleData.rid} onChange={handleChange} invalid={errObj.rid} />
+                                {!errObj.rid ?
                                     <CFormText>Enter a rule name. Ex: Rule to allow access for C-Suites...</CFormText>
                                     :
                                     <CInvalidFeedback>Please enter a valid name</CInvalidFeedback>
@@ -262,7 +282,7 @@ const BundlesRule = (props) => {
                 </CRow>
                 <CRow>
                     <CCol sm="12">
-                        <CCard>
+                        <CCard accentColor={(ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
                             <CCardBody>
                                 <CRow>
                                     <CCol sm="12">
@@ -323,11 +343,12 @@ const BundlesRule = (props) => {
                 <CRow>
                     <CCol sm="12">
                         <CLabel>Current Rule</CLabel>
+                        <CFormText>These snippets will be AND'ed together.</CFormText>
                         <div className="roboto-font bg-gray-100 text-dark" style={{ minHeight: '100px', padding: 10 }}>
-                            <div hidden={!errObj.code && ruleData.length != 0} className="text-danger">Please add at least one snippet!</div>
+                            <div hidden={!(ruleData.rule.length == 0 && errObj.rule == true)} className="text-danger">Please add at least one snippet!</div>
 
                             <CListGroup>
-                                {ruleData.code.map((item, index) => {
+                                {ruleData.rule.map((item, index) => {
                                     return (
                                         <div>
                                             <CListGroupItem
@@ -337,7 +358,7 @@ const BundlesRule = (props) => {
                                                 size="sm"
                                                 color="success"
                                             >
-                                                {item}
+                                                {item.slice(0, 3).join(' ')}
                                                 <CButton
                                                     className="button-table float-right"
                                                     color='danger'
@@ -368,13 +389,31 @@ const BundlesRule = (props) => {
             <CCardFooter>
                 <CRow className="mt-3">
                     <CCol sm="3">
-                        <CButton block color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                        <CButton block onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
                     </CCol>
                     <CCol sm="3">
                         <CButton block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
                     </CCol>
                 </CRow>
             </CCardFooter>
+            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Confirm Reset</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>Are you sure you want to reset this rule?</strong>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={resetRuleData}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setDeleteModal(!deleteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
         </CCard>
     )
 }

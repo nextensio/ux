@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import {
+    CBadge,
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -108,13 +110,10 @@ const BundlesView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleAttrData(data));
-    }, []);
-
-    useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleRuleData(data));
-    }, [])
+    }, []);
 
     useEffect(() => {
         const zipper = []
@@ -163,7 +162,14 @@ const BundlesView = (props) => {
     const handleRule = (item) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
-            state: item.bid
+            state: [item.bid, "Add"]
+        })
+    }
+
+    const handleRuleEdit = (item) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            state: [item, "Edit"]
         })
     }
 
@@ -213,6 +219,43 @@ const BundlesView = (props) => {
         setDeleteBid(item.bid)
     }
 
+    const matchRule = (item) => {
+        let rules = []
+        for (var i = 0; i < bundleRuleData.length; i++) {
+            if (item.bid == bundleRuleData[i].bid) {
+                rules.push(bundleRuleData[i])
+            }
+        }
+        if (rules.length != 0) {
+            return (
+                rules.map(rule => {
+                    return (
+                        <CCallout className="rule-callout-bundle" color="info">
+                            <strong>{rule.rid}</strong>
+                            <CButton
+                                className="button-table float-right"
+                                color='primary'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleEdit(rule)}
+                            >
+                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                            </CButton>
+                        </CCallout>
+                    )
+                }))
+        } else {
+            return (
+                <CCallout className="rule-callout-bundle-none" color="warning">
+                    <strong>No Rules Exist</strong>
+                    <CButton className="float-right" disabled size="sm">
+                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                    </CButton>
+                </CCallout>
+            )
+        }
+    }
+
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
@@ -223,7 +266,6 @@ const BundlesView = (props) => {
                     <CCard className="shadow large">
                         <CCardHeader>
                             <strong>AppGroup</strong>
-                            <CButton onClick={e => console.log(bundleRuleData)}>bundleRuleData</CButton>
                             <CLink
                                 className="float-right"
                                 color="primary"
@@ -234,7 +276,7 @@ const BundlesView = (props) => {
                                 <CIcon className="mr-1" name="cil-info" />
                                 AppGroup Docs
                             </CLink>
-                            <div className="text-muted small">Click on a row to see attributes</div>
+                            <div className="text-muted small">Click on a row to see rules</div>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -260,8 +302,9 @@ const BundlesView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>
-                                                        Rules
+                                                    <CCardBody className="roboto-font">
+                                                        <h4 className="text-primary"><u>Rules</u></h4>
+                                                        {matchRule(item)}
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

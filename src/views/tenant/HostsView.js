@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import {
     CBadge,
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -81,6 +82,7 @@ const HostsView = (props) => {
     // }
     //
     const [hostsData, updateHostData] = useState(initTableData);
+    const [hostRuleData, updateHostRuleData] = useState(initTableData)
 
     // Routing modal will be triggered if the user attempts to delete the route when only one exists
     const [routingModal, setRoutingModal] = useState(false);
@@ -101,6 +103,9 @@ const HostsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
             .then(response => response.json())
             .then(data => updateHostData(data));
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostrules'), hdrs)
+            .then(response => response.json())
+            .then(data => updateHostRuleData(data));
     }, []);
 
     const handleRefresh = (e) => {
@@ -121,18 +126,17 @@ const HostsView = (props) => {
         })
     }
 
+    const handleRuleEdit = (item) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            state: [item, "Edit"]
+        })
+    }
+
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/hosts/edit',
             state: hostsData[index]
-        });
-        setDetails([])
-    }
-
-    const handleAttrConfig = (index, configIndex) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/routeconfig',
-            state: [hostsData[index], configIndex]
         });
         setDetails([])
     }
@@ -236,6 +240,46 @@ const HostsView = (props) => {
         setDetails(newDetails)
     }
 
+    const matchRule = (tag) => {
+        let rules = []
+        for (var i = 0; i < hostRuleData.length; i++) {
+            for (var j = 0; j < hostRuleData[i].rule.length; j++) {
+                if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
+                    rules.push(hostRuleData[i])
+                }
+            }
+
+        }
+        if (rules.length != 0) {
+            return (
+                rules.map(rule => {
+                    return (
+                        <CCallout className="rule-callout-host" color="info">
+                            <strong>{rule.rid}</strong>
+                            <CButton
+                                className="button-table float-right"
+                                color='primary'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleEdit(rule)}
+                            >
+                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                            </CButton>
+                        </CCallout>
+                    )
+                }))
+        } else {
+            return (
+                <CCallout className="rule-callout-host-none" color="warning">
+                    <strong>No Rules Exist</strong>
+                    <CButton className="float-right" disabled size="sm">
+                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                    </CButton>
+                </CCallout>
+            )
+        }
+    }
+
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
@@ -336,9 +380,7 @@ const HostsView = (props) => {
                                                         {Object.entries(routeConfig[0]).length === 1
                                                             ? <div className="roboto-font">
                                                                 You have no attributes configured on this host.
-                                                                {' '}<a className="text-primary" onClick={() => { handleEdit(index) }}>
-                                                                    <FontAwesomeIcon icon="pen" /> Click Here
-                                                                </a>
+                                                                {' '}
                                                                 {' '}to add attributes
                                                             </div>
                                                             :
@@ -355,7 +397,7 @@ const HostsView = (props) => {
                                                                 </CButton>
                                                                 <table className="my-3 table table-outline d-sm-table">
                                                                     <tr>
-                                                                        <th className="attributes header roboto-font border-right mt-auto">Attributes</th>
+                                                                        <th className="attributes header roboto-font border-right my-auto">Routes</th>
                                                                         {routeConfig.map((route, i) => {
                                                                             return (
                                                                                 <td className="attributes header roboto-font">
@@ -399,6 +441,18 @@ const HostsView = (props) => {
                                                                             )
                                                                         })}
                                                                     </tr>
+                                                                    <tr>
+                                                                        <th className="attributes roboto-font border-right">Rules</th>
+
+                                                                        {routeConfig.map((route, i) => {
+                                                                            return (
+                                                                                <td>
+                                                                                    {matchRule(route.tag)}
+                                                                                </td>
+                                                                            )
+                                                                        })}
+                                                                    </tr>
+
 
                                                                 </table>
                                                             </>

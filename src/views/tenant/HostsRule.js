@@ -14,6 +14,10 @@ import {
     CListGroupItem,
     CInput,
     CInvalidFeedback,
+    CModal,
+    CModalBody,
+    CModalFooter,
+    CModalHeader,
     CRow,
     CSelect
 } from '@coreui/react'
@@ -31,16 +35,18 @@ const HostsRule = (props) => {
     const initSnippetType = { type: "", isArray: "" }
     const initSnippetData = ["", "==", ""]
 
-    const [tagRule, updateTagRule] = useState(Object.freeze([]))
+    const [host, setHost] = useState("")
+    const [tag, setTag] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
+    const [deleteModal, setDeleteModal] = useState(false)
     const initRuleData = Object.freeze({
         host: "",
-        name: "",
-        code: []
+        rid: "",
+        rule: []
     })
     const [ruleData, updateRuleData] = useState(initRuleData)
     const [errObj, updateErrObj] = useState({})
@@ -55,11 +61,30 @@ const HostsRule = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            updateRuleData({
-                ...ruleData,
-                host: props.location.state[0],
-            })
-            updateTagRule(["tag", "==", props.location.state[1], "Route"])
+            // props.location.state is an array. Either the second index is a tag value ie finance for finance.yahoo.com
+            // or it is Edit, which means that we are editing an existing rule
+            if (props.location.state[1] == "Edit") {
+                let rule = props.location.state[0]
+                updateRuleData(rule)
+                setHost(rule.host)
+                // Iterate over the rule.rule array to find the tag value
+                for (var i = 0; i < rule.rule.length; i++) {
+                    if (rule.rule[i][0] == "tag") {
+                        setTag(rule.rule[i][2])
+                        return
+                    }
+                }
+            }
+            // This logic block executes if we are adding a new rule
+            else {
+                updateRuleData({
+                    ...ruleData,
+                    host: props.location.state[0],
+                    rule: [["tag", "==", props.location.state[1], "Route"]]
+                })
+                setHost(props.location.state[0])
+                setTag(props.location.state[1])
+            }
         }
     }, [])
 
@@ -161,7 +186,7 @@ const HostsRule = (props) => {
         if (test) {
             // Append the type for use later
             snippet.push(snippetType.type)
-            rule.code.push(snippet)
+            rule.rule.push(snippet)
             updateRuleData(rule)
             // Reset snippetData
             resetSnippetData()
@@ -187,17 +212,26 @@ const HostsRule = (props) => {
 
     const removeSnippetFromRule = (item) => {
         let rule = { ...ruleData }
-        const index = rule.code.indexOf(item)
-        rule.code.splice(index, 1)
+        const index = rule.rule.indexOf(item)
+        rule.rule.splice(index, 1)
         updateRuleData(rule)
+    }
+
+    const resetRuleData = (e) => {
+        setDeleteModal(!deleteModal)
+        updateRuleData({
+            ...initRuleData,
+            host: host,
+            rule: [["tag", "==", tag, "Route"]]
+        })
     }
 
     function validate() {
         let err = {}
-        if (!ruleData.name) {
-            err.name = true
-        } if (ruleData.code.length == 0) {
-            err.code = true
+        if (!ruleData.rid) {
+            err.rid = true
+        } if (ruleData.rule.length <= 1) {
+            err.rule = true
         }
         updateErrObj(err)
         return err
@@ -208,15 +242,12 @@ const HostsRule = (props) => {
         if (Object.keys(err) != 0) {
             return
         }
-        let rule = [...ruleData.code]
-        rule.push(tagRule)
-        rule = JSON.stringify(rule)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                host: ruleData.host, rid: ruleData.name,
-                rule: rule,
+                host: ruleData.host, rid: ruleData.rid,
+                rule: ruleData.rule,
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/hostrule/'), requestOptions)
@@ -244,7 +275,7 @@ const HostsRule = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                Rule Generator for {tagRule[2]}.{ruleData.host}
+                Rule Generator for {tag}.{ruleData.host}
             </CCardHeader>
             <CCardBody className="roboto-font">
                 <CRow>
@@ -252,8 +283,8 @@ const HostsRule = (props) => {
                         <CForm>
                             <CFormGroup className="mt-n3">
                                 <CLabel>Rule Name</CLabel>
-                                <CInput name="name" value={ruleData.name} onChange={handleChange} invalid={errObj.name} />
-                                {!errObj.name ?
+                                <CInput name="rid" value={ruleData.rid} onChange={handleChange} invalid={errObj.rid} />
+                                {!errObj.rid ?
                                     <CFormText>Enter a rule name. Ex: Rule to route C-Suites...</CFormText>
                                     :
                                     <CInvalidFeedback>Please enter a valid name</CInvalidFeedback>}
@@ -263,7 +294,7 @@ const HostsRule = (props) => {
                 </CRow>
                 <CRow>
                     <CCol sm="12">
-                        <CCard>
+                        <CCard accentColor={(ruleData.rule.length <= 1 && errObj.rule == true) ? "danger" : "success"}>
                             <CCardBody>
                                 <CRow>
                                     <CCol sm="12">
@@ -324,14 +355,17 @@ const HostsRule = (props) => {
                 <CRow>
                     <CCol sm="12">
                         <CLabel>Current Rule</CLabel>
+                        <CFormText>These snippets will be AND'ed together.</CFormText>
                         <div className="roboto-font bg-gray-100 text-dark" style={{ minHeight: '100px', padding: 10 }}>
+                            <div hidden={!(ruleData.rule.length <= 1 && errObj.rule == true)} className="text-danger">Please add at least one non-tag snippet!</div>
+
                             <CListGroup>
                                 <CListGroupItem
                                     className="mb-1"
                                     size="sm"
                                     color="success"
                                 >
-                                    {tagRule.slice(0, 3).join(' ')}
+                                    tag == {tag}
                                     <CButton
                                         size="sm"
                                         className="float-right"
@@ -340,8 +374,13 @@ const HostsRule = (props) => {
                                         <FontAwesomeIcon icon="lock" size="lg" />
                                     </CButton>
                                 </CListGroupItem>
-                                <div hidden={!errObj.code} className="text-danger">Please add at least one snippet!</div>
-                                {ruleData.code.map((item, index) => {
+                                {ruleData.rule.filter((item, index) => {
+                                    if (item[0] == "tag") {
+                                        return false
+                                    } else {
+                                        return true
+                                    }
+                                }).map(item => {
                                     return (
                                         <div>
                                             <CListGroupItem
@@ -382,14 +421,32 @@ const HostsRule = (props) => {
             <CCardFooter>
                 <CRow className="mt-3">
                     <CCol sm="3">
-                        <CButton block color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                        <CButton block onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
                     </CCol>
                     <CCol sm="3">
                         <CButton block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
                     </CCol>
                 </CRow>
             </CCardFooter>
-        </CCard>
+            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Confirm Reset</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>Are you sure you want to reset this rule?</strong>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={resetRuleData}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setDeleteModal(!deleteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+        </CCard >
     )
 }
 
