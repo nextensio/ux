@@ -203,6 +203,29 @@ const BundlesView = (props) => {
             });
     }
 
+    const handleRuleDelete = (rule) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid), hdrs)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+                let index = bundleRuleData.indexOf(rule)
+                bundleRuleData.splice(index, 1)
+                handleRefresh()
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
         let newDetails = details.slice()
@@ -219,7 +242,7 @@ const BundlesView = (props) => {
         setDeleteBid(item.bid)
     }
 
-    const matchRule = (item) => {
+    function matchRule(item) {
         let rules = []
         for (var i = 0; i < bundleRuleData.length; i++) {
             if (item.bid == bundleRuleData[i].bid) {
@@ -234,6 +257,15 @@ const BundlesView = (props) => {
                             <strong>{rule.rid}</strong>
                             <CButton
                                 className="button-table float-right"
+                                color='danger'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleDelete(rule)}
+                            >
+                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                            </CButton>
+                            <CButton
+                                className="button-table float-right"
                                 color='primary'
                                 variant='ghost'
                                 size="sm"
@@ -241,6 +273,7 @@ const BundlesView = (props) => {
                             >
                                 <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                             </CButton>
+
                         </CCallout>
                     )
                 }))
