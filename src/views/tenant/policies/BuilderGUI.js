@@ -275,6 +275,8 @@ const BuilderGUI = (props) => {
     }
 
 
+    // ------------------Policy generation functions-------------------------
+
     const generatePolicy = (e, dummyCode) => {
         // All you need to focus on is dummyCode object -->
         // dummyCode example:
@@ -289,163 +291,232 @@ const BuilderGUI = (props) => {
         // Where can I find if it is applicationAccess or applicationRouting?
         //          policyData.pid == applicationAccess || applicationRouting 
 
-        if (policyData.pid === "applicationAccess") {
-            // Access policy generation
-            //  Assume a snippet is of one of these two forms and of same color (for single rule)
-            //  [userattr, operator, const | AppGroupAttr],
-            //  ["Bundle ID", ==, const] (optional)
-            let indexNeeded = 0
-            let bidSelected = 0
-            let Exprs = ""
-            let accessPolicyHdr = "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
-            if (policyData.rego.length > 36) {
-                // Policy exists, we are appending a rule, so skip header lines
-                accessPolicyHdr = ""
-            }
-            let accessPolicyRuleStart = "is_allowed {\n"
-            let accessPolicyBid = ""
-            for (let snippet of dummyCode) {
-                if (snippet[0] === "Bundle ID") {
-                    accessPolicyBid = "    input.bid == " + snippet[2] + "\n"
-                    bidSelected = 1
-                } else {
-                    let uatype = getAttrIsArray(snippet[0], "Users")
-                    let batype = getAttrIsArray(snippet[2], "Bundles")
-                    if (uatype === "true") {
-                        // snippet[0] is an array type user attribute
-                        Exprs += "    input.user." + snippet[0] + "[_] " + snippet[1] + " "
-                    } else if (uatype === "false") {
-                        // snippet[0] is a scalar user attribute
-                        Exprs += "    input.user." + snippet[0] + " " + snippet[1] + " "
-                    } else if (uatype === "none") {
-                        // snippet[0] is not a user attribute. This will happen in the case of User Ids.
-                        Exprs += "    input.user.uid" + " " + snippet[1] + " "
-                    }
-                    if (batype === "true") {
-                        // snippet[2] is an array type AppGroup attribute
-                        Exprs += "data.bundles[bundle]." + snippet[2] + "[_]\n"
-                        indexNeeded = 1
-                    } else if (batype === "false") {
-                        // snippet[2] is a scalar AppGroup attribute
-                        Exprs += "data.bundles[bundle]." + snippet[2] + "\n"
-                        indexNeeded = 1
-                    } else if (batype === "none") {
-                        // snippet[2] is not an AppGroup attribute but a constant
-                        Exprs += snippet[2] + "\n"
-                    }
-                }
-            }
-            let accessPolicyRuleEnd = "}\n\n"
-            let accessPolicyRuleIndex = ""
-            let accessPolicy = ""
-            if (indexNeeded === 1) {
-                // One or more user attribute match expressions need values from AppGroup attributes collection
-                accessPolicyRuleIndex = "    some bundle\n"
-                accessPolicyBid = "    input.bid == data.bundles[bundle].bid\n"
-            } else if (bidSelected === 0) {
-                // All user attribute match expressions use constants but bundle ID match unspecified
-                accessPolicyBid = "Error - ** Bundle ID match missing **\n"
-            }
-            accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBid + Exprs + accessPolicyRuleEnd
-            handleRegoChange(policyData.rego + accessPolicy)
-        }
-        if (policyData.pid === "applicationRouting") {
-            // Routing policy generation
-            //  Assume a snippet is of one of these two forms and of same color (for single rule)
-            //  [userattr, operator, const | HostRouteAttr],
-            //  ["Host ID", ==, const]  (optional)
-            //  [routeTag, ==, const]
-            let indexNeeded = 0
-            let hostSelected = 0
-            let tagSpecified = 0
-            let Exprs = ""
-            let routePolicyHdr = "package user.routing\ndefault route_tag = \"\"\n\n"
-            if (policyData.rego.length > 36) {
-                // Policy exists, we are appending a rule, so skip header lines
-                routePolicyHdr = ""
-            }
-            let routePolicyHost = ""
-            let routeTagValue = ""
-            for (let snippet of dummyCode) {
-                if (snippet[0] === "Host") {
-                    routePolicyHost = "    input.host == " + snippet[2] + "\n"
-                    hostSelected = 1
-                } else if (snippet[0] === "Route") {
-                    routeTagValue = snippet[2]
-                    tagSpecified = 1
-                } else {
-                    let uatype = getAttrIsArray(snippet[0], "Users")
-                    let hatype = getAttrIsArray(snippet[2], "Hosts")
-                    if (uatype === "true") {
-                        // snippet[0] is an array type user attribute
-                        Exprs += "    input.user." + snippet[0] + "[_] " + snippet[1] + " "
-                    } else if (uatype === "false") {
-                        // snippet[0] is a scalar user attribute
-                        Exprs += "    input.user." + snippet[0] + " " + snippet[1] + " "
-                    } else if (uatype === "none") {
-                        // snippet[0] is not a user attribute. This will happen in the case of User Ids.
-                        Exprs += "    input.user.uid" + " " + snippet[1] + " "
-                    }
-                    if (hatype === "true") {
-                        // snippet[2] is an array type Host attribute
-                        Exprs += "data.hosts[hostidx].routeattrs[route]." + snippet[2] + "[_]\n"
-                        indexNeeded = 1
-                    } else if (hatype === "false") {
-                        // snippet[2] is a scalar Host attribute
-                        Exprs += "data.hosts[hostidx].routeattrs[route]." + snippet[2] + "\n"
-                        indexNeeded = 1
-                    } else if (hatype === "none") {
-                        // snippet[2] is not a Host attribute but a constant
-                        Exprs += snippet[2] + "\n"
-                    }
-                }
-            }
-            let routePolicyRuleEnd = "}\n\n"
-            let routePolicyRuleIndex = ""
-            let routePolicy = ""
-            if (tagSpecified == 0) {
-                // Error - route tag needs to be specified
-                routeTagValue = "Error - ** route tag value unspecified **"
-            }
-            let routePolicyRuleStart = "route_tag = rtag {\n"
-            let routePolicyTag = "    rtag := " + routeTagValue + "\n"
-            if (indexNeeded === 1) {
-                // One or more user attribute match expressions need values from AppGroup attributes collection
-                routePolicyRuleIndex = "    some hostidx\n    some route\n"
-                routePolicyHost = "    input.host == data.hosts[hostidx].host\n"
-                routePolicyTag = "    rtag := data.hosts[hostidx].routeattrs[route].tag\n"
-            } else if (hostSelected === 0) {
-                // All user attribute match expressions use constants but bundle ID match unspecified
-                routePolicyHost = "Error - ** Host match missing **\n"
-            }
-            routePolicy = routePolicyHdr + routePolicyRuleStart + routePolicyRuleIndex + routePolicyHost + Exprs + routePolicyTag + routePolicyRuleEnd
-            handleRegoChange(policyData.rego + routePolicy)
-        }
+	let ptype = getPolicyType()
+	let nohdr = policyHasData()
+	if (ptype == "Access") {
+	    generateAccessPolicy(e, dummyCode, nohdr)
+	} else if (ptype == "Route") {
+	    generateRoutePolicy(e, dummyCode, nohdr)
+	}
     }
 
-    function getAttrIsArray(name, appliesTo) {
+    function getPolicyType() {
+	if (policyData.pid === "applicationAccess") {
+	    return "Access"
+	} else if (policyData.pid === "applicationRouting") {
+	    return "Route"
+	} else {
+	    return "Unknown"
+	}
+    }
+
+    function policyHasData() {
+        if (policyData.rego.length > 36) {
+	    return true
+	}
+	return false
+    }
+
+    function getLeftToken(snippet) {
+	return snippet[0]
+    }
+
+    function getRightToken(snippet) {
+	return snippet[2]
+    }
+
+    function getOpToken(snippet) {
+	return snippet[1]
+    }
+
+    function getTokenType(name, appliesTo) {
         if (appliesTo == "Users") {
             for (var i = 0; i < userAttrs.length; i++) {
                 if (name == userAttrs[i].name) {
-                    return userAttrs[i].isArray
+                    if (userAttrs[i].isArray == "true") {
+			return "array"
+		    } else {
+			return "single"
+		    }
                 }
-            } return "none"
+            }
+	    return "const"
         }
         else if (appliesTo == "Bundles") {
             for (var i = 0; i < bundleAttrs.length; i++) {
                 if (name == bundleAttrs[i].name) {
-                    return bundleAttrs[i].isArray
+                    if (bundleAttrs[i].isArray == "true") {
+			return "array"
+		    } else {
+			return "single"
+		    }
                 }
-            } return "none"
+            }
+	    return "const"
         }
         else if (appliesTo == "Hosts") {
             for (var i = 0; i < hostAttrs.length; i++) {
                 if (name == hostAttrs[i].name) {
-                    return hostAttrs[i].isArray
+                    if (hostAttrs[i].isArray == "true") {
+			return "array"
+		    } else {
+			return "single"
+		    }
                 }
-            } return "none"
+            }
+	    return "const"
         }
     }
+
+    function generateAccessPolicy(e, dummyCode, nohdr) {
+        // Access policy generation
+        //  Assume a snippet is of one of these two forms and of same color (for single rule)
+        //  [userattr, operator, const | AppGroupAttr],
+        //  ["Bundle ID", ==, const] (optional)
+        let indexNeeded = 0
+        let bidSelected = 0
+        let Exprs = ""
+        let accessPolicyHdr = "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
+	if (nohdr) {
+            // Policy exists, we are appending a rule, so skip header lines
+            accessPolicyHdr = ""
+        }
+        let accessPolicyRuleStart = "is_allowed {\n"
+        let accessPolicyBidConst = ""
+        for (let snippet of dummyCode) {
+	    let ltoken = getLeftToken(snippet)
+	    let rtoken = getRightToken(snippet)
+	    let optoken = getOpToken(snippet)
+
+            if (ltoken === "Bundle ID") {
+                accessPolicyBidConst = "    input.bid == " + rtoken + "\n"
+                bidSelected = 1
+            } else {
+                let uatype = getTokenType(ltoken, "Users")
+                let batype = getTokenType(rtoken, "Bundles")
+                if (uatype === "array") {
+                    // ltoken is an array type user attribute
+                    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+                } else if (uatype === "single") {
+                    // ltoken is a single value user attribute
+                    Exprs += "    input.user." + snippet[0] + " " + optoken + " "
+                } else if (uatype === "const") {
+                    // ltoken is not a user attribute. This will happen in the case of User Ids.
+                    Exprs += "    input.user.uid" + " " + optoken + " "
+                }
+                if (batype === "array") {
+                    // rtoken is an array type AppGroup attribute
+                    Exprs += "data.bundles[bundle]." + rtoken + "[_]\n"
+                    indexNeeded = 1
+                } else if (batype === "single") {
+                    // rtoken is a single value AppGroup attribute
+                    Exprs += "data.bundles[bundle]." + rtoken + "\n"
+                    indexNeeded = 1
+                } else if (batype === "const") {
+                    // rtoken is not an AppGroup attribute but a constant
+                    Exprs += rtoken + "\n"
+                }
+            }
+        }
+        let accessPolicyRuleEnd = "}\n\n"
+        let accessPolicyRuleIndex = ""
+        let accessPolicy = ""
+	let accessPolicyBidAttr = ""
+        if (indexNeeded === 1) {
+            // One or more user attribute match expressions need values from AppGroup attributes collection
+            accessPolicyRuleIndex = "    some bundle\n"
+            accessPolicyBidAttr = "    input.bid == data.bundles[bundle].bid\n"
+        } else if (bidSelected === 0) {
+            // All user attribute match expressions use constants but bundle ID match unspecified
+            accessPolicyBidConst = "Error - ** Bundle ID match missing **\n"
+        }
+        accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBidConst +
+	    accessPolicyBidAttr + Exprs + accessPolicyRuleEnd
+        handleRegoChange(policyData.rego + accessPolicy)
+        resetDummyCode(e)
+    }
+
+    function generateRoutePolicy(e, dummyCode, nohdr) {
+        // Routing policy generation
+        //  Assume a snippet is of one of these two forms and of same color (for single rule)
+        //  [userattr, operator, const | HostRouteAttr],
+        //  ["Host ID", ==, const]  (optional)
+        //  [routeTag, ==, const]
+        let indexNeeded = 0
+        let hostSelected = 0
+        let tagSpecified = 0
+        let Exprs = ""
+        let routePolicyHdr = "package user.routing\ndefault route_tag = \"\"\n\n"
+        if (nohdr) {
+            // Policy exists, we are appending a rule, so skip header lines
+            routePolicyHdr = ""
+        }
+        let routePolicyHostConst = ""
+        let routeTagValue = ""
+        for (let snippet of dummyCode) {
+	    let ltoken = getLeftToken(snippet)
+	    let rtoken = getRightToken(snippet)
+	    let optoken = getOpToken(snippet)
+
+            if (ltoken === "Host") {
+                routePolicyHostConst = "    input.host == " + rtoken + "\n"
+                hostSelected = 1
+            } else if (ltoken === "Route") {
+                routeTagValue = rtoken
+                tagSpecified = 1
+            } else {
+                let uatype = getTokenType(ltoken, "Users")
+                let hatype = getTokenType(rtoken, "Hosts")
+                if (uatype === "array") {
+                    // ltoken is an array type user attribute
+                    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+                } else if (uatype === "single") {
+                    // ltoken is a single valuer user attribute
+                    Exprs += "    input.user." + ltoken + " " + optoken + " "
+                } else if (uatype === "const") {
+                    // ltoken is not a user attribute. This will happen in the case of User Ids.
+                    Exprs += "    input.user.uid" + " " + optoken + " "
+                }
+                if (hatype === "array") {
+                    // rtoken is an array type Host attribute
+                    Exprs += "data.hosts[hostidx].routeattrs[route]." + rtoken + "[_]\n"
+                    indexNeeded = 1
+                } else if (hatype === "single") {
+                    // rtoken is a single value Host attribute
+                    Exprs += "data.hosts[hostidx].routeattrs[route]." + rtoken + "\n"
+                    indexNeeded = 1
+                } else if (hatype === "const") {
+                    //rtoken is not a Host attribute but a constant
+                    Exprs += rtoken + "\n"
+                }
+            }
+        }
+        let routePolicyRuleEnd = "}\n\n"
+        let routePolicyRuleIndex = ""
+        let routePolicy = ""
+	let routePolicyHostAttr = ""
+        if (tagSpecified == 0) {
+            // Error - route tag needs to be specified
+            routeTagValue = "Error - ** route tag value unspecified **"
+        }
+        let routePolicyRuleStart = "route_tag = rtag {\n"
+        let routePolicyTag = "    rtag := " + routeTagValue + "\n"
+        if (indexNeeded === 1) {
+            // One or more user attribute match expressions need values from AppGroup attributes collection
+            routePolicyRuleIndex = "    some hostidx\n    some route\n"
+            routePolicyHostAttr = "    input.host == data.hosts[hostidx].host\n"
+            routePolicyTag = "    rtag := data.hosts[hostidx].routeattrs[route].tag\n"
+        } else if (hostSelected === 0) {
+            // All user attribute match expressions use constants but bundle ID match unspecified
+            routePolicyHostConst = "Error - ** Host match missing **\n"
+        }
+        routePolicy = routePolicyHdr + routePolicyRuleStart + routePolicyRuleIndex + routePolicyHostConst +
+	    routePolicyHostAttr + Exprs + routePolicyTag + routePolicyRuleEnd
+        handleRegoChange(policyData.rego + routePolicy)
+        resetDummyCode(e)
+    }
+
+    // ------------------Policy generation functions end----------------------
 
     function handleRegoChange(newValue) {
         updatePolicyData({
