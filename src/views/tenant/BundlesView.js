@@ -242,6 +242,89 @@ const BundlesView = (props) => {
         setDeleteBid(item.bid)
     }
 
+    // ------------------Policy generation functions-------------------------
+
+    const generatePolicyFromBundleRules = (e, bundleRuleData) => {
+	// Access policy generation
+	// bundleRuleData contains data in this format :
+	//  [bid1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [bid1, ruleid2, rule:[[snippet1], [snippet2], ..]]
+	//  [bid2, ruleid1, rule:[[snippet1], [snippet2], ..]]
+	//  [bid3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [bid3, ruleid2, rule:[[snippet1], ..]]
+	//    and so on ...
+	//  A snippet is of this form :
+	//  [userattr, operator, const, type, isArray] where
+	//  type == "string", "boolean", "number"
+	//  isArray == "true" or "false"
+	//  operator values are ==, !=, >, <, >=, <=
+
+	let RegoPolicy = ""
+	RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
+	// for each entry/row in bundleRuleData, generate Rego code
+	for (var i = 0; i < bundleRuleData.length; i++) {
+	    RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
+	}
+    }
+
+    function getBundleRuleLeftToken(snippet) {
+	return snippet[0]
+    }
+
+    function getBundleRuleRightToken(snippet) {
+	return snippet[2]
+    }
+
+    function getBundleRuleOpToken(snippet) {
+	return snippet[1]
+    }
+
+    function getBundleRuleTokenType(name, snippet) {
+	if (name === "User ID") {
+	    return "uid"
+	}
+	if (snippet[4] == "true") {
+	    return "array"
+	} else {
+	    return "single"
+	}
+    }
+
+    function generateAccessPolicyHeader(policyData) {
+	return policyData +
+	    "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
+    }
+
+    function processBundleRule(e, bundleRule, policyData) {
+        let Exprs = ""
+        let RuleStart = "is_allowed {\n"
+        let BidConst = "    input.bid == " + bundleRule.bid + "\n"
+        for (let snippet of bundleRule.rule) {
+	    let ltoken = getBundleRuleLeftToken(snippet)
+	    let rtoken = getBundleRuleRightToken(snippet)
+	    let optoken = getBundleRuleOpToken(snippet)
+
+            let uatype = getBundleRuleTokenType(ltoken)
+            if (uatype === "array") {
+                // ltoken is an array type user attribute
+                Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+            } else if (uatype === "single") {
+                // ltoken is a single value user attribute
+                Exprs += "    input.user." + snippet[0] + " " + optoken + " "
+            } else if (uatype === "uid") {
+                // ltoken is user id
+                Exprs += "    input.user.uid" + " " + optoken + " "
+            }
+            // rtoken is always a constant. Could be single value or array
+	    // of values. TBD: handling array of values
+            Exprs += rtoken + "\n"
+        }
+        let RuleEnd = "}\n\n"
+        return policyData + RuleStart + BidConst + Exprs + RuleEnd
+    }
+
+    // ------------------Policy generation functions end----------------------
+
     function matchRule(item) {
         let rules = []
         for (var i = 0; i < bundleRuleData.length; i++) {
