@@ -263,6 +263,101 @@ const HostsView = (props) => {
         setDetails(newDetails)
     }
 
+    // ------------------Policy generation functions-------------------------
+
+    const generatePolicyFromHostRules = (e, hostRuleData) => {
+	// Route policy generation
+	// hostRuleData contains data in this format :
+	//  [host1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [host1, ruleid2, rule:[[snippet1], [snippet2], ..]]
+	//  [host2, ruleid1, rule:[[snippet1], [snippet2], ..]]
+	//  [host3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [host3, ruleid2, rule:[[snippet1], ..]]
+	//    and so on ...
+	//  A snippet is of this form :
+	//  [userattr, operator, const, type, isArray] where
+	//  type == "string", "boolean", "number"
+	//  isArray == "true" or "false"
+	//  operator values are ==, !=, >, <, >=, <=
+
+	let RegoPolicy = ""
+	RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
+	// for each entry/row in hostRuleData, generate Rego code
+	for (var i = 0; i < hostRuleData.length; i++) {
+	    RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
+	}
+    }
+
+    function getHostRuleLeftToken(snippet) {
+	return snippet[0]
+    }
+
+    function getHostRuleRightToken(snippet) {
+	return snippet[2]
+    }
+
+    function getHostRuleOpToken(snippet) {
+	return snippet[1]
+    }
+
+    function getHostRuleTokenType(name, snippet) {
+	if (name === "User ID") {
+	    return "uid"
+	}
+	if (snippet[4] === "true") {
+	    return "array"
+	} else {
+	    return "single"
+	}
+    }
+
+    function generateRoutePolicyHeader(policyData) {
+	return policyData +
+	    "package user.routing\ndefault route_tag = \"\"\n\n"
+    }
+
+    function processHostRule(e, hostRule, policyData) {
+        let tagSpecified = 0
+        let Exprs = ""
+        let RuleStart = "route_tag = rtag {\n"
+        let HostConst = "    input.host == " + hostRule.host + "\n"
+        let routeTagValue = ""
+        for (let snippet of hostRule.rule) {
+	    let ltoken = getHostRuleLeftToken(snippet)
+	    let rtoken = getHostRuleRightToken(snippet)
+	    let optoken = getHostRuleOpToken(snippet)
+
+	    if (ltoken === "Route") {
+                routeTagValue = rtoken
+                tagSpecified = 1
+	    } else {
+		let uatype = getHostRuleTokenType(ltoken, snippet)
+		if (uatype === "array") {
+		    // ltoken is an array type user attribute
+		    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+		} else if (uatype === "single") {
+		    // ltoken is a single value user attribute
+		    Exprs += "    input.user." + snippet[0] + " " + optoken + " "
+		} else if (uatype === "uid") {
+		    // ltoken is user id
+		    Exprs += "    input.user.uid" + " " + optoken + " "
+		}
+		// rtoken is always a constant. Could be single value or array
+		// of values. TBD: handling array of values
+		Exprs += rtoken + "\n"
+	    }
+	}
+	let RuleEnd = "}\n\n"
+	if (tagSpecified == 0) {
+	    // Error - route tag needs to be specified
+	    routeTagValue = "Error - ** route tag value unspecified **"
+	}
+	let routePolicyTag = "    rtag := " + routeTagValue + "\n"
+	return policyData + RuleStart + HostConst + Exprs + routePolicyTag + RuleEnd
+    }
+
+    // ------------------Policy generation functions end----------------------
+
     const matchRule = (tag) => {
         let rules = []
         for (var i = 0; i < hostRuleData.length; i++) {

@@ -33,12 +33,13 @@ const fields = [
         filter: false
     },
     {
-        key: "uid",
+        key: "__uid",
         label: "User ID",
         _classes: "data-head"
     },
     {
-        key: "name",
+        key: "__name",
+        label: "Name",
         _classes: "data-field",
     },
     {
@@ -98,13 +99,11 @@ const UsersView = (props) => {
             // Match userData object with userAttrData and combine the two into one
             if (userAttrData.find((obj) => obj.uid === usersData[i].uid)) {
                 const zipObj = {
-                    ...usersData[i],
                     ...(userAttrData.find((obj) => obj.uid === usersData[i].uid))
                 }
-                // Deconstruct the zipped object, remove unecessary properties
-                // Will need to be fixed in controller repo later
-                const { connectid, cluster, email, gateway, pod, services, _email, _gateway, _pod, ...rest } = zipObj
-                zipper.push(rest)
+                zipObj['__uid'] = usersData[i]['uid']
+                zipObj['__name'] = usersData[i]['name']
+                zipper.push(zipObj)
             }
         }
         updateUidData(uidObj)
@@ -237,7 +236,7 @@ const UsersView = (props) => {
                                                                     <td className="attributes header roboto-font"><strong>Values</strong></td>
                                                                 </tr>
                                                                 {Object.keys(item).filter(key => {
-                                                                    if (["uid", "name"].includes(key)) {
+                                                                    if (key.startsWith("__")) {
                                                                         return false
                                                                     }
                                                                     else {

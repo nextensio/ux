@@ -33,7 +33,6 @@ const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
         _id: "unknown",
-        jaegerCollector: "",
     });
     const [tenantData, updateTenantData] = useState(initTenantData);
 
@@ -50,7 +49,6 @@ const TenantsEdit = (props) => {
             updateTenantData({
                 _id: props.location.state._id,
                 name: props.location.state.name,
-                jaegerCollector: props.location.state.jaegerCollector,
             })
         }
     }, []);
@@ -73,7 +71,6 @@ const TenantsEdit = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 _id: tenantData._id.trim(),
-                jaegerCollector: tenantData.jaegerCollector,
             }),
         };
 
@@ -112,10 +109,6 @@ const TenantsEdit = (props) => {
                     <CFormGroup>
                         <CLabel htmlFor="nf-email">Enterprise ID</CLabel>
                         <CInput name="_id" placeholder={tenantData._id} onChange={handleChange} />
-                    </CFormGroup>
-                    <CFormGroup>
-                        <CLabel htmlFor="nf-password">Jaeger Collector</CLabel>
-                        <CInput name="jaegerCollector" placeholder={tenantData.jaegerCollector} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>
