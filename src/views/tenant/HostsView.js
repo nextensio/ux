@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import {
     CBadge,
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -81,6 +82,7 @@ const HostsView = (props) => {
     // }
     //
     const [hostsData, updateHostData] = useState(initTableData);
+    const [hostRuleData, updateHostRuleData] = useState(initTableData)
 
     // Routing modal will be triggered if the user attempts to delete the route when only one exists
     const [routingModal, setRoutingModal] = useState(false);
@@ -101,6 +103,9 @@ const HostsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
             .then(response => response.json())
             .then(data => updateHostData(data));
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostrules'), hdrs)
+            .then(response => response.json())
+            .then(data => updateHostRuleData(data));
     }, []);
 
     const handleRefresh = (e) => {
@@ -114,18 +119,24 @@ const HostsView = (props) => {
         props.history.push('/tenant/' + props.match.params.id + '/hosts/add')
     }
 
+    const handleRule = (e, host, routetag) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            state: [host, routetag]
+        })
+    }
+
+    const handleRuleEdit = (item) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            state: [item, "Edit"]
+        })
+    }
+
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/hosts/edit',
             state: hostsData[index]
-        });
-        setDetails([])
-    }
-
-    const handleAttrConfig = (index, configIndex) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/routeconfig',
-            state: [hostsData[index], configIndex]
         });
         setDetails([])
     }
@@ -218,6 +229,29 @@ const HostsView = (props) => {
             });
     };
 
+    const handleRuleDelete = (rule) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid), hdrs)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+                let index = hostRuleData.indexOf(rule)
+                hostRuleData.splice(index, 1)
+                handleRefresh()
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
         let newDetails = details.slice()
@@ -227,6 +261,150 @@ const HostsView = (props) => {
             newDetails = [...details, index]
         }
         setDetails(newDetails)
+    }
+
+    // ------------------Policy generation functions-------------------------
+
+    const generatePolicyFromHostRules = (e, hostRuleData) => {
+	// Route policy generation
+	// hostRuleData contains data in this format :
+	//  [host1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [host1, ruleid2, rule:[[snippet1], [snippet2], ..]]
+	//  [host2, ruleid1, rule:[[snippet1], [snippet2], ..]]
+	//  [host3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [host3, ruleid2, rule:[[snippet1], ..]]
+	//    and so on ...
+	//  A snippet is of this form :
+	//  [userattr, operator, const, type, isArray] where
+	//  type == "string", "boolean", "number"
+	//  isArray == "true" or "false"
+	//  operator values are ==, !=, >, <, >=, <=
+
+	let RegoPolicy = ""
+	RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
+	// for each entry/row in hostRuleData, generate Rego code
+	for (var i = 0; i < hostRuleData.length; i++) {
+	    RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
+	}
+    }
+
+    function getHostRuleLeftToken(snippet) {
+	return snippet[0]
+    }
+
+    function getHostRuleRightToken(snippet) {
+	return snippet[2]
+    }
+
+    function getHostRuleOpToken(snippet) {
+	return snippet[1]
+    }
+
+    function getHostRuleTokenType(name, snippet) {
+	if (name === "User ID") {
+	    return "uid"
+	}
+	if (snippet[4] === "true") {
+	    return "array"
+	} else {
+	    return "single"
+	}
+    }
+
+    function generateRoutePolicyHeader(policyData) {
+	return policyData +
+	    "package user.routing\ndefault route_tag = \"\"\n\n"
+    }
+
+    function processHostRule(e, hostRule, policyData) {
+        let tagSpecified = 0
+        let Exprs = ""
+        let RuleStart = "route_tag = rtag {\n"
+        let HostConst = "    input.host == " + hostRule.host + "\n"
+        let routeTagValue = ""
+        for (let snippet of hostRule.rule) {
+	    let ltoken = getHostRuleLeftToken(snippet)
+	    let rtoken = getHostRuleRightToken(snippet)
+	    let optoken = getHostRuleOpToken(snippet)
+
+	    if (ltoken === "Route") {
+                routeTagValue = rtoken
+                tagSpecified = 1
+	    } else {
+		let uatype = getHostRuleTokenType(ltoken, snippet)
+		if (uatype === "array") {
+		    // ltoken is an array type user attribute
+		    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+		} else if (uatype === "single") {
+		    // ltoken is a single value user attribute
+		    Exprs += "    input.user." + snippet[0] + " " + optoken + " "
+		} else if (uatype === "uid") {
+		    // ltoken is user id
+		    Exprs += "    input.user.uid" + " " + optoken + " "
+		}
+		// rtoken is always a constant. Could be single value or array
+		// of values. TBD: handling array of values
+		Exprs += rtoken + "\n"
+	    }
+	}
+	let RuleEnd = "}\n\n"
+	if (tagSpecified == 0) {
+	    // Error - route tag needs to be specified
+	    routeTagValue = "Error - ** route tag value unspecified **"
+	}
+	let routePolicyTag = "    rtag := " + routeTagValue + "\n"
+	return policyData + RuleStart + HostConst + Exprs + routePolicyTag + RuleEnd
+    }
+
+    // ------------------Policy generation functions end----------------------
+
+    const matchRule = (tag) => {
+        let rules = []
+        for (var i = 0; i < hostRuleData.length; i++) {
+            for (var j = 0; j < hostRuleData[i].rule.length; j++) {
+                if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
+                    rules.push(hostRuleData[i])
+                }
+            }
+
+        }
+        if (rules.length != 0) {
+            return (
+                rules.map(rule => {
+                    return (
+                        <CCallout className="rule-callout-host" color="info">
+                            <strong>{rule.rid}</strong>
+                            <CButton
+                                className="button-table float-right"
+                                color='danger'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleDelete(rule)}
+                            >
+                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                            </CButton>
+                            <CButton
+                                className="button-table float-right"
+                                color='primary'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => { handleRuleEdit(rule) }}
+                            >
+                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                            </CButton>
+                        </CCallout>
+                    )
+                }))
+        } else {
+            return (
+                <CCallout className="rule-callout-host-none" color="warning">
+                    <strong>No Rules Exist</strong>
+                    <CButton className="float-right" disabled size="sm">
+                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                    </CButton>
+                </CCallout>
+            )
+        }
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
@@ -329,9 +507,7 @@ const HostsView = (props) => {
                                                         {Object.entries(routeConfig[0]).length === 1
                                                             ? <div className="roboto-font">
                                                                 You have no attributes configured on this host.
-                                                                {' '}<a className="text-primary" onClick={() => { handleEdit(index) }}>
-                                                                    <FontAwesomeIcon icon="pen" /> Click Here
-                                                                </a>
+                                                                {' '}
                                                                 {' '}to add attributes
                                                             </div>
                                                             :
@@ -348,7 +524,7 @@ const HostsView = (props) => {
                                                                 </CButton>
                                                                 <table className="my-3 table table-outline d-sm-table">
                                                                     <tr>
-                                                                        <th className="attributes header roboto-font border-right mt-auto">Attributes</th>
+                                                                        <th className="attributes header roboto-font border-right my-auto">Routes</th>
                                                                         {routeConfig.map((route, i) => {
                                                                             return (
                                                                                 <td className="attributes header roboto-font">
@@ -367,9 +543,9 @@ const HostsView = (props) => {
                                                                                             variant="ghost"
                                                                                             color="primary"
                                                                                             size="sm"
-                                                                                            onClick={() => { handleAttrConfig(index, i) }}
+                                                                                            onClick={e => handleRule(e, item.host, route.tag)}
                                                                                         >
-                                                                                            <FontAwesomeIcon icon="key" className="icon-table-edit" />
+                                                                                            <FontAwesomeIcon icon="fingerprint" className="icon-table-edit" />
                                                                                         </CButton>
                                                                                         <CButton
                                                                                             className="ml-1 button-table"
@@ -392,44 +568,19 @@ const HostsView = (props) => {
                                                                             )
                                                                         })}
                                                                     </tr>
-                                                                    {/**
-                                                                        * Iterate over the routeattrs property keys (which are just the attributes)
-                                                                        * One table column will be the attributes
-                                                                        * the other will be the assigned attribute values
-                                                                        */}
-                                                                    {Object.keys(routeConfig[0]).filter(key => {
-                                                                        if (key != "tag") {
-                                                                            return true
-                                                                        }
-                                                                    }).map(key => {
-                                                                        return (
-                                                                            <tr>
-                                                                                <th className="attributes roboto-font border-right">{key}</th>
+                                                                    <tr>
+                                                                        <th className="attributes roboto-font border-right">Rules</th>
 
-                                                                                {/** If the attribute has a value assigned, print it, otherwise print no val assigned */}
-                                                                                {routeConfig.map((route, i) => {
-                                                                                    return (
-                                                                                        <td className="roboto-font">
-                                                                                            {[false, 0, "",].indexOf(route[key]) > -1 ||
-                                                                                                (Array.isArray(route[key]) && route[key].length === 1 && [false, 0, ""].indexOf(route[key][0]) > -1) ?
-                                                                                                <div className="text-warning">
-                                                                                                    Default value assigned
-                                                                                                </div>
-                                                                                                :
-                                                                                                <div>
-                                                                                                    {Array.isArray(route[key])
-                                                                                                        ? <div>{route[key].join(' & ')}</div>
-                                                                                                        : <div>{route[key].toString()}</div>
-                                                                                                    }
-                                                                                                </div>
-                                                                                            }
-                                                                                        </td>
+                                                                        {routeConfig.map((route, i) => {
+                                                                            return (
+                                                                                <td>
+                                                                                    {matchRule(route.tag)}
+                                                                                </td>
+                                                                            )
+                                                                        })}
+                                                                    </tr>
 
-                                                                                    )
-                                                                                })}
-                                                                            </tr>
-                                                                        )
-                                                                    })}
+
                                                                 </table>
                                                             </>
                                                         }

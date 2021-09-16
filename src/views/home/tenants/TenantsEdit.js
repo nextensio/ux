@@ -33,7 +33,7 @@ const TenantsEdit = (props) => {
 
     const initTenantData = Object.freeze({
         _id: "unknown",
-        image: "",
+        jaegerCollector: "",
     });
     const [tenantData, updateTenantData] = useState(initTenantData);
 
@@ -50,7 +50,7 @@ const TenantsEdit = (props) => {
             updateTenantData({
                 _id: props.location.state._id,
                 name: props.location.state.name,
-                image: props.location.state.image,
+                jaegerCollector: props.location.state.jaegerCollector,
             })
         }
     }, []);
@@ -73,7 +73,7 @@ const TenantsEdit = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
                 _id: tenantData._id.trim(),
-                image: tenantData.image,
+                jaegerCollector: tenantData.jaegerCollector,
             }),
         };
 
@@ -114,8 +114,8 @@ const TenantsEdit = (props) => {
                         <CInput name="_id" placeholder={tenantData._id} onChange={handleChange} />
                     </CFormGroup>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-password">Dataplane Image</CLabel>
-                        <CInput name="image" placeholder={tenantData.image} onChange={handleChange} />
+                        <CLabel htmlFor="nf-password">Jaeger Collector</CLabel>
+                        <CInput name="jaegerCollector" placeholder={tenantData.jaegerCollector} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>

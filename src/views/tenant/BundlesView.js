@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import {
+    CBadge,
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -52,6 +54,13 @@ const fields = [
         _classes: "data-field"
     },
     {
+        key: 'rule',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -75,6 +84,8 @@ const BundlesView = (props) => {
     );
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
+    const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
+
     // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
     const [zippedData, updateZippedData] = useState(initTableData);
@@ -98,9 +109,10 @@ const BundlesView = (props) => {
             .then(data => updateBundleData(data));
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
-            .then(data => {
-                updateBundleAttrData(data)
-            });
+            .then(data => updateBundleAttrData(data));
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
+            .then(response => response.json())
+            .then(data => updateBundleRuleData(data));
     }, []);
 
     useEffect(() => {
@@ -147,6 +159,20 @@ const BundlesView = (props) => {
         })
     }
 
+    const handleRule = (item) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            state: [item.bid, "Add"]
+        })
+    }
+
+    const handleRuleEdit = (item) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            state: [item, "Edit"]
+        })
+    }
+
     const handleEdit = (index) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/bundles/edit',
@@ -177,6 +203,29 @@ const BundlesView = (props) => {
             });
     }
 
+    const handleRuleDelete = (rule) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid), hdrs)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+                let index = bundleRuleData.indexOf(rule)
+                bundleRuleData.splice(index, 1)
+                handleRefresh()
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
         let newDetails = details.slice()
@@ -191,6 +240,136 @@ const BundlesView = (props) => {
     const toggleDelete = (item) => {
         setDeleteModal(!deleteModal);
         setDeleteBid(item.bid)
+    }
+
+    // ------------------Policy generation functions-------------------------
+
+    const generatePolicyFromBundleRules = (e, bundleRuleData) => {
+	// Access policy generation
+	// bundleRuleData contains data in this format :
+	//  [bid1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [bid1, ruleid2, rule:[[snippet1], [snippet2], ..]]
+	//  [bid2, ruleid1, rule:[[snippet1], [snippet2], ..]]
+	//  [bid3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+	//  [bid3, ruleid2, rule:[[snippet1], ..]]
+	//    and so on ...
+	//  A snippet is of this form :
+	//  [userattr, operator, const, type, isArray] where
+	//  type == "string", "boolean", "number"
+	//  isArray == "true" or "false"
+	//  operator values are ==, !=, >, <, >=, <=
+
+	let RegoPolicy = ""
+	RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
+	// for each entry/row in bundleRuleData, generate Rego code
+	for (var i = 0; i < bundleRuleData.length; i++) {
+	    RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
+	}
+    }
+
+    function getBundleRuleLeftToken(snippet) {
+	return snippet[0]
+    }
+
+    function getBundleRuleRightToken(snippet) {
+	return snippet[2]
+    }
+
+    function getBundleRuleOpToken(snippet) {
+	return snippet[1]
+    }
+
+    function getBundleRuleTokenType(name, snippet) {
+	if (name === "User ID") {
+	    return "uid"
+	}
+	if (snippet[4] == "true") {
+	    return "array"
+	} else {
+	    return "single"
+	}
+    }
+
+    function generateAccessPolicyHeader(policyData) {
+	return policyData +
+	    "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
+    }
+
+    function processBundleRule(e, bundleRule, policyData) {
+        let Exprs = ""
+        let RuleStart = "is_allowed {\n"
+        let BidConst = "    input.bid == " + bundleRule.bid + "\n"
+        for (let snippet of bundleRule.rule) {
+	    let ltoken = getBundleRuleLeftToken(snippet)
+	    let rtoken = getBundleRuleRightToken(snippet)
+	    let optoken = getBundleRuleOpToken(snippet)
+
+            let uatype = getBundleRuleTokenType(ltoken)
+            if (uatype === "array") {
+                // ltoken is an array type user attribute
+                Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+            } else if (uatype === "single") {
+                // ltoken is a single value user attribute
+                Exprs += "    input.user." + snippet[0] + " " + optoken + " "
+            } else if (uatype === "uid") {
+                // ltoken is user id
+                Exprs += "    input.user.uid" + " " + optoken + " "
+            }
+            // rtoken is always a constant. Could be single value or array
+	    // of values. TBD: handling array of values
+            Exprs += rtoken + "\n"
+        }
+        let RuleEnd = "}\n\n"
+        return policyData + RuleStart + BidConst + Exprs + RuleEnd
+    }
+
+    // ------------------Policy generation functions end----------------------
+
+    function matchRule(item) {
+        let rules = []
+        for (var i = 0; i < bundleRuleData.length; i++) {
+            if (item.bid == bundleRuleData[i].bid) {
+                rules.push(bundleRuleData[i])
+            }
+        }
+        if (rules.length != 0) {
+            return (
+                rules.map(rule => {
+                    return (
+                        <CCallout className="rule-callout-bundle" color="info">
+                            <strong>{rule.rid}</strong>
+                            <CButton
+                                className="button-table float-right"
+                                color='danger'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleDelete(rule)}
+                            >
+                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                            </CButton>
+                            <CButton
+                                className="button-table float-right"
+                                color='primary'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleEdit(rule)}
+                            >
+                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                            </CButton>
+
+                        </CCallout>
+                    )
+                }))
+        } else {
+            return (
+                <CCallout className="rule-callout-bundle-none" color="warning">
+                    <strong>No Rules Exist</strong>
+                    <CButton className="float-right" disabled size="sm">
+                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                    </CButton>
+                </CCallout>
+            )
+        }
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
@@ -213,7 +392,7 @@ const BundlesView = (props) => {
                                 <CIcon className="mr-1" name="cil-info" />
                                 AppGroup Docs
                             </CLink>
-                            <div className="text-muted small">Click on a row to see attributes</div>
+                            <div className="text-muted small">Click on a row to see rules</div>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -239,52 +418,32 @@ const BundlesView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>
-                                                        {Object.keys(item).length < 5 ?
-                                                            <div className="roboto-font">No bundle attributes exist. <a onClick={toAttributeEditor} className="text-primary"><CIcon name="cil-code" /> Click here</a> to add a bundle attribute.</div> :
-                                                            <table className="my-1 table table-outline d-sm-table">
-                                                                <tr>
-                                                                    <th className="attributes header roboto-font">Attributes</th>
-                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                                </tr>
-                                                                {Object.keys(item).filter(key => {
-                                                                    if (["bid", "name", "cpodrepl", "services"].includes(key)) {
-                                                                        return false
-                                                                    }
-                                                                    else {
-                                                                        return true
-                                                                    }
-                                                                }).map(key => {
-                                                                    return (
-                                                                        <tr>
-                                                                            <th className="attributes roboto-font">{key}</th>
-                                                                            <td className="roboto-font">
-                                                                                <>
-                                                                                    {/**Check if attribute value equals false, 0, "",
-                                                                                 * [false], 0, [""] which we have defined as default values.
-                                                                                 */}
-                                                                                    {[false, 0, "",].indexOf(item[key]) > -1 ||
-                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [false, 0, ""].indexOf(item[key][0]) > -1) ?
-                                                                                        <div className="text-warning">
-                                                                                            Default value assigned
-                                                                                        </div>
-                                                                                        :
-                                                                                        <div>
-                                                                                            {Array.isArray(item[key])
-                                                                                                ? <div>{item[key].join(' & ')}</div>
-                                                                                                : <div>{item[key].toString()}</div>
-                                                                                            }
-                                                                                        </div>
-                                                                                    }
-                                                                                </>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                })}
-                                                            </table>}
-
+                                                    <CCardBody className="roboto-font">
+                                                        <h4 className="text-primary"><u>Rules</u></h4>
+                                                        {matchRule(item)}
                                                     </CCardBody>
                                                 </CCollapse>
+                                            )
+                                        },
+                                    'rule':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Rule'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { handleRule(item) }}
+                                                        >
+                                                            <FontAwesomeIcon icon="fingerprint" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
                                             )
                                         },
                                     'edit':
