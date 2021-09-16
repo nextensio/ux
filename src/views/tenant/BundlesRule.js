@@ -121,7 +121,7 @@ const BundlesRule = (props) => {
 
     function getTypeFromLHS(value) {
         if (value == "User ID") {
-            updateSnippetType({ type: "User ID", isArray: null })
+            updateSnippetType({ type: "User ID", isArray: "false" })
             return "User ID"
         }
         for (var i = 0; i < userAttrs.length; i++) {
@@ -178,6 +178,8 @@ const BundlesRule = (props) => {
             }
             // Append the type for use later
             snippet.push(snippetType.type)
+            // Append the isArray for use later
+            snippet.push(snippetType.isArray)
             rule.rule.push(snippet)
             updateRuleData(rule)
             // Reset snippetData
@@ -268,6 +270,7 @@ const BundlesRule = (props) => {
         <CCard>
             <CCardHeader>
                 Rule Generator for {ruleData.bid}
+                <CButton onClick={e => console.log(ruleData)}>ruleData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
 

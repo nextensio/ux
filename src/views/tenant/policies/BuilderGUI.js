@@ -291,42 +291,42 @@ const BuilderGUI = (props) => {
         // Where can I find if it is applicationAccess or applicationRouting?
         //          policyData.pid == applicationAccess || applicationRouting 
 
-	let ptype = getPolicyType()
-	let nohdr = policyHasData()
-	if (ptype == "Access") {
-	    generateAccessPolicy(e, dummyCode, nohdr)
-	} else if (ptype == "Route") {
-	    generateRoutePolicy(e, dummyCode, nohdr)
-	}
+        let ptype = getPolicyType()
+        let nohdr = policyHasData()
+        if (ptype == "Access") {
+            generateAccessPolicy(e, dummyCode, nohdr)
+        } else if (ptype == "Route") {
+            generateRoutePolicy(e, dummyCode, nohdr)
+        }
     }
 
     function getPolicyType() {
-	if (policyData.pid === "applicationAccess") {
-	    return "Access"
-	} else if (policyData.pid === "applicationRouting") {
-	    return "Route"
-	} else {
-	    return "Unknown"
-	}
+        if (policyData.pid === "applicationAccess") {
+            return "Access"
+        } else if (policyData.pid === "applicationRouting") {
+            return "Route"
+        } else {
+            return "Unknown"
+        }
     }
 
     function policyHasData() {
         if (policyData.rego.length > 36) {
-	    return true
-	}
-	return false
+            return true
+        }
+        return false
     }
 
     function getLeftToken(snippet) {
-	return snippet[0]
+        return snippet[0]
     }
 
     function getRightToken(snippet) {
-	return snippet[2]
+        return snippet[2]
     }
 
     function getOpToken(snippet) {
-	return snippet[1]
+        return snippet[1]
     }
 
     function getTokenType(name, appliesTo) {
@@ -334,37 +334,37 @@ const BuilderGUI = (props) => {
             for (var i = 0; i < userAttrs.length; i++) {
                 if (name == userAttrs[i].name) {
                     if (userAttrs[i].isArray == "true") {
-			return "array"
-		    } else {
-			return "single"
-		    }
+                        return "array"
+                    } else {
+                        return "single"
+                    }
                 }
             }
-	    return "const"
+            return "const"
         }
         else if (appliesTo == "Bundles") {
             for (var i = 0; i < bundleAttrs.length; i++) {
                 if (name == bundleAttrs[i].name) {
                     if (bundleAttrs[i].isArray == "true") {
-			return "array"
-		    } else {
-			return "single"
-		    }
+                        return "array"
+                    } else {
+                        return "single"
+                    }
                 }
             }
-	    return "const"
+            return "const"
         }
         else if (appliesTo == "Hosts") {
             for (var i = 0; i < hostAttrs.length; i++) {
                 if (name == hostAttrs[i].name) {
                     if (hostAttrs[i].isArray == "true") {
-			return "array"
-		    } else {
-			return "single"
-		    }
+                        return "array"
+                    } else {
+                        return "single"
+                    }
                 }
             }
-	    return "const"
+            return "const"
         }
     }
 
@@ -377,16 +377,16 @@ const BuilderGUI = (props) => {
         let bidSelected = 0
         let Exprs = ""
         let accessPolicyHdr = "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
-	if (nohdr) {
+        if (nohdr) {
             // Policy exists, we are appending a rule, so skip header lines
             accessPolicyHdr = ""
         }
         let accessPolicyRuleStart = "is_allowed {\n"
         let accessPolicyBidConst = ""
         for (let snippet of dummyCode) {
-	    let ltoken = getLeftToken(snippet)
-	    let rtoken = getRightToken(snippet)
-	    let optoken = getOpToken(snippet)
+            let ltoken = getLeftToken(snippet)
+            let rtoken = getRightToken(snippet)
+            let optoken = getOpToken(snippet)
 
             if (ltoken === "Bundle ID") {
                 accessPolicyBidConst = "    input.bid == " + rtoken + "\n"
@@ -421,7 +421,7 @@ const BuilderGUI = (props) => {
         let accessPolicyRuleEnd = "}\n\n"
         let accessPolicyRuleIndex = ""
         let accessPolicy = ""
-	let accessPolicyBidAttr = ""
+        let accessPolicyBidAttr = ""
         if (indexNeeded === 1) {
             // One or more user attribute match expressions need values from AppGroup attributes collection
             accessPolicyRuleIndex = "    some bundle\n"
@@ -431,9 +431,9 @@ const BuilderGUI = (props) => {
             accessPolicyBidConst = "Error - ** Bundle ID match missing **\n"
         }
         accessPolicy = accessPolicyHdr + accessPolicyRuleStart + accessPolicyRuleIndex + accessPolicyBidConst +
-	    accessPolicyBidAttr + Exprs + accessPolicyRuleEnd
+            accessPolicyBidAttr + Exprs + accessPolicyRuleEnd
         handleRegoChange(policyData.rego + accessPolicy)
-        resetDummyCode(e)
+        // resetDummyCode(e)
     }
 
     function generateRoutePolicy(e, dummyCode, nohdr) {
@@ -454,9 +454,9 @@ const BuilderGUI = (props) => {
         let routePolicyHostConst = ""
         let routeTagValue = ""
         for (let snippet of dummyCode) {
-	    let ltoken = getLeftToken(snippet)
-	    let rtoken = getRightToken(snippet)
-	    let optoken = getOpToken(snippet)
+            let ltoken = getLeftToken(snippet)
+            let rtoken = getRightToken(snippet)
+            let optoken = getOpToken(snippet)
 
             if (ltoken === "Host") {
                 routePolicyHostConst = "    input.host == " + rtoken + "\n"
@@ -494,7 +494,7 @@ const BuilderGUI = (props) => {
         let routePolicyRuleEnd = "}\n\n"
         let routePolicyRuleIndex = ""
         let routePolicy = ""
-	let routePolicyHostAttr = ""
+        let routePolicyHostAttr = ""
         if (tagSpecified == 0) {
             // Error - route tag needs to be specified
             routeTagValue = "Error - ** route tag value unspecified **"
@@ -511,9 +511,9 @@ const BuilderGUI = (props) => {
             routePolicyHostConst = "Error - ** Host match missing **\n"
         }
         routePolicy = routePolicyHdr + routePolicyRuleStart + routePolicyRuleIndex + routePolicyHostConst +
-	    routePolicyHostAttr + Exprs + routePolicyTag + routePolicyRuleEnd
+            routePolicyHostAttr + Exprs + routePolicyTag + routePolicyRuleEnd
         handleRegoChange(policyData.rego + routePolicy)
-        resetDummyCode(e)
+        // resetDummyCode(e)
     }
 
     // ------------------Policy generation functions end----------------------

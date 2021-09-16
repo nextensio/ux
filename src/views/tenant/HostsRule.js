@@ -81,7 +81,7 @@ const HostsRule = (props) => {
                 updateRuleData({
                     ...ruleData,
                     host: props.location.state[0],
-                    rule: [["tag", "==", props.location.state[1], "Route"]]
+                    rule: [["tag", "==", props.location.state[1], "Route", "false"]]
                 })
                 setHost(props.location.state[0])
                 setTag(props.location.state[1])
@@ -135,7 +135,7 @@ const HostsRule = (props) => {
 
     function getTypeFromLHS(value) {
         if (value == "User ID") {
-            updateSnippetType({ type: "User ID", isArray: null })
+            updateSnippetType({ type: "User ID", isArray: "false" })
             return "User ID"
         }
         for (var i = 0; i < userAttrs.length; i++) {
@@ -192,6 +192,8 @@ const HostsRule = (props) => {
             }
             // Append the type for use later
             snippet.push(snippetType.type)
+            // Append the isArray for use later
+            snippet.push(snippetType.isArray)
             rule.rule.push(snippet)
             updateRuleData(rule)
             // Reset snippetData
@@ -229,7 +231,7 @@ const HostsRule = (props) => {
         updateRuleData({
             ...initRuleData,
             host: host,
-            rule: [["tag", "==", tag, "Route"]]
+            rule: [["tag", "==", tag, "Route", "false"]]
         })
     }
 
@@ -283,6 +285,7 @@ const HostsRule = (props) => {
         <CCard>
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
+                <CButton onClick={e => console.log(ruleData)}>ruleData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
                 <CRow>
