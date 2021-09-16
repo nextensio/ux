@@ -36,20 +36,20 @@ const fields = [
         filter: false
     },
     {
-        key: "bid",
+        key: "__bid",
         label: "Bundle ID",
         _classes: "data-head"
     },
     {
-        key: "name",
+        key: "__name",
         _classes: "data-field"
     },
     {
-        key: "services",
+        key: "__services",
         _classes: "data-field"
     },
     {
-        key: "cpodrepl",
+        key: "__cpodrepl",
         label: "Compute Pods",
         _classes: "data-field"
     },
@@ -74,6 +74,13 @@ const fields = [
         sorter: false,
         filter: false
     },
+    {
+        key: 'key',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
 ]
 
 
@@ -93,6 +100,8 @@ const BundlesView = (props) => {
     const [details, setDetails] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteBid, setDeleteBid] = useState("");
+    const [keyModal, setKeyModal] = useState(false);
+    const [keyBid, setKeyBid] = useState("");
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -123,11 +132,15 @@ const BundlesView = (props) => {
             // Match bundleData object with bundleAttrData by bid and combine the two into one
             if (bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)) {
                 const zipObj = {
-                    ...bundleData[i],
                     ...bundleAttrData.find((obj) => obj.bid === bundleData[i].bid)
                 }
-                const { connectid, cluster, gateway, pod, majver, minver, _gateway, _pod, _name, ...rest } = zipObj
-                zipper.push(rest)
+                zipObj['__bid'] = bundleData[i]['bid']
+                zipObj['__name'] = bundleData[i]['name']
+                zipObj['__services'] = bundleData[i]['services']
+                zipObj['__cpodrepl'] = bundleData[i]['cpodrepl']
+                zipObj['__key'] = bundleData[i]['sharedkey']
+                zipper.push(zipObj)
+
             }
         }
         updateZippedData(zipper)
@@ -245,54 +258,54 @@ const BundlesView = (props) => {
     // ------------------Policy generation functions-------------------------
 
     const generatePolicyFromBundleRules = (e, bundleRuleData) => {
-	// Access policy generation
-	// bundleRuleData contains data in this format :
-	//  [bid1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-	//  [bid1, ruleid2, rule:[[snippet1], [snippet2], ..]]
-	//  [bid2, ruleid1, rule:[[snippet1], [snippet2], ..]]
-	//  [bid3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-	//  [bid3, ruleid2, rule:[[snippet1], ..]]
-	//    and so on ...
-	//  A snippet is of this form :
-	//  [userattr, operator, const, type, isArray] where
-	//  type == "string", "boolean", "number"
-	//  isArray == "true" or "false"
-	//  operator values are ==, !=, >, <, >=, <=
+        // Access policy generation
+        // bundleRuleData contains data in this format :
+        //  [bid1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+        //  [bid1, ruleid2, rule:[[snippet1], [snippet2], ..]]
+        //  [bid2, ruleid1, rule:[[snippet1], [snippet2], ..]]
+        //  [bid3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+        //  [bid3, ruleid2, rule:[[snippet1], ..]]
+        //    and so on ...
+        //  A snippet is of this form :
+        //  [userattr, operator, const, type, isArray] where
+        //  type == "string", "boolean", "number"
+        //  isArray == "true" or "false"
+        //  operator values are ==, !=, >, <, >=, <=
 
-	let RegoPolicy = ""
-	RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
-	// for each entry/row in bundleRuleData, generate Rego code
-	for (var i = 0; i < bundleRuleData.length; i++) {
-	    RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
-	}
+        let RegoPolicy = ""
+        RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
+        // for each entry/row in bundleRuleData, generate Rego code
+        for (var i = 0; i < bundleRuleData.length; i++) {
+            RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
+        }
     }
 
     function getBundleRuleLeftToken(snippet) {
-	return snippet[0]
+        return snippet[0]
     }
 
     function getBundleRuleRightToken(snippet) {
-	return snippet[2]
+        return snippet[2]
     }
 
     function getBundleRuleOpToken(snippet) {
-	return snippet[1]
+        return snippet[1]
     }
 
     function getBundleRuleTokenType(name, snippet) {
-	if (name === "User ID") {
-	    return "uid"
-	}
-	if (snippet[4] == "true") {
-	    return "array"
-	} else {
-	    return "single"
-	}
+        if (name === "User ID") {
+            return "uid"
+        }
+        if (snippet[4] == "true") {
+            return "array"
+        } else {
+            return "single"
+        }
     }
 
     function generateAccessPolicyHeader(policyData) {
-	return policyData +
-	    "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
+        return policyData +
+            "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
     }
 
     function processBundleRule(e, bundleRule, policyData) {
@@ -300,9 +313,9 @@ const BundlesView = (props) => {
         let RuleStart = "is_allowed {\n"
         let BidConst = "    input.bid == " + bundleRule.bid + "\n"
         for (let snippet of bundleRule.rule) {
-	    let ltoken = getBundleRuleLeftToken(snippet)
-	    let rtoken = getBundleRuleRightToken(snippet)
-	    let optoken = getBundleRuleOpToken(snippet)
+            let ltoken = getBundleRuleLeftToken(snippet)
+            let rtoken = getBundleRuleRightToken(snippet)
+            let optoken = getBundleRuleOpToken(snippet)
 
             let uatype = getBundleRuleTokenType(ltoken)
             if (uatype === "array") {
@@ -316,7 +329,7 @@ const BundlesView = (props) => {
                 Exprs += "    input.user.uid" + " " + optoken + " "
             }
             // rtoken is always a constant. Could be single value or array
-	    // of values. TBD: handling array of values
+            // of values. TBD: handling array of values
             Exprs += rtoken + "\n"
         }
         let RuleEnd = "}\n\n"
@@ -370,6 +383,25 @@ const BundlesView = (props) => {
                 </CCallout>
             )
         }
+    }
+
+    const toggleKey = (item) => {
+        setKeyModal(!keyModal);
+        let obj = zippedData.find((obj) => obj.bid === item['__bid']);
+        if (obj) {
+            setKeyBid(obj['__key']);
+        } else {
+            setKeyBid('Cannot find key');
+        }
+    }
+
+    const copyKey = (key) => {
+        const tempInput = document.createElement('input')
+        tempInput.value = key
+        document.body.appendChild(tempInput)
+        tempInput.select()
+        document.execCommand('copy')
+        document.body.removeChild(tempInput)
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
@@ -487,6 +519,27 @@ const BundlesView = (props) => {
                                                     </CTooltip>
                                                 </td>
                                             )
+                                        },
+                                    'key':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Key'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleKey(item) }}
+                                                        >
+                                                            <FontAwesomeIcon icon="key" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
+                                            )
                                         }
                                 }}
                             />
@@ -519,6 +572,20 @@ const BundlesView = (props) => {
                             color="secondary"
                             onClick={() => setDeleteModal(!deleteModal)}
                         >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal show={keyModal} onClose={() => setKeyModal(!keyModal)}>
+                    <CModalHeader className='bg-primary text-white py-n5' closeButton>
+                        <strong>Copy key to /opt/nextensio/connector.key in Data Center</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                        {keyBid}
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="secondary"
+                            onClick={() => copyKey(keyBid)}
+                        >Copy</CButton>
                     </CModalFooter>
                 </CModal>
             </CRow>

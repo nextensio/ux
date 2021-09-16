@@ -38,9 +38,6 @@ const ClusterConfig = (props) => {
     const [configData, updateConfigData] = useState(initConfigData);
     // gateway data for the dropdown
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
-    // apodCount is used to configure PREVIOUS apod
-    const [apodCount, setApodCount] = useState(0);
-    const [podImage, setpodImage] = useState("registry.gitlab.com/nextensio/cluster/minion:latest");
     const [errObj, updateErrObj] = useState({});
     const [requestModal, setRequestModal] = useState(false)
 
@@ -66,32 +63,30 @@ const ClusterConfig = (props) => {
     }, []);
 
     const handleChange = (e) => {
-        updateConfigData({
-            ...configData,
-            [e.target.name]: e.target.value.trim()
-        });
         if (e.target.name == "gateway") {
-            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + e.target.value.trim()), hdrs)
+	    var gateway = e.target.value.trim();
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + gateway), hdrs)
                 .then(response => response.json())
                 .then(data => {
-                    setApodCount(data.TenantCl.apodrepl);
-                    setpodImage(data.TenantCl.image);
                     updateConfigData({
-                        ...configData,
+		        gateway: gateway,
                         apodrepl: data.TenantCl.apodrepl,
                         image: data.TenantCl.image,
                     });
                 });
-        }
-    };
-
-    const handleApodChange = (e) => {
-        var input = e.target.value.trim().toString()
-        input = parseInt(input, 10)
-        updateConfigData({
-            ...configData,
-            apodrepl: input
-        });
+        } else if (e.target.name == "image") {
+            updateConfigData({
+	        ...configData,
+                [e.target.name]: e.target.value.trim(),
+            });
+	} else if (e.target.name == "apods") {	
+            var input = e.target.value.trim().toString()
+            input = parseInt(input, 10)
+            updateConfigData({
+                ...configData,
+                apodrepl: input
+            });
+	}
     };
 
     function validate() {
@@ -168,7 +163,7 @@ const ClusterConfig = (props) => {
                                             <option value={undefined}>Please select a gateway</option>
                                             {gatewayData.map(gateway => {
                                                 return (
-                                                    <option value={gateway}>{gateway}</option>
+                                                    <option key={gateway} value={gateway}>{gateway}</option>
                                                 )
                                             })}
                                         </CSelect>
@@ -176,26 +171,26 @@ const ClusterConfig = (props) => {
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>Image (Current: {podImage})</CLabel>
+                                    <CLabel>Image (Current: {configData.image})</CLabel>
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
                                                 <CIcon name="cil-image" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="image" defaultValue={podImage} onChange={handleChange} invalid={errObj.image} />
+                                        <CInput name="image" defaultValue={configData.image} onChange={handleChange} invalid={errObj.image} />
                                         <CInvalidFeedback>Please enter an image.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>Ingress (user) compute pods. Current: {apodCount}</CLabel>
+                                    <CLabel>Ingress (user) compute pods. Current: {configData.apodrepl}</CLabel>
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
                                                 <CIcon name="cil-3d" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="apods" defaultValue={apodCount} onChange={handleApodChange} invalid={errObj.apodrepl} />
+                                        <CInput name="apods" defaultValue={configData.apodrepl} onChange={handleChange} invalid={errObj.apodrepl} />
                                         <CInvalidFeedback>Please enter an integer value.</CInvalidFeedback>
                                     </CInputGroup>
                                     {!errObj.apodrepl && <CFormText>Update the compute pods.</CFormText>}
