@@ -85,6 +85,7 @@ const BundlesView = (props) => {
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
     const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
+    const [bundleAttrSet, updateBundleAttrSet] = useState(initTableData)
 
     // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
@@ -113,6 +114,17 @@ const BundlesView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleRuleData(data));
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let bundles = []
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == "Bundles") {
+                        bundles.push(data[i].name)
+                    }
+                }
+                updateBundleAttrSet(bundles)
+            });
     }, []);
 
     useEffect(() => {
@@ -289,6 +301,34 @@ const BundlesView = (props) => {
         }
     }
 
+    function matchAttrs(item) {
+        return (
+            <table className="table-attrs-bundle">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                {bundleAttrSet.map(attr => {
+                    return (
+                        <tr>
+                            <td>{attr}</td>
+                            <td>
+                                {["", 0, false].includes(item[attr]) ?
+                                    "Default Value Assigned" :
+                                    Array.isArray(item[attr]) ?
+                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                            "Default Value Assigned" :
+                                            item[attr].join(' & ') :
+                                        item[attr].toString()
+                                }
+                            </td>
+                        </tr>
+                    )
+                })}
+            </table>
+        )
+    }
+
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
@@ -336,8 +376,17 @@ const BundlesView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody className="roboto-font">
-                                                        <h4 className="text-primary"><u>Rules</u></h4>
-                                                        {matchRule(item)}
+                                                        <CRow>
+                                                            <CCol sm="6">
+                                                                <h4 className="text-primary"><u>Attributes</u></h4>
+                                                                {matchAttrs(item)}
+                                                            </CCol>
+                                                            <CCol sm="6">
+                                                                <h4 className="text-primary"><u>Rules</u></h4>
+                                                                {matchRule(item)}
+                                                            </CCol>
+                                                        </CRow>
+
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
