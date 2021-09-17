@@ -455,18 +455,22 @@ const BundlesView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard className="shadow large">
                         <CCardHeader>
-                            <strong>AppGroup</strong>
-                            <CLink
+                            <CTooltip content="Click for documentation">
+                                <CLink
+                                    color="primary"
+                                    href="https://docs.nextensio.net/configurations/appgroups.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    AppGroups
+                                </CLink>
+                            </CTooltip>
+                            <CButton
                                 className="float-right"
                                 color="primary"
-                                href="https://docs.nextensio.net/configurations/appgroups.html"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <CIcon className="mr-1" name="cil-info" />
-                                AppGroup Docs
-                            </CLink>
-                            <div className="text-muted small">Click on a row to see rules</div>
+                                onClick={e => generatePolicyFromBundleRules(e, bundleRuleData)}
+                            >Generate Policy</CButton>
+                            <div className="text-muted small">Click on a row to see rules and attributes</div>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable

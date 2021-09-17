@@ -464,17 +464,23 @@ const HostsView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard className="shadow rounded">
                         <CCardHeader>
-                            <strong>Hosts</strong>
-                            <CLink
-                                className="float-right"
+                            <CTooltip content="Click for Documentation">
+                                <CLink
+                                    color="primary"
+                                    href="https://docs.nextensio.net/configurations/hosts.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Hosts
+                                </CLink>
+                            </CTooltip>
+                            <CButton
                                 color="primary"
-                                href="https://docs.nextensio.net/configurations/hosts.html"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                className="float-right"
+                                onClick={e => generatePolicyFromHostRules(e, hostRuleData)}
                             >
-                                <CIcon className="mr-1" name="cil-info" />
-                                Host Docs
-                            </CLink>
+                                Generate Policy
+                            </CButton>
                             <div className="text-muted small">Click on a row to see all routes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -621,7 +627,9 @@ const HostsView = (props) => {
                                                                     })}
                                                                 </tr>
                                                                 <tr>
-                                                                    <th className="attributes roboto-font border-right">Rules</th>
+                                                                    <th className="attributes roboto-font border-right">
+                                                                        <CBadge color="info">Rules</CBadge>
+                                                                    </th>
 
                                                                     {routeConfig.map((route, i) => {
                                                                         return (
