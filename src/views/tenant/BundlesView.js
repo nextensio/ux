@@ -267,6 +267,81 @@ const BundlesView = (props) => {
         setDeleteBid(item.bid)
     }
 
+    function matchRule(item) {
+        let rules = []
+        for (var i = 0; i < bundleRuleData.length; i++) {
+            if (item.bid == bundleRuleData[i].bid) {
+                rules.push(bundleRuleData[i])
+            }
+        }
+        if (rules.length != 0) {
+            return (
+                rules.map(rule => {
+                    return (
+                        <CCallout className="rule-callout-bundle" color="info">
+                            <strong>{rule.rid}</strong>
+                            <CButton
+                                className="button-table float-right"
+                                color='danger'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleDelete(rule)}
+                            >
+                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                            </CButton>
+                            <CButton
+                                className="button-table float-right"
+                                color='primary'
+                                variant='ghost'
+                                size="sm"
+                                onClick={e => handleRuleEdit(rule)}
+                            >
+                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                            </CButton>
+
+                        </CCallout>
+                    )
+                }))
+        } else {
+            return (
+                <CCallout className="rule-callout-bundle-none" color="warning">
+                    <strong>No Rules Exist</strong>
+                    <CButton className="float-right" disabled size="sm">
+                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                    </CButton>
+                </CCallout>
+            )
+        }
+    }
+
+    function matchAttrs(item) {
+        return (
+            <table className="table-attrs-bundle">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                {bundleAttrSet.map(attr => {
+                    return (
+                        <tr>
+                            <td>{attr}</td>
+                            <td>
+                                {["", 0, false].includes(item[attr]) ?
+                                    "Default Value Assigned" :
+                                    Array.isArray(item[attr]) ?
+                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                            "Default Value Assigned" :
+                                            item[attr].join(' & ') :
+                                        item[attr].toString()
+                                }
+                            </td>
+                        </tr>
+                    )
+                })}
+            </table>
+        )
+    }
+
     // ------------------Policy generation functions-------------------------
 
     const generatePolicyFromBundleRules = (e, bundleRuleData) => {
@@ -350,80 +425,7 @@ const BundlesView = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
-    function matchRule(item) {
-        let rules = []
-        for (var i = 0; i < bundleRuleData.length; i++) {
-            if (item.bid == bundleRuleData[i].bid) {
-                rules.push(bundleRuleData[i])
-            }
-        }
-        if (rules.length != 0) {
-            return (
-                rules.map(rule => {
-                    return (
-                        <CCallout className="rule-callout-bundle" color="info">
-                            <strong>{rule.rid}</strong>
-                            <CButton
-                                className="button-table float-right"
-                                color='danger'
-                                variant='ghost'
-                                size="sm"
-                                onClick={e => handleRuleDelete(rule)}
-                            >
-                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                            </CButton>
-                            <CButton
-                                className="button-table float-right"
-                                color='primary'
-                                variant='ghost'
-                                size="sm"
-                                onClick={e => handleRuleEdit(rule)}
-                            >
-                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                            </CButton>
 
-                        </CCallout>
-                    )
-                }))
-        } else {
-            return (
-                <CCallout className="rule-callout-bundle-none" color="warning">
-                    <strong>No Rules Exist</strong>
-                    <CButton className="float-right" disabled size="sm">
-                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
-                    </CButton>
-                </CCallout>
-            )
-        }
-    }
-
-    function matchAttrs(item) {
-        return (
-            <table className="table-attrs-bundle">
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                </tr>
-                {bundleAttrSet.map(attr => {
-                    return (
-                        <tr>
-                            <td>{attr}</td>
-                            <td>
-                                {["", 0, false].includes(item[attr]) ?
-                                    "Default Value Assigned" :
-                                    Array.isArray(item[attr]) ?
-                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                            "Default Value Assigned" :
-                                            item[attr].join(' & ') :
-                                        item[attr].toString()
-                                }
-                            </td>
-                        </tr>
-                    )
-                })}
-            </table>
-        )
-    }
 
     const toggleKey = (item) => {
         setKeyModal(!keyModal);

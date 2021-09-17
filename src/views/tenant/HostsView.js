@@ -82,7 +82,8 @@ const HostsView = (props) => {
     // }
     //
     const [hostsData, updateHostData] = useState(initTableData);
-    const [hostRuleData, updateHostRuleData] = useState(initTableData)
+    const [hostRuleData, updateHostRuleData] = useState(initTableData);
+    const [hostAttrSet, updateHostAttrSet] = useState(initTableData)
 
     // Routing modal will be triggered if the user attempts to delete the route when only one exists
     const [routingModal, setRoutingModal] = useState(false);
@@ -106,6 +107,17 @@ const HostsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostrules'), hdrs)
             .then(response => response.json())
             .then(data => updateHostRuleData(data));
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let hosts = []
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == "Hosts") {
+                        hosts.push(data[i].name)
+                    }
+                }
+                updateHostAttrSet(hosts)
+            });
     }, []);
 
     const handleRefresh = (e) => {
@@ -132,6 +144,15 @@ const HostsView = (props) => {
             state: [item, "Edit"]
         })
     }
+
+    const handleAttrConfig = (index, configIndex) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/hosts/routeconfig',
+            state: [hostsData[index], configIndex]
+        });
+        setDetails([])
+    }
+
 
     const handleEdit = (index) => {
         props.history.push({
@@ -266,54 +287,54 @@ const HostsView = (props) => {
     // ------------------Policy generation functions-------------------------
 
     const generatePolicyFromHostRules = (e, hostRuleData) => {
-	// Route policy generation
-	// hostRuleData contains data in this format :
-	//  [host1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-	//  [host1, ruleid2, rule:[[snippet1], [snippet2], ..]]
-	//  [host2, ruleid1, rule:[[snippet1], [snippet2], ..]]
-	//  [host3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-	//  [host3, ruleid2, rule:[[snippet1], ..]]
-	//    and so on ...
-	//  A snippet is of this form :
-	//  [userattr, operator, const, type, isArray] where
-	//  type == "string", "boolean", "number"
-	//  isArray == "true" or "false"
-	//  operator values are ==, !=, >, <, >=, <=
+        // Route policy generation
+        // hostRuleData contains data in this format :
+        //  [host1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+        //  [host1, ruleid2, rule:[[snippet1], [snippet2], ..]]
+        //  [host2, ruleid1, rule:[[snippet1], [snippet2], ..]]
+        //  [host3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+        //  [host3, ruleid2, rule:[[snippet1], ..]]
+        //    and so on ...
+        //  A snippet is of this form :
+        //  [userattr, operator, const, type, isArray] where
+        //  type == "string", "boolean", "number"
+        //  isArray == "true" or "false"
+        //  operator values are ==, !=, >, <, >=, <=
 
-	let RegoPolicy = ""
-	RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
-	// for each entry/row in hostRuleData, generate Rego code
-	for (var i = 0; i < hostRuleData.length; i++) {
-	    RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
-	}
+        let RegoPolicy = ""
+        RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
+        // for each entry/row in hostRuleData, generate Rego code
+        for (var i = 0; i < hostRuleData.length; i++) {
+            RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
+        }
     }
 
     function getHostRuleLeftToken(snippet) {
-	return snippet[0]
+        return snippet[0]
     }
 
     function getHostRuleRightToken(snippet) {
-	return snippet[2]
+        return snippet[2]
     }
 
     function getHostRuleOpToken(snippet) {
-	return snippet[1]
+        return snippet[1]
     }
 
     function getHostRuleTokenType(name, snippet) {
-	if (name === "User ID") {
-	    return "uid"
-	}
-	if (snippet[4] === "true") {
-	    return "array"
-	} else {
-	    return "single"
-	}
+        if (name === "User ID") {
+            return "uid"
+        }
+        if (snippet[4] === "true") {
+            return "array"
+        } else {
+            return "single"
+        }
     }
 
     function generateRoutePolicyHeader(policyData) {
-	return policyData +
-	    "package user.routing\ndefault route_tag = \"\"\n\n"
+        return policyData +
+            "package user.routing\ndefault route_tag = \"\"\n\n"
     }
 
     function processHostRule(e, hostRule, policyData) {
@@ -323,37 +344,37 @@ const HostsView = (props) => {
         let HostConst = "    input.host == " + hostRule.host + "\n"
         let routeTagValue = ""
         for (let snippet of hostRule.rule) {
-	    let ltoken = getHostRuleLeftToken(snippet)
-	    let rtoken = getHostRuleRightToken(snippet)
-	    let optoken = getHostRuleOpToken(snippet)
+            let ltoken = getHostRuleLeftToken(snippet)
+            let rtoken = getHostRuleRightToken(snippet)
+            let optoken = getHostRuleOpToken(snippet)
 
-	    if (ltoken === "Route") {
+            if (ltoken === "Route") {
                 routeTagValue = rtoken
                 tagSpecified = 1
-	    } else {
-		let uatype = getHostRuleTokenType(ltoken, snippet)
-		if (uatype === "array") {
-		    // ltoken is an array type user attribute
-		    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
-		} else if (uatype === "single") {
-		    // ltoken is a single value user attribute
-		    Exprs += "    input.user." + snippet[0] + " " + optoken + " "
-		} else if (uatype === "uid") {
-		    // ltoken is user id
-		    Exprs += "    input.user.uid" + " " + optoken + " "
-		}
-		// rtoken is always a constant. Could be single value or array
-		// of values. TBD: handling array of values
-		Exprs += rtoken + "\n"
-	    }
-	}
-	let RuleEnd = "}\n\n"
-	if (tagSpecified == 0) {
-	    // Error - route tag needs to be specified
-	    routeTagValue = "Error - ** route tag value unspecified **"
-	}
-	let routePolicyTag = "    rtag := " + routeTagValue + "\n"
-	return policyData + RuleStart + HostConst + Exprs + routePolicyTag + RuleEnd
+            } else {
+                let uatype = getHostRuleTokenType(ltoken, snippet)
+                if (uatype === "array") {
+                    // ltoken is an array type user attribute
+                    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
+                } else if (uatype === "single") {
+                    // ltoken is a single value user attribute
+                    Exprs += "    input.user." + snippet[0] + " " + optoken + " "
+                } else if (uatype === "uid") {
+                    // ltoken is user id
+                    Exprs += "    input.user.uid" + " " + optoken + " "
+                }
+                // rtoken is always a constant. Could be single value or array
+                // of values. TBD: handling array of values
+                Exprs += rtoken + "\n"
+            }
+        }
+        let RuleEnd = "}\n\n"
+        if (tagSpecified == 0) {
+            // Error - route tag needs to be specified
+            routeTagValue = "Error - ** route tag value unspecified **"
+        }
+        let routePolicyTag = "    rtag := " + routeTagValue + "\n"
+        return policyData + RuleStart + HostConst + Exprs + routePolicyTag + RuleEnd
     }
 
     // ------------------Policy generation functions end----------------------
@@ -404,6 +425,33 @@ const HostsView = (props) => {
                     </CButton>
                 </CCallout>
             )
+        }
+    }
+
+    function matchAttrs(item) {
+        if (Array.isArray(item)) {
+            if (item.length == 1 && ["", 0, false].includes(item[0])) {
+                return (
+                    <td className="text-warning">Default value</td>
+                )
+            }
+            else {
+                return (
+                    <td>{item}</td>
+                )
+            }
+        }
+        else {
+            if (["", 0, false].includes(item)) {
+                return (
+                    <td className="text-warning">Default value</td>
+                )
+            }
+            else {
+                return (
+                    <td>{item.toString()}</td>
+                )
+            }
         }
     }
 
@@ -499,91 +547,109 @@ const HostsView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        {/** 
-                                                         * If item.routeattrs[0] has only one key:val pair 
-                                                         * i.e. only tag exists ==> {tag: ""} then we ask the 
-                                                         * tenant to configure attributes.
-                                                         */}
-                                                        {Object.entries(routeConfig[0]).length === 1
-                                                            ? <div className="roboto-font">
-                                                                You have no attributes configured on this host.
-                                                                {' '}
-                                                                {' '}to add attributes
-                                                            </div>
-                                                            :
-                                                            <>
-                                                                {/**If host attributes exist, render below */}
-                                                                {/**This button is used to add another route */}
-                                                                <CButton
-                                                                    className="ml-auto"
-                                                                    color="primary"
-                                                                    size="sm"
-                                                                    onClick={(e) => { addTag(e, item) }}
-                                                                >
-                                                                    Add Route
-                                                                </CButton>
-                                                                <table className="my-3 table table-outline d-sm-table">
-                                                                    <tr>
-                                                                        <th className="attributes header roboto-font border-right my-auto">Routes</th>
-                                                                        {routeConfig.map((route, i) => {
-                                                                            return (
-                                                                                <td className="attributes header roboto-font">
-                                                                                    {/**If the tag attribute is not an empty string, render the tag val
+                                                        <>
+                                                            {/**If host attributes exist, render below */}
+                                                            {/**This button is used to add another route */}
+                                                            <CButton
+                                                                className="ml-auto"
+                                                                color="primary"
+                                                                size="sm"
+                                                                onClick={(e) => { addTag(e, item) }}
+                                                            >
+                                                                Add Route
+                                                            </CButton>
+                                                            <table className="my-3 table table-outline d-sm-table">
+                                                                <tr>
+                                                                    <th className="attributes header roboto-font border-right my-auto">Routes</th>
+                                                                    {routeConfig.map((route, i) => {
+                                                                        return (
+                                                                            <td className="attributes header roboto-font">
+                                                                                {/**If the tag attribute is not an empty string, render the tag val
                                                                                      * else, render in progress
                                                                                      */}
-                                                                                    <div>
-                                                                                        {route.tag != ""
-                                                                                            ? <CBadge color="success">{route.tag}</CBadge>
-                                                                                            : <CBadge color="warning">In Progress</CBadge>
-                                                                                        }
-                                                                                    </div>
-                                                                                    <div>
+                                                                                <div>
+                                                                                    {route.tag != ""
+                                                                                        ?
                                                                                         <CButton
-                                                                                            className=" button-table"
+                                                                                            className="button-table"
                                                                                             variant="ghost"
-                                                                                            color="primary"
+                                                                                            color="success"
                                                                                             size="sm"
-                                                                                            onClick={e => handleRule(e, item.host, route.tag)}
-                                                                                        >
-                                                                                            <FontAwesomeIcon icon="fingerprint" className="icon-table-edit" />
+                                                                                            onClick={e => handleAttrConfig(index, i)}
+                                                                                        ><strong>{route.tag}</strong>
                                                                                         </CButton>
+                                                                                        :
                                                                                         <CButton
-                                                                                            className="ml-1 button-table"
+                                                                                            className="button-table"
                                                                                             variant="ghost"
-                                                                                            color="danger"
+                                                                                            color="warning"
                                                                                             size="sm"
-                                                                                            onClick={(e) => routeConfig.length > 1 ?
-                                                                                                delConfig(e, item, i) :
-                                                                                                setRoutingModal(true)}
-                                                                                        >
-                                                                                            {/**
+                                                                                            onClick={e => handleAttrConfig(index, i)}
+                                                                                        ><strong>In Progress</strong>
+                                                                                        </CButton>
+                                                                                    }
+                                                                                </div>
+                                                                                <div>
+                                                                                    <CButton
+                                                                                        className="button-table"
+                                                                                        variant="ghost"
+                                                                                        color="primary"
+                                                                                        size="sm"
+                                                                                        onClick={e => handleRule(e, item.host, route.tag)}
+                                                                                    >
+                                                                                        <FontAwesomeIcon icon="fingerprint" className="icon-table-edit" />
+                                                                                    </CButton>
+                                                                                    <CButton
+                                                                                        className="ml-1 button-table"
+                                                                                        variant="ghost"
+                                                                                        color="danger"
+                                                                                        size="sm"
+                                                                                        onClick={(e) => routeConfig.length > 1 ?
+                                                                                            delConfig(e, item, i) :
+                                                                                            setRoutingModal(true)}
+                                                                                    >
+                                                                                        {/**
                                                                                              * You can delete routes until there is only one left,
                                                                                              * if you try to delete a route when only one exists, a popup will
                                                                                              * occur telling you this is not possible. 
                                                                                              */}
-                                                                                            <FontAwesomeIcon icon="trash-alt" className="icon-table-delete" />
-                                                                                        </CButton>
-                                                                                    </div>
-                                                                                </td>
-                                                                            )
-                                                                        })}
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th className="attributes roboto-font border-right">Rules</th>
+                                                                                        <FontAwesomeIcon icon="trash-alt" className="icon-table-delete" />
+                                                                                    </CButton>
+                                                                                </div>
+                                                                            </td>
+                                                                        )
+                                                                    })}
+                                                                </tr>
+                                                                <tr>
+                                                                    <th className="attributes roboto-font border-right">Rules</th>
 
-                                                                        {routeConfig.map((route, i) => {
-                                                                            return (
-                                                                                <td>
-                                                                                    {matchRule(route.tag)}
-                                                                                </td>
-                                                                            )
-                                                                        })}
-                                                                    </tr>
+                                                                    {routeConfig.map((route, i) => {
+                                                                        return (
+                                                                            <td>
+                                                                                {matchRule(route.tag)}
+                                                                            </td>
+                                                                        )
+                                                                    })}
+                                                                </tr>
+                                                                {hostAttrSet.map(attr => {
+                                                                    return (
+                                                                        <tr>
+                                                                            <th className="attributes roboto-font border-right">{attr}</th>
+                                                                            {routeConfig.map((route, i) => {
+                                                                                return (
+                                                                                    <>
+                                                                                        {matchAttrs(route[attr])}
+                                                                                    </>
+                                                                                )
+                                                                            })}
+                                                                        </tr>
+                                                                    )
+                                                                })}
 
 
-                                                                </table>
-                                                            </>
-                                                        }
+                                                            </table>
+                                                        </>
+
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
