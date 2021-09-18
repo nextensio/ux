@@ -23,6 +23,7 @@ import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
+import { generateState } from '@okta/okta-auth-js';
 
 
 var common = require('../../common')
@@ -99,6 +100,7 @@ const BundlesView = (props) => {
     const [zippedData, updateZippedData] = useState(initTableData);
 
     const [details, setDetails] = useState([]);
+    const [policyModal, setPolicyModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteBid, setDeleteBid] = useState("");
     const [keyModal, setKeyModal] = useState(false);
@@ -158,12 +160,6 @@ const BundlesView = (props) => {
         updateZippedData(zipper)
         updateBidData(bidObj)
     }, [bundleData, bundleAttrData])
-
-    const toAttributeEditor = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
-        })
-    }
 
     const handleRefresh = (e) => {
         setDetails([]);
@@ -342,6 +338,40 @@ const BundlesView = (props) => {
         )
     }
 
+
+    const handlePolicyGeneration = (e) => {
+        var ucode = generatePolicyFromBundleRules(e, bundleRuleData)
+        var byteRego = ucode.split('').map(function (c) { return c.charCodeAt(0) });
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify({
+                pid: "testApplicationAccess", tenant: props.match.params.id,
+                rego: byteRego
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    setPolicyModal(true)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    };
+
+
     // ------------------Policy generation functions-------------------------
 
     const generatePolicyFromBundleRules = (e, bundleRuleData) => {
@@ -365,6 +395,7 @@ const BundlesView = (props) => {
         for (var i = 0; i < bundleRuleData.length; i++) {
             RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
         }
+        return RegoPolicy
     }
 
     function getBundleRuleLeftToken(snippet) {
@@ -404,7 +435,7 @@ const BundlesView = (props) => {
             let rtoken = getBundleRuleRightToken(snippet)
             let optoken = getBundleRuleOpToken(snippet)
 
-            let uatype = getBundleRuleTokenType(ltoken)
+            let uatype = getBundleRuleTokenType(ltoken, snippet)
             if (uatype === "array") {
                 // ltoken is an array type user attribute
                 Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
@@ -468,7 +499,7 @@ const BundlesView = (props) => {
                             <CButton
                                 className="float-right"
                                 color="primary"
-                                onClick={e => generatePolicyFromBundleRules(e, bundleRuleData)}
+                                onClick={handlePolicyGeneration}
                             >Generate Policy</CButton>
                             <div className="text-muted small">Click on a row to see rules and attributes</div>
                         </CCardHeader>
@@ -627,6 +658,19 @@ const BundlesView = (props) => {
                             color="secondary"
                             onClick={() => setDeleteModal(!deleteModal)}
                         >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal show={policyModal} onClose={() => setPolicyModal(!policyModal)}>
+                    <CModalHeader className='bg-success text-white py-n5' closeButton>
+                        <strong>Policy has been generated.</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="success"
+                            onClick={() => setPolicyModal(!policyModal)}
+                        >Ok.</CButton>
                     </CModalFooter>
                 </CModal>
                 <CModal show={keyModal} onClose={() => setKeyModal(!keyModal)}>

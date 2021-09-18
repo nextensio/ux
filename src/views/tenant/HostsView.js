@@ -88,6 +88,7 @@ const HostsView = (props) => {
     // Routing modal will be triggered if the user attempts to delete the route when only one exists
     const [routingModal, setRoutingModal] = useState(false);
     const [details, setDetails] = useState([]);
+    const [policyModal, setPolicyModal] = useState(false);
     const [deleteHost, setDeleteHost] = useState("");
     const [deleteModal, setDeleteModal] = useState(false);
 
@@ -273,6 +274,38 @@ const HostsView = (props) => {
             });
     }
 
+    const handlePolicyGeneration = (e) => {
+        var ucode = generatePolicyFromHostRules(e, hostRuleData)
+        var byteRego = ucode.split('').map(function (c) { return c.charCodeAt(0) });
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify({
+                pid: "testApplicationRouting", tenant: props.match.params.id,
+                rego: byteRego
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    setPolicyModal(true)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    };
+
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
         let newDetails = details.slice()
@@ -307,6 +340,7 @@ const HostsView = (props) => {
         for (var i = 0; i < hostRuleData.length; i++) {
             RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
         }
+        return RegoPolicy
     }
 
     function getHostRuleLeftToken(snippet) {
@@ -348,7 +382,7 @@ const HostsView = (props) => {
             let rtoken = getHostRuleRightToken(snippet)
             let optoken = getHostRuleOpToken(snippet)
 
-            if (ltoken === "Route") {
+            if (ltoken === "tag") {
                 routeTagValue = rtoken
                 tagSpecified = 1
             } else {
@@ -477,7 +511,7 @@ const HostsView = (props) => {
                             <CButton
                                 color="primary"
                                 className="float-right"
-                                onClick={e => generatePolicyFromHostRules(e, hostRuleData)}
+                                onClick={handlePolicyGeneration}
                             >
                                 Generate Policy
                             </CButton>
@@ -694,6 +728,19 @@ const HostsView = (props) => {
                         color="secondary"
                         onClick={() => setDeleteModal(!deleteModal)}
                     >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+            <CModal show={policyModal} onClose={() => setPolicyModal(!policyModal)}>
+                <CModalHeader className='bg-success text-white py-n5' closeButton>
+                    <strong>Policy has been generated.</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="success"
+                        onClick={() => setPolicyModal(!policyModal)}
+                    >Ok.</CButton>
                 </CModalFooter>
             </CModal>
             <CModal show={routingModal} onClose={() => setRoutingModal(!routingModal)}>
