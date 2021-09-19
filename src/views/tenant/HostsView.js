@@ -355,17 +355,52 @@ const HostsView = (props) => {
         return snippet[1]
     }
 
-    function getHostRuleTokenType(name, snippet) {
+    function getHostRuleTokenType(snippet) {
+        return snippet[3]
+    }
+
+    function getHostRuleTokenValue(name, snippet) {
         if (name === "User ID") {
             return "uid"
         }
-        if (snippet[4] === "true") {
+	if (name === "tag") {
+	    return "tag"
+	}
+        if (snippet[4] == "true") {
             return "array"
         } else {
             return "single"
         }
     }
 
+    function hostRightTokenArray(rtok, uatype) {
+	let rtokenarray = rtok.split(' ')
+	// Now remove null string elements from array
+	let newarray = [""]
+	let j = 0
+	let rtoken1 = ""
+	for (var i = 0; i < rtokenarray.length; i++) {
+	    rtoken1 = rtokenarray[i].trim()
+	    if (rtoken1.length > 0) {
+		if (uatype === "string") {
+		    if (!rtoken1.startsWith('"')) {
+			rtoken1 = '"' + rtoken1
+		    }
+		    if (!rtoken1.endsWith('"')) {
+			rtoken1 += '"'
+		    }
+		} else if (uatype === "number") {
+		    if (rtoken1.includes('"')) {
+			rtoken1 = rtoken1.replaceAll('"', ' ').trim()
+		    }
+		}
+		newarray[j] = rtoken1
+		j++
+	    }
+	}
+	return newarray
+    }
+    
     function generateRoutePolicyHeader(policyData) {
         return policyData +
             "package user.routing\ndefault route_tag = \"\"\n\n"
@@ -373,41 +408,142 @@ const HostsView = (props) => {
 
     function processHostRule(e, hostRule, policyData) {
         let tagSpecified = 0
+	let routePolicyTag = "** Error **"
+        let routeTagValue = "deny"
         let Exprs = ""
         let RuleStart = "route_tag = rtag {\n"
-        let HostConst = "    input.host == " + hostRule.host + "\n"
-        let routeTagValue = ""
+        let HostConst = "    input.host == \"" + hostRule.host + "\"\n"
         for (let snippet of hostRule.rule) {
             let ltoken = getHostRuleLeftToken(snippet)
+	    let uavalue = getHostRuleTokenValue(ltoken, snippet)
+	    let uatype = getHostRuleTokenType(snippet).toLowerCase()
             let rtoken = getHostRuleRightToken(snippet)
+	    let rtokenarray = [""]
             let optoken = getHostRuleOpToken(snippet)
 
+	    // Do some pre-processing on rtoken to figure out more details.
+	    // rtoken is always a constant. Could be single value or array
+            // of values.
+	    // Single value can have wild card if string type. Support only '*'
+	    // for now, with delimiter as '.'.
+	    // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
+	    // For string values, add double quotes if missing.
+	    // Always trim all values.
+	    // For processing array of values, first replace any comma with a
+	    // space, then split based on space. Remove any null strings to
+	    // compress array.
+	    // To search for anything other than a word or whitespace, use
+	    // 'const regex = /[^\w\s]/g' if using regexp matching (future).
+
+	    let haswildcard = false
+	    let issingle = true
+	    let lts = "[_]"
+	    let rts = "-A[_]"
+
+	    rtoken = rtoken.trim()
             if (ltoken === "tag") {
                 routeTagValue = rtoken
                 tagSpecified = 1
+	    } else if ((uatype === "string") || (uavalue === "uid")) {
+		// User attribute is string type. rtoken must be a string or
+		// string array
+		if (rtoken.includes(',')) {
+		    rtoken = rtoken.replaceAll(',', ' ').trim()
+		}
+		if (rtoken.includes(' ')) {
+		    // Seems to be case of multiple string values
+		    issingle = false
+		    rtokenarray = hostRightTokenArray(rtoken, uatype)
+		}
+		if (issingle) {
+		    haswildcard = rtoken.includes('*')
+		    if (!rtoken.startsWith('"')) {
+			rtoken = '"' + rtoken
+		    }
+		    if (!rtoken.endsWith('"')) {
+			rtoken += '"'
+		    }
+		}
+	    } else {
+		if (rtoken.includes(',')) {
+		    rtoken = rtoken.replaceAll(',', ' ').trim()
+		}
+		if (rtoken.includes(' ')) {
+		    // Seems to be case of multiple string values
+		    issingle = false
+		    rtokenarray = hostRightTokenArray(rtoken, uatype)
+		}
+	    }
+	    if (issingle) {
+		rts = ""
+	    }
+	    if (uavalue != "array") {
+		lts = ""
+	    }
+	    if (uavalue === "tag") {
+		routePolicyTag = "    rtag := \"" + routeTagValue + "\"\n"
+	    } else if (uavalue === "uid") {
+                // ltoken is user id
+		if (!issingle) {
+		    // We have an array of values to match this attribute
+		    //   foobar-A := [value1, value2, value3, ..]
+		    //   input.user.uid <op> foobar-A[_]
+		    let Aexpr = "    " + ltoken + "-A := ["
+		    for (var i = 0; i < rtokenarray.length; i++) {
+			if (i > 0) {
+			    Aexpr += ", "
+			}
+			Aexpr += rtokenarray[i]
+		    }
+		    Aexpr += "]\n    input.user.uid "
+		    Exprs +=  Aexpr + optoken + " " + ltoken + rts + "\n"
+		} else {
+		    // We have a single value to match
+		    if (haswildcard) {
+			// globs.match("*foo.com", [], input.user.uid)
+			let Mexpr = "globs.match(" + rtoken + ", [], input.user.uid"
+			if (optoken === "==") {
+			    Exprs += "    " + Mexpr + ")\n"    
+			} else {
+			    Exprs += "    !" + Mexpr + ")\n"
+			}
+		    } else {
+			Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
+		    }
+		}
             } else {
-                let uatype = getHostRuleTokenType(ltoken, snippet)
-                if (uatype === "array") {
-                    // ltoken is an array type user attribute
-                    Exprs += "    input.user." + ltoken + "[_] " + optoken + " "
-                } else if (uatype === "single") {
-                    // ltoken is a single value user attribute
-                    Exprs += "    input.user." + snippet[0] + " " + optoken + " "
-                } else if (uatype === "uid") {
-                    // ltoken is user id
-                    Exprs += "    input.user.uid" + " " + optoken + " "
-                }
-                // rtoken is always a constant. Could be single value or array
-                // of values. TBD: handling array of values
-                Exprs += rtoken + "\n"
+                // ltoken is a user attribute.
+		// It could be matched with a single value, or with multiple
+		// values. If single value, it could have a wildcard.
+		if (!issingle) {
+		    // We have an array of values to match this attribute
+		    let Aexpr = "    " + ltoken + "-A := ["
+		    for (var i = 0; i < rtokenarray.length; i++) {
+			if (i > 0) {
+			    Aexpr += ", "
+			}
+			Aexpr += rtokenarray[i]
+		    }
+		    Aexpr += "]\n    input.user." + ltoken + lts
+		    Exprs += Aexpr + " " + optoken + " " + ltoken + rts + "\n"
+		} else {
+		    // We have a single value to match
+		    if (haswildcard && (uatype === "string")) {
+			let Mexpr = "globs.match(" + rtoken + ", [], input.user."
+			Mexpr += ltoken + lts
+			if (optoken === "==") {
+			    Exprs += "    " + Mexpr + ")\n"
+			} else {
+			    Exprs += "    !" + Mexpr + ")\n"
+			}
+		    } else {
+			Exprs += "    input.user." + ltoken + lts
+			Exprs += " " + optoken + " " + rtoken + rts + "\n"
+		    }
+		}
             }
         }
         let RuleEnd = "}\n\n"
-        if (tagSpecified == 0) {
-            // Error - route tag needs to be specified
-            routeTagValue = "Error - ** route tag value unspecified **"
-        }
-        let routePolicyTag = "    rtag := " + routeTagValue + "\n"
         return policyData + RuleStart + HostConst + Exprs + routePolicyTag + RuleEnd
     }
 
