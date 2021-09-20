@@ -401,6 +401,19 @@ const HostsView = (props) => {
 	return newarray
     }
     
+    function hostCheckWildCard(rtok) {
+	if (rtok.includes('*')) {
+	    return true
+	}
+	if (rtok.includes('?')) {
+	    return true
+	}
+	if (rtok.includes('[') && rtok.includes(']')) {
+	    return true
+	}
+	return false
+    }
+
     function generateRoutePolicyHeader(policyData) {
         return policyData +
             "package user.routing\ndefault route_tag = \"\"\n\n"
@@ -456,7 +469,7 @@ const HostsView = (props) => {
 		    rtokenarray = hostRightTokenArray(rtoken, uatype)
 		}
 		if (issingle) {
-		    haswildcard = rtoken.includes('*')
+		    haswildcard = hostCheckWildCard(rtoken)
 		    if (!rtoken.startsWith('"')) {
 			rtoken = '"' + rtoken
 		    }

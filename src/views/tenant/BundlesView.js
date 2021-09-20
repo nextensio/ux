@@ -452,7 +452,20 @@ const BundlesView = (props) => {
 	}
 	return newarray
     }
-    
+
+    function bundleCheckWildCard(rtok) {
+	if (rtok.includes('*')) {
+	    return true
+	}
+	if (rtok.includes('?')) {
+	    return true
+	}
+	if (rtok.includes('[') && rtok.includes(']')) {
+	    return true
+	}
+	return false
+    }
+
     function generateAccessPolicyHeader(policyData) {
         return policyData +
             "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
@@ -502,7 +515,7 @@ const BundlesView = (props) => {
 		    rtokenarray = bundleRightTokenArray(rtoken, uatype)
 		}
 		if (issingle) {
-		    haswildcard = rtoken.includes('*')
+		    haswildcard = bundleCheckWildCard(rtoken)
 		    if (!rtoken.startsWith('"')) {
 			rtoken = '"' + rtoken
 		    }
