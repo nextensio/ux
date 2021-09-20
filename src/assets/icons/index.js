@@ -6,7 +6,8 @@ import {
     cibGrafana,
     cibLinux,
     cibWindows,
-    cibAppStoreIos
+    cibAppStoreIos,
+    cibSlack
 } from '@coreui/icons'
 import {
     cil3d,
@@ -72,7 +73,8 @@ export const icons = Object.assign({}, {
     cibGrafana,
     cibLinux,
     cibWindows,
-    cibAppStoreIos
+    cibAppStoreIos,
+    cibSlack
 }, {
     cil3d,
     cilAccountLogout,
