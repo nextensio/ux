@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react'
 import {
     CBadge,
     CButton,
-    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
     CCardHeader,
     CCol,
     CCollapse,
+    CFormGroup,
+    CLabel,
     CLink,
     CDataTable,
+    CInput,
     CModal,
     CModalHeader,
     CModalBody,
@@ -87,8 +89,11 @@ const HostsView = (props) => {
     const [hostRuleData, updateHostRuleData] = useState(initTableData);
     const [hostAttrSet, updateHostAttrSet] = useState(initTableData)
 
+    const [addRouteModal, setAddRouteModal] = useState(false);
+    const [addRoute, updateAddRoute] = useState("")
+    const [addRouteItem, updateAddRouteItem] = useState("")
     // Routing modal will be triggered if the user attempts to delete the route when only one exists
-    const [routingModal, setRoutingModal] = useState(false);
+    const [singleRouteModal, setSingleRouteModal] = useState(false);
     const [details, setDetails] = useState([]);
     const [policyModal, setPolicyModal] = useState(false);
     const [deleteHost, setDeleteHost] = useState("");
@@ -165,6 +170,14 @@ const HostsView = (props) => {
         setDetails([])
     }
 
+    const triggerRouteAdd = (item) => {
+        setAddRouteModal(!addRouteModal)
+        updateAddRouteItem(item)
+    }
+    const handleRouteAdd = (e) => {
+        updateAddRoute(e.target.value)
+    }
+
     // Creates route objects in the hostData.config list
     // Each route object has a tag key and host attribute keys, with an empty strings as values
     // ex. {tag: '', userAttr1: '', userAttr2: '', userAttr3: '', ...etc}
@@ -178,10 +191,14 @@ const HostsView = (props) => {
         keys.forEach((key, index) => {
             initObj[key] = ""
         })
+        initObj.tag = addRoute
         data[i].routeattrs.push(initObj)
         updateHostData(data)
         e.stopPropagation()
         handleSubmit(e, hostsData[i])
+        updateAddRouteItem("")
+        updateAddRoute("")
+        setAddRouteModal(!addRouteModal)
     }
 
     // deletes a route object from the hostData.routeattrs list
@@ -365,9 +382,9 @@ const HostsView = (props) => {
         if (name === "User ID") {
             return "uid"
         }
-	if (name === "tag") {
-	    return "tag"
-	}
+        if (name === "tag") {
+            return "tag"
+        }
         if (snippet[4] == "true") {
             return "array"
         } else {
@@ -376,44 +393,44 @@ const HostsView = (props) => {
     }
 
     function hostRightTokenArray(rtok, uatype) {
-	let rtokenarray = rtok.split(' ')
-	// Now remove null string elements from array
-	let newarray = [""]
-	let j = 0
-	let rtoken1 = ""
-	for (var i = 0; i < rtokenarray.length; i++) {
-	    rtoken1 = rtokenarray[i].trim()
-	    if (rtoken1.length > 0) {
-		if (uatype === "string") {
-		    if (!rtoken1.startsWith('"')) {
-			rtoken1 = '"' + rtoken1
-		    }
-		    if (!rtoken1.endsWith('"')) {
-			rtoken1 += '"'
-		    }
-		} else if (uatype === "number") {
-		    if (rtoken1.includes('"')) {
-			rtoken1 = rtoken1.replaceAll('"', ' ').trim()
-		    }
-		}
-		newarray[j] = rtoken1
-		j++
-	    }
-	}
-	return newarray
+        let rtokenarray = rtok.split(' ')
+        // Now remove null string elements from array
+        let newarray = [""]
+        let j = 0
+        let rtoken1 = ""
+        for (var i = 0; i < rtokenarray.length; i++) {
+            rtoken1 = rtokenarray[i].trim()
+            if (rtoken1.length > 0) {
+                if (uatype === "string") {
+                    if (!rtoken1.startsWith('"')) {
+                        rtoken1 = '"' + rtoken1
+                    }
+                    if (!rtoken1.endsWith('"')) {
+                        rtoken1 += '"'
+                    }
+                } else if (uatype === "number") {
+                    if (rtoken1.includes('"')) {
+                        rtoken1 = rtoken1.replaceAll('"', ' ').trim()
+                    }
+                }
+                newarray[j] = rtoken1
+                j++
+            }
+        }
+        return newarray
     }
-    
+
     function hostCheckWildCard(rtok) {
-	if (rtok.includes('*')) {
-	    return true
-	}
-	if (rtok.includes('?')) {
-	    return true
-	}
-	if (rtok.includes('[') && rtok.includes(']')) {
-	    return true
-	}
-	return false
+        if (rtok.includes('*')) {
+            return true
+        }
+        if (rtok.includes('?')) {
+            return true
+        }
+        if (rtok.includes('[') && rtok.includes(']')) {
+            return true
+        }
+        return false
     }
 
     function generateRoutePolicyHeader(policyData) {
@@ -423,139 +440,139 @@ const HostsView = (props) => {
 
     function processHostRule(e, hostRule, policyData) {
         let tagSpecified = 0
-	let routePolicyTag = "** Error **"
+        let routePolicyTag = "** Error **"
         let routeTagValue = "deny"
         let Exprs = ""
         let RuleStart = "route_tag = rtag {\n"
         let HostConst = "    input.host == \"" + hostRule.host + "\"\n"
         for (let snippet of hostRule.rule) {
             let ltoken = getHostRuleLeftToken(snippet)
-	    let uavalue = getHostRuleTokenValue(ltoken, snippet)
-	    let uatype = getHostRuleTokenType(snippet).toLowerCase()
+            let uavalue = getHostRuleTokenValue(ltoken, snippet)
+            let uatype = getHostRuleTokenType(snippet).toLowerCase()
             let rtoken = getHostRuleRightToken(snippet)
-	    let rtokenarray = [""]
+            let rtokenarray = [""]
             let optoken = getHostRuleOpToken(snippet)
 
-	    // Do some pre-processing on rtoken to figure out more details.
-	    // rtoken is always a constant. Could be single value or array
+            // Do some pre-processing on rtoken to figure out more details.
+            // rtoken is always a constant. Could be single value or array
             // of values.
-	    // Single value can have wild card if string type. Support only '*'
-	    // for now, with delimiter as '.'.
-	    // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
-	    // For string values, add double quotes if missing.
-	    // Always trim all values.
-	    // For processing array of values, first replace any comma with a
-	    // space, then split based on space. Remove any null strings to
-	    // compress array.
-	    // To search for anything other than a word or whitespace, use
-	    // 'const regex = /[^\w\s]/g' if using regexp matching (future).
+            // Single value can have wild card if string type. Support only '*'
+            // for now, with delimiter as '.'.
+            // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
+            // For string values, add double quotes if missing.
+            // Always trim all values.
+            // For processing array of values, first replace any comma with a
+            // space, then split based on space. Remove any null strings to
+            // compress array.
+            // To search for anything other than a word or whitespace, use
+            // 'const regex = /[^\w\s]/g' if using regexp matching (future).
 
-	    let haswildcard = false
-	    let issingle = true
-	    let lts = "[_]"
-	    let rts = "-A[_]"
+            let haswildcard = false
+            let issingle = true
+            let lts = "[_]"
+            let rts = "-A[_]"
 
-	    rtoken = rtoken.trim()
+            rtoken = rtoken.trim()
             if (ltoken === "tag") {
                 routeTagValue = rtoken
                 tagSpecified = 1
-	    } else if ((uatype === "string") || (uavalue === "uid")) {
-		// User attribute is string type. rtoken must be a string or
-		// string array
-		if (rtoken.includes(',')) {
-		    rtoken = rtoken.replaceAll(',', ' ').trim()
-		}
-		if (rtoken.includes(' ')) {
-		    // Seems to be case of multiple string values
-		    issingle = false
-		    rtokenarray = hostRightTokenArray(rtoken, uatype)
-		}
-		if (issingle) {
-		    haswildcard = hostCheckWildCard(rtoken)
-		    if (!rtoken.startsWith('"')) {
-			rtoken = '"' + rtoken
-		    }
-		    if (!rtoken.endsWith('"')) {
-			rtoken += '"'
-		    }
-		}
-	    } else {
-		if (rtoken.includes(',')) {
-		    rtoken = rtoken.replaceAll(',', ' ').trim()
-		}
-		if (rtoken.includes(' ')) {
-		    // Seems to be case of multiple string values
-		    issingle = false
-		    rtokenarray = hostRightTokenArray(rtoken, uatype)
-		}
-	    }
-	    if (issingle) {
-		rts = ""
-	    }
-	    if (uavalue != "array") {
-		lts = ""
-	    }
-	    if (uavalue === "tag") {
-		routePolicyTag = "    rtag := \"" + routeTagValue + "\"\n"
-	    } else if (uavalue === "uid") {
+            } else if ((uatype === "string") || (uavalue === "uid")) {
+                // User attribute is string type. rtoken must be a string or
+                // string array
+                if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+                }
+                if (rtoken.includes(' ')) {
+                    // Seems to be case of multiple string values
+                    issingle = false
+                    rtokenarray = hostRightTokenArray(rtoken, uatype)
+                }
+                if (issingle) {
+                    haswildcard = hostCheckWildCard(rtoken)
+                    if (!rtoken.startsWith('"')) {
+                        rtoken = '"' + rtoken
+                    }
+                    if (!rtoken.endsWith('"')) {
+                        rtoken += '"'
+                    }
+                }
+            } else {
+                if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+                }
+                if (rtoken.includes(' ')) {
+                    // Seems to be case of multiple string values
+                    issingle = false
+                    rtokenarray = hostRightTokenArray(rtoken, uatype)
+                }
+            }
+            if (issingle) {
+                rts = ""
+            }
+            if (uavalue != "array") {
+                lts = ""
+            }
+            if (uavalue === "tag") {
+                routePolicyTag = "    rtag := \"" + routeTagValue + "\"\n"
+            } else if (uavalue === "uid") {
                 // ltoken is user id
-		if (!issingle) {
-		    // We have an array of values to match this attribute
-		    //   foobar-A := [value1, value2, value3, ..]
-		    //   input.user.uid <op> foobar-A[_]
-		    let Aexpr = "    " + ltoken + "-A := ["
-		    for (var i = 0; i < rtokenarray.length; i++) {
-			if (i > 0) {
-			    Aexpr += ", "
-			}
-			Aexpr += rtokenarray[i]
-		    }
-		    Aexpr += "]\n    input.user.uid "
-		    Exprs +=  Aexpr + optoken + " " + ltoken + rts + "\n"
-		} else {
-		    // We have a single value to match
-		    if (haswildcard) {
-			// globs.match("*foo.com", [], input.user.uid)
-			let Mexpr = "globs.match(" + rtoken + ", [], input.user.uid"
-			if (optoken === "==") {
-			    Exprs += "    " + Mexpr + ")\n"    
-			} else {
-			    Exprs += "    !" + Mexpr + ")\n"
-			}
-		    } else {
-			Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
-		    }
-		}
+                if (!issingle) {
+                    // We have an array of values to match this attribute
+                    //   foobar-A := [value1, value2, value3, ..]
+                    //   input.user.uid <op> foobar-A[_]
+                    let Aexpr = "    " + ltoken + "-A := ["
+                    for (var i = 0; i < rtokenarray.length; i++) {
+                        if (i > 0) {
+                            Aexpr += ", "
+                        }
+                        Aexpr += rtokenarray[i]
+                    }
+                    Aexpr += "]\n    input.user.uid "
+                    Exprs += Aexpr + optoken + " " + ltoken + rts + "\n"
+                } else {
+                    // We have a single value to match
+                    if (haswildcard) {
+                        // globs.match("*foo.com", [], input.user.uid)
+                        let Mexpr = "globs.match(" + rtoken + ", [], input.user.uid"
+                        if (optoken === "==") {
+                            Exprs += "    " + Mexpr + ")\n"
+                        } else {
+                            Exprs += "    !" + Mexpr + ")\n"
+                        }
+                    } else {
+                        Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
+                    }
+                }
             } else {
                 // ltoken is a user attribute.
-		// It could be matched with a single value, or with multiple
-		// values. If single value, it could have a wildcard.
-		if (!issingle) {
-		    // We have an array of values to match this attribute
-		    let Aexpr = "    " + ltoken + "-A := ["
-		    for (var i = 0; i < rtokenarray.length; i++) {
-			if (i > 0) {
-			    Aexpr += ", "
-			}
-			Aexpr += rtokenarray[i]
-		    }
-		    Aexpr += "]\n    input.user." + ltoken + lts
-		    Exprs += Aexpr + " " + optoken + " " + ltoken + rts + "\n"
-		} else {
-		    // We have a single value to match
-		    if (haswildcard && (uatype === "string")) {
-			let Mexpr = "globs.match(" + rtoken + ", [], input.user."
-			Mexpr += ltoken + lts
-			if (optoken === "==") {
-			    Exprs += "    " + Mexpr + ")\n"
-			} else {
-			    Exprs += "    !" + Mexpr + ")\n"
-			}
-		    } else {
-			Exprs += "    input.user." + ltoken + lts
-			Exprs += " " + optoken + " " + rtoken + rts + "\n"
-		    }
-		}
+                // It could be matched with a single value, or with multiple
+                // values. If single value, it could have a wildcard.
+                if (!issingle) {
+                    // We have an array of values to match this attribute
+                    let Aexpr = "    " + ltoken + "-A := ["
+                    for (var i = 0; i < rtokenarray.length; i++) {
+                        if (i > 0) {
+                            Aexpr += ", "
+                        }
+                        Aexpr += rtokenarray[i]
+                    }
+                    Aexpr += "]\n    input.user." + ltoken + lts
+                    Exprs += Aexpr + " " + optoken + " " + ltoken + rts + "\n"
+                } else {
+                    // We have a single value to match
+                    if (haswildcard && (uatype === "string")) {
+                        let Mexpr = "globs.match(" + rtoken + ", [], input.user."
+                        Mexpr += ltoken + lts
+                        if (optoken === "==") {
+                            Exprs += "    " + Mexpr + ")\n"
+                        } else {
+                            Exprs += "    !" + Mexpr + ")\n"
+                        }
+                    } else {
+                        Exprs += "    input.user." + ltoken + lts
+                        Exprs += " " + optoken + " " + rtoken + rts + "\n"
+                    }
+                }
             }
         }
         let RuleEnd = "}\n\n"
@@ -751,7 +768,7 @@ const HostsView = (props) => {
                                                                 className="ml-auto"
                                                                 color="primary"
                                                                 size="sm"
-                                                                onClick={(e) => { addTag(e, item) }}
+                                                                onClick={() => triggerRouteAdd(item)}
                                                             >
                                                                 Add Route
                                                             </CButton>
@@ -765,26 +782,14 @@ const HostsView = (props) => {
                                                                                      * else, render in progress
                                                                                      */}
                                                                                 <div>
-                                                                                    {route.tag != ""
-                                                                                        ?
-                                                                                        <CButton
-                                                                                            className="button-table"
-                                                                                            variant="ghost"
-                                                                                            color="success"
-                                                                                            size="sm"
-                                                                                            onClick={e => handleAttrConfig(index, i)}
-                                                                                        ><strong>{route.tag}</strong>
-                                                                                        </CButton>
-                                                                                        :
-                                                                                        <CButton
-                                                                                            className="button-table"
-                                                                                            variant="ghost"
-                                                                                            color="warning"
-                                                                                            size="sm"
-                                                                                            onClick={e => handleAttrConfig(index, i)}
-                                                                                        ><strong>In Progress</strong>
-                                                                                        </CButton>
-                                                                                    }
+                                                                                    <CButton
+                                                                                        className="button-table"
+                                                                                        variant="ghost"
+                                                                                        color="success"
+                                                                                        size="sm"
+                                                                                        onClick={e => handleAttrConfig(index, i)}
+                                                                                    ><strong>{route.tag}</strong>
+                                                                                    </CButton>
                                                                                 </div>
                                                                                 <div>
                                                                                     <CButton
@@ -803,7 +808,7 @@ const HostsView = (props) => {
                                                                                         size="sm"
                                                                                         onClick={(e) => routeConfig.length > 1 ?
                                                                                             delConfig(e, item, i) :
-                                                                                            setRoutingModal(true)}
+                                                                                            setSingleRouteModal(true)}
                                                                                     >
                                                                                         {/**
                                                                                              * You can delete routes until there is only one left,
@@ -844,11 +849,8 @@ const HostsView = (props) => {
                                                                         </tr>
                                                                     )
                                                                 })}
-
-
                                                             </table>
                                                         </>
-
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
@@ -869,6 +871,7 @@ const HostsView = (props) => {
                     </CCard>
                 </CCol>
             </CRow>
+
             <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
                     <strong>Confirm Deletion</strong>
@@ -887,6 +890,30 @@ const HostsView = (props) => {
                     >Cancel</CButton>
                 </CModalFooter>
             </CModal>
+
+            <CModal show={addRouteModal} className="roboto-font" onClose={() => setAddRouteModal(!addRouteModal)}>
+                <CModalHeader className='bg-success text-white py-n5' closeButton>
+                    <strong>Enter your route name</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>{addRoute}.{addRouteItem.host && addRouteItem.host}</strong>
+                    <CFormGroup className="mt-3">
+                        <CLabel>Name</CLabel>
+                        <CInput value={addRoute} onChange={handleRouteAdd} />
+                    </CFormGroup>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="success"
+                        onClick={e => addTag(e, addRouteItem)}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setAddRouteModal(!addRouteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+
             <CModal show={policyModal} onClose={() => setPolicyModal(!policyModal)}>
                 <CModalHeader className='bg-success text-white py-n5' closeButton>
                     <strong>Policy has been generated.</strong>
@@ -900,7 +927,8 @@ const HostsView = (props) => {
                     >Ok.</CButton>
                 </CModalFooter>
             </CModal>
-            <CModal show={routingModal} onClose={() => setRoutingModal(!routingModal)}>
+
+            <CModal show={singleRouteModal} onClose={() => setSingleRouteModal(!singleRouteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
                     <strong>Notice!</strong>
                 </CModalHeader>
@@ -910,7 +938,7 @@ const HostsView = (props) => {
                 <CModalFooter>
                     <CButton
                         color="secondary"
-                        onClick={() => setRoutingModal(!routingModal)}
+                        onClick={() => setSingleRouteModal(!singleRouteModal)}
                     >Ok</CButton>
                 </CModalFooter>
             </CModal>
