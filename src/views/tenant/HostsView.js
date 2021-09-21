@@ -470,7 +470,7 @@ const HostsView = (props) => {
             let haswildcard = false
             let issingle = true
             let lts = "[_]"
-            let rts = "-A[_]"
+            let rts = "array[_]"
 
             rtoken = rtoken.trim()
             if (ltoken === "tag") {
@@ -518,9 +518,9 @@ const HostsView = (props) => {
                 // ltoken is user id
                 if (!issingle) {
                     // We have an array of values to match this attribute
-                    //   foobar-A := [value1, value2, value3, ..]
-                    //   input.user.uid <op> foobar-A[_]
-                    let Aexpr = "    " + ltoken + "-A := ["
+                    //   foobararray := [value1, value2, value3, ..]
+                    //   input.user.uid <op> foobararray[_]
+                    let Aexpr = "    " + ltoken + "array := ["
                     for (var i = 0; i < rtokenarray.length; i++) {
                         if (i > 0) {
                             Aexpr += ", "
@@ -532,8 +532,8 @@ const HostsView = (props) => {
                 } else {
                     // We have a single value to match
                     if (haswildcard) {
-                        // globs.match("*foo.com", [], input.user.uid)
-                        let Mexpr = "globs.match(" + rtoken + ", [], input.user.uid"
+                        // glob.match("*foo.com", [], input.user.uid)
+                        let Mexpr = "glob.match(" + rtoken + ", [], input.user.uid"
                         if (optoken === "==") {
                             Exprs += "    " + Mexpr + ")\n"
                         } else {
@@ -549,7 +549,7 @@ const HostsView = (props) => {
                 // values. If single value, it could have a wildcard.
                 if (!issingle) {
                     // We have an array of values to match this attribute
-                    let Aexpr = "    " + ltoken + "-A := ["
+                    let Aexpr = "    " + ltoken + "array := ["
                     for (var i = 0; i < rtokenarray.length; i++) {
                         if (i > 0) {
                             Aexpr += ", "
@@ -561,7 +561,7 @@ const HostsView = (props) => {
                 } else {
                     // We have a single value to match
                     if (haswildcard && (uatype === "string")) {
-                        let Mexpr = "globs.match(" + rtoken + ", [], input.user."
+                        let Mexpr = "glob.match(" + rtoken + ", [], input.user."
                         Mexpr += ltoken + lts
                         if (optoken === "==") {
                             Exprs += "    " + Mexpr + ")\n"
