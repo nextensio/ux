@@ -97,13 +97,25 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Support',
-        href: 'https://github.com/nextensio',
+        name: 'Ticketing',
+        href: 'https://github.com/nextensio/tickets/issues',
         target: '_blank',
         rel: 'noopener noreferrer',
         className: 'roboto-font',
         icon: {
             name: 'cil-speech',
+            size: 'lg'
+        },
+    },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'Slack',
+        href: 'https://join.slack.com/t/nextensio-community/shared_invite/zt-w0zp05z6-ttQRbydR2XlTnVsYYLkutg',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        className: 'roboto-font',
+        icon: {
+            name: 'cib-slack',
             size: 'lg'
         },
     },
