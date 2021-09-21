@@ -65,6 +65,7 @@ const UsersView = (props) => {
     );
     const [usersData, updateUserData] = useState(initTableData);
     const [userAttrData, updateUserAttrData] = useState(initTableData);
+    const [userAttrSet, updateUserAttrSet] = useState(initTableData)
     const [uidData, updateUidData] = useState("")
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
@@ -88,6 +89,18 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => updateUserAttrData(data))
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+            .then(respone => respone.json())
+            .then(data => {
+                let users = []
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].appliesTo == "Users") {
+                        users.push(data[i].name)
+                    }
+                }
+                users.sort()
+                updateUserAttrSet(users)
+            })
     }, []);
 
     // Might be an inefficient way of rendering both user and user attrs
@@ -162,6 +175,34 @@ const UsersView = (props) => {
             });
     }
 
+    function matchAttrs(item) {
+        return (
+            <table className="table-attrs-bundle">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                {userAttrSet.map(attr => {
+                    return (
+                        <tr>
+                            <td><strong>{attr}</strong></td>
+                            <td>
+                                {["", 0, false].includes(item[attr]) ?
+                                    "Default Value Assigned" :
+                                    Array.isArray(item[attr]) ?
+                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                            <div className="text-warning">Default Value Assigned</div> :
+                                            item[attr].join(' & ') :
+                                        item[attr].toString()
+                                }
+                            </td>
+                        </tr>
+                    )
+                })}
+            </table>
+        )
+    }
+
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
         let newDetails = details.slice()
@@ -187,17 +228,16 @@ const UsersView = (props) => {
                 <CCol xs="24" lg="12">
                     <CCard className="shadow large">
                         <CCardHeader>
-                            <strong>Users</strong>
-                            <CLink
-                                className="float-right"
-                                color="primary"
-                                href="https://docs.nextensio.net/configurations/users.html"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <CIcon className="mr-1" name="cil-info" />
-                                User Docs
-                            </CLink>
+                            <CTooltip content="Click for documentation">
+                                <CLink
+                                    color="primary"
+                                    href="https://docs.nextensio.net/configurations/users.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Users
+                                </CLink>
+                            </CTooltip>
                             <div className="text-muted small">Click on a row to see attributes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -226,52 +266,8 @@ const UsersView = (props) => {
                                             // and return the object
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>
-                                                        {Object.keys(item).length < 3 ?
-                                                            <div className="roboto-font">No user attributes exist. <a className="text-primary" onClick={toAttributeEditor}><CIcon name="cil-code" /> Click here</a> to add a user attribute.</div>
-                                                            :
-                                                            <table className="my-1 table table-outline d-sm-table">
-                                                                <tr>
-                                                                    <th className="attributes header roboto-font">Attributes</th>
-                                                                    <td className="attributes header roboto-font"><strong>Values</strong></td>
-                                                                </tr>
-                                                                {Object.keys(item).filter(key => {
-                                                                    if (key.startsWith("__")) {
-                                                                        return false
-                                                                    }
-                                                                    else {
-                                                                        return true
-                                                                    }
-                                                                }).map(key => {
-                                                                    return (
-                                                                        <tr className={[0, "",].indexOf(item[key]) > -1 ||
-                                                                            (Array.isArray(item[key]) && item[key].length === 1 && [0, ""].indexOf(item[key][0]) > -1) ? "bg-secondary" : null}>
-                                                                            <th className="attributes roboto-font">{key}</th>
-                                                                            <td className="roboto-font">
-                                                                                <>
-                                                                                    {/**Check if attribute value equals false, 0, "",
-                                                                                     * [false], 0, [""] which we have defined as default values.
-                                                                                     */}
-                                                                                    {[0, "",].indexOf(item[key]) > -1 ||
-                                                                                        (Array.isArray(item[key]) && item[key].length === 1 && [0, ""].indexOf(item[key][0]) > -1) ?
-                                                                                        <div>
-                                                                                            No value assigned
-                                                                                        </div>
-                                                                                        :
-                                                                                        <div>
-                                                                                            {Array.isArray(item[key])
-                                                                                                ? <div>{item[key].join(' & ')}</div>
-                                                                                                : <div>{item[key].toString()}</div>
-                                                                                            }
-                                                                                        </div>
-                                                                                    }
-                                                                                </>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                })}
-                                                            </table>
-                                                        }
+                                                    <CCardBody className="roboto-font">
+                                                        {matchAttrs(item)}
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

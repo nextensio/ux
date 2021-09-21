@@ -157,36 +157,6 @@ td.header {
     background-color: $secondary;
     color: white
 }
-.rule-callout-bundle {
-    background-color: $info-light;
-    font-size:large;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-    width: 100%
-}
-.rule-callout-bundle-none {
-    background-color: $warning-light;
-    color: $danger;
-    font-size:large;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-    width: 100%
-}
-.rule-callout-host {
-    background-color: $info-light;
-    font-size:large;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-    width: 100%
-}
-.rule-callout-host-none {
-    background-color: $warning-light;
-    color: $danger;
-    font-size:large;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-    width: 100%
-}
 .table-attrs-bundle {
     width: 100%
 }

@@ -38,14 +38,6 @@ const fields = [
         _classes: "data-head"
     },
     {
-        key: "majver",
-        _classes: "data-field"
-    },
-    {
-        key: "minver",
-        _classes: "data-field"
-    },
-    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -168,17 +160,16 @@ const PolicyView = (props) => {
                 <CCol xs="12" lg="6">
                     <CCard className="shadow rounded">
                         <CCardHeader>
-                            <strong>Policies</strong>
-                            <CLink
-                                className="float-right"
-                                color="primary"
-                                href="https://docs.nextensio.net/configurations/policies.html"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <CIcon className="mr-1" name="cil-info" />
-                                Policy Docs
-                            </CLink>
+                            <CTooltip content="Click for documentation">
+                                <CLink
+                                    color="primary"
+                                    href="https://docs.nextensio.net/configurations/policies.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Policies
+                                </CLink>
+                            </CTooltip>
                             <div className="text-muted small">Click on a row to see policy code</div>
                         </CCardHeader>
                         <CCardBody>

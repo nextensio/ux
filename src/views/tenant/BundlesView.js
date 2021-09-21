@@ -10,6 +10,8 @@ import {
     CCol,
     CCollapse,
     CLink,
+    CListGroup,
+    CListGroupItem,
     CRow,
     CDataTable,
     CModal,
@@ -24,6 +26,7 @@ import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
 import { generateState } from '@okta/okta-auth-js';
+import { throwStatement } from '@babel/types';
 
 
 var common = require('../../common')
@@ -134,6 +137,7 @@ const BundlesView = (props) => {
                         bundles.push(data[i].name)
                     }
                 }
+                bundles.sort()
                 updateBundleAttrSet(bundles)
             });
     }, []);
@@ -272,40 +276,43 @@ const BundlesView = (props) => {
         }
         if (rules.length != 0) {
             return (
-                rules.map(rule => {
-                    return (
-                        <CCallout className="rule-callout-bundle" color="info">
-                            <strong>{rule.rid}</strong>
-                            <CButton
-                                className="button-table float-right"
-                                color='danger'
-                                variant='ghost'
-                                size="sm"
-                                onClick={e => handleRuleDelete(rule)}
-                            >
-                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                            </CButton>
-                            <CButton
-                                className="button-table float-right"
-                                color='primary'
-                                variant='ghost'
-                                size="sm"
-                                onClick={e => handleRuleEdit(rule)}
-                            >
-                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                            </CButton>
+                <CListGroup>
+                    {rules.map(rule => {
+                        return (
+                            <CListGroupItem color="info">
+                                <strong>{rule.rid}</strong>
+                                <CButton
+                                    className="button-table float-right"
+                                    color='danger'
+                                    variant='ghost'
+                                    size="sm"
+                                    onClick={e => handleRuleDelete(rule)}
+                                >
+                                    <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                </CButton>
+                                <CButton
+                                    className="button-table float-right"
+                                    color='primary'
+                                    variant='ghost'
+                                    size="sm"
+                                    onClick={e => handleRuleEdit(rule)}
+                                >
+                                    <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                </CButton>
 
-                        </CCallout>
-                    )
-                }))
+                            </CListGroupItem>
+                        )
+                    })}
+                </CListGroup>
+            )
         } else {
             return (
-                <CCallout className="rule-callout-bundle-none" color="warning">
+                <CListGroupItem color="warning">
                     <strong>No Rules Exist</strong>
                     <CButton className="float-right" disabled size="sm">
                         <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
                     </CButton>
-                </CCallout>
+                </CListGroupItem>
             )
         }
     }
@@ -320,7 +327,7 @@ const BundlesView = (props) => {
                 {bundleAttrSet.map(attr => {
                     return (
                         <tr>
-                            <td>{attr}</td>
+                            <td><strong>{attr}</strong></td>
                             <td>
                                 {["", 0, false].includes(item[attr]) ?
                                     "Default Value Assigned" :
@@ -530,11 +537,11 @@ const BundlesView = (props) => {
                                                     <CCardBody className="roboto-font">
                                                         <CRow>
                                                             <CCol sm="6">
-                                                                <h4 className="text-primary"><u>Attributes</u></h4>
+                                                                <CCallout color="info" className="text-info"><strong>Attributes</strong></CCallout>
                                                                 {matchAttrs(item)}
                                                             </CCol>
                                                             <CCol sm="6">
-                                                                <h4 className="text-primary"><u>Rules</u></h4>
+                                                                <CCallout color="info" className="text-info"><strong>Rules</strong></CCallout>
                                                                 {matchRule(item)}
                                                             </CCol>
                                                         </CRow>

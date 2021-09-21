@@ -17,6 +17,8 @@ import {
     CModalFooter,
     CRow,
     CTooltip,
+    CListGroup,
+    CListGroupItem,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -425,39 +427,45 @@ const HostsView = (props) => {
         }
         if (rules.length != 0) {
             return (
-                rules.map(rule => {
-                    return (
-                        <CCallout className="rule-callout-host" color="info">
-                            <strong>{rule.rid}</strong>
-                            <CButton
-                                className="button-table float-right"
-                                color='danger'
-                                variant='ghost'
-                                size="sm"
-                                onClick={e => handleRuleDelete(rule)}
-                            >
-                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                            </CButton>
-                            <CButton
-                                className="button-table float-right"
-                                color='primary'
-                                variant='ghost'
-                                size="sm"
-                                onClick={e => { handleRuleEdit(rule) }}
-                            >
-                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                            </CButton>
-                        </CCallout>
-                    )
-                }))
+                <CListGroup>
+                    {rules.map(rule => {
+                        return (
+                            <CListGroupItem className="d-flex align-items-center" color="info">
+                                <strong>{rule.rid}</strong>
+                                <CButton
+                                    className="button-table ml-auto"
+                                    color='primary'
+                                    variant='ghost'
+                                    size="sm"
+                                    onClick={e => { handleRuleEdit(rule) }}
+                                >
+                                    <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                </CButton>
+                                <CButton
+                                    className="button-table"
+                                    color='danger'
+                                    variant='ghost'
+                                    size="sm"
+                                    onClick={e => handleRuleDelete(rule)}
+                                >
+                                    <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                </CButton>
+
+                            </CListGroupItem>
+                        )
+                    })}
+                </CListGroup>
+            )
         } else {
             return (
-                <CCallout className="rule-callout-host-none" color="warning">
-                    <strong>No Rules Exist</strong>
-                    <CButton className="float-right" disabled size="sm">
-                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
-                    </CButton>
-                </CCallout>
+                <CListGroup>
+                    <CListGroupItem className="d-flex align-items-center" color="warning">
+                        <strong>No Rules Exist</strong>
+                        <CButton className="ml-auto" disabled size="sm">
+                            <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                        </CButton>
+                    </CListGroupItem>
+                </CListGroup>
             )
         }
     }
@@ -598,9 +606,9 @@ const HostsView = (props) => {
                                                             >
                                                                 Add Route
                                                             </CButton>
-                                                            <table className="my-3 table table-outline d-sm-table">
+                                                            <table className="my-3 table">
                                                                 <tr>
-                                                                    <th className="attributes header roboto-font border-right my-auto">Routes</th>
+                                                                    <th className="attributes header roboto-font border-right">Routes</th>
                                                                     {routeConfig.map((route, i) => {
                                                                         return (
                                                                             <td className="attributes header roboto-font">
