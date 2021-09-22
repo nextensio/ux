@@ -473,6 +473,43 @@ const BundlesView = (props) => {
 	return false
     }
 
+    function bundleProcessWildCard(ltok, rtok, op, lts) {
+	let Mexpr = "glob.match(" + rtok + ", [], input.user." + ltok + lts
+	if (op === "==") {
+	    Mexpr = "    " + Mexpr + ")\n"
+	} else {
+	    Mexpr = "    !" + Mexpr + ")\n"
+	}
+	return Mexpr
+    }
+
+    function bundleProcessArray(ltok, rtarray, op, lts) {
+	// When optoken is ==, we need
+	//   foobararray := [value1, value2, value3, ..]
+	//   input.user.uid == foobararray[_]
+	// When optoken is !=, we need
+	//   input.user.uid != value1
+	//   input.user.uid != value2 and so on
+	// Logical OR for == changes to logical AND for !=
+	let Aexpr = ""
+	if (op === "!=") {
+	    for (var i = 0; i < rtarray.length; i++) {
+		Aexpr += "    input.user." + ltok + lts + " != " + rtarray[i] + "\n"
+	    }
+	} else {
+	    Aexpr = "    " + ltok + "array := ["
+	    for (var i = 0; i < rtarray.length; i++) {
+		if (i > 0) {
+		    Aexpr += ", "
+		}
+		Aexpr += rtarray[i]
+	    }
+	    Aexpr += "]\n"
+	    Aexpr += "    input.user." + ltok + lts + " == " + ltok + "array[_]\n"
+	}
+	return Aexpr
+    }
+
     function generateAccessPolicyHeader(policyData) {
         return policyData +
             "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
@@ -551,27 +588,12 @@ const BundlesView = (props) => {
                 // ltoken is user id
 		if (!issingle) {
 		    // We have an array of values to match this attribute.
-		    //   foobararray := [value1, value2, value3, ..]
-		    //   input.user.uid <op> foobararray[_]
-		    let Aexpr = "    " + ltoken + "array := ["
-		    for (var i = 0; i < rtokenarray.length; i++) {
-			if (i > 0) {
-			    Aexpr += ", "
-			}
-			Aexpr += rtokenarray[i]
-		    }
-		    Aexpr += "]\n    input.user.uid "
-		    Exprs +=  Aexpr + optoken + " " + ltoken + rts + "\n"
+		    Exprs += bundleProcessArray("uid", rtokenarray, optoken, "")
 		} else {
 		    // We have a single value to match
 		    if (haswildcard) {
 			// glob.match("*foo.com", [], input.user.uid)
-			let Mexpr = "glob.match(" + rtoken + ", [], input.user.uid"
-			if (optoken === "==") {
-			    Exprs += "    " + Mexpr + ")\n"    
-			} else {
-			    Exprs += "    !" + Mexpr + ")\n"
-			}
+			Exprs += bundleProcessWildCard("uid", rtoken, optoken, "")
 		    } else {
 			// input.user.uid <op> "value"
 			Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
@@ -583,25 +605,11 @@ const BundlesView = (props) => {
 		// values. If single value, it could have a wildcard.
 		if (!issingle) {
 		    // We have an array of values to match this attribute
-		    let Aexpr = "    " + ltoken + "array := ["
-		    for (var i = 0; i < rtokenarray.length; i++) {
-			if (i > 0) {
-			    Aexpr += ", "
-			}
-			Aexpr += rtokenarray[i]
-		    }
-		    Aexpr += "]\n    input.user." + ltoken + lts
-		    Exprs += Aexpr + " " + optoken + " " + ltoken + rts + "\n"
+		    Exprs += bundleProcessArray(ltoken, rtokenarray, optoken, lts)
 		} else {
 		    // We have a single value to match
 		    if (haswildcard && (uatype === "string")) {
-			let Mexpr = "glob.match(" + rtoken + ", [], input.user."
-			Mexpr += ltoken + lts
-			if (optoken === "==") {
-			    Exprs += "    " + Mexpr + ")\n"
-			} else {
-			    Exprs += "    !" + Mexpr + ")\n"
-			}
+			Exprs += bundleProcessWildCard(ltoken, rtoken, optoken, lts)
 		    } else {
 			Exprs += "    input.user." + ltoken + lts
 			Exprs += " " + optoken + " " + rtoken + rts + "\n"
