@@ -286,8 +286,12 @@ const BundlesEdit = (props) => {
         if (!podRe.test(String(bundleState.cpodrepl).trim())) {
             errs.cpodrepl = true
         }
-        if (!/\S/.test(bundleState.services)) {
+        if (bundleState.services == undefined) {
             errs.services = true
+        } else {
+            if (!/\S/.test(bundleState.services)) {
+                errs.services = true
+            }
         }
         attrData.forEach((item) => { 
             if (item.isArray == "true" && JSON.stringify(attrState[item.name]).includes("ERR!")) {
