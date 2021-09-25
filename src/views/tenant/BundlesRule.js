@@ -198,8 +198,8 @@ const BundlesRule = (props) => {
         let snippet = [...item]
         resetSnippetData()
         updateSnippetType({
-            ...snippetType,
-            type: snippet[3]
+            type: snippet[3],
+            isArray: snippet[4]
         })
         getOperators(snippet[3])
         updateSnippetData(snippet.splice(0, 3))
