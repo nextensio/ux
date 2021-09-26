@@ -157,7 +157,7 @@ const PolicyView = (props) => {
     return (
         <>
             <CRow>
-                <CCol xs="12" lg="6">
+                <CCol xs="12">
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <CTooltip content="Click for documentation">

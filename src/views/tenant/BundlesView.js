@@ -25,9 +25,6 @@ import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
-import { generateState } from '@okta/okta-auth-js';
-import { throwStatement } from '@babel/types';
-
 
 var common = require('../../common')
 
@@ -282,24 +279,31 @@ const BundlesView = (props) => {
                             <CListGroupItem color="info">
                                 <strong>{rule.rid}</strong>
                                 <CButton
-                                    className="button-table float-right"
-                                    color='danger'
-                                    variant='ghost'
+                                    className="float-right"
+                                    color="danger"
+                                    variant="outline"
+                                    shape="square"
                                     size="sm"
                                     onClick={e => handleRuleDelete(rule)}
                                 >
-                                    <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                    Delete
                                 </CButton>
                                 <CButton
-                                    className="button-table float-right"
-                                    color='primary'
-                                    variant='ghost'
+                                    className="float-right mr-1"
+                                    color="primary"
+                                    variant="outline"
+                                    shape="square"
                                     size="sm"
                                     onClick={e => handleRuleEdit(rule)}
                                 >
-                                    <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                    Edit
                                 </CButton>
-
+                                <pre>{rule.rule.map(snippet => {
+                                    return (
+                                        <div>{snippet.slice(0, 3).join(' ')}</div>
+                                    )
+                                })}
+                                </pre>
                             </CListGroupItem>
                         )
                     })}
@@ -309,8 +313,15 @@ const BundlesView = (props) => {
             return (
                 <CListGroupItem color="warning">
                     <strong>No Rules Exist</strong>
-                    <CButton className="float-right" disabled size="sm">
-                        <FontAwesomeIcon className="text-danger" icon="ban" size="lg"></FontAwesomeIcon>
+                    <CButton
+                        className="float-right"
+                        color="primary"
+                        variant="outline"
+                        shape="square"
+                        size="sm"
+                        onClick={() => { handleRule(item) }}
+                    >
+                        Create Rule
                     </CButton>
                 </CListGroupItem>
             )
@@ -330,10 +341,10 @@ const BundlesView = (props) => {
                             <td><strong>{attr}</strong></td>
                             <td>
                                 {["", 0, false].includes(item[attr]) ?
-                                    "Default Value Assigned" :
+                                    <div className="text-warning">Default Value Assigned</div> :
                                     Array.isArray(item[attr]) ?
                                         item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                            "Default Value Assigned" :
+                                            <div className="text-warning">Default Value Assigned</div> :
                                             item[attr].join(' & ') :
                                         item[attr].toString()
                                 }
@@ -433,81 +444,81 @@ const BundlesView = (props) => {
     }
 
     function bundleRightTokenArray(rtok, uatype) {
-	let rtokenarray = rtok.split(' ')
-	// Now remove null string elements from array
-	let newarray = [""]
-	let j = 0
-	let rtoken1 = ""
-	for (var i = 0; i < rtokenarray.length; i++) {
-	    rtoken1 = rtokenarray[i].trim()
-	    if (rtoken1.length > 0) {
-		if (uatype === "string") {
-		    if (!rtoken1.startsWith('"')) {
-			rtoken1 = '"' + rtoken1
-		    }
-		    if (!rtoken1.endsWith('"')) {
-			rtoken1 += '"'
-		    }
-		} else if (uatype === "number") {
-		    if (rtoken1.includes('"')) {
-			rtoken1 = rtoken1.replaceAll('"', ' ').trim()
-		    }
-		}
-		newarray[j] = rtoken1
-		j++
-	    }
-	}
-	return newarray
+        let rtokenarray = rtok.split(' ')
+        // Now remove null string elements from array
+        let newarray = [""]
+        let j = 0
+        let rtoken1 = ""
+        for (var i = 0; i < rtokenarray.length; i++) {
+            rtoken1 = rtokenarray[i].trim()
+            if (rtoken1.length > 0) {
+                if (uatype === "string") {
+                    if (!rtoken1.startsWith('"')) {
+                        rtoken1 = '"' + rtoken1
+                    }
+                    if (!rtoken1.endsWith('"')) {
+                        rtoken1 += '"'
+                    }
+                } else if (uatype === "number") {
+                    if (rtoken1.includes('"')) {
+                        rtoken1 = rtoken1.replaceAll('"', ' ').trim()
+                    }
+                }
+                newarray[j] = rtoken1
+                j++
+            }
+        }
+        return newarray
     }
 
     function bundleCheckWildCard(rtok) {
-	if (rtok.includes('*')) {
-	    return true
-	}
-	if (rtok.includes('?')) {
-	    return true
-	}
-	if (rtok.includes('[') && rtok.includes(']')) {
-	    return true
-	}
-	return false
+        if (rtok.includes('*')) {
+            return true
+        }
+        if (rtok.includes('?')) {
+            return true
+        }
+        if (rtok.includes('[') && rtok.includes(']')) {
+            return true
+        }
+        return false
     }
 
     function bundleProcessWildCard(ltok, rtok, op, lts) {
-	let Mexpr = "glob.match(" + rtok + ", [], input.user." + ltok + lts
-	if (op === "==") {
-	    Mexpr = "    " + Mexpr + ")\n"
-	} else {
-	    Mexpr = "    !" + Mexpr + ")\n"
-	}
-	return Mexpr
+        let Mexpr = "glob.match(" + rtok + ", [], input.user." + ltok + lts
+        if (op === "==") {
+            Mexpr = "    " + Mexpr + ")\n"
+        } else {
+            Mexpr = "    !" + Mexpr + ")\n"
+        }
+        return Mexpr
     }
 
     function bundleProcessArray(ltok, rtarray, op, lts) {
-	// When optoken is ==, we need
-	//   foobararray := [value1, value2, value3, ..]
-	//   input.user.uid == foobararray[_]
-	// When optoken is !=, we need
-	//   input.user.uid != value1
-	//   input.user.uid != value2 and so on
-	// Logical OR for == changes to logical AND for !=
-	let Aexpr = ""
-	if (op === "!=") {
-	    for (var i = 0; i < rtarray.length; i++) {
-		Aexpr += "    input.user." + ltok + lts + " != " + rtarray[i] + "\n"
-	    }
-	} else {
-	    Aexpr = "    " + ltok + "array := ["
-	    for (var i = 0; i < rtarray.length; i++) {
-		if (i > 0) {
-		    Aexpr += ", "
-		}
-		Aexpr += rtarray[i]
-	    }
-	    Aexpr += "]\n"
-	    Aexpr += "    input.user." + ltok + lts + " == " + ltok + "array[_]\n"
-	}
-	return Aexpr
+        // When optoken is ==, we need
+        //   foobararray := [value1, value2, value3, ..]
+        //   input.user.uid == foobararray[_]
+        // When optoken is !=, we need
+        //   input.user.uid != value1
+        //   input.user.uid != value2 and so on
+        // Logical OR for == changes to logical AND for !=
+        let Aexpr = ""
+        if (op === "!=") {
+            for (var i = 0; i < rtarray.length; i++) {
+                Aexpr += "    input.user." + ltok + lts + " != " + rtarray[i] + "\n"
+            }
+        } else {
+            Aexpr = "    " + ltok + "array := ["
+            for (var i = 0; i < rtarray.length; i++) {
+                if (i > 0) {
+                    Aexpr += ", "
+                }
+                Aexpr += rtarray[i]
+            }
+            Aexpr += "]\n"
+            Aexpr += "    input.user." + ltok + lts + " == " + ltok + "array[_]\n"
+        }
+        return Aexpr
     }
 
     function generateAccessPolicyHeader(policyData) {
@@ -521,102 +532,102 @@ const BundlesView = (props) => {
         let BidConst = "    input.bid == \"" + bundleRule.bid + "\"\n"
         for (let snippet of bundleRule.rule) {
             let ltoken = getBundleRuleLeftToken(snippet)
-	    let uavalue = getBundleRuleTokenValue(ltoken, snippet)
-	    let uatype = getBundleRuleTokenType(snippet).toLowerCase()
+            let uavalue = getBundleRuleTokenValue(ltoken, snippet)
+            let uatype = getBundleRuleTokenType(snippet).toLowerCase()
             let rtoken = getBundleRuleRightToken(snippet)
-	    let rtokenarray = [""]
+            let rtokenarray = [""]
             let optoken = getBundleRuleOpToken(snippet)
 
-	    // Do some pre-processing on rtoken to figure out more details.
-	    // rtoken is always a constant. Could be single value or array
+            // Do some pre-processing on rtoken to figure out more details.
+            // rtoken is always a constant. Could be single value or array
             // of values.
-	    // Single value can have wild card if string type. Support only '*'
-	    // for now, with delimiter as '.'.
-	    // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
-	    // For string values, add double quotes if missing.
-	    // Always trim all values.
-	    // For processing array of values, first replace any comma with a
-	    // space, then split based on space. Remove any null strings to
-	    // compress array.
-	    // To search for anything other than a word or whitespace, use
-	    // 'const regex = /[^\w\s]/g' if using regexp matching (future).
+            // Single value can have wild card if string type. Support only '*'
+            // for now, with delimiter as '.'.
+            // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
+            // For string values, add double quotes if missing.
+            // Always trim all values.
+            // For processing array of values, first replace any comma with a
+            // space, then split based on space. Remove any null strings to
+            // compress array.
+            // To search for anything other than a word or whitespace, use
+            // 'const regex = /[^\w\s]/g' if using regexp matching (future).
 
-	    let haswildcard = false
-	    let issingle = true
-	    let lts = "[_]"
-	    let rts = "array[_]"
+            let haswildcard = false
+            let issingle = true
+            let lts = "[_]"
+            let rts = "array[_]"
 
-	    rtoken = rtoken.trim()
-	    if ((uatype === "string") || (uavalue === "uid")) {
-		// User attribute is string type. rtoken must be a string or
-		// string array
-		if (rtoken.includes(',')) {
-		    rtoken = rtoken.replaceAll(',', ' ').trim()
-		}
-		if (rtoken.includes(' ')) {
-		    // Seems to be case of multiple string values
-		    issingle = false
-		    rtokenarray = bundleRightTokenArray(rtoken, uatype)
-		}
-		if (issingle) {
-		    haswildcard = bundleCheckWildCard(rtoken)
-		    if (!rtoken.startsWith('"')) {
-			rtoken = '"' + rtoken
-		    }
-		    if (!rtoken.endsWith('"')) {
-			rtoken += '"'
-		    }
-		}
-	    } else {
-		if (rtoken.includes(',')) {
-		    rtoken = rtoken.replaceAll(',', ' ').trim()
-		}
-		if (rtoken.includes(' ')) {
-		    // Seems to be case of multiple string values
-		    issingle = false
-		    rtokenarray = bundleRightTokenArray(rtoken, uatype)
-		}
-	    }
+            rtoken = rtoken.trim()
+            if ((uatype === "string") || (uavalue === "uid")) {
+                // User attribute is string type. rtoken must be a string or
+                // string array
+                if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+                }
+                if (rtoken.includes(' ')) {
+                    // Seems to be case of multiple string values
+                    issingle = false
+                    rtokenarray = bundleRightTokenArray(rtoken, uatype)
+                }
+                if (issingle) {
+                    haswildcard = bundleCheckWildCard(rtoken)
+                    if (!rtoken.startsWith('"')) {
+                        rtoken = '"' + rtoken
+                    }
+                    if (!rtoken.endsWith('"')) {
+                        rtoken += '"'
+                    }
+                }
+            } else {
+                if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+                }
+                if (rtoken.includes(' ')) {
+                    // Seems to be case of multiple string values
+                    issingle = false
+                    rtokenarray = bundleRightTokenArray(rtoken, uatype)
+                }
+            }
 
-	    if (issingle) {
-		rts = ""
-	    }
-	    if (uavalue != "array") {
-		lts = ""
-	    }
+            if (issingle) {
+                rts = ""
+            }
+            if (uavalue != "array") {
+                lts = ""
+            }
             if (uavalue === "uid") {
                 // ltoken is user id
-		if (!issingle) {
-		    // We have an array of values to match this attribute.
-		    Exprs += bundleProcessArray("uid", rtokenarray, optoken, "")
-		} else {
-		    // We have a single value to match
-		    if (haswildcard) {
-			// glob.match("*foo.com", [], input.user.uid)
-			Exprs += bundleProcessWildCard("uid", rtoken, optoken, "")
-		    } else {
-			// input.user.uid <op> "value"
-			Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
-		    }
-		}
+                if (!issingle) {
+                    // We have an array of values to match this attribute.
+                    Exprs += bundleProcessArray("uid", rtokenarray, optoken, "")
+                } else {
+                    // We have a single value to match
+                    if (haswildcard) {
+                        // glob.match("*foo.com", [], input.user.uid)
+                        Exprs += bundleProcessWildCard("uid", rtoken, optoken, "")
+                    } else {
+                        // input.user.uid <op> "value"
+                        Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
+                    }
+                }
             } else {
                 // ltoken is an array type user attribute
-		// It could be matched with a single value, or with multiple
-		// values. If single value, it could have a wildcard.
-		if (!issingle) {
-		    // We have an array of values to match this attribute
-		    Exprs += bundleProcessArray(ltoken, rtokenarray, optoken, lts)
-		} else {
-		    // We have a single value to match
-		    if (haswildcard && (uatype === "string")) {
-			Exprs += bundleProcessWildCard(ltoken, rtoken, optoken, lts)
-		    } else {
-			Exprs += "    input.user." + ltoken + lts
-			Exprs += " " + optoken + " " + rtoken + rts + "\n"
-		    }
-		}
+                // It could be matched with a single value, or with multiple
+                // values. If single value, it could have a wildcard.
+                if (!issingle) {
+                    // We have an array of values to match this attribute
+                    Exprs += bundleProcessArray(ltoken, rtokenarray, optoken, lts)
+                } else {
+                    // We have a single value to match
+                    if (haswildcard && (uatype === "string")) {
+                        Exprs += bundleProcessWildCard(ltoken, rtoken, optoken, lts)
+                    } else {
+                        Exprs += "    input.user." + ltoken + lts
+                        Exprs += " " + optoken + " " + rtoken + rts + "\n"
+                    }
+                }
             }
-	}
+        }
         let RuleEnd = "}\n\n"
         return policyData + RuleStart + BidConst + Exprs + RuleEnd
     }
@@ -667,7 +678,9 @@ const BundlesView = (props) => {
                                 className="float-right"
                                 color="primary"
                                 onClick={handlePolicyGeneration}
-                            >Generate Policy</CButton>
+                            >
+                                <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
+                            </CButton>
                             <div className="text-muted small">Click on a row to see rules and attributes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -696,11 +709,8 @@ const BundlesView = (props) => {
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody className="roboto-font">
                                                         <CRow>
-                                                            <CCol sm="6">
-                                                                <CCallout color="info" className="text-info"><strong>Attributes</strong></CCallout>
-                                                                {matchAttrs(item)}
-                                                            </CCol>
-                                                            <CCol sm="6">
+
+                                                            <CCol sm="12">
                                                                 <CCallout color="info" className="text-info"><strong>Rules</strong></CCallout>
                                                                 {matchRule(item)}
                                                             </CCol>
@@ -840,12 +850,12 @@ const BundlesView = (props) => {
                         >Ok.</CButton>
                     </CModalFooter>
                 </CModal>
-                <CModal show={keyModal} onClose={() => setKeyModal(!keyModal)}>
+                <CModal className="roboto-font" show={keyModal} onClose={() => setKeyModal(!keyModal)}>
                     <CModalHeader className='bg-primary text-white py-n5' closeButton>
                         <strong>Copy key to /opt/nextensio/connector.key in Data Center</strong>
                     </CModalHeader>
-                    <CModalBody className='text-lg-left'>
-                        {keyBid}
+                    <CModalBody className='wrap'>
+                        <div>{keyBid}</div>
                     </CModalBody>
                     <CModalFooter>
                         <CButton

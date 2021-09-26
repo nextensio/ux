@@ -119,5 +119,15 @@ export default [
             size: 'lg'
         },
     },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'Settings',
+        to: '/tenant/:id/settings',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-settings',
+            size: 'lg'
+        },
+    },
 ]
 

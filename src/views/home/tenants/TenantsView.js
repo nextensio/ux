@@ -142,6 +142,7 @@ const TenantsView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Tenants</strong>
+                            <CButton onClick={e => console.log(tenantsData)}>data</CButton>
                             <div className="text-muted small">Click on a row to navigate to Tenants page</div>
                         </CCardHeader>
                         <CCardBody>
