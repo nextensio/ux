@@ -90,6 +90,7 @@ const BundlesView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [easyMode, setEasyMode] = useState(true);
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
     const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
@@ -674,13 +675,15 @@ const BundlesView = (props) => {
                                     AppGroups
                                 </CLink>
                             </CTooltip>
-                            <CButton
-                                className="float-right"
-                                color="primary"
-                                onClick={handlePolicyGeneration}
-                            >
-                                <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
-                            </CButton>
+                            {easyMode &&
+                                <CButton
+                                    className="float-right"
+                                    color="primary"
+                                    onClick={handlePolicyGeneration}
+                                >
+                                    <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
+                                </CButton>
+                            }
                             <div className="text-muted small">Click on a row to see rules and attributes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -711,8 +714,17 @@ const BundlesView = (props) => {
                                                         <CRow>
 
                                                             <CCol sm="12">
-                                                                <CCallout color="info" className="text-info"><strong>Rules</strong></CCallout>
-                                                                {matchRule(item)}
+                                                                {easyMode ?
+                                                                    <>
+                                                                        <CCallout color="info" className="text-info"><strong>Rules</strong></CCallout>
+                                                                        {matchRule(item)}
+                                                                    </>
+                                                                    :
+                                                                    <>
+                                                                        <CCallout color="info" className="text-info"><strong>Attributes</strong></CCallout>
+                                                                        {matchAttrs(item)}
+                                                                    </>
+                                                                }
                                                             </CCol>
                                                         </CRow>
 

@@ -86,6 +86,7 @@ const HostsView = (props) => {
     //          {tag: premium, OSVersion: linux windows, employeeLevel: any, location: west}]
     // }
     //
+    const [easyMode, setEasyMode] = useState(true)
     const [hostsData, updateHostData] = useState(initTableData);
     const [hostRuleData, updateHostRuleData] = useState(initTableData);
     const [hostAttrSet, updateHostAttrSet] = useState(initTableData)
@@ -692,13 +693,15 @@ const HostsView = (props) => {
                                     Hosts
                                 </CLink>
                             </CTooltip>
-                            <CButton
-                                color="primary"
-                                className="float-right"
-                                onClick={handlePolicyGeneration}
-                            >
-                                <FontAwesomeIcon icon="bullseye" className="mr-1" /> Generate Policy
-                            </CButton>
+                            {easyMode &&
+                                <CButton
+                                    color="primary"
+                                    className="float-right"
+                                    onClick={handlePolicyGeneration}
+                                >
+                                    <FontAwesomeIcon icon="bullseye" className="mr-1" /> Generate Policy
+                                </CButton>
+                            }
                             <div className="text-muted small">Click on a row to see all routes</div>
                         </CCardHeader>
                         <CCardBody>
@@ -771,8 +774,6 @@ const HostsView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-
-                                                        {/**If host attributes exist, render below */}
                                                         {/**This button is used to add another route */}
                                                         <CButton
                                                             className="float-right mb-3"
@@ -788,29 +789,31 @@ const HostsView = (props) => {
                                                                 {routeConfig.map((route, i) => {
                                                                     return (
                                                                         <td className="attributes header roboto-font">
-                                                                            {/**If the tag attribute is not an empty string, render the tag val
-                                                                                     * else, render in progress
-                                                                                     */}
+                                                                            <strong className="text-success">{route.tag}</strong>
                                                                             <div>
-                                                                                <CButton
-                                                                                    className="button-table"
-                                                                                    variant="ghost"
-                                                                                    color="success"
-                                                                                    size="sm"
-                                                                                    onClick={e => handleAttrConfig(index, i)}
-                                                                                ><strong>{route.tag}</strong>
-                                                                                </CButton>
-                                                                            </div>
-                                                                            <div>
-                                                                                <CButton
-                                                                                    className="button-table"
-                                                                                    variant="ghost"
-                                                                                    color="primary"
-                                                                                    size="sm"
-                                                                                    onClick={e => handleRule(e, item.host, route.tag)}
-                                                                                >
-                                                                                    <FontAwesomeIcon icon="fingerprint" className="icon-table-edit" />
-                                                                                </CButton>
+                                                                                {easyMode ?
+                                                                                    <CButton
+                                                                                        className="button-table"
+                                                                                        variant="ghost"
+                                                                                        color="primary"
+                                                                                        size="sm"
+                                                                                        onClick={e => handleRule(e, item.host, route.tag)}
+                                                                                    >
+                                                                                        <FontAwesomeIcon icon="fingerprint" className="icon-table-edit" />
+                                                                                    </CButton>
+                                                                                    :
+                                                                                    <CButton
+                                                                                        className="button-table"
+                                                                                        variant="ghost"
+                                                                                        color="primary"
+                                                                                        size="sm"
+                                                                                        onClick={e => handleAttrConfig(index, i)}
+                                                                                    >
+                                                                                        <FontAwesomeIcon icon="pen" className="icon-table-edit" />
+
+                                                                                    </CButton>
+
+                                                                                }
                                                                                 <CButton
                                                                                     className="ml-1 button-table"
                                                                                     variant="ghost"
@@ -832,33 +835,39 @@ const HostsView = (props) => {
                                                                     )
                                                                 })}
                                                             </tr>
-                                                            <tr>
-                                                                <th className="attributes roboto-font border-right">
-                                                                    <CCallout color="info">Rules</CCallout>
-                                                                </th>
+                                                            {easyMode ?
 
-                                                                {routeConfig.map((route, i) => {
-                                                                    return (
-                                                                        <td>
-                                                                            {matchRule(route.tag)}
-                                                                        </td>
-                                                                    )
-                                                                })}
-                                                            </tr>
-                                                            {/* {hostAttrSet.map(attr => {
-                                                                    return (
-                                                                        <tr>
-                                                                            <th className="attributes roboto-font border-right">{attr}</th>
-                                                                            {routeConfig.map((route, i) => {
-                                                                                return (
-                                                                                    <>
-                                                                                        {matchAttrs(route[attr])}
-                                                                                    </>
-                                                                                )
-                                                                            })}
-                                                                        </tr>
-                                                                    )
-                                                                })} */}
+                                                                <tr>
+                                                                    <th className="attributes roboto-font border-right">
+                                                                        <CCallout color="info">Rules</CCallout>
+                                                                    </th>
+
+                                                                    {routeConfig.map((route, i) => {
+                                                                        return (
+                                                                            <td>
+                                                                                {matchRule(route.tag)}
+                                                                            </td>
+                                                                        )
+                                                                    })}
+                                                                </tr>
+                                                                :
+                                                                <>
+                                                                    {hostAttrSet.map(attr => {
+                                                                        return (
+                                                                            <tr>
+                                                                                <th className="attributes roboto-font border-right">{attr}</th>
+                                                                                {routeConfig.map((route, i) => {
+                                                                                    return (
+                                                                                        <>
+                                                                                            {matchAttrs(route[attr])}
+                                                                                        </>
+                                                                                    )
+                                                                                })}
+                                                                            </tr>
+                                                                        )
+                                                                    })}
+                                                                </>
+                                                            }
                                                         </table>
 
                                                     </CCardBody>

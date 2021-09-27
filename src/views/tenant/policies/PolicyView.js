@@ -35,7 +35,10 @@ const fields = [
     {
         key: "pid",
         label: "Policy ID",
-        _classes: "data-head"
+        _classes: "data-head",
+        _style: { width: '90%' },
+        sorter: true,
+        filter: true
     },
     {
         key: 'edit',
@@ -59,6 +62,7 @@ const PolicyView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [easyMode, setEasyMode] = useState(true);
     const [policyData, updatePolicyData] = useState(initTableData);
     const [details, setDetails] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -202,6 +206,7 @@ const PolicyView = (props) => {
                                                             color='primary'
                                                             variant='ghost'
                                                             size="sm"
+                                                            disabled={easyMode}
                                                             onClick={() => { handleEdit(index) }}
                                                         >
                                                             <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
@@ -249,10 +254,12 @@ const PolicyView = (props) => {
                                 <CIcon name="cil-reload" />
                                 <strong>{" "}Refresh</strong>
                             </CButton>
-                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
-                                <CIcon name="cil-plus" />
-                                <strong>{" "}Add</strong>
-                            </CButton>
+                            {!easyMode &&
+                                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                                    <CIcon name="cil-plus" />
+                                    <strong>{" "}Add</strong>
+                                </CButton>
+                            }
                         </CCardFooter>
                     </CCard>
                 </CCol>
