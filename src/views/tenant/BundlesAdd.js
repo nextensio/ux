@@ -62,6 +62,13 @@ const BundlesAdd = (props) => {
     };
 
     useEffect(() => {
+
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
+            .then(response => response.json())
+            .then(data => { setEasyMode(data.Tenant.easymode) });
+    }, []);
+
+    useEffect(() => {
         if (typeof props.location.state != 'undefined') {
             updateExistingBidData(props.location.state)
         }
