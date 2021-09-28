@@ -753,6 +753,7 @@ const BundlesView = (props) => {
                                                             color='primary'
                                                             variant='ghost'
                                                             size="sm"
+                                                            disabled={!easyMode}
                                                             onClick={() => { handleRule(item) }}
                                                         >
                                                             <FontAwesomeIcon icon="fingerprint" size="lg" className="icon-table-edit" />

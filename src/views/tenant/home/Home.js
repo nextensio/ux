@@ -47,25 +47,7 @@ const Home = (props) => {
                 <h4 className="title">Home</h4>
             </CCallout>
             <CRow>
-                <CCol lg="6">
-                    <CCard className="border-rounded shadow">
-                        <CCardHeader>
-                            <CIcon name="cil-chart" /> Telemetry
-                            <CButton
-                                className="float-right"
-                                color="primary"
-                            >
-                                <CIcon className="mr-1" name="cil-external-link" />
-                                Navigate
-                            </CButton>
-                        </CCardHeader>
-                        <CCardBody>
-                            Statistics and Tracing.
-                        </CCardBody>
-
-                    </CCard>
-                </CCol>
-                <CCol lg="6">
+                <CCol lg="12">
                     <CCard className="border-rounded shadow">
                         <CCardHeader>
                             <CIcon name="cib-kubernetes" /> Gateway Configuration
@@ -78,13 +60,6 @@ const Home = (props) => {
                                 Configure
                             </CButton>
                         </CCardHeader>
-                        <CCardBody>
-                            {clusterData === "" ?
-                                <div>Sorry, you do not have any configuration yet.</div>
-                                :
-                                <div>clusterData</div>
-                            }
-                        </CCardBody>
                     </CCard>
                 </CCol>
             </CRow>
