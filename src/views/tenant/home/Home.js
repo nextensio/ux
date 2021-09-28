@@ -71,7 +71,7 @@ const Home = (props) => {
                         </CCardHeader>
                         <CCardBody className="parent-container">
                             <CEmbed>
-                                <Map className="fit-snug" />
+                                <Map className="fit-snug" {...props} />
                             </CEmbed>
                         </CCardBody>
                     </CCard>

@@ -14,7 +14,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dC0xMjMiLCJhIjoiY2treGZ1ZDE5MXlrZTJ2cDZib
 const onlineNum = 3
 const offlineNum = 18
 
-const Map = () => {
+const Map = (props) => {
   const mapContainer = useRef();
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(30);
@@ -38,30 +38,38 @@ const Map = () => {
       setZoom(map.getZoom().toFixed(2));
     });
 
-    map.on('click', function(e) {
+    map.on('click', function (e) {
       var features = map.queryRenderedFeatures(e.point, {
-          layers: ['data-centers5'] // replace this with the name of the layer
+        layers: ['datacenters-7'] // replace this with the name of the layer
       });
 
       if (!features.length) {
-          return;
+        return;
       }
 
       var feature = features[0];
 
-      var popup = new mapboxgl.Popup({ offset: [0, -15] })
-          .setLngLat(feature.geometry.coordinates)
-          .setHTML('<h3>' + feature.properties.title + '</h3><h6>' + feature.properties.description + '</h6>')
-          .addTo(map);
+      let description;
+
+      if (feature.properties.description.includes("tenantID")) {
+        description = feature.properties.description.replace("tenantID", props.match.params.id)
+      } else {
+        description = feature.properties.description
+      }
+
+      new mapboxgl.Popup({ offset: [0, -15] })
+        .setLngLat(feature.geometry.coordinates)
+        .setHTML('<h3>' + feature.properties.title + '</h3><h6>' + description + '</h6>')
+        .addTo(map);
     });
-            
+
     return () => map.remove();
   }, []);
 
   return (
     <div>
       <div className="sidebar">
-        3 Hosts | 21 Locations
+        3 Hosts | 21 Locations {props.match.params.id}
       </div>
       <div className="legend">
         <CBadge className="mr-1" color="success">{onlineNum}</CBadge>
