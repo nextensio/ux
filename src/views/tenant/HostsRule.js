@@ -286,7 +286,6 @@ const HostsRule = (props) => {
         <CCard>
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
-                <CButton onClick={e => console.log(ruleData)}>ruleData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
                 <CRow>

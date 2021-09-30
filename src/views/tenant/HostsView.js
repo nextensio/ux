@@ -42,7 +42,7 @@ const fields = [
     },
     {
         key: "host",
-        label: "Host ID",
+        label: "Application URL",
         _style: { width: '30%' },
         _classes: "data-head"
     },
@@ -697,7 +697,7 @@ const HostsView = (props) => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    Hosts
+                                    Applications
                                 </CLink>
                             </CTooltip>
                             {easyMode &&

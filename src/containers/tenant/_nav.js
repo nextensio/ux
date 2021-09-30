@@ -37,7 +37,7 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Hosts',
+        name: 'Apps',
         to: '/tenant/:id/hosts',
         className: 'roboto-font',
         icon: {

@@ -85,7 +85,7 @@ const HostEdit = (props) => {
                     <CCol sm="8">
                         <CForm>
                             <CFormGroup>
-                                <CLabel htmlFor="nf-password">Host</CLabel>
+                                <CLabel htmlFor="nf-password">Application URL</CLabel>
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">

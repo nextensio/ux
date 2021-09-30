@@ -120,14 +120,14 @@ const HostEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Add a Host</strong>
+                <strong>Add an Application</strong>
             </CCardHeader>
             <CCardBody>
                 <CRow>
                     <CCol sm="8">
                         <CForm>
                             <CFormGroup>
-                                <CLabel>Host</CLabel>
+                                <CLabel>Application URL</CLabel>
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
@@ -146,7 +146,7 @@ const HostEdit = (props) => {
                                             <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="name" placeholder="google" onChange={handleChange} invalid={errObj.name}/>
+                                    <CInput name="name" placeholder="google" onChange={handleChange} invalid={errObj.name} />
                                     <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
