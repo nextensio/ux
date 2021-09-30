@@ -27,21 +27,21 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'AppGroups',
-        to: '/tenant/:id/bundles',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-notes',
-            size: 'lg'
-        },
-    },
-    {
-        _tag: 'CSidebarNavItem',
         name: 'Apps',
         to: '/tenant/:id/hosts',
         className: 'roboto-font',
         icon: {
             name: 'cil-input-power',
+            size: 'lg'
+        },
+    },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'AppGroups',
+        to: '/tenant/:id/bundles',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-notes',
             size: 'lg'
         },
     },
