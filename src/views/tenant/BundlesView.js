@@ -47,6 +47,7 @@ const fields = [
     },
     {
         key: "__services",
+        label: "Apps",
         _classes: "data-field"
     },
     {
