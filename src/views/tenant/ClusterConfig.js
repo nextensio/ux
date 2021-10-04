@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardHeader,
@@ -36,6 +37,7 @@ const ClusterConfig = (props) => {
         apodrepl: ""
     });
     const [configData, updateConfigData] = useState(initConfigData);
+    const [existingConfigData, setExistingConfigData] = useState(initConfigData)
     // gateway data for the dropdown
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [errObj, updateErrObj] = useState({});
@@ -62,31 +64,37 @@ const ClusterConfig = (props) => {
             });
     }, []);
 
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + configData.gateway), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                setExistingConfigData({
+                    gateway: configData.gateway,
+                    apodrepl: data.TenantCl.apodrepl,
+                    image: data.TenantCl.image,
+                });
+            });
+    }, [configData.gateway, requestModal])
+
     const handleChange = (e) => {
         if (e.target.name == "gateway") {
-	    var gateway = e.target.value.trim();
-            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + gateway), hdrs)
-                .then(response => response.json())
-                .then(data => {
-                    updateConfigData({
-		        gateway: gateway,
-                        apodrepl: data.TenantCl.apodrepl,
-                        image: data.TenantCl.image,
-                    });
-                });
+            updateConfigData({
+                ...configData,
+                gateway: e.target.value
+            })
         } else if (e.target.name == "image") {
             updateConfigData({
-	        ...configData,
+                ...configData,
                 [e.target.name]: e.target.value.trim(),
             });
-	} else if (e.target.name == "apods") {	
+        } else if (e.target.name == "apods") {
             var input = e.target.value.trim().toString()
             input = parseInt(input, 10)
             updateConfigData({
                 ...configData,
                 apodrepl: input
             });
-	}
+        }
     };
 
     function validate() {
@@ -171,7 +179,7 @@ const ClusterConfig = (props) => {
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>Image (Current: {configData.image})</CLabel>
+                                    <CLabel>Image</CLabel>
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
@@ -183,7 +191,7 @@ const ClusterConfig = (props) => {
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>Ingress (user) compute pods. Current: {configData.apodrepl}</CLabel>
+                                    <CLabel>Ingress (user) compute pods</CLabel>
                                     <CInputGroup>
                                         <CInputGroupPrepend>
                                             <CInputGroupText className="bg-primary-light text-primary">
@@ -196,6 +204,36 @@ const ClusterConfig = (props) => {
                                     {!errObj.apodrepl && <CFormText>Update the compute pods.</CFormText>}
                                 </CFormGroup>
                             </CForm>
+                        </CCol>
+                        <CCol sm="4">
+                            <CCard className="roboto-font">
+                                <CCardHeader>
+                                    Current Info
+                                </CCardHeader>
+                                <CCardBody>
+                                    {configData.gateway ?
+                                        <>
+                                            <CCallout color="info">
+                                                <div className="text-info">Gateway: </div>
+                                                {existingConfigData.gateway}
+                                            </CCallout>
+                                            <CCallout color="info">
+                                                <div className="text-info">Image: </div>
+                                                {existingConfigData.image ?
+                                                    existingConfigData.image :
+                                                    <div className="text-warning">No Image</div>}
+                                            </CCallout>
+                                            <CCallout color="info">
+                                                <div className="text-info">Pods: </div>
+                                                {existingConfigData.apodrepl ?
+                                                    existingConfigData.apodrepl :
+                                                    <div className="text-warning">No Pods</div>}
+                                            </CCallout>
+                                        </> :
+                                        <CCallout color="info">Select a gateway to see what is configured.</CCallout>
+                                    }
+                                </CCardBody>
+                            </CCard>
                         </CCol>
                     </CRow>
                 </CCardBody>
@@ -211,7 +249,7 @@ const ClusterConfig = (props) => {
                     <strong>Request succesful</strong>
                 </CModalHeader>
                 <CModalBody className='text-lg-left'>
-                    <strong>Modified values can be seen on page reload.</strong>
+                    <strong>Your changes are reflected in Current Info.</strong>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="success" onClick={() => setRequestModal(!requestModal)}>OK</CButton>

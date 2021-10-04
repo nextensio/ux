@@ -31,7 +31,7 @@ export default [
         to: '/tenant/:id/hosts',
         className: 'roboto-font',
         icon: {
-            name: 'cil-input-power',
+            name: 'cil-link',
             size: 'lg'
         },
     },
