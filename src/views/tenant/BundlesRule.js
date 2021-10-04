@@ -23,9 +23,9 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Select from 'react-select'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import CreatableSelect from 'react-select/creatable';
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -158,7 +158,7 @@ const BundlesRule = (props) => {
     }
 
     const handleRHSUid = (e) => {
-        let value = e.value
+        let value = e
         let snip = [...snippetData]
         snip[2] = value
         updateSnippetData(snip)
@@ -175,6 +175,13 @@ const BundlesRule = (props) => {
             if (editingSnippet) {
                 removeSnippetFromRule(editingSnippet)
                 setEditingSnippet("")
+            }
+            if (snippet[0] == "User ID") {
+                let uids = snippet[2].map(option => {
+                    return option.value
+                })
+                const stringifiedVal = uids.toString()
+                snippet[2] = stringifiedVal
             }
             // Append the type for use later
             snippet.push(snippetType.type)
@@ -194,6 +201,12 @@ const BundlesRule = (props) => {
     }
 
     const populateSnippetEditor = (item) => {
+        if (item[0] == "User ID") {
+            let uids = item[2].split(",").map(uid => {
+                return { label: uid, value: uid }
+            })
+            item[2] = uids
+        }
         setEditingSnippet(item)
         let snippet = [...item]
         resetSnippetData()
@@ -271,6 +284,7 @@ const BundlesRule = (props) => {
             <CCardHeader>
                 Rule Generator for {ruleData.bid}
                 <CButton onClick={e => console.log(ruleData)}>ruleData</CButton>
+                <CButton onClick={e => console.log(snippetData)}>snippetData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
 
@@ -327,10 +341,12 @@ const BundlesRule = (props) => {
                                     </CCol>
                                     <CCol sm="4">
                                         {snippetData[0] == "User ID" ?
-                                            <Select
+                                            <CreatableSelect
                                                 name="uid"
                                                 options={uids}
+                                                value={snippetData[2]}
                                                 isSearchable
+                                                isMulti
                                                 onChange={handleRHSUid}
                                             />
                                             :

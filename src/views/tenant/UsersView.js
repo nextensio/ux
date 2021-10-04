@@ -188,7 +188,7 @@ const UsersView = (props) => {
                             <td><strong>{attr}</strong></td>
                             <td>
                                 {["", 0, false].includes(item[attr]) ?
-                                    "Default Value Assigned" :
+                                    <div className="text-warning">Default Value Assigned</div> :
                                     Array.isArray(item[attr]) ?
                                         item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
                                             <div className="text-warning">Default Value Assigned</div> :
