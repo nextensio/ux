@@ -24,6 +24,7 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Select from 'react-select'
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -31,6 +32,7 @@ var common = require('../../common')
 const BundlesEdit = (props) => {
     const maxCharLength = 20
     const [easyMode, setEasyMode] = useState(true)
+    const [appData, updateAppData] = useState(Object.freeze([]))
     const [bundleState, updateBundleState] = useState("");
     const [bundleAttrState, updateBundleAttrState] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
@@ -54,8 +56,11 @@ const BundlesEdit = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            const { bid, name, cpodrepl, services, ...rest } = props.location.state
-            updateBundleState({ bid, name, cpodrepl, services })
+            const { bid, __name, __cpodrepl, __services, ...rest } = props.location.state
+            let services = __services.map(service => {
+                return { label: service, value: service }
+            })
+            updateBundleState({ bid, name: __name, cpodrepl: __cpodrepl, services: services })
         }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -68,6 +73,17 @@ const BundlesEdit = (props) => {
                 }
                 updateAttrData(fields);
             });
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let apps = []
+                for (let i = 0; i < data.length; i++) {
+                    for (let j = 0; j < data[i].routeattrs.length; j++) {
+                        let routeApp = data[i].routeattrs[j].tag + "." + data[i].host
+                        apps.push({ label: routeApp, value: routeApp })
+                    }
+                } updateAppData(apps)
+            })
     }, []);
 
     useEffect(() => {
@@ -93,6 +109,13 @@ const BundlesEdit = (props) => {
             [e.target.name]: e.target.value.trim()
         });
     };
+
+    const handleAppsChange = (e) => {
+        updateBundleState({
+            ...bundleState,
+            services: e
+        })
+    }
 
     const handleLengthCheck = (e) => {
         let targetLen = e.target.value.length
@@ -289,18 +312,14 @@ const BundlesEdit = (props) => {
     function validate(attrState) {
         let errs = {}
         const podRe = /^[-+]?\d+$/
-        if (!/\S/.test(bundleState.name)) {
+        if (!bundleState.name) {
             errs.name = true
         }
         if (!podRe.test(String(bundleState.cpodrepl).trim())) {
             errs.cpodrepl = true
         }
-        if (bundleState.services == undefined) {
+        if (bundleState.services.length == 0) {
             errs.services = true
-        } else {
-            if (!/\S/.test(bundleState.services)) {
-                errs.services = true
-            }
         }
         attrData.forEach((item) => {
             if (item.isArray == "true" && JSON.stringify(attrState[item.name]).includes("ERR!")) {
@@ -319,14 +338,9 @@ const BundlesEdit = (props) => {
             return
         }
         var cpodrepl = parseInt(bundleState.cpodrepl)
-        var services
-        if (!Array.isArray(bundleState.services)) {
-            services = bundleState.services.split(',').map(function (item) {
-                return item.trim();
-            })
-        } else {
-            services = bundleState.services
-        }
+        var services = bundleState.services.map(service => {
+            return service.value
+        })
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -389,6 +403,7 @@ const BundlesEdit = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Edit Details for {bundleState.bid}</strong>
+                <CButton onClick={e => console.log(bundleState)}>bundleState</CButton>
             </CCardHeader>
             <CCardBody>
                 <CRow>
@@ -435,16 +450,15 @@ const BundlesEdit = (props) => {
                                 </CInputGroup>
                             </CFormGroup>
                             <CFormGroup>
-                                <CLabel>Services, comma seperated</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-settings" />
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="services" defaultValue={bundleState.services} onChange={handleBundleChange} invalid={errObj.services} />
-                                    <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
-                                </CInputGroup>
+                                <CLabel>Apps</CLabel>
+                                <Select
+                                    options={appData}
+                                    isSearchable
+                                    isMulti
+                                    onChange={e => handleAppsChange(e)}
+                                    value={bundleState.services}
+                                />
+                                <div hidden={!errObj.services} className="invalid-form-text-no-margin">Please select at least one application.</div>
                             </CFormGroup>
                         </CForm>
                         {!easyMode &&

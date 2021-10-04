@@ -204,10 +204,10 @@ const BundlesView = (props) => {
         })
     }
 
-    const handleEdit = (index) => {
+    const handleEdit = (item) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/bundles/edit',
-            state: zippedData[index]
+            state: item
         });
         setDetails([]);
     }
@@ -775,7 +775,7 @@ const BundlesView = (props) => {
                                                             color='primary'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { handleEdit(index) }}
+                                                            onClick={() => { handleEdit(item) }}
                                                         >
                                                             <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>

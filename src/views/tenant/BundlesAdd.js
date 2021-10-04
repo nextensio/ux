@@ -27,6 +27,7 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Select from 'react-select'
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -43,6 +44,7 @@ const BundlesAdd = (props) => {
         bid: ""
     });
     const [easyMode, setEasyMode] = useState(true)
+    const [appData, updateAppData] = useState(Object.freeze([]))
     const [bundleData, updateBundleData] = useState(initBundleData);
     const [bundleAttrData, updateBundleAttrData] = useState(initBundleAttrData);
     const [existingBidData, updateExistingBidData] = useState("");
@@ -62,10 +64,20 @@ const BundlesAdd = (props) => {
     };
 
     useEffect(() => {
-
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => { setEasyMode(data.Tenant.easymode) });
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let apps = []
+                for (let i = 0; i < data.length; i++) {
+                    for (let j = 0; j < data[i].routeattrs.length; j++) {
+                        let routeApp = data[i].routeattrs[j].tag + "." + data[i].host
+                        apps.push({ label: routeApp, value: routeApp })
+                    }
+                } updateAppData(apps)
+            })
     }, []);
 
     useEffect(() => {
@@ -96,6 +108,13 @@ const BundlesAdd = (props) => {
             [e.target.name]: e.target.value.trim()
         });
     };
+
+    const handleAppsChange = (e) => {
+        updateBundleData({
+            ...bundleData,
+            services: e
+        })
+    }
 
     const handleLengthCheck = (e) => {
         let targetLen = e.target.value.length
@@ -299,13 +318,13 @@ const BundlesAdd = (props) => {
         if (!emailRe.test(String(bundleData.bid).toLowerCase())) {
             errs.bid = true
         }
-        if (!/\S/.test(bundleData.name)) {
+        if (!bundleData.name) {
             errs.name = true
         }
         if (!podRe.test(String(bundleData.cpodrepl).trim())) {
             errs.cpodrepl = true
         }
-        if (!/\S/.test(bundleData.services)) {
+        if (bundleData.services.length == 0) {
             errs.services = true
         }
         attrData.forEach((item) => {
@@ -316,8 +335,6 @@ const BundlesAdd = (props) => {
         updateErrObj(errs)
         return errs
     }
-
-
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -332,8 +349,8 @@ const BundlesAdd = (props) => {
             return
         }
         var cpodrepl = parseInt(bundleData.cpodrepl)
-        var services = bundleData.services.toString().split(',').map(function (item) {
-            return item.trim();
+        var services = bundleData.services.map(service => {
+            return service.value;
         })
         const requestOptions = {
             method: 'POST',
@@ -442,21 +459,19 @@ const BundlesAdd = (props) => {
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
-                                    <CLabel>Services, comma seperated</CLabel>
-                                    <CInputGroup>
-                                        <CInputGroupPrepend>
-                                            <CInputGroupText className="bg-primary-light text-primary">
-                                                <CIcon name="cil-settings" />
-                                            </CInputGroupText>
-                                        </CInputGroupPrepend>
-                                        <CInput name="services" placeholder={bundleData.services} onChange={handleBundleChange} invalid={errObj.services} />
-                                        <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
-                                    </CInputGroup>
+                                    <CLabel>Apps</CLabel>
+                                    <Select
+                                        options={appData}
+                                        isSearchable
+                                        isMulti
+                                        onChange={e => handleAppsChange(e)}
+                                        value={bundleData.services}
+                                    />
+                                    <div hidden={!errObj.services} className="invalid-form-text-no-margin">Please select at least one application.</div>
                                 </CFormGroup>
                             </CForm>
                             {!easyMode &&
                                 <>
-
                                     <div className="title py-3">Attributes</div>
                                     {attrData.length === 0 &&
                                         <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
