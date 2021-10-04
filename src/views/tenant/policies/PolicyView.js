@@ -36,9 +36,27 @@ const fields = [
         key: "pid",
         label: "Policy ID",
         _classes: "data-head",
-        _style: { width: '90%' },
+        _style: { width: '30%' },
         sorter: true,
         filter: true
+    },
+    {
+        key: "changeby",
+	label: "Changed By",
+        _classes: "data-field",
+        _style: { width: '30%' }
+    },
+    {
+        key: "changeat",
+	label: "Change Time",
+        _classes: "data-field",
+        _style: { width: '30%' }
+    },
+    {
+        key: "minver",
+	label: "Ver",
+        _classes: "data-field",
+        _style: { width: '1%' }
     },
     {
         key: 'edit',
@@ -189,7 +207,7 @@ const PolicyView = (props) => {
                                 items={policyData}
                                 fields={fields}
                                 itemsPerPageSelect
-                                tableFilter={{ placeholder: 'By policy ID, majver...', label: 'Search: ' }}
+                                tableFilter={{ placeholder: 'By policy ID, minver...', label: 'Search: ' }}
                                 noItemsView={{ noItems: 'No policies exist ' }}
                                 sorter
                                 pagination
