@@ -145,10 +145,10 @@ const UsersView = (props) => {
         })
     }
 
-    const handleEdit = (index) => {
+    const handleEdit = (item) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/users/edit',
-            state: usersData[index]
+            state: item
         });
         setDetails([])
     }
@@ -282,7 +282,7 @@ const UsersView = (props) => {
                                                             color='primary'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { handleEdit(index) }}
+                                                            onClick={() => { handleEdit(item) }}
                                                         >
                                                             <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
                                                         </CButton>

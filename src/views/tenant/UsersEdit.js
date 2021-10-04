@@ -45,7 +45,8 @@ const UsersEdit = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            updateUserState(props.location.state)
+            const { uid, __name, ...rest } = props.location.state
+            updateUserState({ uid, name: __name })
         }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -68,8 +69,8 @@ const UsersEdit = (props) => {
                     if (data[i].uid == userState.uid) {
                         // remove email, gateway, pod from userAttrState
                         // ...rest is all the user attributes
-                        var {uid, ...rest} = data[i]
-                        updateUserAttrState({uid, ...rest})
+                        var { uid, ...rest } = data[i]
+                        updateUserAttrState({ uid, ...rest })
                     }
                 }
             })
@@ -78,7 +79,7 @@ const UsersEdit = (props) => {
     const toAttributeEditor = (e) => {
         props.history.push('/tenant/' + props.match.params.id + '/attreditor')
     }
-   
+
     const handleUserChange = (e) => {
         updateUserState({
             ...userState,
@@ -96,14 +97,14 @@ const UsersEdit = (props) => {
                 ...errObj,
                 [attrName + "Length"]: true
             })
-        } 
+        }
         if (targetLen < maxCharLength && errObj[attrName + "Length"]) {
             delete errObj[attrName + "Length"]
         }
     }
 
     const handleAttrChange = (e) => {
-        let input 
+        let input
         handleLengthCheck(e)
         input = e.target.value.trim()
         updateUserAttrState({
@@ -213,7 +214,7 @@ const UsersEdit = (props) => {
     }
 
     const handleSingleDateAttrChange = (e) => {
-        let input 
+        let input
         // convert to Epoch GMT
         input = e.target.value
         updateUserAttrState({
@@ -227,7 +228,7 @@ const UsersEdit = (props) => {
         const dateRe = /^\d{4}-\d{2}-\d{2}$/;
         if (e.target.value.trim() === "") {
             input = ""
-        // Check if input contains comma, if so separate the values
+            // Check if input contains comma, if so separate the values
         } else if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => {
                 // convert to Epoch GMT
@@ -255,13 +256,13 @@ const UsersEdit = (props) => {
         let errs = {}
         if (!/\S/.test(userState.name)) {
             errs.name = true
-        } 
-        attrData.forEach((item) => { 
+        }
+        attrData.forEach((item) => {
             if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
                 errs[item.name] = true
             }
         })
-        
+
         updateErrObj(errs)
         return errs
     }
@@ -275,7 +276,7 @@ const UsersEdit = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify({uid: userState.uid, name: userState.name}),
+            body: JSON.stringify({ uid: userState.uid, name: userState.name }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user'), requestOptions)
             .then(async response => {
@@ -290,7 +291,7 @@ const UsersEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                   handleAttrSubmit(e)
+                    handleAttrSubmit(e)
                 }
             })
             .catch(error => {
@@ -342,13 +343,13 @@ const UsersEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-user"/>
+                                            <CIcon name="cil-user" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="uid" value={userState.uid} readOnly/>
+                                    <CInput name="uid" value={userState.uid} readOnly />
                                     <CInputGroupAppend>
                                         <CInputGroupText>
-                                            <CIcon name="cil-lock-locked"/>
+                                            <CIcon name="cil-lock-locked" />
                                         </CInputGroupText>
                                     </CInputGroupAppend>
                                 </CInputGroup>
@@ -358,136 +359,136 @@ const UsersEdit = (props) => {
                                 <CInputGroup>
                                     <CInputGroupPrepend>
                                         <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag"/>
+                                            <CIcon name="cil-tag" />
                                         </CInputGroupText>
                                     </CInputGroupPrepend>
-                                    <CInput name="name" defaultValue={userState.name} onChange={handleUserChange} invalid={errObj.name}/>
+                                    <CInput name="name" defaultValue={userState.name} onChange={handleUserChange} invalid={errObj.name} />
                                     <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
                                 </CInputGroup>
                             </CFormGroup>
                         </CForm>
                         <div className="title py-3">Attributes</div>
-                            {attrData.length === 0 &&
-                                <div><FontAwesomeIcon icon="info-circle" className="text-info"/>{' '}
+                        {attrData.length === 0 &&
+                            <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
                                 You have no attributes for AppGroups. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
-                                </div>
-                            }
-                            {attrData.map(attr => {
-                                return (
-                                    <CForm>
-                                        {attr.type == "String" && 
-                                            <>
-                                                {attr.isArray == "true" ?
-                                                    <CFormGroup>
-                                                        <CPopover 
-                                                            title="Popover title"
-                                                            content="This attribute has been defined as string type and accepts multiple values."
-                                                        >
-                                                            <FontAwesomeIcon icon="info-circle"/>
-                                                        </CPopover>
-                                                        {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
-                                                        {errObj[attr.name + "Length"] ?
-                                                            <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
-                                                        }
-                                                    </CFormGroup>
-                                                :
-                                                    <CFormGroup>
-                                                        <CPopover 
-                                                            title="Popover title"
-                                                            content="This attribute has been defined as string type and accepts a single value."
-                                                        >
-                                                            <FontAwesomeIcon icon="info-circle"/>
-                                                        </CPopover>
-                                                        {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]}/>
-                                                        {errObj[attr.name + "Length"] ?
-                                                            <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                            <CFormText>Enter attribute value.</CFormText> 
-                                                        }
-                                                    </CFormGroup>
-                                                }
-                                            </>
-                                        }
-                                        {attr.type == "Number" && 
-                                            <>
-                                                {attr.isArray == "true" ?
-                                                    <CFormGroup>
-                                                        <CPopover 
-                                                            title="Popover title"
-                                                            content="This attribute has been defined as number type and accepts multiple values."
-                                                        >
-                                                            <FontAwesomeIcon icon="info-circle"/>
-                                                        </CPopover>
-                                                        {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]}/>
-                                                        {errObj[attr.name] ?
-                                                            <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
-                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
-                                                        }
-                                                    </CFormGroup>
-                                                :
-                                                    <CFormGroup>
-                                                        <CPopover 
-                                                            title="Popover title"
-                                                            content="This attribute has been defined as number type and accepts a single value."
-                                                        >
-                                                            <FontAwesomeIcon icon="info-circle"/>
-                                                        </CPopover>
-                                                        {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="number" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleSingleNumberAttrChange}/>
-                                                        <CFormText>Enter attribute value.</CFormText> 
-                                                    </CFormGroup>
-                                                }
-                                            </>
-                                        }
-                                        {attr.type == "Boolean" &&
-                                            <>
-                                                {attr.isArray == "true" ?
-                                                    <CFormGroup>
-                                                        <CPopover 
-                                                            title="Popover title"
-                                                            content="This attribute has been defined as boolean type and accepts multiple values."
-                                                        >
-                                                            <FontAwesomeIcon icon="info-circle"/>
-                                                        </CPopover>
-                                                        {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]}/>
-                                                        {errObj[attr.name] ?
-                                                            <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
-                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
-                                                        }
-                                                    </CFormGroup>
-                                                :
-                                                    <CFormGroup>
-                                                        <CLabel>{attr.name}</CLabel>
-                                                        <CSelect name={attr.name} value={userAttrState[attr.name]} custom onChange={handleSingleBoolAttrChange}>
-                                                            <option value={true}>True</option>
-                                                            <option value={false}>False</option>
-                                                        </CSelect>
-                                                    </CFormGroup>
-                                                }
-                                            </>
-                                        }
-                                        {attr.type == "Date" &&
-                                            <>
+                            </div>
+                        }
+                        {attrData.map(attr => {
+                            return (
+                                <CForm>
+                                    {attr.type == "String" &&
+                                        <>
                                             {attr.isArray == "true" ?
                                                 <CFormGroup>
-                                                    <CPopover 
+                                                    <CPopover
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as string type and accepts multiple values."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle" />
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]} />
+                                                    {errObj[attr.name + "Length"] ?
+                                                        <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                    }
+                                                </CFormGroup>
+                                                :
+                                                <CFormGroup>
+                                                    <CPopover
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as string type and accepts a single value."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle" />
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]} />
+                                                    {errObj[attr.name + "Length"] ?
+                                                        <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                        <CFormText>Enter attribute value.</CFormText>
+                                                    }
+                                                </CFormGroup>
+                                            }
+                                        </>
+                                    }
+                                    {attr.type == "Number" &&
+                                        <>
+                                            {attr.isArray == "true" ?
+                                                <CFormGroup>
+                                                    <CPopover
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as number type and accepts multiple values."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle" />
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]} />
+                                                    {errObj[attr.name] ?
+                                                        <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                    }
+                                                </CFormGroup>
+                                                :
+                                                <CFormGroup>
+                                                    <CPopover
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as number type and accepts a single value."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle" />
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="number" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleSingleNumberAttrChange} />
+                                                    <CFormText>Enter attribute value.</CFormText>
+                                                </CFormGroup>
+                                            }
+                                        </>
+                                    }
+                                    {attr.type == "Boolean" &&
+                                        <>
+                                            {attr.isArray == "true" ?
+                                                <CFormGroup>
+                                                    <CPopover
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as boolean type and accepts multiple values."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle" />
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]} />
+                                                    {errObj[attr.name] ?
+                                                        <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                    }
+                                                </CFormGroup>
+                                                :
+                                                <CFormGroup>
+                                                    <CLabel>{attr.name}</CLabel>
+                                                    <CSelect name={attr.name} value={userAttrState[attr.name]} custom onChange={handleSingleBoolAttrChange}>
+                                                        <option value={true}>True</option>
+                                                        <option value={false}>False</option>
+                                                    </CSelect>
+                                                </CFormGroup>
+                                            }
+                                        </>
+                                    }
+                                    {attr.type == "Date" &&
+                                        <>
+                                            {attr.isArray == "true" ?
+                                                <CFormGroup>
+                                                    <CPopover
                                                         title="Popover title"
                                                         content="This attribute has been defined as date type and accepts multiple values."
                                                     >
-                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                        <FontAwesomeIcon icon="info-circle" />
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]}/>
+                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]} />
                                                     {errObj[attr.name] ?
                                                         <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
-                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
                                                     }
                                                 </CFormGroup>
-                                            :
+                                                :
                                                 <CFormGroup>
                                                     <CLabel>{attr.name}</CLabel>
                                                     <CInputGroup>
@@ -495,11 +496,11 @@ const UsersEdit = (props) => {
                                                     </CInputGroup>
                                                 </CFormGroup>
                                             }
-                                            </>
-                                        }
-                                    </CForm>
-                                )
-                            })}
+                                        </>
+                                    }
+                                </CForm>
+                            )
+                        })}
                     </CCol>
                 </CRow>
             </CCardBody>
