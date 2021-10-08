@@ -79,7 +79,7 @@ const ClusterConfig = (props) => {
     const handleChange = (e) => {
         if (e.target.name == "gateway") {
             updateConfigData({
-                ...configData,
+                ...initConfigData,
                 gateway: e.target.value
             })
         } else if (e.target.name == "image") {
@@ -167,7 +167,7 @@ const ClusterConfig = (props) => {
                                                 <CIcon name="cil-sitemap" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CSelect name="gateway" custom onChange={handleChange} invalid={errObj.gateway}>
+                                        <CSelect name="gateway" custom onChange={handleChange} value={configData.gateway} invalid={errObj.gateway}>
                                             <option value={undefined}>Please select a gateway</option>
                                             {gatewayData.map(gateway => {
                                                 return (
@@ -186,7 +186,7 @@ const ClusterConfig = (props) => {
                                                 <CIcon name="cil-image" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="image" defaultValue={configData.image} onChange={handleChange} invalid={errObj.image} />
+                                        <CInput name="image" value={configData.image} onChange={handleChange} invalid={errObj.image} />
                                         <CInvalidFeedback>Please enter an image.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
@@ -198,18 +198,15 @@ const ClusterConfig = (props) => {
                                                 <CIcon name="cil-3d" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput name="apods" defaultValue={configData.apodrepl} onChange={handleChange} invalid={errObj.apodrepl} />
+                                        <CInput name="apods" value={configData.apodrepl} onChange={handleChange} invalid={errObj.apodrepl} />
                                         <CInvalidFeedback>Please enter an integer value.</CInvalidFeedback>
                                     </CInputGroup>
-                                    {!errObj.apodrepl && <CFormText>Update the compute pods.</CFormText>}
+                                    {!errObj.apodrepl && <CFormText>Set the compute pods.</CFormText>}
                                 </CFormGroup>
                             </CForm>
                         </CCol>
                         <CCol sm="4">
                             <CCard className="roboto-font">
-                                <CCardHeader>
-                                    Current Info
-                                </CCardHeader>
                                 <CCardBody>
                                     {configData.gateway ?
                                         <>
@@ -249,7 +246,7 @@ const ClusterConfig = (props) => {
                     <strong>Request succesful</strong>
                 </CModalHeader>
                 <CModalBody className='text-lg-left'>
-                    <strong>Your changes are reflected in Current Info.</strong>
+                    <strong>Your changes are reflected on the right hand side.</strong>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="success" onClick={() => setRequestModal(!requestModal)}>OK</CButton>

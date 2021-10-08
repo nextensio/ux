@@ -374,7 +374,7 @@ const BundlesAdd = (props) => {
                     alert(data["Result"])
                 } else {
                     // bundle attribute http post must be run after bundle http post
-                    handleAttrSubmit(e)
+                    handleAttrSubmit(e, attrState)
                 }
             })
             .catch(error => {
@@ -383,12 +383,12 @@ const BundlesAdd = (props) => {
     };
 
     // user attribute http post function
-    const handleAttrSubmit = (e) => {
+    const handleAttrSubmit = (e, attrState) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify(bundleAttrData),
+            body: JSON.stringify(attrState),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
             .then(async response => {
