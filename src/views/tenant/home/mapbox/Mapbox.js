@@ -5,7 +5,7 @@ import MapboxWorker from 'worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker';
 import './mapbox.css'
 import {
   CBadge,
-  CPopover,
+  CTooltip,
 } from '@coreui/react'
 
 mapboxgl.workerClass = MapboxWorker;
@@ -16,9 +16,9 @@ const offlineNum = 18
 
 const Map = (props) => {
   const mapContainer = useRef();
-  const [lng, setLng] = useState(0);
-  const [lat, setLat] = useState(30);
-  const [zoom, setZoom] = useState(.75);
+  const [lng, setLng] = useState(-100);
+  const [lat, setLat] = useState(40);
+  const [zoom, setZoom] = useState(3.5);
 
   useEffect(() => {
     const map = new mapboxgl.Map({
@@ -69,11 +69,15 @@ const Map = (props) => {
   return (
     <div>
       <div className="sidebar">
-        3 Hosts | 21 Locations {props.match.params.id}
+        3 Hosting Services | 21 Locations
       </div>
       <div className="legend">
-        <CBadge className="mr-1" color="success">{onlineNum}</CBadge>
-        <CBadge className="mr-1" color="secondary">{offlineNum}</CBadge>
+        <CTooltip content="Active locations">
+          <CBadge className="mr-1" color="success">{onlineNum}</CBadge>
+        </CTooltip>
+        <CTooltip content="Pending locations">
+          <CBadge className="mr-1" color="secondary">{offlineNum}</CBadge>
+        </CTooltip>
       </div>
       <div className="map-container" ref={mapContainer} />
     </div>
