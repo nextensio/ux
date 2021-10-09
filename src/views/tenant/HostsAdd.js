@@ -27,10 +27,9 @@ const HostEdit = (props) => {
     const initHostData = Object.freeze({
         host: "",
         name: "",
-        routeattrs: [{ tag: "" }],
+        routeattrs: [],
     });
     const [hostData, updateHostData] = useState(initHostData);
-    const [attrData, updateAttrData] = useState(Object.freeze([]));
     const [errObj, updateErrObj] = useState({});
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -40,21 +39,6 @@ const HostEdit = (props) => {
             Authorization: bearer,
         },
     };
-
-
-    useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                var fields = [];
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Hosts') {
-                        fields.push(data[i].name);
-                    }
-                }
-                updateAttrData(fields);
-            });
-    })
 
     const handleChange = (e) => {
         updateHostData({
@@ -87,9 +71,6 @@ const HostEdit = (props) => {
         let errs = validate()
         if (Object.keys(errs).length !== 0) {
             return
-        }
-        for (var i = 0; i < attrData.length; i++) {
-            hostData.routeattrs[0][attrData[i]] = ''
         }
         const requestOptions = {
             method: 'POST',
