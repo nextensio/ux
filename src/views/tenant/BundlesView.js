@@ -416,13 +416,16 @@ const BundlesView = (props) => {
         //  isArray == "true" or "false"
         //  operator values are ==, !=, >, <, >=, <=
 
+        RetVal = [""]
         let RegoPolicy = ""
         RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
         // for each entry/row in bundleRuleData, generate Rego code
         for (var i = 0; i < bundleRuleData.length; i++) {
             RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
         }
-        return RegoPolicy
+        RetVal[0] = ""
+        RetVal[1] = RegoPolicy
+        return RetVal
     }
 
     function getBundleRuleLeftToken(snippet) {

@@ -358,13 +358,16 @@ const HostsView = (props) => {
         //  isArray == "true" or "false"
         //  operator values are ==, !=, >, <, >=, <=
 
+        RetVal = [""]
         let RegoPolicy = ""
         RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
         // for each entry/row in hostRuleData, generate Rego code
         for (var i = 0; i < hostRuleData.length; i++) {
             RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
         }
-        return RegoPolicy
+        RetVal[0] = ""
+        RetVal[1] = RegoPolicy
+        return RetVal
     }
 
     function getHostRuleLeftToken(snippet) {
