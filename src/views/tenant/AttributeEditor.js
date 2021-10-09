@@ -57,13 +57,6 @@ const fields = [
         _classes: "data-field"
     },
     {
-        key: "edit",
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    },
-    {
         key: "delete",
         label: '',
         _style: { width: '1%' },
@@ -243,13 +236,23 @@ const AttributeEditor = (props) => {
     function appliesToStringify(appliesTo) {
         switch (appliesTo) {
             case "Users":
-                return "user"
+                return "User"
             case "Bundles":
-                return "bundle"
+                return "AppGroup"
             case "Hosts":
-                return "host"
+                return "App"
         }
+    }
 
+    function appliesToStringifyPlural(appliesTo) {
+        switch (appliesTo) {
+            case "Users":
+                return "Users"
+            case "Bundles":
+                return "AppGroups"
+            case "Hosts":
+                return "Apps"
+        }
     }
 
     return (
@@ -259,7 +262,7 @@ const AttributeEditor = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <div className="text-muted small">Define attribute set for users, bundles and hosts.</div>
+                            <div className="text-muted small">Define attribute set for Users, Apps and AppGroups.</div>
                         </CCardHeader>
                         <CCardBody>
                             <CForm>
@@ -274,12 +277,12 @@ const AttributeEditor = (props) => {
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-notes" /> AppGroup</CLabel>
+                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
+                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-link" /> Apps</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-input-power" /> Host</CLabel>
+                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
+                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-notes" /> AppGroups</CLabel>
                                             </CFormGroup>
                                         </div>
                                     </CCol>
@@ -363,12 +366,12 @@ const AttributeEditor = (props) => {
                                     <CTabContent>
                                         <CTabPane active={activeTab === "Overview"} >
                                             <p>Attributes are a set of properties with values, ie key/value pairs. The keys are just strings, values can be
-                                            one of string, array of strings, number, array of numbers, boolean, array of booleans.
+                                                one of string, array of strings, number, array of numbers, boolean, array of booleans.
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Applies To"}>
-                                            <p>Each attribute either applies to (ie is a property of) a user, appGroup or Host. If the same attribute/key
-                                            is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
+                                            <p>Each attribute either applies to (ie is a property of) a User, App or AppGroup. If the same attribute/key
+                                                is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Type"}>
@@ -379,13 +382,13 @@ const AttributeEditor = (props) => {
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Examples"}>
                                             <p>allowTeams: ["engineering", "support"] is an example of array of strings. trustScore: 90 is an example
-                                            of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
-                                            example where the attribute says that an app access is allowed only monday-friday
+                                                of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
+                                                example where the attribute says that an app access is allowed only monday-friday
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Policies"}>
                                             <p>Policies are written in an industry standard language getting wide acceptance - Rego. Rego provides
-                                            simple constructs to do access control etc.., using the attributes and their values
+                                                simple constructs to do access control etc.., using the attributes and their values
                                             </p>
                                         </CTabPane>
                                     </CTabContent>
@@ -404,7 +407,7 @@ const AttributeEditor = (props) => {
                         <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
                         <CCallout color="danger">
                             <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
-                            <div><strong>Applies To: </strong><strong className="text-danger">{deleteItem.appliesTo}</strong></div>
+                            <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
                             <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
                             <div><strong>Is Array: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
                         </CCallout>
@@ -435,20 +438,11 @@ const AttributeEditor = (props) => {
                                 pagination
                                 sorter
                                 scopedSlots={{
-                                    'edit':
+                                    'appliesTo':
                                         (item, index) => {
                                             return (
-                                                <td className="py-2">
-                                                    <CTooltip content='Edit' className='bottom'>
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='primary'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                        >
-                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                        </CButton>
-                                                    </CTooltip>
+                                                <td className="py-auto roboto-font">
+                                                    {appliesToStringifyPlural(item.appliesTo)}
                                                 </td>
                                             )
                                         },
