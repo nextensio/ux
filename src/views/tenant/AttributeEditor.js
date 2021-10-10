@@ -56,13 +56,6 @@ const fields = [
         key: "isArray",
         _classes: "data-field"
     },
-    {
-        key: "delete",
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    }
 ]
 
 const AttributeEditor = (props) => {
@@ -443,24 +436,6 @@ const AttributeEditor = (props) => {
                                             return (
                                                 <td className="py-auto roboto-font">
                                                     {appliesToStringifyPlural(item.appliesTo)}
-                                                </td>
-                                            )
-                                        },
-                                    'delete':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CTooltip content='Delete' className='bottom'>
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='danger'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => { toggleDelete(item) }}
-                                                        >
-                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                        </CButton>
-                                                    </CTooltip>
                                                 </td>
                                             )
                                         },

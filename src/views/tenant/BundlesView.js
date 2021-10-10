@@ -37,7 +37,7 @@ const fields = [
     },
     {
         key: "__bid",
-        label: "Bundle ID",
+        label: "AppGroup ID",
         _classes: "data-head"
     },
     {
@@ -101,7 +101,8 @@ const BundlesView = (props) => {
     const [zippedData, updateZippedData] = useState(initTableData);
 
     const [details, setDetails] = useState([]);
-    const [policyModal, setPolicyModal] = useState(false);
+    const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
+    const [generatePolicyModal, setGeneratePolicyModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteBid, setDeleteBid] = useState("");
     const [keyModal, setKeyModal] = useState(false);
@@ -117,7 +118,6 @@ const BundlesView = (props) => {
 
 
     useEffect(() => {
-
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => { setEasyMode(data.Tenant.easymode) });
@@ -367,13 +367,13 @@ const BundlesView = (props) => {
 
 
     const handlePolicyGeneration = (e) => {
-        var ucode = generatePolicyFromBundleRules(e, bundleRuleData)
-        var byteRego = ucode.split('').map(function (c) { return c.charCodeAt(0) });
+        var retval = generatePolicyFromBundleRules(e, bundleRuleData)
+        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "testApplicationAccess", tenant: props.match.params.id,
+                pid: "applicationAccess", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };
@@ -390,7 +390,7 @@ const BundlesView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    setPolicyModal(true)
+                    setGeneratePolicyModal(false)
                 }
             })
             .catch(error => {
@@ -416,7 +416,7 @@ const BundlesView = (props) => {
         //  isArray == "true" or "false"
         //  operator values are ==, !=, >, <, >=, <=
 
-        RetVal = [""]
+        let RetVal = [""]
         let RegoPolicy = ""
         RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
         // for each entry/row in bundleRuleData, generate Rego code
@@ -646,7 +646,12 @@ const BundlesView = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
-
+    const triggerPolicyModal = (e) => {
+        const retval = generatePolicyFromBundleRules(e, bundleRuleData)
+        if (!retval[0]) {
+            setGeneratePolicyModal(true)
+        } else (setInvalidPolicyModal(true))
+    }
 
     const toggleKey = (item) => {
         setKeyModal(!keyModal);
@@ -690,7 +695,7 @@ const BundlesView = (props) => {
                                 <CButton
                                     className="float-right"
                                     color="primary"
-                                    onClick={handlePolicyGeneration}
+                                    onClick={triggerPolicyModal}
                                 >
                                     <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
                                 </CButton>
@@ -861,16 +866,36 @@ const BundlesView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
-                <CModal show={policyModal} onClose={() => setPolicyModal(!policyModal)}>
-                    <CModalHeader className='bg-success text-white py-n5' closeButton>
-                        <strong>Policy has been generated.</strong>
+                <CModal show={generatePolicyModal} onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                    <CModalHeader className='roboto-font bg-success text-white py-n5' closeButton>
+                        <strong>Are you sure you want to generate a policy?</strong>
                     </CModalHeader>
-                    <CModalBody className='text-lg-left'>
+                    <CModalBody className='roboto-font text-lg-left'>
+                        Please ensure that all your rules are correctly configured before generating a policy.
                     </CModalBody>
                     <CModalFooter>
                         <CButton
                             color="success"
-                            onClick={() => setPolicyModal(!policyModal)}
+                            onClick={e => handlePolicyGeneration(e, bundleRuleData)}
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setGeneratePolicyModal(!generatePolicyModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+
+                <CModal show={invalidPolicyModal} onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                    <CModalHeader className='roboto-font bg-warning text-white py-n5' closeButton>
+                        <strong>There has been an error generating your policy.</strong>
+                    </CModalHeader>
+                    <CModalBody className='roboto-font text-lg-left'>
+                        Please check to make sure all your rules are correctly configured.
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="warning"
+                            onClick={() => setInvalidPolicyModal(!invalidPolicyModal)}
                         >Ok.</CButton>
                     </CModalFooter>
                 </CModal>
