@@ -95,7 +95,8 @@ const HostsView = (props) => {
     const [addRoute, updateAddRoute] = useState("")
     const [addRouteItem, updateAddRouteItem] = useState("")
     const [details, setDetails] = useState([]);
-    const [policyModal, setPolicyModal] = useState(false);
+    const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
+    const [generatePolicyModal, setGeneratePolicyModal] = useState(false);
     const [deleteHost, setDeleteHost] = useState("");
     const [deleteModal, setDeleteModal] = useState(false);
 
@@ -299,13 +300,13 @@ const HostsView = (props) => {
     }
 
     const handlePolicyGeneration = (e) => {
-        var ucode = generatePolicyFromHostRules(e, hostRuleData)
-        var byteRego = ucode.split('').map(function (c) { return c.charCodeAt(0) });
+        var retval = generatePolicyFromHostRules(e, hostRuleData)
+        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "testApplicationRouting", tenant: props.match.params.id,
+                pid: "applicationRouting", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };
@@ -322,13 +323,20 @@ const HostsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    setPolicyModal(true)
+                    setGeneratePolicyModal(false)
                 }
             })
             .catch(error => {
                 alert('Error contacting server', error);
             });
     };
+
+    const triggerPolicyModal = (e) => {
+        const retval = generatePolicyFromHostRules(e, hostRuleData)
+        if (!retval[0]) {
+            setGeneratePolicyModal(true)
+        } else (setInvalidPolicyModal(true))
+    }
 
     const toggleDetails = (index) => {
         const position = details.indexOf(index)
@@ -358,7 +366,7 @@ const HostsView = (props) => {
         //  isArray == "true" or "false"
         //  operator values are ==, !=, >, <, >=, <=
 
-        RetVal = [""]
+        let RetVal = [""]
         let RegoPolicy = ""
         RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
         // for each entry/row in hostRuleData, generate Rego code
@@ -703,7 +711,7 @@ const HostsView = (props) => {
                                 <CButton
                                     color="primary"
                                     className="float-right"
-                                    onClick={handlePolicyGeneration}
+                                    onClick={triggerPolicyModal}
                                 >
                                     <FontAwesomeIcon icon="bullseye" className="mr-1" /> Generate Policy
                                 </CButton>
@@ -782,8 +790,10 @@ const HostsView = (props) => {
                                                     <CCardBody>
                                                         {/**This button is used to add another route */}
                                                         <CButton
-                                                            className="float-right mb-3"
+                                                            className="roboto-font float-right mb-3"
                                                             color="primary"
+                                                            variant="outline"
+                                                            shape="square"
                                                             size="sm"
                                                             onClick={e => triggerRouteAdd(e, item)}
                                                         >
@@ -938,17 +948,36 @@ const HostsView = (props) => {
                     >Cancel</CButton>
                 </CModalFooter>
             </CModal>
-
-            <CModal show={policyModal} onClose={() => setPolicyModal(!policyModal)}>
-                <CModalHeader className='bg-success text-white py-n5' closeButton>
-                    <strong>Policy has been generated.</strong>
+            <CModal show={generatePolicyModal} onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                <CModalHeader className='roboto-font bg-success text-white py-n5' closeButton>
+                    <strong>Are you sure you want to generate a policy?</strong>
                 </CModalHeader>
-                <CModalBody className='text-lg-left'>
+                <CModalBody className='roboto-font text-lg-left'>
+                    Please ensure that all your rules are correctly configured before generating a policy.
                 </CModalBody>
                 <CModalFooter>
                     <CButton
                         color="success"
-                        onClick={() => setPolicyModal(!policyModal)}
+                        onClick={e => handlePolicyGeneration(e, hostRuleData)}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setGeneratePolicyModal(!generatePolicyModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+
+            <CModal show={invalidPolicyModal} onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                <CModalHeader className='roboto-font bg-warning text-white py-n5' closeButton>
+                    <strong>There has been an error generating your policy.</strong>
+                </CModalHeader>
+                <CModalBody className='roboto-font text-lg-left'>
+                    Please check to make sure all your rules are correctly configured.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="warning"
+                        onClick={() => setInvalidPolicyModal(!invalidPolicyModal)}
                     >Ok.</CButton>
                 </CModalFooter>
             </CModal>
