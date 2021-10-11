@@ -72,16 +72,21 @@ const BundlesAdd = (props) => {
             .then(data => {
                 let apps = []
                 for (let i = 0; i < data.length; i++) {
-                    for (let j = 0; j < data[i].routeattrs.length; j++) {
-                        var routeApp = ""
-                        if (data[i].routeattrs[j].tag != "") {
-                            routeApp = data[i].routeattrs[j].tag + "." + data[i].host
-                        } else {
-                            routeApp = data[i].host
+                    if (data[i].routeattrs.length != 0) {
+                        for (let j = 0; j < data[i].routeattrs.length; j++) {
+                            var routeApp = ""
+                            if (data[i].routeattrs[j].tag != "") {
+                                routeApp = data[i].routeattrs[j].tag + "." + data[i].host
+                            } else {
+                                routeApp = data[i].host
+                            }
+                            apps.push({ label: routeApp, value: routeApp })
                         }
-                        apps.push({ label: routeApp, value: routeApp })
+                    } else {
+                        apps.push({ label: data[i].host, value: data[i].host })
                     }
-                } updateAppData(apps)
+                }
+                updateAppData(apps)
             })
     }, []);
 
