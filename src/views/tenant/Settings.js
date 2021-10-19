@@ -69,7 +69,7 @@ const Settings = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Settings {SettingsChange.settingsChange}</strong>
+                <strong>Settings</strong>
             </CCardHeader>
             <CCardBody className="roboto-font">
                 <CRow className="mt-3">
