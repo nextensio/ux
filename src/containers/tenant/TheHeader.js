@@ -10,8 +10,11 @@ import {
 } from '@coreui/react'
 import { TheHeaderDropdown } from './index'
 import CIcon from '@coreui/icons-react'
+import { useSettingsChange, useTheme } from './Context'
 
 const TheHeader = (props) => {
+    const SettingsChange = useSettingsChange()
+    const Theme = useTheme()
     const dispatch = useDispatch()
     const sidebarShow = useSelector(state => state.sidebarShow)
 
@@ -26,7 +29,7 @@ const TheHeader = (props) => {
     }
 
     return (
-        <CHeader>
+        <CHeader colorScheme={Theme.darkMode && "dark"}>
             <CToggler
                 inHeader
                 className="ml-md-3 d-lg-none"
