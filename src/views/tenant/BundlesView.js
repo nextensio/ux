@@ -17,6 +17,7 @@ import {
     CModalHeader,
     CModalBody,
     CModalFooter,
+    CPopover,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -45,17 +46,31 @@ const fields = [
         _classes: "data-field"
     },
     {
-        key: "__services",
-        label: "Apps",
-        _classes: "data-field"
-    },
-    {
         key: "__cpodrepl",
         label: "Compute Pods",
         _classes: "data-field"
     },
     {
+        key: "__services",
+        label: "Apps",
+        _classes: "data-field",
+        _style: { width: '1%' }
+    },
+    {
+        key: "status",
+        label: "Status",
+        _classes: "data-field",
+        _style: { width: '1%' }
+    },
+    {
         key: 'rule',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
+        key: 'key',
         label: '',
         _style: { width: '1%' },
         sorter: false,
@@ -74,14 +89,7 @@ const fields = [
         _style: { width: '1%' },
         sorter: false,
         filter: false
-    },
-    {
-        key: 'key',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    },
+    }
 ]
 
 
@@ -95,6 +103,8 @@ const BundlesView = (props) => {
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
     const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
     const [bundleAttrSet, updateBundleAttrSet] = useState(initTableData)
+    const [bundleStatus, updateBundleStatus] = useState(Object.freeze({}))
+    const [currentServices, updateCurrentServices] = useState(initTableData)
 
     // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
@@ -364,6 +374,47 @@ const BundlesView = (props) => {
             </table>
         )
     }
+
+    const handleStatus = (item) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/bundlestatus/' + item.bid), hdrs)
+            .then(response => response.json())
+            .then(data => updateBundleStatus(data))
+    }
+
+    const handleServices = (item) => {
+        let services = item.__services.sort()
+        updateCurrentServices(services)
+    }
+
+    const servicesHeader = (
+        <h4 className="roboto-font my-2 ml-2">
+            Services
+        </h4>
+    )
+
+    const servicesContent = (
+        <div className="roboto-font pb-3">
+            {currentServices.map(service => {
+                return (
+                    <div>{service}</div>
+                )
+            })}
+        </div>
+    )
+
+    const statusRenderedHeader = (
+        <h4 className="roboto-font my-2 ml-2">
+            Status
+        </h4>
+    )
+
+    const statusRenderedContent = (
+        <div className="roboto-font pb-3">
+            <div>Device: {bundleStatus.device ? bundleStatus.device : "No configuration"}</div>
+            <div>Gateway: {bundleStatus.gateway ? bundleStatus.gateway : "No configuration"}</div>
+            <div>Health: {bundleStatus.health ? bundleStatus.health : "No configuration"}</div>
+        </div>
+    )
 
 
     const handlePolicyGeneration = (e) => {
@@ -714,6 +765,42 @@ const BundlesView = (props) => {
                                 clickableRows
                                 onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
+                                    '__services':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2 ml-5">
+                                                    <CPopover header={servicesHeader} content={servicesContent}>
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='info'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onMouseOver={() => handleServices(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="list-ul" size="lg" className="icon-table-info" />
+                                                        </CButton>
+                                                    </CPopover>
+                                                </td>
+                                            )
+                                        },
+                                    'status':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2 ml-5">
+                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent}>
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='info'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onMouseOver={() => handleStatus(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
+                                                        </CButton>
+                                                    </CPopover>
+                                                </td>
+                                            )
+                                        },
                                     'show_details':
                                         (item, index) => {
                                             return (
@@ -770,6 +857,27 @@ const BundlesView = (props) => {
                                                 </td>
                                             )
                                         },
+                                    'key':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Key'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => { toggleKey(item) }}
+                                                        >
+                                                            <FontAwesomeIcon icon="key" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
+                                            )
+                                        },
                                     'edit':
                                         (item, index) => {
                                             return (
@@ -807,27 +915,6 @@ const BundlesView = (props) => {
                                                             onClick={() => { toggleDelete(item) }}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                        </CButton>
-                                                    </CTooltip>
-                                                </td>
-                                            )
-                                        },
-                                    'key':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CTooltip
-                                                        content='Key'
-                                                        placement='top'
-                                                    >
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='primary'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => { toggleKey(item) }}
-                                                        >
-                                                            <FontAwesomeIcon icon="key" size="lg" className="icon-table-edit" />
                                                         </CButton>
                                                     </CTooltip>
                                                 </td>
