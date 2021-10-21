@@ -7,28 +7,19 @@ import {
     CCardGroup,
     CCardFooter,
     CCol,
-    CContainer,
-    CForm,
-    CFormGroup,
-    CFormText,
-    CInput,
-    CInputCheckbox,
-    CInputGroup,
-    CInputGroupPrepend,
-    CInputGroupText,
-    CInvalidFeedback,
-    CLabel,
     CRow,
     CSwitch
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
+import { useSettingsChange, useTheme } from 'src/containers/tenant/Context';
 
 var common = require('../../common')
 
 const Settings = (props) => {
-
+    const SettingsChange = useSettingsChange()
+    const Theme = useTheme()
     const [easyMode, setEasyMode] = useState(true)
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -46,6 +37,7 @@ const Settings = (props) => {
     }, []);
 
     const toggleEasyMode = (e) => {
+        SettingsChange.toggleSettingsChange()
         let newMode = !easyMode
         setEasyMode(newMode)
         const requestOptions = {
@@ -80,12 +72,20 @@ const Settings = (props) => {
                 <strong>Settings</strong>
             </CCardHeader>
             <CCardBody className="roboto-font">
-                <CRow>
+                <CRow className="mt-3">
                     <CCol sm="2">
                         <div>Enable Expert Mode</div>
                     </CCol>
                     <CCol sm="10">
-                        <CSwitch className={'mx-1'} onChange={e => toggleEasyMode()} variant={'3d'} color={'primary'} checked={!easyMode} />
+                        <CSwitch className={'mx-1'} onChange={toggleEasyMode} variant={'3d'} color={'primary'} checked={!easyMode} />
+                    </CCol>
+                </CRow>
+                <CRow className="mt-5">
+                    <CCol sm="2">
+                        <div>Enable Dark Mode</div>
+                    </CCol>
+                    <CCol sm="10">
+                        <CSwitch className={'mx-1'} onChange={e => Theme.toggleTheme()} variant={'3d'} color={'primary'} checked={Theme.darkMode} />
                     </CCol>
                 </CRow>
             </CCardBody>

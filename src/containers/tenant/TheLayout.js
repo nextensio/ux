@@ -5,6 +5,7 @@ import {
   TheFooter,
   TheHeader
 } from './index'
+import { Providers } from './Context'
 
 const TheLayout = (props) => {
 
@@ -12,11 +13,13 @@ const TheLayout = (props) => {
     <div className="c-app c-default-layout">
       <TheSidebar {...props} />
       <div className="c-wrapper">
-        <TheHeader {...props}/>
-        <div className="c-body">
-          <TheContent />
-        </div>
-        <TheFooter />
+        <Providers>
+          <TheHeader {...props} />
+          <div className="c-body">
+            <TheContent />
+          </div>
+          <TheFooter />
+        </Providers>
       </div>
     </div>
   )
