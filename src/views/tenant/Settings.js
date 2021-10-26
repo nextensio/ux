@@ -38,6 +38,7 @@ const Settings = (props) => {
 
     const toggleEasyMode = (e) => {
         SettingsChange.toggleSettingsChange()
+        Theme.toggleTheme()
         let newMode = !easyMode
         setEasyMode(newMode)
         const requestOptions = {
@@ -78,14 +79,6 @@ const Settings = (props) => {
                     </CCol>
                     <CCol sm="10">
                         <CSwitch className={'mx-1'} onChange={toggleEasyMode} variant={'3d'} color={'primary'} checked={!easyMode} />
-                    </CCol>
-                </CRow>
-                <CRow className="mt-5">
-                    <CCol sm="2">
-                        <div>Enable Dark Mode</div>
-                    </CCol>
-                    <CCol sm="10">
-                        <CSwitch className={'mx-1'} onChange={e => Theme.toggleTheme()} variant={'3d'} color={'primary'} checked={Theme.darkMode} />
                     </CCol>
                 </CRow>
             </CCardBody>
