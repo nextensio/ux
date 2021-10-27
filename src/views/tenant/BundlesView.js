@@ -103,7 +103,7 @@ const BundlesView = (props) => {
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
     const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
     const [bundleAttrSet, updateBundleAttrSet] = useState(initTableData)
-    const [bundleStatus, updateBundleStatus] = useState(Object.freeze({}))
+    const [bundleStatus, updateBundleStatus] = useState([])
     const [currentServices, updateCurrentServices] = useState(initTableData)
 
     // Used to check if bid already exists in bundlesAdd page
@@ -382,6 +382,9 @@ const BundlesView = (props) => {
     }
 
     const handleServices = (item) => {
+        if (item.__services == null) {
+            return
+        }
         let services = item.__services.sort()
         updateCurrentServices(services)
     }
@@ -408,14 +411,18 @@ const BundlesView = (props) => {
         </h4>
     )
 
-    const statusRenderedContent = (
-        <div className="roboto-font pb-3">
-            <div>Device: {bundleStatus.device ? bundleStatus.device : "No configuration"}</div>
-            <div>Gateway: {bundleStatus.gateway ? bundleStatus.gateway : "No configuration"}</div>
-            <div>Health: {bundleStatus.health ? bundleStatus.health : "No configuration"}</div>
-        </div>
-    )
-
+    const statusRenderedContent = () => {
+        return bundleStatus.map(status => {
+            return (
+                <div className="roboto-font pb-3">
+                    <div>Device: {status.device ? status.device : ""}</div>
+                    <div>Gateway: {status.gateway ? status.gateway : ""}</div>
+                    <div>Health: {status.health ? status.health : ""}</div>
+                    <div>Source: {status.source ? status.source : ""}</div>
+                </div>
+            )
+        })
+    }
 
     const handlePolicyGeneration = (e) => {
         var retval = generatePolicyFromBundleRules(e, bundleRuleData)
@@ -787,7 +794,7 @@ const BundlesView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-2 ml-5">
-                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent}>
+                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent()}>
                                                         <CButton
                                                             className="button-table"
                                                             color='info'

@@ -74,7 +74,7 @@ const UsersView = (props) => {
     const [userAttrData, updateUserAttrData] = useState(initTableData);
     const [userAttrSet, updateUserAttrSet] = useState(initTableData)
     const [uidData, updateUidData] = useState("")
-    const [userStatus, updateUserStatus] = useState(Object.freeze({}))
+    const [userStatus, updateUserStatus] = useState([])
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
 
@@ -143,13 +143,18 @@ const UsersView = (props) => {
         </h4>
     )
 
-    const statusRenderedContent = (
-        <div className="roboto-font pb-3">
-            <div>Device: {userStatus.device ? userStatus.device : "No configuration"}</div>
-            <div>Gateway: {userStatus.gateway ? userStatus.gateway : "No configuration"}</div>
-            <div>Health: {userStatus.health ? userStatus.health : "No configuration"}</div>
-        </div>
-    )
+    const statusRenderedContent = () => {
+        return userStatus.map(status => {
+            return (
+                <div className="roboto-font pb-3">
+                    <div>Device: {status.device ? status.device : ""}</div>
+                    <div>Gateway: {status.gateway ? status.gateway : ""}</div>
+                    <div>Health: {status.health ? status.health : ""}</div>
+                    <div>Source: {status.source ? status.source : ""}</div>
+                </div>
+            )
+        })
+    }
 
     const handleRefresh = (e) => {
         setDetails([]);
@@ -278,13 +283,13 @@ const UsersView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-2 ml-5">
-                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent}>
+                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent()}>
                                                         <CButton
                                                             className="button-table"
                                                             color='info'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onMouseOver={e => handleStatus(e, item)}
+                                                            onMouseOver={e => handleStatus(item)}
                                                         >
                                                             <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
                                                         </CButton>
