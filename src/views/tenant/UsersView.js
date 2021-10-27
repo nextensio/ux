@@ -15,6 +15,7 @@ import {
     CModalBody,
     CModalFooter,
     CTooltip,
+    CPopover,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -43,6 +44,12 @@ const fields = [
         _classes: "data-field",
     },
     {
+        key: "status",
+        label: "Status",
+        _classes: "data-field",
+        _style: { width: '1%' },
+    },
+    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -67,6 +74,7 @@ const UsersView = (props) => {
     const [userAttrData, updateUserAttrData] = useState(initTableData);
     const [userAttrSet, updateUserAttrSet] = useState(initTableData)
     const [uidData, updateUidData] = useState("")
+    const [userStatus, updateUserStatus] = useState(Object.freeze({}))
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
 
@@ -123,11 +131,25 @@ const UsersView = (props) => {
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
-    const toAttributeEditor = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
-        })
+    const handleStatus = (item) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/userstatus/' + item.uid), hdrs)
+            .then(response => response.json())
+            .then(data => updateUserStatus(data))
     }
+
+    const statusRenderedHeader = (
+        <h4 className="roboto-font my-2 ml-2">
+            Status
+        </h4>
+    )
+
+    const statusRenderedContent = (
+        <div className="roboto-font pb-3">
+            <div>Device: {userStatus.device ? userStatus.device : "No configuration"}</div>
+            <div>Gateway: {userStatus.gateway ? userStatus.gateway : "No configuration"}</div>
+            <div>Health: {userStatus.health ? userStatus.health : "No configuration"}</div>
+        </div>
+    )
 
     const handleRefresh = (e) => {
         setDetails([]);
@@ -179,8 +201,8 @@ const UsersView = (props) => {
         return (
             <table className="table-attrs-bundle">
                 <tr>
-                    <th>Key</th>
-                    <th>Value</th>
+                    <th className="attributes header roboto-font">Key</th>
+                    <th className="header roboto-font">Value</th>
                 </tr>
                 {userAttrSet.map(attr => {
                     return (
@@ -252,6 +274,24 @@ const UsersView = (props) => {
                                 clickableRows
                                 onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
+                                    'status':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2 ml-5">
+                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent}>
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='info'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onMouseOver={e => handleStatus(e, item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
+                                                        </CButton>
+                                                    </CPopover>
+                                                </td>
+                                            )
+                                        },
                                     'show_details':
                                         (item, index) => {
                                             return (
