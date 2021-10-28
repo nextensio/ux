@@ -144,16 +144,24 @@ const UsersView = (props) => {
     )
 
     const statusRenderedContent = () => {
-        return userStatus.map(status => {
+        if (userStatus.length != 0) {
+            return userStatus.map(status => {
+                return (
+                    <div className="roboto-font pb-3">
+                        <div>Device: {status.device ? status.device : ""}</div>
+                        <div>Gateway: {status.gateway ? status.gateway : ""}</div>
+                        <div>Health: {status.health ? status.health : ""}</div>
+                        <div>Source: {status.source ? status.source : ""}</div>
+                    </div>
+                )
+            })
+        } else {
             return (
                 <div className="roboto-font pb-3">
-                    <div>Device: {status.device ? status.device : ""}</div>
-                    <div>Gateway: {status.gateway ? status.gateway : ""}</div>
-                    <div>Health: {status.health ? status.health : ""}</div>
-                    <div>Source: {status.source ? status.source : ""}</div>
+                    <div>No status to show</div>
                 </div>
             )
-        })
+        }
     }
 
     const handleRefresh = (e) => {
