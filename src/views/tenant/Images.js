@@ -101,7 +101,7 @@ const Images = () => {
                             <CCardText>
                                 Windows Client
                             </CCardText>
-                            <CButton href="https://images.nextensio.net/stable/windows.msi">Download</CButton>
+                            <CButton href="https://images.nextensio.net/stable/windows.zip">Download</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>
