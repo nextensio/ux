@@ -538,7 +538,7 @@ const HostsView = (props) => {
                 if (rtoken.includes(' ')) {
                     // Seems to be case of multiple string values
                     issingle = false
-                    rtokenarray = hostRightTokenArray(rtoken, uatype)
+                    rtokenarray = hostRightTokenArray(rtoken, "string")
                 }
                 if (issingle) {
                     haswildcard = hostCheckWildCard(rtoken)
@@ -554,7 +554,7 @@ const HostsView = (props) => {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
                 }
                 if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
+                    // Seems to be case of multiple non-string values
                     issingle = false
                     rtokenarray = hostRightTokenArray(rtoken, uatype)
                 }
