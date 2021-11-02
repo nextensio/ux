@@ -645,7 +645,7 @@ const BundlesView = (props) => {
                 if (rtoken.includes(' ')) {
                     // Seems to be case of multiple string values
                     issingle = false
-                    rtokenarray = bundleRightTokenArray(rtoken, uatype)
+                    rtokenarray = bundleRightTokenArray(rtoken, "string")
                 }
                 if (issingle) {
                     haswildcard = bundleCheckWildCard(rtoken)
@@ -661,7 +661,7 @@ const BundlesView = (props) => {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
                 }
                 if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
+                    // Seems to be case of multiple non-string values
                     issingle = false
                     rtokenarray = bundleRightTokenArray(rtoken, uatype)
                 }
