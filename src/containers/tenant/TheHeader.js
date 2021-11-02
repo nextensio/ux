@@ -2,21 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
     CHeader,
-    CLink,
     CToggler,
-    CHeaderNav,
-    CHeaderNavItem,
-    CHeaderNavLink
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { useSettingsChange, useTheme } from './Context'
+import { useTheme } from './Context'
 import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../common')
 
 const TheHeader = (props) => {
 
-    const SettingsChange = useSettingsChange()
     const Theme = useTheme()
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -30,10 +24,12 @@ const TheHeader = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
-            .then(data => { setEasyMode(data.Tenant.easymode) });
-    }, [SettingsChange.settingsChange]);
-
-    const [easyMode, setEasyMode] = useState(true)
+            .then(data => {
+                if (!data.Tenant.easymode && !Theme.darkMode) {
+                    Theme.toggleTheme()
+                }
+            })
+    }, []);
 
     const dispatch = useDispatch()
     const sidebarShow = useSelector(state => state.sidebarShow)
@@ -61,7 +57,7 @@ const TheHeader = (props) => {
                 onClick={toggleSidebar}
             />
             <div className="ml-auto mr-3 py-3 roboto-font text-dark">
-                {easyMode ? "Easy Mode" : "Expert Mode"}
+                {Theme.darkMode ? "Expert Mode" : "Easy Mode"}
             </div>
         </CHeader>
     )
