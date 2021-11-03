@@ -178,6 +178,12 @@ const HostsView = (props) => {
         setDetails([])
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const triggerRouteAdd = (e, item) => {
         setAddRouteModal(!addRouteModal)
         updateAddRouteItem(item)
@@ -881,11 +887,20 @@ const HostsView = (props) => {
                                                                                 </tr>
                                                                             )
                                                                         })}
+
                                                                     </>
                                                                 }
                                                             </table> :
-                                                            <CCallout className="roboto-font" color="warning"><strong>No routes configured for {item.host}. Click Add Route to add a route.</strong></CCallout>}
+                                                            <CCallout className="roboto-font" color="warning">
+                                                                No routes configured for {item.host}. Click Add Route to add a route.
+                                                            </CCallout>
 
+                                                        }
+                                                        {!easyMode && hostAttrSet.length == 0 &&
+                                                            <CCallout className="roboto-font" color="warning">
+                                                                No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create Application attributes.
+                                                            </CCallout>
+                                                        }
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

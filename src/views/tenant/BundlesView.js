@@ -222,6 +222,12 @@ const BundlesView = (props) => {
         setDetails([]);
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const handleDelete = (bid) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundle/') + bid, hdrs)
             .then(async response => {
@@ -348,31 +354,39 @@ const BundlesView = (props) => {
     }
 
     function matchAttrs(item) {
-        return (
-            <table className="table-attrs-bundle">
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                </tr>
-                {bundleAttrSet.map(attr => {
-                    return (
-                        <tr>
-                            <td><strong>{attr}</strong></td>
-                            <td>
-                                {["", 0, false].includes(item[attr]) ?
-                                    <div className="text-warning">Default Value Assigned</div> :
-                                    Array.isArray(item[attr]) ?
-                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                            <div className="text-warning">Default Value Assigned</div> :
-                                            item[attr].join(' & ') :
-                                        item[attr].toString()
-                                }
-                            </td>
-                        </tr>
-                    )
-                })}
-            </table>
-        )
+        if (bundleAttrSet.length != 0) {
+            return (
+                <table className="table-attrs-bundle">
+                    <tr>
+                        <th className="attributes header roboto-font">Key</th>
+                        <th className="header roboto-font">Value</th>
+                    </tr>
+                    {bundleAttrSet.map(attr => {
+                        return (
+                            <tr>
+                                <td><strong>{attr}</strong></td>
+                                <td>
+                                    {["", 0, false].includes(item[attr]) ?
+                                        <div className="text-warning">Default Value Assigned</div> :
+                                        Array.isArray(item[attr]) ?
+                                            item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                                <div className="text-warning">Default Value Assigned</div> :
+                                                item[attr].join(' & ') :
+                                            item[attr].toString()
+                                    }
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </table>
+            )
+        } else {
+            return (
+                <CCallout className="roboto-font" color="warning">
+                    No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create AppGroup attributes.
+                </CCallout>
+            )
+        }
     }
 
     const handleStatus = (item) => {
@@ -839,7 +853,6 @@ const BundlesView = (props) => {
                                                                     </>
                                                                     :
                                                                     <>
-                                                                        <CCallout color="info" className="text-info"><strong>Attributes</strong></CCallout>
                                                                         {matchAttrs(item)}
                                                                     </>
                                                                 }
