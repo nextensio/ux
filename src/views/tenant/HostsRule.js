@@ -148,11 +148,8 @@ const HostsRule = (props) => {
 
     function getOperators(type) {
         let ops = { ...initOperatorStatus }
-        if (type == "String" || type == "Boolean") {
+        if (type == "String" || type == "Boolean" || type == "User ID") {
             ops.inequalities = false
-        } if (type == "User ID") {
-            ops.inequalities = false
-            ops["!="] = false
         }
         updateOperatorStatus(ops)
     }

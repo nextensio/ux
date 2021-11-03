@@ -134,11 +134,8 @@ const BundlesRule = (props) => {
 
     function getOperators(type) {
         let ops = { ...initOperatorStatus }
-        if (type == "String" || type == "Boolean") {
+        if (type == "String" || type == "Boolean" || type == "User ID") {
             ops.inequalities = false
-        } if (type == "User ID") {
-            ops.inequalities = false
-            ops["!="] = false
         }
         updateOperatorStatus(ops)
     }
@@ -283,8 +280,6 @@ const BundlesRule = (props) => {
         <CCard>
             <CCardHeader>
                 Rule Generator for {ruleData.bid}
-                <CButton onClick={e => console.log(ruleData)}>ruleData</CButton>
-                <CButton onClick={e => console.log(snippetData)}>snippetData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
 
