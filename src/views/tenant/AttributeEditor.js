@@ -72,8 +72,10 @@ const AttributeEditor = (props) => {
     );
     const [inuseAttr, updateInuseAttr] = useState(initAttrData);
     const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String', isArray: '' })
+    const [policyData, updatePolicyData] = useState(Object.freeze([]))
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [cannotDeleteModal, setCannotDeleteModal] = useState(false)
     const [deleteItem, setDeleteItem] = useState(0);
     const [activeTab, setActiveTab] = useState("Overview")
     const [overwriteModal, setOverwriteModal] = useState(false);
@@ -92,6 +94,18 @@ const AttributeEditor = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => { updateInuseAttr(data) });
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let policies = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].hasOwnProperty('rego')) {
+                        let rego = String.fromCharCode(...data[i].rego);
+                        policies.push(rego)
+                    }
+                }
+                updatePolicyData(policies)
+            })
     }, []);
 
     const handleRefresh = (e) => {
@@ -199,10 +213,31 @@ const AttributeEditor = (props) => {
 
     }
 
-    const toggleDelete = (item) => {
-        setDeleteModal(!deleteModal);
-        setDeleteItem(item)
+    // Validation check, if attribute name is found in policy this function will return false,
+    // otherwise we will return true. Output is used in the toggleDelete function.
+    function validateDelete(item) {
+        for (let i = 0; i < policyData.length; i++) {
+            if (item.appliesTo === "Users" && policyData[i].includes("input.user." + item.name)) {
+                return false
+            } else if (item.appliesTo === "Bundles" && policyData[i].includes("input.bundle." + item.name)) {
+                return false
+            } else if (item.appliesTo === "Hosts" && policyData[i].includes("input.host." + item.name)) {
+                return false
+            }
+        }
+        return true
     }
+
+    const toggleDelete = (item) => {
+        if (validateDelete(item)) {
+            setDeleteModal(!deleteModal);
+            setDeleteItem(item)
+        } else {
+            setCannotDeleteModal(!cannotDeleteModal)
+        }
+    }
+
+
 
     const handleDelete = (item) => {
         let index = inuseAttr.indexOf(item)
@@ -398,32 +433,6 @@ const AttributeEditor = (props) => {
                         </CCardBody>
                     </CCard>
                 </CCol>
-
-                {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
-                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
-                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                        <strong>Confirm Deletion</strong>
-                    </CModalHeader>
-                    <CModalBody className='text-lg-left roboto-font'>
-                        <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
-                        <CCallout color="danger">
-                            <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
-                            <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
-                            <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
-                            <div><strong>Is Array: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
-                        </CCallout>
-                    </CModalBody>
-                    <CModalFooter>
-                        <CButton
-                            color="danger"
-                            onClick={() => { handleDelete(deleteItem) }}
-                        >Confirm</CButton>
-                        <CButton
-                            color="secondary"
-                            onClick={() => setDeleteModal(!deleteModal)}
-                        >Cancel</CButton>
-                    </CModalFooter>
-                </CModal>
             </CRow>
 
             <CRow>
@@ -457,7 +466,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { toggleDelete(item) }}
+                                                            onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
@@ -478,6 +487,45 @@ const AttributeEditor = (props) => {
                         </CCardFooter>
                     </CCard>
                 </CCol>
+                {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
+                <CModal className="roboto-font" show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                        <strong>Confirm Deletion</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                        <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
+                        <CCallout color="danger">
+                            <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
+                            <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
+                            <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
+                            <div><strong>Is Array: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
+                        </CCallout>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="danger"
+                            onClick={() => { handleDelete(deleteItem) }}
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setDeleteModal(!deleteModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal className="roboto-font" show={cannotDeleteModal} onClose={() => setCannotDeleteModal(!cannotDeleteModal)}>
+                    <CModalHeader className="bg-warning text-dark py-n5" closeButton>
+                        <strong>Attributue In Use!</strong>
+                    </CModalHeader>
+                    <CModalBody className="text-lg-left">
+                        You cannot delete this attribute. It is currently being used in a policy.
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="warning"
+                            onClick={() => setCannotDeleteModal(!cannotDeleteModal)}
+                        >Dismiss</CButton>
+                    </CModalFooter>
+                </CModal>
             </CRow>
         </>
     )
