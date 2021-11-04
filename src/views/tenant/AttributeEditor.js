@@ -514,7 +514,7 @@ const AttributeEditor = (props) => {
                 </CModal>
                 <CModal className="roboto-font" show={cannotDeleteModal} onClose={() => setCannotDeleteModal(!cannotDeleteModal)}>
                     <CModalHeader className="bg-warning text-dark py-n5" closeButton>
-                        <strong>Attributue In Use!</strong>
+                        <strong>Attribute In Use!</strong>
                     </CModalHeader>
                     <CModalBody className="text-lg-left">
                         You cannot delete this attribute. It is currently being used in a policy.
