@@ -433,7 +433,7 @@ const BundlesView = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "applicationAccess", tenant: props.match.params.id,
+                pid: "AccessPolicy", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };

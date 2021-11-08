@@ -312,7 +312,7 @@ const HostsView = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "applicationRouting", tenant: props.match.params.id,
+                pid: "RoutePolicy", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };

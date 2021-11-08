@@ -13,13 +13,11 @@ import {
     CFormGroup,
     CCardFooter,
     CSelect,
-    CSwitch
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import '../tenantviews.scss'
-import BuilderGUI from './BuilderGUI'
 import RegoEditor from './RegoEditor'
 
 var common = require('../../../common')
@@ -32,8 +30,6 @@ const PolicyAdd = (props) => {
     });
 
     const [policyData, updatePolicyData] = useState(initPolicyData)
-    const [helper, updateHelper] = useState(true)
-
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -50,8 +46,6 @@ const PolicyAdd = (props) => {
             ...policyData,
             pid: ucode
         })
-
-
     };
 
     const handleSubmit = (e) => {
@@ -90,9 +84,6 @@ const PolicyAdd = (props) => {
         <CCard>
             <CCardHeader>
                 <strong>Add Policy</strong>
-                <div className="float-right d-flex align-items-center">
-                    Enable Editor Helper? <CSwitch className="ml-3" onChange={e => updateHelper(!helper)} defaultChecked color="success" variant="3d" />
-                </div>
             </CCardHeader>
             <CCardBody>
                 <CForm>
@@ -106,18 +97,13 @@ const PolicyAdd = (props) => {
                             </CInputGroupPrepend>
                             <CSelect name="pid" custom onChange={handleChange}>
                                 <option>Please select a policy</option>
-                                <option value={"applicationAccess"}>applicationAccess</option>
-                                <option value={"applicationRouting"}>applicationRouting</option>
+                                <option value={"AccessPolicy"}>AccessPolicy</option>
+                                <option value={"RoutePolicy"}>RoutePolicy</option>
                             </CSelect>
                         </CInputGroup>
                     </CFormGroup>
                 </CForm>
-                {helper ?
-                    <BuilderGUI ID={props.match.params.id} PID={policyData.pid} />
-                    :
-                    <RegoEditor {...props} />
-                }
-
+                <RegoEditor {...props} />
             </CCardBody>
             <CCardFooter>
                 <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
