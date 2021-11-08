@@ -47,6 +47,16 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
+        name: 'Tracing',
+        to: '/tenant/:id/tracing',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-graph',
+            size: 'lg'
+        },
+    },
+    {
+        _tag: 'CSidebarNavItem',
         name: 'Attribute Editor',
         to: '/tenant/:id/attreditor',
         className: 'roboto-font',
