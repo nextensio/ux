@@ -268,9 +268,10 @@ const BundlesView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                let index = bundleRuleData.indexOf(rule)
-                bundleRuleData.splice(index, 1)
-                handleRefresh()
+                let rules = [...bundleRuleData]
+                let index = rules.indexOf(rule)
+                rules.splice(index, 1)
+                updateBundleRuleData(rules)
             })
             .catch(error => {
                 alert('Error contacting server', error);
