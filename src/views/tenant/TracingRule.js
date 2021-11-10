@@ -349,6 +349,267 @@ const TracingRule = (props) => {
         }
     }
 
+    // ------------------Policy generation functions-------------------------
+
+    const generatePolicyFromTraceReqRules = (e, existingRules) => {
+        // Trace policy generation
+        // existingRules contains data in this format :
+        //  [ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
+        //  [ruleid2, rule:[[snippet1], [snippet2], ..]]
+        //  [ruleid3, rule:[[snippet1], [snippet2], ..]]
+        //  [ruleid4, rule:[[snippet1], [snippet2], [snippet3], ..]]
+        //    and so on ...
+        //  A snippet is of this form :
+        //  [userattr, operator, const, type, isArray] where
+        //  type == "string", "boolean", "number"
+        //  isArray == "true" or "false"
+        //  operator values are ==, !=, >, <, >=, <=
+
+        let RetVal = [""]
+        let RegoPolicy = ""
+        RegoPolicy = generateTraceReqPolicyHeader(RegoPolicy)
+        // for each entry/row in existingRules, generate Rego code
+        for (var i = 0; i < existingRules.length; i++) {
+            RegoPolicy = processTraceReqRule(e, existingRules[i], RegoPolicy, i)
+        }
+        RetVal[0] = ""
+        RetVal[1] = RegoPolicy
+        return RetVal
+    }
+
+    function getTraceReqRuleLeftToken(snippet) {
+        return snippet[0]
+    }
+
+    function getTraceReqRuleRightToken(snippet) {
+        return snippet[2]
+    }
+
+    function getTraceReqRuleOpToken(snippet) {
+        return snippet[1]
+    }
+
+    function getTraceReqRuleTokenType(snippet) {
+        return snippet[3]
+    }
+
+    function getTraceReqRuleTokenValue(name, snippet) {
+        if (name === "User ID") {
+            return "uid"
+        }
+        if (name === "User Attributes") {
+            return "attr"
+        }
+        if (snippet[4] == "true") {
+            return "array"
+        } else {
+            return "single"
+        }
+    }
+
+    function traceReqRightTokenArray(rtok, uatype) {
+        let rtokenarray = rtok.split(' ')
+        // Now remove null string elements from array
+        let newarray = [""]
+        let j = 0
+        let rtoken1 = ""
+        for (var i = 0; i < rtokenarray.length; i++) {
+            rtoken1 = rtokenarray[i].trim()
+            if (rtoken1.length > 0) {
+                if (uatype === "string") {
+                    if (!rtoken1.startsWith('"')) {
+                        rtoken1 = '"' + rtoken1
+                    }
+                    if (!rtoken1.endsWith('"')) {
+                        rtoken1 += '"'
+                    }
+                } else if (uatype === "number") {
+                    if (rtoken1.includes('"')) {
+                        rtoken1 = rtoken1.replaceAll('"', ' ').trim()
+                    }
+                }
+                newarray[j] = rtoken1
+                j++
+            }
+        }
+        return newarray
+    }
+
+    function traceReqCheckWildCard(rtok) {
+        if (rtok.includes('*')) {
+            return true
+        }
+        if (rtok.includes('?')) {
+            return true
+        }
+        if (rtok.includes('[') && rtok.includes(']')) {
+            return true
+        }
+        return false
+    }
+
+    function traceReqProcessWildCard(ltok, rtok, op, lts) {
+        let Mexpr = "glob.match(" + rtok + ", [], input.user." + ltok + lts
+        if (op === "==") {
+            Mexpr = "    " + Mexpr + ")\n"
+        } else {
+            Mexpr = "    !" + Mexpr + ")\n"
+        }
+        return Mexpr
+    }
+
+    function traceReqProcessArray(ltok, rtarray, op, lts) {
+        // When optoken is ==, we need
+        //   foobararray := [value1, value2, value3, ..]
+        //   input.user.uid == foobararray[_]
+        // When optoken is !=, we need
+        //   input.user.uid != value1
+        //   input.user.uid != value2 and so on
+        // Logical OR for == changes to logical AND for !=
+        let Aexpr = ""
+        if (op === "!=") {
+            for (var i = 0; i < rtarray.length; i++) {
+                Aexpr += "    input.user." + ltok + lts + " != " + rtarray[i] + "\n"
+            }
+        } else {
+            Aexpr = "    " + ltok + "array := ["
+            for (var i = 0; i < rtarray.length; i++) {
+                if (i > 0) {
+                    Aexpr += ", "
+                }
+                Aexpr += rtarray[i]
+            }
+            Aexpr += "]\n"
+            Aexpr += "    input.user." + ltok + lts + " == " + ltok + "array[_]\n"
+        }
+        return Aexpr
+    }
+
+    function generateTraceReqPolicyHeader(policyData) {
+        return policyData +
+            "package user.tracing\ndefault request = {\"no\": [\"\"]}\n\n"
+    }
+
+    function processTraceReqRule(e, traceReqRule, policyData, ruleIndex) {
+        let attrSpecified = 0
+        let traceReqPolicyAttr = "** Error **"
+        let traceReqAttrValue = "[\"all\"]"
+        let Exprs = ""
+	ruleIndex += 1
+	let RuleId = "tid" + ruleIndex.toString()
+        let RuleStart = "request = " + RuleId + " {\n"
+	if (ruleIndex > 1) {
+	    RuleStart = " else = " + RuleId + " {\n"
+	}
+        for (let snippet of traceReqRule.rule) {
+            let ltoken = getTraceReqRuleLeftToken(snippet)
+            let uavalue = getTraceReqRuleTokenValue(ltoken, snippet)
+            let uatype = getTraceReqRuleTokenType(snippet).toLowerCase()
+            let rtoken = getTraceReqRuleRightToken(snippet)
+            let rtokenarray = [""]
+            let optoken = getTraceReqRuleOpToken(snippet)
+
+            // Do some pre-processing on rtoken to figure out more details.
+            // rtoken is always a constant. Could be single value or array
+            // of values.
+            // Single value can have wild card if string type. Support only '*'
+            // for now, with delimiter as '.'.
+            // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
+            // For string values, add double quotes if missing.
+            // Always trim all values.
+            // For processing array of values, first replace any comma with a
+            // space, then split based on space. Remove any null strings to
+            // compress array.
+            // To search for anything other than a word or whitespace, use
+            // 'const regex = /[^\w\s]/g' if using regexp matching (future).
+
+            let haswildcard = false
+            let issingle = true
+            let lts = "[_]"
+            let rts = "array[_]"
+
+            rtoken = rtoken.trim()
+            if (ltoken === "attr") {
+                traceReqAttrValue = traceReqRightTokenArray(rtoken, "string")
+                attrSpecified = 1
+            } else if ((uatype === "string") || (uavalue === "uid")) {
+                // User attribute is string type. rtoken must be a string or
+                // string array
+                if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+                }
+                if (rtoken.includes(' ')) {
+                    // Seems to be case of multiple string values
+                    issingle = false
+                    rtokenarray = traceReqRightTokenArray(rtoken, "string")
+                }
+                if (issingle) {
+                    haswildcard = traceReqCheckWildCard(rtoken)
+                    if (!rtoken.startsWith('"')) {
+                        rtoken = '"' + rtoken
+                    }
+                    if (!rtoken.endsWith('"')) {
+                        rtoken += '"'
+                    }
+                }
+            } else {
+                if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+                }
+                if (rtoken.includes(' ')) {
+                    // Seems to be case of multiple non-string values
+                    issingle = false
+                    rtokenarray = traceReqRightTokenArray(rtoken, uatype)
+                }
+            }
+            if (issingle) {
+                rts = ""
+            }
+            if (uavalue != "array") {
+                lts = ""
+            }
+            if (uavalue === "attr") {
+		let traceReq = "{\"" + traceReqRule.rid + "\": "
+		traceReq = traceReq + "[\"" + traceReqAttrValue + "\"]}\n"
+                traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
+            } else if (uavalue === "uid") {
+                // ltoken is user id
+                if (!issingle) {
+                    // We have an array of values to match this attribute
+                    Exprs += traceReqProcessArray("uid", rtokenarray, optoken, "")
+                } else {
+                    // We have a single value to match
+                    if (haswildcard) {
+                        // glob.match("*foo.com", [], input.user.uid)
+                        Exprs += traceReqProcessWildCard("uid", rtoken, optoken, "")
+                    } else {
+                        Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
+                    }
+                }
+            } else {
+                // ltoken is a user attribute.
+                // It could be matched with a single value, or with multiple
+                // values. If single value, it could have a wildcard.
+                if (!issingle) {
+                    // We have an array of values to match this attribute
+                    Exprs += traceReqProcessArray(ltoken, rtokenarray, optoken, lts)
+                } else {
+                    // We have a single value to match
+                    if (haswildcard && (uatype === "string")) {
+                        Exprs += traceReqProcessWildCard(ltoken, rtoken, optoken, lts)
+                    } else {
+                        Exprs += "    input.user." + ltoken + lts
+                        Exprs += " " + optoken + " " + rtoken + rts + "\n"
+                    }
+                }
+            }
+        }
+        let RuleEnd = "}"
+        return policyData + RuleStart + Exprs + traceReqPolicyAttr + RuleEnd
+    }
+
+    // ------------------Policy generation functions end----------------------
+
     const editExistingRule = (rule) => {
         updateRuleData(rule)
         setEditingRule(rule)
