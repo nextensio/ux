@@ -47,6 +47,7 @@ const TracingRule = (props) => {
         rule: []
     })
     const [ruleData, updateRuleData] = useState(initRuleData)
+    const [editingRule, setEditingRule] = useState(Object.freeze({}))
     const [existingRules, updateExistingRules] = useState(Object.freeze([]))
     const [errObj, updateErrObj] = useState({})
     const [deleteModal, setDeleteModal] = useState(false)
@@ -274,8 +275,14 @@ const TracingRule = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
+                    let rules = [...existingRules]
+                    if (Object.keys(editingRule).length != 0) {
+                        let index = rules.indexOf(editingRule)
+                        rules.splice(index, 1)
+                        setEditingRule({})
+                    }
                     updateExistingRules([
-                        ...existingRules,
+                        ...rules,
                         ruleData
                     ])
                     updateRuleData({
@@ -344,6 +351,7 @@ const TracingRule = (props) => {
 
     const editExistingRule = (rule) => {
         updateRuleData(rule)
+        setEditingRule(rule)
     }
 
     return (
@@ -471,7 +479,7 @@ const TracingRule = (props) => {
                             <CButton block variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
                         </CCol>
                         <CCol sm="3">
-                            <CButton block variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
+                            <CButton block variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>{Object.keys(editingRule).length != 0 ? "Modify Rule" : "Create Rule"}</strong></CButton>
                         </CCol>
                     </CRow>
                 </CCardFooter>
@@ -501,7 +509,7 @@ const TracingRule = (props) => {
                         {existingRules.length != 0 ?
                             existingRules.map(rule => {
                                 return (
-                                    <CListGroupItem color="info">
+                                    <CListGroupItem color={editingRule == rule ? "warning" : "info"}>
                                         <strong>{rule.rid}</strong>
                                         <CButton
                                             className="float-right"
