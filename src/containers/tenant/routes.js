@@ -14,6 +14,7 @@ const BundlesView = React.lazy(() => import('../../views/tenant/BundlesView'));
 const BundlesAdd = React.lazy(() => import('../../views/tenant/BundlesAdd'));
 const BundlesEdit = React.lazy(() => import('../../views/tenant/BundlesEdit'));
 const BundlesRule = React.lazy(() => import('../../views/tenant/BundlesRule'));
+const StatRule = React.lazy(() => import('../../views/tenant/StatRule'));
 const TracingRule = React.lazy(() => import('../../views/tenant/TracingRule'));
 const PolicyView = React.lazy(() => import('../../views/tenant/policies/PolicyView'));
 const PolicyAdd = React.lazy(() => import('../../views/tenant/policies/PolicyAdd'));
@@ -40,6 +41,7 @@ const routes = [
     { path: '/tenant/:id/bundles/add', name: 'Add', component: BundlesAdd },
     { path: '/tenant/:id/bundles/edit', name: 'Edit', component: BundlesEdit },
     { path: '/tenant/:id/bundles/rule', name: 'Rule', component: BundlesRule },
+    { path: '/tenant/:id/stats', name: 'Stats', component: StatRule },
     { path: '/tenant/:id/tracing', name: 'Tracing', component: TracingRule },
     { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
     { path: '/tenant/:id/policy/add', name: 'Add', component: PolicyAdd },
