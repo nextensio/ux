@@ -51,6 +51,9 @@ const TracingRule = (props) => {
     const [existingRules, updateExistingRules] = useState(Object.freeze([]))
     const [errObj, updateErrObj] = useState({})
     const [deleteModal, setDeleteModal] = useState(false)
+    const [generatePolicyModal, setGeneratePolicyModal] = useState(false)
+    const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
+
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -495,12 +498,12 @@ const TracingRule = (props) => {
         let traceReqPolicyAttr = "** Error **"
         let traceReqAttrValue = "[\"all\"]"
         let Exprs = ""
-	ruleIndex += 1
-	let RuleId = "tid" + ruleIndex.toString()
+        ruleIndex += 1
+        let RuleId = "tid" + ruleIndex.toString()
         let RuleStart = "request = " + RuleId + " {\n"
-	if (ruleIndex > 1) {
-	    RuleStart = " else = " + RuleId + " {\n"
-	}
+        if (ruleIndex > 1) {
+            RuleStart = " else = " + RuleId + " {\n"
+        }
         for (let snippet of traceReqRule.rule) {
             let ltoken = getTraceReqRuleLeftToken(snippet)
             let uavalue = getTraceReqRuleTokenValue(ltoken, snippet)
@@ -569,8 +572,8 @@ const TracingRule = (props) => {
                 lts = ""
             }
             if (uavalue === "attr") {
-		let traceReq = "{\"" + traceReqRule.rid + "\": "
-		traceReq = traceReq + "[\"" + traceReqAttrValue + "\"]}\n"
+                let traceReq = "{\"" + traceReqRule.rid + "\": "
+                traceReq = traceReq + "[\"" + traceReqAttrValue + "\"]}\n"
                 traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
             } else if (uavalue === "uid") {
                 // ltoken is user id
@@ -610,6 +613,45 @@ const TracingRule = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
+    const triggerPolicyModal = (e) => {
+        const retval = generatePolicyFromTraceReqRules(e, existingRules)
+        if (!retval[0]) {
+            setGeneratePolicyModal(true)
+        } else (setInvalidPolicyModal(true))
+    }
+
+    const handlePolicyGeneration = (e) => {
+        var retval = generatePolicyFromTraceReqRules(e, existingRules)
+        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify({
+                pid: "TracePolicy", tenant: props.match.params.id,
+                rego: byteRego
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    setGeneratePolicyModal(false)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    };
+
     const editExistingRule = (rule) => {
         updateRuleData(rule)
         setEditingRule(rule)
@@ -617,6 +659,62 @@ const TracingRule = (props) => {
 
     return (
         <>
+            <CCard>
+                <CCardHeader>
+                    Existing Trace Rules
+                    <CButton
+                        className="float-right"
+                        color="primary"
+                        onClick={triggerPolicyModal}
+                    >
+                        <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
+                    </CButton>
+
+                </CCardHeader>
+                <CCardBody className="roboto-font">
+                    <CListGroup>
+                        {existingRules.length != 0 ?
+                            existingRules.map(rule => {
+                                return (
+                                    <CListGroupItem color={editingRule == rule ? "warning" : "info"}>
+                                        <strong>{rule.rid}</strong>
+                                        <CButton
+                                            className="float-right"
+                                            color="danger"
+                                            variant="outline"
+                                            shape="square"
+                                            size="sm"
+                                            onClick={e => handleRuleDelete(rule)}
+                                        >
+                                            Delete
+                                        </CButton>
+                                        <CButton
+                                            className="float-right mr-1"
+                                            color="primary"
+                                            variant="outline"
+                                            shape="square"
+                                            size="sm"
+                                            onClick={e => editExistingRule(rule)}
+                                        >
+                                            Edit
+                                        </CButton>
+                                        <pre>{rule.rule.map(snippet => {
+                                            return (
+                                                <div>{snippet.slice(0, 3).join(' ')}</div>
+                                            )
+                                        })}
+                                        </pre>
+                                    </CListGroupItem>
+                                )
+                            })
+                            :
+                            <CListGroupItem color="warning">
+                                <strong>No Rules Exist</strong>
+                            </CListGroupItem>
+                        }
+                    </CListGroup>
+                </CCardBody>
+            </CCard>
             <CCard>
                 <CCardHeader>
                     Rule Generator for Tracing
@@ -744,71 +842,59 @@ const TracingRule = (props) => {
                         </CCol>
                     </CRow>
                 </CCardFooter>
-                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
-                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                        <strong>Confirm Reset</strong>
-                    </CModalHeader>
-                    <CModalBody className='text-lg-left'>
-                        <strong>Are you sure you want to reset this rule?</strong>
-                    </CModalBody>
-                    <CModalFooter>
-                        <CButton
-                            color="danger"
-                            onClick={resetRuleData}
-                        >Confirm</CButton>
-                        <CButton
-                            color="secondary"
-                            onClick={() => setDeleteModal(!deleteModal)}
-                        >Cancel</CButton>
-                    </CModalFooter>
-                </CModal>
             </CCard>
-            <CCard>
-                <CCardHeader>Existing Trace Rules</CCardHeader>
-                <CCardBody className="roboto-font">
-                    <CListGroup>
-                        {existingRules.length != 0 ?
-                            existingRules.map(rule => {
-                                return (
-                                    <CListGroupItem color={editingRule == rule ? "warning" : "info"}>
-                                        <strong>{rule.rid}</strong>
-                                        <CButton
-                                            className="float-right"
-                                            color="danger"
-                                            variant="outline"
-                                            shape="square"
-                                            size="sm"
-                                            onClick={e => handleRuleDelete(rule)}
-                                        >
-                                            Delete
-                                        </CButton>
-                                        <CButton
-                                            className="float-right mr-1"
-                                            color="primary"
-                                            variant="outline"
-                                            shape="square"
-                                            size="sm"
-                                            onClick={e => editExistingRule(rule)}
-                                        >
-                                            Edit
-                                        </CButton>
-                                        <pre>{rule.rule.map(snippet => {
-                                            return (
-                                                <div>{snippet.slice(0, 3).join(' ')}</div>
-                                            )
-                                        })}
-                                        </pre>
-                                    </CListGroupItem>
-                                )
-                            })
-                            :
-                            <CListGroupItem color="warning">
-                                <strong>No Rules Exist</strong>
-                            </CListGroupItem>
-                        }
-                    </CListGroup>
-                </CCardBody>
-            </CCard>
+            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Confirm Reset</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>Are you sure you want to reset this rule?</strong>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={resetRuleData}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setDeleteModal(!deleteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+            <CModal show={generatePolicyModal} className="roboto-font" onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                <CModalHeader className='bg-success text-white py-n5' closeButton>
+                    <strong>Are you sure you want to generate a policy?</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    Please ensure that all your rules are correctly configured before generating a policy.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="success"
+                        onClick={handlePolicyGeneration}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setGeneratePolicyModal(!generatePolicyModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+
+            <CModal show={invalidPolicyModal} className="roboto-font" onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                <CModalHeader className='bg-warning text-white py-n5' closeButton>
+                    <strong>There has been an error generating your policy.</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    Please check to make sure all your rules are correctly configured.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="warning"
+                        onClick={() => setInvalidPolicyModal(!invalidPolicyModal)}
+                    >Ok.</CButton>
+                </CModalFooter>
+            </CModal>
+
         </>
     )
 }

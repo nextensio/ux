@@ -960,11 +960,11 @@ const BundlesView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
-                <CModal show={generatePolicyModal} onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
-                    <CModalHeader className='roboto-font bg-success text-white py-n5' closeButton>
+                <CModal show={generatePolicyModal} className="roboto-font" onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                    <CModalHeader className='bg-success text-white py-n5' closeButton>
                         <strong>Are you sure you want to generate a policy?</strong>
                     </CModalHeader>
-                    <CModalBody className='roboto-font text-lg-left'>
+                    <CModalBody className='text-lg-left'>
                         Please ensure that all your rules are correctly configured before generating a policy.
                     </CModalBody>
                     <CModalFooter>
@@ -979,11 +979,11 @@ const BundlesView = (props) => {
                     </CModalFooter>
                 </CModal>
 
-                <CModal show={invalidPolicyModal} onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
-                    <CModalHeader className='roboto-font bg-warning text-white py-n5' closeButton>
+                <CModal show={invalidPolicyModal} className="roboto-font" onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                    <CModalHeader className='bg-warning text-white py-n5' closeButton>
                         <strong>There has been an error generating your policy.</strong>
                     </CModalHeader>
-                    <CModalBody className='roboto-font text-lg-left'>
+                    <CModalBody className='text-lg-left'>
                         Please check to make sure all your rules are correctly configured.
                     </CModalBody>
                     <CModalFooter>
