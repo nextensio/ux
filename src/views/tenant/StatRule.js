@@ -32,9 +32,9 @@ var common = require('../../common')
 
 const StatRule = (props) => {
 
+    const initRule = ["User Attributes", "==", []]
     const [userAttrNames, updateUserAttrNames] = useState(Object.freeze([]))
-    const [includedOrExcluded, updateIncludedOrExcluded] = useState("Included")
-    const [selectedAttrs, updateSelectedAttrs] = useState(Object.freeze([]))
+    const [ruleSnippet, updateRuleSnippet] = useState(initRule)
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -56,19 +56,27 @@ const StatRule = (props) => {
             updateUserAttrNames(userAttrNames)
         })
 
-    const handlePermissionChange = (e) => {
-        updateIncludedOrExcluded(e.target.value)
+    const handleOperator = (e) => {
+        let rule = [...ruleSnippet]
+        rule[1] = e.target.value
+        updateRuleSnippet(rule)
     }
 
     const handleSelectedAttrs = (e) => {
-        updateSelectedAttrs(e)
+        let values = e
+        let rule = [...ruleSnippet]
+        let selected = []
+        for (let i = 0; i < values.length; i++) {
+            selected.push(values[i].value)
+        }
+        rule[2] = selected
+        updateRuleSnippet(rule)
     }
 
     return (
         <CCard className="roboto-font">
             <CCardHeader>
-                Existing Stats Rule
-                <CButton onClick={e => console.log(selectedAttrs)}>selected</CButton>
+                Existing Stats Rule <CButton onClick={e => console.log(ruleSnippet)}>rule</CButton>
                 <CButton
                     className="float-right"
                     color="primary"
@@ -77,24 +85,29 @@ const StatRule = (props) => {
                     <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
                 </CButton>
             </CCardHeader>
-            <CCardBody>
+            <CCardBody className="roboto-font">
                 <CRow>
                     <CCol sm="3">
-                        <CSelect name="includedOrExcluded" custom value={includedOrExcluded} onChange={handlePermissionChange}>
-                            <option value="Included">Include</option>
-                            <option value="Excluded">Exclude</option>
+                        <div>
+                            User Attributes
+                        </div>
+                    </CCol>
+                    <CCol sm="3">
+                        <CSelect name="operator" custom value={ruleSnippet[1]} onChange={handleOperator}>
+                            <option value="==">==</option>
+                            <option value="!=">!=</option>
                         </CSelect>
                     </CCol>
+                    <CCol sm="6">
+                        <CreatableSelect
+                            name="userAttrs"
+                            options={userAttrNames}
+                            isSearchable
+                            isMulti
+                            onChange={handleSelectedAttrs}
+                        />
+                    </CCol>
                 </CRow>
-                <div className="mb-1 mt-5">User Attributes:</div>
-                <CreatableSelect
-                    name="userAttrs"
-                    options={userAttrNames}
-                    isSearchable
-                    isMulti
-                    onChange={handleSelectedAttrs}
-                    value={selectedAttrs}
-                />
             </CCardBody>
         </CCard>
     )
