@@ -25,6 +25,7 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import BundlesRule from './BundlesRule'
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -114,6 +115,8 @@ const BundlesView = (props) => {
     const [bidData, updateBidData] = useState("");
     const [zippedData, updateZippedData] = useState(initTableData);
 
+    const [ruleCreator, setRuleCreator] = useState("")
+
     const [details, setDetails] = useState([]);
     const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
     const [generatePolicyModal, setGeneratePolicyModal] = useState(false);
@@ -145,9 +148,6 @@ const BundlesView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleAttrData(data));
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
-            .then(response => response.json())
-            .then(data => updateBundleRuleData(data));
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -161,6 +161,12 @@ const BundlesView = (props) => {
                 updateBundleAttrSet(bundles)
             });
     }, []);
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
+            .then(response => response.json())
+            .then(data => updateBundleRuleData(data));
+    }, [ruleCreator])
 
     useEffect(() => {
         const zipper = []
@@ -289,6 +295,19 @@ const BundlesView = (props) => {
         setDetails(newDetails)
     }
 
+    const toggleRuleClose = () => {
+        setRuleCreator("")
+    }
+
+    const toggleRuleCreator = (e, rule) => {
+        if (ruleCreator == rule.rid) {
+            toggleRuleClose()
+        } else {
+            setRuleCreator(rule.rid)
+        }
+        e.stopPropagation()
+    }
+
     const toggleDelete = (item) => {
         setDeleteModal(!deleteModal);
         setDeleteBid(item.bid)
@@ -303,57 +322,88 @@ const BundlesView = (props) => {
         }
         if (rules.length != 0) {
             return (
-                <CListGroup>
-                    {rules.map(rule => {
-                        return (
-                            <CListGroupItem color="info">
-                                <strong>{rule.rid}</strong>
-                                <CButton
-                                    className="float-right"
-                                    color="danger"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={e => handleRuleDelete(rule)}
-                                >
-                                    Delete
-                                </CButton>
-                                <CButton
-                                    className="float-right mr-1"
-                                    color="primary"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={e => handleRuleEdit(rule)}
-                                >
-                                    Edit
-                                </CButton>
-                                <pre>{rule.rule.map(snippet => {
-                                    return (
-                                        <div>{snippet.slice(0, 3).join(' ')}</div>
-                                    )
-                                })}
-                                </pre>
-                            </CListGroupItem>
-                        )
-                    })}
-                </CListGroup>
+                <>
+                    <CCallout color="info" className="text-info">
+                        <strong>Rules</strong>
+                        <CButton
+                            className="float-right"
+                            color="primary"
+                            variant="outline"
+                            shape="square"
+                            size="sm"
+                        >
+                            Add Rule
+                        </CButton>
+                    </CCallout>
+
+                    <CListGroup>
+                        {rules.map(rule => {
+                            return (
+                                <>
+                                    <CListGroupItem color={ruleCreator == rule.rid ? "warning" : "info"}>
+                                        <strong>{rule.rid}</strong>
+                                        <CButton
+                                            className="float-right"
+                                            color="danger"
+                                            variant="outline"
+                                            shape="square"
+                                            size="sm"
+                                            onClick={e => handleRuleDelete(rule)}
+                                        >
+                                            Delete
+                                        </CButton>
+                                        <CButton
+                                            className="float-right mr-1"
+                                            color={ruleCreator == rule.rid ? "danger" : "primary"}
+                                            variant="outline"
+                                            shape="square"
+                                            size="sm"
+                                            onClick={e => toggleRuleCreator(e, rule)}
+                                        >
+                                            {ruleCreator == rule.rid ? "Cancel" : "Edit"}
+                                        </CButton>
+                                        <CListGroup className="py-3">
+                                            {rule.rule.map(snippet => {
+                                                return (
+                                                    <CListGroupItem className="border-0">{snippet.slice(0, 3).join(' ')}</CListGroupItem>
+                                                )
+                                            })}
+                                        </CListGroup>
+                                    </CListGroupItem>
+                                    <CCollapse show={ruleCreator == rule.rid}>
+                                        <BundlesRule
+                                            tenantID={props.match.params.id}
+                                            bundleID={item.bid}
+                                            addOrEdit="Edit"
+                                            existingRule={rule}
+                                            toggleRuleClose={toggleRuleClose}
+                                        />
+                                    </CCollapse>
+                                </>
+                            )
+                        })}
+                    </CListGroup>
+                </>
             )
         } else {
             return (
-                <CListGroupItem color="warning">
-                    <strong>No Rules Exist</strong>
-                    <CButton
-                        className="float-right"
-                        color="primary"
-                        variant="outline"
-                        shape="square"
-                        size="sm"
-                        onClick={() => { handleRule(item) }}
-                    >
-                        Create Rule
-                    </CButton>
-                </CListGroupItem>
+                <>
+                    <CCallout color="warning" className="text-warning">
+                        <strong>Rules</strong>
+                        <CButton
+                            className="float-right"
+                            color="primary"
+                            variant="outline"
+                            shape="square"
+                            size="sm"
+                        >
+                            Add Rule
+                        </CButton>
+                    </CCallout>
+                    <CListGroupItem color="warning">
+                        <strong>No Rules Exist</strong>
+                    </CListGroupItem>
+                </>
             )
         }
     }
@@ -827,7 +877,6 @@ const BundlesView = (props) => {
                                                             <CCol sm="12">
                                                                 {easyMode ?
                                                                     <>
-                                                                        <CCallout color="info" className="text-info"><strong>Rules</strong></CCallout>
                                                                         {matchRule(item)}
                                                                     </>
                                                                     :

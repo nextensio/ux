@@ -23,14 +23,13 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import CreatableSelect from 'react-select/creatable';
 import './tenantviews.scss'
 
 var common = require('../../common')
 
-const BundlesRule = (props) => {
+const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleClose }) => {
     const initOperatorStatus = { "==": true, "!=": true, inequalities: true }
     const initSnippetType = { type: "", isArray: "" }
     const initSnippetData = ["", "==", ""]
@@ -60,23 +59,21 @@ const BundlesRule = (props) => {
     };
 
     useEffect(() => {
-        if (typeof props.location.state != 'undefined') {
-            if (props.location.state[1] == "Add") {
-                setBid(props.location.state[0])
-                updateRuleData({
-                    ...ruleData,
-                    bid: props.location.state[0]
-                })
-            }
-            if (props.location.state[1] == "Edit") {
-                setBid(props.location.state[0].bid)
-                updateRuleData(props.location.state[0])
-            }
+        if (addOrEdit == "Add") {
+            setBid(bundleID)
+            updateRuleData({
+                ...ruleData,
+                bid: bundleID
+            })
+        }
+        if (addOrEdit == "Edit") {
+            setBid(bundleID)
+            updateRuleData(existingRule)
         }
     }, [])
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + tenantID + '/get/allusers'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var uids = []
@@ -85,7 +82,7 @@ const BundlesRule = (props) => {
                 }
                 updateUids(uids)
             });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + tenantID + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var user = []
@@ -246,6 +243,7 @@ const BundlesRule = (props) => {
         if (Object.keys(err).length != 0) {
             return
         }
+        toggleRuleClose()
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -254,7 +252,7 @@ const BundlesRule = (props) => {
                 rule: ruleData.rule
             }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundlerule/'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + tenantID + '/add/bundlerule/'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -268,7 +266,7 @@ const BundlesRule = (props) => {
                     alert(data["Result"])
                 } else {
                     // bundle attribute http post must be run after bundle http post
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                    alert('correct')
                 }
             })
             .catch(error => {
@@ -282,7 +280,6 @@ const BundlesRule = (props) => {
                 Rule Generator for {ruleData.bid}
             </CCardHeader>
             <CCardBody className="roboto-font">
-
                 <CRow>
                     <CCol sm="12">
                         <CForm>
@@ -438,5 +435,5 @@ const BundlesRule = (props) => {
     )
 }
 
-export default withRouter(BundlesRule)
+export default BundlesRule
 
