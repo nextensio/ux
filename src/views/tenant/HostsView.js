@@ -611,15 +611,16 @@ const HostsView = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
-    const matchRule = (tag) => {
+    const matchRule = (host, tag) => {
         let rules = []
         for (var i = 0; i < hostRuleData.length; i++) {
-            for (var j = 0; j < hostRuleData[i].rule.length; j++) {
-                if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
-                    rules.push(hostRuleData[i])
+            if (host == hostRuleData[i].host) {
+                for (var j = 0; j < hostRuleData[i].rule.length; j++) {
+                    if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
+                        rules.push(hostRuleData[i])
+                    }
                 }
             }
-
         }
         if (rules.length != 0) {
             return (
@@ -866,7 +867,7 @@ const HostsView = (props) => {
                                                                         {routeConfig.map((route, i) => {
                                                                             return (
                                                                                 <td>
-                                                                                    {matchRule(route.tag)}
+                                                                                    {matchRule(item.host, route.tag)}
                                                                                 </td>
                                                                             )
                                                                         })}

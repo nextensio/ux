@@ -33,8 +33,8 @@ var common = require('../../common')
 const StatRule = (props) => {
 
     const [userAttrNames, updateUserAttrNames] = useState(Object.freeze([]))
-    const [allowedAttrs, updateAllowedAttrs] = useState(Object.freeze([]))
-    const [disallowedAttrs, updateDisallowedAttrs] = useState(Object.freeze([]))
+    const [includedOrExcluded, updateIncludedOrExcluded] = useState("Included")
+    const [selectedAttrs, updateSelectedAttrs] = useState(Object.freeze([]))
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -50,16 +50,25 @@ const StatRule = (props) => {
             var userAttrNames = []
             for (var i = 0; i < data.length; i++) {
                 if (data[i].appliesTo == "Users") {
-                    userAttrNames.push({ value: data[i].name, label: data[i].name, color: '#36B37E' })
+                    userAttrNames.push({ value: data[i].name, label: data[i].name })
                 }
             }
             updateUserAttrNames(userAttrNames)
         })
 
+    const handlePermissionChange = (e) => {
+        updateIncludedOrExcluded(e.target.value)
+    }
+
+    const handleSelectedAttrs = (e) => {
+        updateSelectedAttrs(e)
+    }
+
     return (
         <CCard className="roboto-font">
             <CCardHeader>
                 Existing Stats Rule
+                <CButton onClick={e => console.log(selectedAttrs)}>selected</CButton>
                 <CButton
                     className="float-right"
                     color="primary"
@@ -69,23 +78,22 @@ const StatRule = (props) => {
                 </CButton>
             </CCardHeader>
             <CCardBody>
-                <div className="mb-1">Allowed User Attributes:</div>
+                <CRow>
+                    <CCol sm="3">
+                        <CSelect name="includedOrExcluded" custom value={includedOrExcluded} onChange={handlePermissionChange}>
+                            <option value="Included">Include</option>
+                            <option value="Excluded">Exclude</option>
+                        </CSelect>
+                    </CCol>
+                </CRow>
+                <div className="mb-1 mt-5">User Attributes:</div>
                 <CreatableSelect
                     name="userAttrs"
                     options={userAttrNames}
-                    // value={snippetData[2]}
                     isSearchable
                     isMulti
-                // onChange={handleRHSUid}
-                />
-                <div className="mt-5 mb-1">Disallowed User Attributes:</div>
-                <CreatableSelect
-                    name="userAttrs"
-                    options={userAttrNames}
-                    // value={snippetData[2]}
-                    isSearchable
-                    isMulti
-                // onChange={handleRHSUid}
+                    onChange={handleSelectedAttrs}
+                    value={selectedAttrs}
                 />
             </CCardBody>
         </CCard>
