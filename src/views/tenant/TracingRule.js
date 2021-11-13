@@ -532,7 +532,10 @@ const TracingRule = (props) => {
             let rts = "array[_]"
 
             rtoken = rtoken.trim()
-            if (ltoken === "attr") {
+            if (uavalue === "attr") {
+		if (rtoken.includes(',')) {
+                    rtoken = rtoken.replaceAll(',', ' ').trim()
+		}
                 traceReqAttrValue = traceReqRightTokenArray(rtoken, "string")
                 attrSpecified = 1
             } else if ((uatype === "string") || (uavalue === "uid")) {
@@ -573,7 +576,7 @@ const TracingRule = (props) => {
             }
             if (uavalue === "attr") {
                 let traceReq = "{\"" + traceReqRule.rid + "\": "
-                traceReq = traceReq + "[\"" + traceReqAttrValue + "\"]}\n"
+                traceReq = traceReq + "[" + traceReqAttrValue + "]}\n"
                 traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
             } else if (uavalue === "uid") {
                 // ltoken is user id
