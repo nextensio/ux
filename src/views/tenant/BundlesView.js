@@ -25,7 +25,6 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import BundlesRule from './BundlesRule'
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -358,9 +357,9 @@ const BundlesView = (props) => {
                                             variant="outline"
                                             shape="square"
                                             size="sm"
-                                            onClick={e => toggleRuleCreator(e, rule)}
+                                            onClick={e => handleRuleEdit(rule)}
                                         >
-                                            {ruleCreator == rule.rid ? "Cancel" : "Edit"}
+                                            Edit
                                         </CButton>
                                         <CListGroup className="py-3">
                                             {rule.rule.map(snippet => {
@@ -370,15 +369,6 @@ const BundlesView = (props) => {
                                             })}
                                         </CListGroup>
                                     </CListGroupItem>
-                                    <CCollapse show={ruleCreator == rule.rid}>
-                                        <BundlesRule
-                                            tenantID={props.match.params.id}
-                                            bundleID={item.bid}
-                                            addOrEdit="Edit"
-                                            existingRule={rule}
-                                            toggleRuleClose={toggleRuleClose}
-                                        />
-                                    </CCollapse>
                                 </>
                             )
                         })}

@@ -29,7 +29,7 @@ import './tenantviews.scss'
 
 var common = require('../../common')
 
-const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleClose }) => {
+const BundlesRule = (props) => {
     const initOperatorStatus = { "==": true, "!=": true, inequalities: true }
     const initSnippetType = { type: "", isArray: "" }
     const initSnippetData = ["", "==", ""]
@@ -59,21 +59,24 @@ const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleCl
     };
 
     useEffect(() => {
-        if (addOrEdit == "Add") {
-            setBid(bundleID)
-            updateRuleData({
-                ...ruleData,
-                bid: bundleID
-            })
-        }
-        if (addOrEdit == "Edit") {
-            setBid(bundleID)
-            updateRuleData(existingRule)
+        if (typeof props.location.state != 'undefined') {
+            if (props.location.state[1] == "Add") {
+                setBid(props.location.state[0])
+                updateRuleData({
+                    ...ruleData,
+                    bid: props.location.state[0]
+                })
+            }
+            if (props.location.state[1] == "Edit") {
+                setBid(props.location.state[0].bid)
+                updateRuleData(props.location.state[0])
+            }
         }
     }, [])
 
+
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + tenantID + '/get/allusers'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var uids = []
@@ -82,7 +85,7 @@ const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleCl
                 }
                 updateUids(uids)
             });
-        fetch(common.api_href('/api/v1/tenant/' + tenantID + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var user = []
@@ -243,7 +246,6 @@ const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleCl
         if (Object.keys(err).length != 0) {
             return
         }
-        toggleRuleClose()
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -252,7 +254,7 @@ const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleCl
                 rule: ruleData.rule
             }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + tenantID + '/add/bundlerule/'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundlerule/'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -297,7 +299,7 @@ const BundlesRule = ({ tenantID, bundleID, addOrEdit, existingRule, toggleRuleCl
                 </CRow>
                 <CRow>
                     <CCol sm="12">
-                        <CCard accentColor={(ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
+                        <CCard accentColor={(ruleData.rule && ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
                             <CCardBody>
                                 <CRow>
                                     <CCol sm="12">
