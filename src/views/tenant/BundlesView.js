@@ -324,15 +324,6 @@ const BundlesView = (props) => {
                 <>
                     <CCallout color="info" className="text-info">
                         <strong>Rules</strong>
-                        <CButton
-                            className="float-right"
-                            color="primary"
-                            variant="outline"
-                            shape="square"
-                            size="sm"
-                        >
-                            Add Rule
-                        </CButton>
                     </CCallout>
 
                     <CListGroup>
@@ -380,15 +371,6 @@ const BundlesView = (props) => {
                 <>
                     <CCallout color="warning" className="text-warning">
                         <strong>Rules</strong>
-                        <CButton
-                            className="float-right"
-                            color="primary"
-                            variant="outline"
-                            shape="square"
-                            size="sm"
-                        >
-                            Add Rule
-                        </CButton>
                     </CCallout>
                     <CListGroupItem color="warning">
                         <strong>No Rules Exist</strong>

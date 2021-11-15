@@ -267,8 +267,7 @@ const BundlesRule = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    // bundle attribute http post must be run after bundle http post
-                    alert('correct')
+                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
                 }
             })
             .catch(error => {
