@@ -296,9 +296,11 @@ const HostsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                let index = hostRuleData.indexOf(rule)
-                hostRuleData.splice(index, 1)
-                handleRefresh()
+                let rules = [...hostRuleData]
+                let index = rules.indexOf(rule)
+                rules.splice(index, 1)
+                updateHostRuleData(rules)
+
             })
             .catch(error => {
                 alert('Error contacting server', error);
