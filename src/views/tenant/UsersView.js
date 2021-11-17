@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -9,13 +10,13 @@ import {
     CCollapse,
     CLink,
     CRow,
+    CPagination,
     CDataTable,
     CModal,
     CModalHeader,
     CModalBody,
     CModalFooter,
     CTooltip,
-    CPopover,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -70,11 +71,14 @@ const UsersView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+
     const [usersData, updateUserData] = useState(initTableData);
     const [userAttrData, updateUserAttrData] = useState(initTableData);
     const [userAttrSet, updateUserAttrSet] = useState(initTableData)
     const [uidData, updateUidData] = useState("")
-    const [userStatus, updateUserStatus] = useState([])
+    const [status, updateStatus] = useState(Object.freeze([]))
+    const [statusModal, setStatusModal] = useState(false)
+    const [statusPage, setStatusPage] = useState(0)
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
 
@@ -131,37 +135,13 @@ const UsersView = (props) => {
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
-    const handleStatus = (item) => {
+    const handleStatus = (e, item) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/userstatus/' + item.uid), hdrs)
             .then(response => response.json())
-            .then(data => updateUserStatus(data))
-    }
-
-    const statusRenderedHeader = (
-        <h4 className="roboto-font my-2 ml-2">
-            Status
-        </h4>
-    )
-
-    const statusRenderedContent = () => {
-        if (userStatus.length != 0) {
-            return userStatus.map(status => {
-                return (
-                    <div className="roboto-font pb-3">
-                        <div>Device: {status.device ? status.device : ""}</div>
-                        <div>Gateway: {status.gateway ? status.gateway : ""}</div>
-                        <div>Health: {status.health ? status.health : ""}</div>
-                        <div>Source: {status.source ? status.source : ""}</div>
-                    </div>
-                )
-            })
-        } else {
-            return (
-                <div className="roboto-font pb-3">
-                    <div>No status to show</div>
-                </div>
-            )
-        }
+            .then(data => updateStatus(data))
+        setStatusPage(0)
+        setStatusModal(true)
+        e.stopPropagation()
     }
 
     const handleRefresh = (e) => {
@@ -188,6 +168,12 @@ const UsersView = (props) => {
         setDetails([])
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const confirmDelete = (uid) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + uid, hdrs)
             .then(async response => {
@@ -211,31 +197,39 @@ const UsersView = (props) => {
     }
 
     function matchAttrs(item) {
-        return (
-            <table className="table-attrs-bundle">
-                <tr>
-                    <th className="attributes header roboto-font">Key</th>
-                    <th className="header roboto-font">Value</th>
-                </tr>
-                {userAttrSet.map(attr => {
-                    return (
-                        <tr>
-                            <td><strong>{attr}</strong></td>
-                            <td>
-                                {["", 0, false].includes(item[attr]) ?
-                                    <div className="text-warning">Default Value Assigned</div> :
-                                    Array.isArray(item[attr]) ?
-                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                            <div className="text-warning">Default Value Assigned</div> :
-                                            item[attr].join(' & ') :
-                                        item[attr].toString()
-                                }
-                            </td>
-                        </tr>
-                    )
-                })}
-            </table>
-        )
+        if (userAttrSet.length != 0) {
+            return (
+                <table className="table-attrs-bundle">
+                    <tr>
+                        <th className="attributes header roboto-font">Key</th>
+                        <th className="header roboto-font">Value</th>
+                    </tr>
+                    {userAttrSet.map(attr => {
+                        return (
+                            <tr>
+                                <td><strong>{attr}</strong></td>
+                                <td>
+                                    {["", 0, false].includes(item[attr]) ?
+                                        <div className="text-warning">Default Value Assigned</div> :
+                                        Array.isArray(item[attr]) ?
+                                            item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                                <div className="text-warning">Default Value Assigned</div> :
+                                                item[attr].join(' & ') :
+                                            item[attr].toString()
+                                    }
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </table>
+            )
+        } else {
+            return (
+                <CCallout className="roboto-font" color="warning">
+                    No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create User attributes.
+                </CCallout>
+            )
+        }
     }
 
     const toggleDetails = (index) => {
@@ -291,17 +285,15 @@ const UsersView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-2 ml-5">
-                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent()}>
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='info'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onMouseOver={e => handleStatus(item)}
-                                                        >
-                                                            <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
-                                                        </CButton>
-                                                    </CPopover>
+                                                    <CButton
+                                                        className="button-table"
+                                                        color='info'
+                                                        variant='ghost'
+                                                        size="sm"
+                                                        onClick={e => handleStatus(e, item)}
+                                                    >
+                                                        <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
+                                                    </CButton>
                                                 </td>
                                             )
                                         },
@@ -392,6 +384,39 @@ const UsersView = (props) => {
                             color="secondary"
                             onClick={() => setDeleteModal(!deleteModal)}
                         >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal show={statusModal} onClose={() => setStatusModal(!statusModal)}>
+                    <CModalHeader className="roboto-font bg-info text-white py-n5" closeButton>
+                        <strong>Status</strong>
+                    </CModalHeader>
+                    <CModalBody className="roboto-font text-lg-left">
+                        {status.length != 0 ?
+                            <div className="pb-3">
+                                <div>There are {status.length} statuses to show.</div>
+                                <CCallout color="info">
+                                    <div>Device: {status[statusPage].device ? status[statusPage].device : <div className="text-warning">None</div>}</div>
+                                    <div>Gateway: {status[statusPage].gateway ? status[statusPage].gateway : <div className="text-warning">None</div>}</div>
+                                    <div>Health: {status[statusPage].health ? status[statusPage].health : <div className="text-warning">None</div>}</div>
+                                    <div>Source: {status[statusPage].source ? status[statusPage].source : <div className="text-warning">None</div>}</div>
+                                </CCallout>
+                                <CPagination
+                                    className="mt-5"
+                                    activePage={statusPage}
+                                    pages={status.length - 1}
+                                    onActivePageChange={(i) => setStatusPage(i)}
+                                    doubleArrows={false}
+                                />
+                            </div> :
+                            <div>
+                                No status to show.
+                            </div>
+                        }
+                    </CModalBody>
+                    <CModalFooter className="roboto-font">
+                        <CButton color="info" onClick={() => setStatusModal(!statusModal)}>
+                            Ok
+                        </CButton>
                     </CModalFooter>
                 </CModal>
 

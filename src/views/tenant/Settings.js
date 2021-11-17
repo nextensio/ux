@@ -13,12 +13,11 @@ import {
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import { useSettingsChange, useTheme } from 'src/containers/tenant/Context';
+import { useTheme } from 'src/containers/tenant/Context';
 
 var common = require('../../common')
 
 const Settings = (props) => {
-    const SettingsChange = useSettingsChange()
     const Theme = useTheme()
     const [easyMode, setEasyMode] = useState(true)
 
@@ -37,7 +36,6 @@ const Settings = (props) => {
     }, []);
 
     const toggleEasyMode = (e) => {
-        SettingsChange.toggleSettingsChange()
         Theme.toggleTheme()
         let newMode = !easyMode
         setEasyMode(newMode)

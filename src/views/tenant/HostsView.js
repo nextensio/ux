@@ -178,6 +178,12 @@ const HostsView = (props) => {
         setDetails([])
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const triggerRouteAdd = (e, item) => {
         setAddRouteModal(!addRouteModal)
         updateAddRouteItem(item)
@@ -290,9 +296,11 @@ const HostsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                let index = hostRuleData.indexOf(rule)
-                hostRuleData.splice(index, 1)
-                handleRefresh()
+                let rules = [...hostRuleData]
+                let index = rules.indexOf(rule)
+                rules.splice(index, 1)
+                updateHostRuleData(rules)
+
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -306,7 +314,7 @@ const HostsView = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "applicationRouting", tenant: props.match.params.id,
+                pid: "RoutePolicy", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };
@@ -538,7 +546,7 @@ const HostsView = (props) => {
                 if (rtoken.includes(' ')) {
                     // Seems to be case of multiple string values
                     issingle = false
-                    rtokenarray = hostRightTokenArray(rtoken, uatype)
+                    rtokenarray = hostRightTokenArray(rtoken, "string")
                 }
                 if (issingle) {
                     haswildcard = hostCheckWildCard(rtoken)
@@ -554,7 +562,7 @@ const HostsView = (props) => {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
                 }
                 if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
+                    // Seems to be case of multiple non-string values
                     issingle = false
                     rtokenarray = hostRightTokenArray(rtoken, uatype)
                 }
@@ -605,15 +613,16 @@ const HostsView = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
-    const matchRule = (tag) => {
+    const matchRule = (host, tag) => {
         let rules = []
         for (var i = 0; i < hostRuleData.length; i++) {
-            for (var j = 0; j < hostRuleData[i].rule.length; j++) {
-                if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
-                    rules.push(hostRuleData[i])
+            if (host == hostRuleData[i].host) {
+                for (var j = 0; j < hostRuleData[i].rule.length; j++) {
+                    if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
+                        rules.push(hostRuleData[i])
+                    }
                 }
             }
-
         }
         if (rules.length != 0) {
             return (
@@ -860,7 +869,7 @@ const HostsView = (props) => {
                                                                         {routeConfig.map((route, i) => {
                                                                             return (
                                                                                 <td>
-                                                                                    {matchRule(route.tag)}
+                                                                                    {matchRule(item.host, route.tag)}
                                                                                 </td>
                                                                             )
                                                                         })}
@@ -881,11 +890,20 @@ const HostsView = (props) => {
                                                                                 </tr>
                                                                             )
                                                                         })}
+
                                                                     </>
                                                                 }
                                                             </table> :
-                                                            <CCallout className="roboto-font" color="warning"><strong>No routes configured for {item.host}. Click Add Route to add a route.</strong></CCallout>}
+                                                            <CCallout className="roboto-font" color="warning">
+                                                                No routes configured for {item.host}. Click Add Route to add a route.
+                                                            </CCallout>
 
+                                                        }
+                                                        {!easyMode && hostAttrSet.length == 0 &&
+                                                            <CCallout className="roboto-font" color="warning">
+                                                                No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create Application attributes.
+                                                            </CCallout>
+                                                        }
                                                     </CCardBody>
                                                 </CCollapse>
                                             )

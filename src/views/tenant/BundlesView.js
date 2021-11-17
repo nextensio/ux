@@ -18,6 +18,7 @@ import {
     CModalBody,
     CModalFooter,
     CPopover,
+    CPagination,
     CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -98,17 +99,22 @@ const BundlesView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+
     const [easyMode, setEasyMode] = useState(true);
     const [bundleData, updateBundleData] = useState(initTableData);
     const [bundleAttrData, updateBundleAttrData] = useState(initTableData);
     const [bundleRuleData, updateBundleRuleData] = useState(initTableData);
     const [bundleAttrSet, updateBundleAttrSet] = useState(initTableData)
-    const [bundleStatus, updateBundleStatus] = useState([])
+    const [status, updateStatus] = useState(Object.freeze([]))
+    const [statusModal, setStatusModal] = useState(false)
+    const [statusPage, setStatusPage] = useState(0)
     const [currentServices, updateCurrentServices] = useState(initTableData)
 
     // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
     const [zippedData, updateZippedData] = useState(initTableData);
+
+    const [ruleCreator, setRuleCreator] = useState("")
 
     const [details, setDetails] = useState([]);
     const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
@@ -141,9 +147,6 @@ const BundlesView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundleattr'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleAttrData(data));
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
-            .then(response => response.json())
-            .then(data => updateBundleRuleData(data));
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -157,6 +160,12 @@ const BundlesView = (props) => {
                 updateBundleAttrSet(bundles)
             });
     }, []);
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
+            .then(response => response.json())
+            .then(data => updateBundleRuleData(data));
+    }, [ruleCreator])
 
     useEffect(() => {
         const zipper = []
@@ -222,6 +231,12 @@ const BundlesView = (props) => {
         setDetails([]);
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const handleDelete = (bid) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundle/') + bid, hdrs)
             .then(async response => {
@@ -258,9 +273,10 @@ const BundlesView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                let index = bundleRuleData.indexOf(rule)
-                bundleRuleData.splice(index, 1)
-                handleRefresh()
+                let rules = [...bundleRuleData]
+                let index = rules.indexOf(rule)
+                rules.splice(index, 1)
+                updateBundleRuleData(rules)
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -278,6 +294,19 @@ const BundlesView = (props) => {
         setDetails(newDetails)
     }
 
+    const toggleRuleClose = () => {
+        setRuleCreator("")
+    }
+
+    const toggleRuleCreator = (e, rule) => {
+        if (ruleCreator == rule.rid) {
+            toggleRuleClose()
+        } else {
+            setRuleCreator(rule.rid)
+        }
+        e.stopPropagation()
+    }
+
     const toggleDelete = (item) => {
         setDeleteModal(!deleteModal);
         setDeleteBid(item.bid)
@@ -292,93 +321,108 @@ const BundlesView = (props) => {
         }
         if (rules.length != 0) {
             return (
-                <CListGroup>
-                    {rules.map(rule => {
-                        return (
-                            <CListGroupItem color="info">
-                                <strong>{rule.rid}</strong>
-                                <CButton
-                                    className="float-right"
-                                    color="danger"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={e => handleRuleDelete(rule)}
-                                >
-                                    Delete
-                                </CButton>
-                                <CButton
-                                    className="float-right mr-1"
-                                    color="primary"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={e => handleRuleEdit(rule)}
-                                >
-                                    Edit
-                                </CButton>
-                                <pre>{rule.rule.map(snippet => {
-                                    return (
-                                        <div>{snippet.slice(0, 3).join(' ')}</div>
-                                    )
-                                })}
-                                </pre>
-                            </CListGroupItem>
-                        )
-                    })}
-                </CListGroup>
+                <>
+                    <CCallout color="info" className="text-info">
+                        <strong>Rules</strong>
+                    </CCallout>
+
+                    <CListGroup>
+                        {rules.map(rule => {
+                            return (
+                                <>
+                                    <CListGroupItem color={ruleCreator == rule.rid ? "warning" : "info"}>
+                                        <strong>{rule.rid}</strong>
+                                        <CButton
+                                            className="float-right"
+                                            color="danger"
+                                            variant="outline"
+                                            shape="square"
+                                            size="sm"
+                                            onClick={e => handleRuleDelete(rule)}
+                                        >
+                                            Delete
+                                        </CButton>
+                                        <CButton
+                                            className="float-right mr-1"
+                                            color={ruleCreator == rule.rid ? "danger" : "primary"}
+                                            variant="outline"
+                                            shape="square"
+                                            size="sm"
+                                            onClick={e => handleRuleEdit(rule)}
+                                        >
+                                            Edit
+                                        </CButton>
+                                        <CListGroup className="py-3">
+                                            {rule.rule.map(snippet => {
+                                                return (
+                                                    <CListGroupItem className="border-0">{snippet.slice(0, 3).join(' ')}</CListGroupItem>
+                                                )
+                                            })}
+                                        </CListGroup>
+                                    </CListGroupItem>
+                                </>
+                            )
+                        })}
+                    </CListGroup>
+                </>
             )
         } else {
             return (
-                <CListGroupItem color="warning">
-                    <strong>No Rules Exist</strong>
-                    <CButton
-                        className="float-right"
-                        color="primary"
-                        variant="outline"
-                        shape="square"
-                        size="sm"
-                        onClick={() => { handleRule(item) }}
-                    >
-                        Create Rule
-                    </CButton>
-                </CListGroupItem>
+                <>
+                    <CCallout color="warning" className="text-warning">
+                        <strong>Rules</strong>
+                    </CCallout>
+                    <CListGroupItem color="warning">
+                        <strong>No Rules Exist</strong>
+                    </CListGroupItem>
+                </>
             )
         }
     }
 
     function matchAttrs(item) {
-        return (
-            <table className="table-attrs-bundle">
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                </tr>
-                {bundleAttrSet.map(attr => {
-                    return (
-                        <tr>
-                            <td><strong>{attr}</strong></td>
-                            <td>
-                                {["", 0, false].includes(item[attr]) ?
-                                    <div className="text-warning">Default Value Assigned</div> :
-                                    Array.isArray(item[attr]) ?
-                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                            <div className="text-warning">Default Value Assigned</div> :
-                                            item[attr].join(' & ') :
-                                        item[attr].toString()
-                                }
-                            </td>
-                        </tr>
-                    )
-                })}
-            </table>
-        )
+        if (bundleAttrSet.length != 0) {
+            return (
+                <table className="table-attrs-bundle">
+                    <tr>
+                        <th className="attributes header roboto-font">Key</th>
+                        <th className="header roboto-font">Value</th>
+                    </tr>
+                    {bundleAttrSet.map(attr => {
+                        return (
+                            <tr>
+                                <td><strong>{attr}</strong></td>
+                                <td>
+                                    {["", 0, false].includes(item[attr]) ?
+                                        <div className="text-warning">Default Value Assigned</div> :
+                                        Array.isArray(item[attr]) ?
+                                            item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                                <div className="text-warning">Default Value Assigned</div> :
+                                                item[attr].join(' & ') :
+                                            item[attr].toString()
+                                    }
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </table>
+            )
+        } else {
+            return (
+                <CCallout className="roboto-font" color="warning">
+                    No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create AppGroup attributes.
+                </CCallout>
+            )
+        }
     }
 
-    const handleStatus = (item) => {
+    const handleStatus = (e, item) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/bundlestatus/' + item.bid), hdrs)
             .then(response => response.json())
-            .then(data => updateBundleStatus(data))
+            .then(data => updateStatus(data))
+        setStatusPage(0)
+        setStatusModal(true)
+        e.stopPropagation()
     }
 
     const handleServices = (item) => {
@@ -405,33 +449,6 @@ const BundlesView = (props) => {
         </div>
     )
 
-    const statusRenderedHeader = (
-        <h4 className="roboto-font my-2 ml-2">
-            Status
-        </h4>
-    )
-
-    const statusRenderedContent = () => {
-        if (bundleStatus.length != 0) {
-            return bundleStatus.map(status => {
-                return (
-                    <div className="roboto-font pb-3">
-                        <div>Device: {status.device ? status.device : ""}</div>
-                        <div>Gateway: {status.gateway ? status.gateway : ""}</div>
-                        <div>Health: {status.health ? status.health : ""}</div>
-                        <div>Source: {status.source ? status.source : ""}</div>
-                    </div>
-                )
-            })
-        } else {
-            return (
-                <div className="roboto-font pb-3">
-                    <div>No status to show</div>
-                </div>
-            )
-        }
-    }
-
     const handlePolicyGeneration = (e) => {
         var retval = generatePolicyFromBundleRules(e, bundleRuleData)
         var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
@@ -439,7 +456,7 @@ const BundlesView = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "applicationAccess", tenant: props.match.params.id,
+                pid: "AccessPolicy", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };
@@ -645,7 +662,7 @@ const BundlesView = (props) => {
                 if (rtoken.includes(' ')) {
                     // Seems to be case of multiple string values
                     issingle = false
-                    rtokenarray = bundleRightTokenArray(rtoken, uatype)
+                    rtokenarray = bundleRightTokenArray(rtoken, "string")
                 }
                 if (issingle) {
                     haswildcard = bundleCheckWildCard(rtoken)
@@ -661,7 +678,7 @@ const BundlesView = (props) => {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
                 }
                 if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
+                    // Seems to be case of multiple non-string values
                     issingle = false
                     rtokenarray = bundleRightTokenArray(rtoken, uatype)
                 }
@@ -802,17 +819,15 @@ const BundlesView = (props) => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-2 ml-5">
-                                                    <CPopover header={statusRenderedHeader} content={statusRenderedContent()}>
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='info'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onMouseOver={() => handleStatus(item)}
-                                                        >
-                                                            <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
-                                                        </CButton>
-                                                    </CPopover>
+                                                    <CButton
+                                                        className="button-table"
+                                                        color='info'
+                                                        variant='ghost'
+                                                        size="sm"
+                                                        onClick={e => handleStatus(e, item)}
+                                                    >
+                                                        <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
+                                                    </CButton>
                                                 </td>
                                             )
                                         },
@@ -834,12 +849,10 @@ const BundlesView = (props) => {
                                                             <CCol sm="12">
                                                                 {easyMode ?
                                                                     <>
-                                                                        <CCallout color="info" className="text-info"><strong>Rules</strong></CCallout>
                                                                         {matchRule(item)}
                                                                     </>
                                                                     :
                                                                     <>
-                                                                        <CCallout color="info" className="text-info"><strong>Attributes</strong></CCallout>
                                                                         {matchAttrs(item)}
                                                                     </>
                                                                 }
@@ -968,11 +981,11 @@ const BundlesView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
-                <CModal show={generatePolicyModal} onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
-                    <CModalHeader className='roboto-font bg-success text-white py-n5' closeButton>
+                <CModal show={generatePolicyModal} className="roboto-font" onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                    <CModalHeader className='bg-success text-white py-n5' closeButton>
                         <strong>Are you sure you want to generate a policy?</strong>
                     </CModalHeader>
-                    <CModalBody className='roboto-font text-lg-left'>
+                    <CModalBody className='text-lg-left'>
                         Please ensure that all your rules are correctly configured before generating a policy.
                     </CModalBody>
                     <CModalFooter>
@@ -987,11 +1000,11 @@ const BundlesView = (props) => {
                     </CModalFooter>
                 </CModal>
 
-                <CModal show={invalidPolicyModal} onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
-                    <CModalHeader className='roboto-font bg-warning text-white py-n5' closeButton>
+                <CModal show={invalidPolicyModal} className="roboto-font" onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                    <CModalHeader className='bg-warning text-white py-n5' closeButton>
                         <strong>There has been an error generating your policy.</strong>
                     </CModalHeader>
-                    <CModalBody className='roboto-font text-lg-left'>
+                    <CModalBody className='text-lg-left'>
                         Please check to make sure all your rules are correctly configured.
                     </CModalBody>
                     <CModalFooter>
@@ -1013,6 +1026,39 @@ const BundlesView = (props) => {
                             color="secondary"
                             onClick={() => copyKey(keyBid)}
                         >Copy</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal show={statusModal} onClose={() => setStatusModal(!statusModal)}>
+                    <CModalHeader className="roboto-font bg-info text-white py-n5" closeButton>
+                        <strong>Status</strong>
+                    </CModalHeader>
+                    <CModalBody className="roboto-font text-lg-left">
+                        {status.length != 0 ?
+                            <div className="pb-3">
+                                <div>There are {status.length} statuses to show.</div>
+                                <CCallout color="info">
+                                    <div>Device: {status[statusPage].device ? status[statusPage].device : <div className="text-warning">None</div>}</div>
+                                    <div>Gateway: {status[statusPage].gateway ? status[statusPage].gateway : <div className="text-warning">None</div>}</div>
+                                    <div>Health: {status[statusPage].health ? status[statusPage].health : <div className="text-warning">None</div>}</div>
+                                    <div>Source: {status[statusPage].source ? status[statusPage].source : <div className="text-warning">None</div>}</div>
+                                </CCallout>
+                                <CPagination
+                                    className="mt-5"
+                                    activePage={statusPage}
+                                    pages={status.length - 1}
+                                    onActivePageChange={(i) => setStatusPage(i)}
+                                    doubleArrows={false}
+                                />
+                            </div> :
+                            <div>
+                                No status to show.
+                            </div>
+                        }
+                    </CModalBody>
+                    <CModalFooter className="roboto-font">
+                        <CButton color="info" onClick={() => setStatusModal(!statusModal)}>
+                            Ok
+                        </CButton>
                     </CModalFooter>
                 </CModal>
             </CRow>

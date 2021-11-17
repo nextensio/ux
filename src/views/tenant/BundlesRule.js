@@ -23,7 +23,6 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import CreatableSelect from 'react-select/creatable';
 import './tenantviews.scss'
@@ -74,6 +73,7 @@ const BundlesRule = (props) => {
             }
         }
     }, [])
+
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
@@ -134,11 +134,8 @@ const BundlesRule = (props) => {
 
     function getOperators(type) {
         let ops = { ...initOperatorStatus }
-        if (type == "String" || type == "Boolean") {
+        if (type == "String" || type == "Boolean" || type == "User ID") {
             ops.inequalities = false
-        } if (type == "User ID") {
-            ops.inequalities = false
-            ops["!="] = false
         }
         updateOperatorStatus(ops)
     }
@@ -270,7 +267,6 @@ const BundlesRule = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    // bundle attribute http post must be run after bundle http post
                     props.history.push('/tenant/' + props.match.params.id + '/bundles')
                 }
             })
@@ -283,11 +279,8 @@ const BundlesRule = (props) => {
         <CCard>
             <CCardHeader>
                 Rule Generator for {ruleData.bid}
-                <CButton onClick={e => console.log(ruleData)}>ruleData</CButton>
-                <CButton onClick={e => console.log(snippetData)}>snippetData</CButton>
             </CCardHeader>
             <CCardBody className="roboto-font">
-
                 <CRow>
                     <CCol sm="12">
                         <CForm>
@@ -305,7 +298,7 @@ const BundlesRule = (props) => {
                 </CRow>
                 <CRow>
                     <CCol sm="12">
-                        <CCard accentColor={(ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
+                        <CCard accentColor={(ruleData.rule && ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
                             <CCardBody>
                                 <CRow>
                                     <CCol sm="12">
@@ -443,5 +436,5 @@ const BundlesRule = (props) => {
     )
 }
 
-export default withRouter(BundlesRule)
+export default BundlesRule
 
