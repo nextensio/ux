@@ -97,7 +97,8 @@ const AttributeEditor = (props) => {
     );
     const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '' }
     const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '' }
-    const [inuseAttr, updateInuseAttr] = useState(initAttrData);
+    const [attrColl, updateAttrColl] = useState(initAttrData);
+    const [userAttrColl, updateUserAttrColl] = useState(initAttrData)
     const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
     const [policyData, updatePolicyData] = useState(Object.freeze([]))
     const [resetWarning, setResetWarning] = useState(false);
@@ -129,7 +130,7 @@ const AttributeEditor = (props) => {
             });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data) });
+            .then(data => { updateAttrColl(data) });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -144,10 +145,19 @@ const AttributeEditor = (props) => {
             })
     }, []);
 
+    useEffect(() => {
+        let userSet = []
+        for (let i = 0; i < attrColl.length; i++) {
+            if (attrColl[i].appliesTo == "Users") {
+                userSet.push(attrColl[i])
+            }
+        } updateUserAttrColl(userSet)
+    }, [attrColl])
+
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data) });
+            .then(data => { updateAttrColl(data) });
     }
 
     const handleChange = (e) => {
@@ -166,7 +176,7 @@ const AttributeEditor = (props) => {
 
     const reset = (e) => {
         updateErrObj({})
-        updateAttributeData({ name: '', appliesTo: '', type: 'String', isArray: '' });
+        updateAttributeData(easyMode ? initAttrObjEasy : initAttrObj)
         setResetWarning(false);
     }
 
@@ -211,9 +221,9 @@ const AttributeEditor = (props) => {
         if (Object.keys(errs).length !== 0) {
             return
         }
-        for (var i = 0; i < inuseAttr.length; i++) {
-            if (inuseAttr[i].name == attributeData.name &&
-                inuseAttr[i].appliesTo == attributeData.appliesTo) {
+        for (var i = 0; i < attrColl.length; i++) {
+            if (attrColl[i].name == attributeData.name &&
+                attrColl[i].appliesTo == attributeData.appliesTo) {
                 setOverwriteModal(true)
                 return
             }
@@ -239,7 +249,7 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"]);
                 } else {
-                    updateInuseAttr(inuseAttr.concat(attributeData));
+                    updateAttrColl(attrColl.concat(attributeData));
                     reset()
                 }
             })
@@ -274,9 +284,7 @@ const AttributeEditor = (props) => {
     }
 
 
-
     const handleDelete = (item) => {
-        let index = inuseAttr.indexOf(item)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -295,10 +303,19 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    inuseAttr.splice(index, 1);
-                    updateInuseAttr(inuseAttr);
+                    if (item.appliesTo == "Users") {
+                        let userAttrs = [...userAttrColl]
+                        let index = userAttrs.indexOf(item)
+                        userAttrs.splice(index, 1)
+                        updateUserAttrColl(userAttrs)
+                    }
+                    let attrs = [...attrColl]
+                    let index = attrs.indexOf(item)
+                    attrs.splice(index, 1)
+                    updateAttrColl(attrs)
+                    setDeleteModal(!deleteModal);
                 }
-                setDeleteModal(!deleteModal);
+
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -481,12 +498,12 @@ const AttributeEditor = (props) => {
                 <CCol sm="12">
                     <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
-                            Existing Attributes
+                            {easyMode ? "Existing User Attributes" : "Existing Attributes"}
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
                                 fields={easyMode ? easyFields : expertFields}
-                                items={inuseAttr}
+                                items={easyMode ? userAttrColl : attrColl}
                                 pagination
                                 sorter
                                 scopedSlots={{

@@ -201,8 +201,8 @@ const UsersView = (props) => {
             return (
                 <table className="table-attrs-bundle">
                     <tr>
-                        <th className="attributes header roboto-font">Key</th>
-                        <th className="header roboto-font">Value</th>
+                        <th className="attributes header">Key</th>
+                        <th className="header">Value</th>
                     </tr>
                     {userAttrSet.map(attr => {
                         return (
@@ -225,7 +225,7 @@ const UsersView = (props) => {
             )
         } else {
             return (
-                <CCallout className="roboto-font" color="warning">
+                <CCallout color="warning">
                     No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create User attributes.
                 </CCallout>
             )
@@ -255,7 +255,7 @@ const UsersView = (props) => {
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard className="shadow large">
+                    <CCard className="roboto-font shadow large">
                         <CCardHeader>
                             <CTooltip content="Click for documentation">
                                 <CLink
@@ -311,7 +311,7 @@ const UsersView = (props) => {
                                             // and return the object
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody className="roboto-font">
+                                                    <CCardBody>
                                                         {matchAttrs(item)}
                                                     </CCardBody>
                                                 </CCollapse>
@@ -368,7 +368,7 @@ const UsersView = (props) => {
                         </CCardFooter>
                     </CCard>
                 </CCol>
-                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModal show={deleteModal} className="roboto-font" onClose={() => setDeleteModal(!deleteModal)}>
                     <CModalHeader className='bg-danger text-white py-n5' closeButton>
                         <strong>Confirm Deletion</strong>
                     </CModalHeader>
@@ -386,11 +386,11 @@ const UsersView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
-                <CModal show={statusModal} onClose={() => setStatusModal(!statusModal)}>
-                    <CModalHeader className="roboto-font bg-info text-white py-n5" closeButton>
+                <CModal show={statusModal} className="roboto-font" onClose={() => setStatusModal(!statusModal)}>
+                    <CModalHeader className="bg-info text-white py-n5" closeButton>
                         <strong>Status</strong>
                     </CModalHeader>
-                    <CModalBody className="roboto-font text-lg-left">
+                    <CModalBody className="text-lg-left">
                         {status.length != 0 ?
                             <div className="pb-3">
                                 <div>There are {status.length} statuses to show.</div>
@@ -413,7 +413,7 @@ const UsersView = (props) => {
                             </div>
                         }
                     </CModalBody>
-                    <CModalFooter className="roboto-font">
+                    <CModalFooter>
                         <CButton color="info" onClick={() => setStatusModal(!statusModal)}>
                             Ok
                         </CButton>
