@@ -39,7 +39,31 @@ import './tenantviews.scss'
 
 var common = require('../../common')
 
-const fields = [
+const easyFields = [
+    {
+        key: "name",
+        _classes: "data-head"
+    },
+    {
+        key: "type",
+        _classes: "data-field"
+    },
+    {
+        key: "isArray",
+        label: "Multiple Values",
+        _classes: "data-field"
+    },
+    {
+        key: "delete",
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    }
+]
+
+
+const expertFields = [
     {
         key: "name",
         _classes: "data-head"
@@ -54,6 +78,7 @@ const fields = [
     },
     {
         key: "isArray",
+        label: "Multiple Values",
         _classes: "data-field"
     },
     {
@@ -70,8 +95,10 @@ const AttributeEditor = (props) => {
     var initAttrData = Object.freeze(
         []
     );
+    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '' }
+    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '' }
     const [inuseAttr, updateInuseAttr] = useState(initAttrData);
-    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String', isArray: '' })
+    const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
     const [policyData, updatePolicyData] = useState(Object.freeze([]))
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -79,6 +106,7 @@ const AttributeEditor = (props) => {
     const [deleteItem, setDeleteItem] = useState(0);
     const [activeTab, setActiveTab] = useState("Overview")
     const [overwriteModal, setOverwriteModal] = useState(false);
+    const [easyMode, setEasyMode] = useState(true)
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
 
@@ -91,6 +119,14 @@ const AttributeEditor = (props) => {
     };
 
     useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.Tenant.easymode) {
+                    updateAttributeData(initAttrObj)
+                }
+                setEasyMode(data.Tenant.easymode)
+            });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => { updateInuseAttr(data) });
@@ -295,37 +331,43 @@ const AttributeEditor = (props) => {
         <>
             <CRow>
                 <CCol sm="12" lg="6">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <div className="text-muted small">Define attribute set for Users, Apps and AppGroups.</div>
+                            <div className="text-muted small">
+                                {easyMode ?
+                                    "Define attribute set for Users." :
+                                    "Define attribute set for Users, Apps and AppGroups."
+                                }
+                            </div>
                         </CCardHeader>
                         <CCardBody>
                             <CForm>
-                                <CFormGroup row>
-                                    <CCol md="4">
-                                        <CLabel>Attribute Applies To</CLabel>
-                                    </CCol>
-                                    <CCol md="8">
-                                        <div>
-                                            <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" checked={attributeData.appliesTo == "Users"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
-                                            </CFormGroup>
-                                            <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-link" /> Apps</CLabel>
-                                            </CFormGroup>
-                                            <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-notes" /> AppGroups</CLabel>
-                                            </CFormGroup>
-                                        </div>
-                                    </CCol>
-                                    {errObj.appliesToErr == true ? <div className="invalid-form-text">Please select which category this attribute applies to.</div> : <></>}
-                                </CFormGroup>
+                                {!easyMode &&
+                                    <CFormGroup row>
+                                        <CCol md="4">
+                                            <CLabel>Attribute Applies To</CLabel>
+                                        </CCol>
+                                        <CCol md="8">
+                                            <div>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" checked={attributeData.appliesTo == "Users"} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
+                                                </CFormGroup>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio2" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-link" /> Apps</CLabel>
+                                                </CFormGroup>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio3" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-notes" /> AppGroups</CLabel>
+                                                </CFormGroup>
+                                            </div>
+                                        </CCol>
+                                        {errObj.appliesToErr == true ? <div className="invalid-form-text">Please select which category this attribute applies to.</div> : <></>}
+                                    </CFormGroup>}
                                 <CFormGroup>
-                                    <CLabel htmlFor="nf-attribute">Attribute Name</CLabel>
+                                    <CLabel htmlFor="nf-attribute">{easyMode ? "User Attribute Name" : "Attribute Name"}</CLabel>
                                     <CInputGroup>
                                         <CInput name="name" placeholder="Enter Attribute.." value={attributeData.name} onChange={handleChange} invalid={errObj.typeErr} />
                                         <CDropdown className="input-group-append">
@@ -345,7 +387,7 @@ const AttributeEditor = (props) => {
                                 </CFormGroup>
                                 <CFormGroup row>
                                     <CCol md="4">
-                                        <CLabel>Array</CLabel>
+                                        <CLabel>Attribute Has Multiple Values</CLabel>
                                     </CCol>
                                     <CCol md="8">
                                         <div>
@@ -382,7 +424,7 @@ const AttributeEditor = (props) => {
                     </CModal>
                 </CCol>
                 <CCol sm="12" lg="6">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
                             Editor Information
                         </CCardHeader>
@@ -437,13 +479,13 @@ const AttributeEditor = (props) => {
 
             <CRow>
                 <CCol sm="12">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
                             Existing Attributes
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
-                                fields={fields}
+                                fields={easyMode ? easyFields : expertFields}
                                 items={inuseAttr}
                                 pagination
                                 sorter
@@ -451,7 +493,7 @@ const AttributeEditor = (props) => {
                                     'appliesTo':
                                         (item, index) => {
                                             return (
-                                                <td className="py-auto roboto-font">
+                                                <td className="py-auto">
                                                     {appliesToStringifyPlural(item.appliesTo)}
                                                 </td>
                                             )
@@ -498,7 +540,7 @@ const AttributeEditor = (props) => {
                             <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
                             <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
                             <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
-                            <div><strong>Is Array: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
+                            <div><strong>Multiple Values: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
                         </CCallout>
                     </CModalBody>
                     <CModalFooter>
