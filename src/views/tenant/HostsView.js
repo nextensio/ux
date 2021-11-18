@@ -91,13 +91,16 @@ const HostsView = (props) => {
     const [hostRuleData, updateHostRuleData] = useState(initTableData);
     const [hostAttrSet, updateHostAttrSet] = useState(initTableData)
 
-    const [addRouteModal, setAddRouteModal] = useState(false);
     const [addRoute, updateAddRoute] = useState("")
     const [addRouteItem, updateAddRouteItem] = useState("")
     const [details, setDetails] = useState([]);
+
+    const [deleteHost, setDeleteHost] = useState("");
+
+    const [invalidDeleteRouteModal, setInvalidDeleteRouteModal] = useState(false)
     const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
     const [generatePolicyModal, setGeneratePolicyModal] = useState(false);
-    const [deleteHost, setDeleteHost] = useState("");
+    const [addRouteModal, setAddRouteModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -178,10 +181,15 @@ const HostsView = (props) => {
         setDetails([])
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const triggerRouteAdd = (e, item) => {
         setAddRouteModal(!addRouteModal)
         updateAddRouteItem(item)
-        e.stopPropagation()
     }
 
     const handleRouteAdd = (e) => {
@@ -199,7 +207,6 @@ const HostsView = (props) => {
         })
         routeObj.tag = addRoute
         item.routeattrs.push(routeObj)
-        e.stopPropagation()
         handleSubmit(e, item)
         updateAddRouteItem("")
         updateAddRoute("")
@@ -210,11 +217,17 @@ const HostsView = (props) => {
     // deletes a route object from the hostData.routeattrs list
     // immediately pushes this change to the DB
     const delConfig = (e, item, configIndex) => {
+        const tag = item.routeattrs[configIndex]["tag"]
+        let rules = ruleReturn(item.host, tag)
+        if (rules.length != 0) {
+            setInvalidDeleteRouteModal(true)
+            return
+
+        }
         const i = hostsData.indexOf(item);
         const data = [...hostsData]
         data[i].routeattrs.splice(configIndex, 1)
         updateHostData(data)
-        e.stopPropagation()
         handleSubmit(e, hostsData[i])
     }
 
@@ -290,9 +303,11 @@ const HostsView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                let index = hostRuleData.indexOf(rule)
-                hostRuleData.splice(index, 1)
-                handleRefresh()
+                let rules = [...hostRuleData]
+                let index = rules.indexOf(rule)
+                rules.splice(index, 1)
+                updateHostRuleData(rules)
+
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -306,7 +321,7 @@ const HostsView = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                pid: "applicationRouting", tenant: props.match.params.id,
+                pid: "RoutePolicy", tenant: props.match.params.id,
                 rego: byteRego
             }),
         };
@@ -538,7 +553,7 @@ const HostsView = (props) => {
                 if (rtoken.includes(' ')) {
                     // Seems to be case of multiple string values
                     issingle = false
-                    rtokenarray = hostRightTokenArray(rtoken, uatype)
+                    rtokenarray = hostRightTokenArray(rtoken, "string")
                 }
                 if (issingle) {
                     haswildcard = hostCheckWildCard(rtoken)
@@ -554,7 +569,7 @@ const HostsView = (props) => {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
                 }
                 if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
+                    // Seems to be case of multiple non-string values
                     issingle = false
                     rtokenarray = hostRightTokenArray(rtoken, uatype)
                 }
@@ -605,16 +620,22 @@ const HostsView = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
-    const matchRule = (tag) => {
+    function ruleReturn(host, tag) {
         let rules = []
         for (var i = 0; i < hostRuleData.length; i++) {
-            for (var j = 0; j < hostRuleData[i].rule.length; j++) {
-                if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
-                    rules.push(hostRuleData[i])
+            if (host == hostRuleData[i].host) {
+                for (var j = 0; j < hostRuleData[i].rule.length; j++) {
+                    if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
+                        rules.push(hostRuleData[i])
+                    }
                 }
             }
-
         }
+        return rules
+    }
+
+    const matchRule = (host, tag) => {
+        let rules = ruleReturn(host, tag)
         if (rules.length != 0) {
             return (
                 <CListGroup>
@@ -787,7 +808,7 @@ const HostsView = (props) => {
                                             const routeConfig = item.routeattrs
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>
+                                                    <CCardBody onClick={e => e.stopPropagation()}>
                                                         {/**This button is used to add another route */}
                                                         <CButton
                                                             className="roboto-font float-right mb-3"
@@ -860,7 +881,7 @@ const HostsView = (props) => {
                                                                         {routeConfig.map((route, i) => {
                                                                             return (
                                                                                 <td>
-                                                                                    {matchRule(route.tag)}
+                                                                                    {matchRule(item.host, route.tag)}
                                                                                 </td>
                                                                             )
                                                                         })}
@@ -881,11 +902,20 @@ const HostsView = (props) => {
                                                                                 </tr>
                                                                             )
                                                                         })}
+
                                                                     </>
                                                                 }
                                                             </table> :
-                                                            <CCallout className="roboto-font" color="warning"><strong>No routes configured for {item.host}. Click Add Route to add a route.</strong></CCallout>}
+                                                            <CCallout className="roboto-font" color="warning">
+                                                                No routes configured for {item.host}. Click Add Route to add a route.
+                                                            </CCallout>
 
+                                                        }
+                                                        {!easyMode && hostAttrSet.length == 0 &&
+                                                            <CCallout className="roboto-font" color="warning">
+                                                                No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create Application attributes.
+                                                            </CCallout>
+                                                        }
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
@@ -907,7 +937,7 @@ const HostsView = (props) => {
                 </CCol>
             </CRow>
 
-            <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+            <CModal show={deleteModal} className="roboto-font" onClose={() => setDeleteModal(!deleteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
                     <strong>Confirm Deletion</strong>
                 </CModalHeader>
@@ -948,11 +978,12 @@ const HostsView = (props) => {
                     >Cancel</CButton>
                 </CModalFooter>
             </CModal>
-            <CModal show={generatePolicyModal} onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
-                <CModalHeader className='roboto-font bg-success text-white py-n5' closeButton>
+
+            <CModal show={generatePolicyModal} className="roboto-font" onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                <CModalHeader className='bg-success text-white py-n5' closeButton>
                     <strong>Are you sure you want to generate a policy?</strong>
                 </CModalHeader>
-                <CModalBody className='roboto-font text-lg-left'>
+                <CModalBody className='text-lg-left'>
                     Please ensure that all your rules are correctly configured before generating a policy.
                 </CModalBody>
                 <CModalFooter>
@@ -967,11 +998,11 @@ const HostsView = (props) => {
                 </CModalFooter>
             </CModal>
 
-            <CModal show={invalidPolicyModal} onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
-                <CModalHeader className='roboto-font bg-warning text-white py-n5' closeButton>
+            <CModal show={invalidPolicyModal} className="roboto-font" onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                <CModalHeader className='bg-warning text-white py-n5' closeButton>
                     <strong>There has been an error generating your policy.</strong>
                 </CModalHeader>
-                <CModalBody className='roboto-font text-lg-left'>
+                <CModalBody className='text-lg-left'>
                     Please check to make sure all your rules are correctly configured.
                 </CModalBody>
                 <CModalFooter>
@@ -979,6 +1010,23 @@ const HostsView = (props) => {
                         color="warning"
                         onClick={() => setInvalidPolicyModal(!invalidPolicyModal)}
                     >Ok.</CButton>
+                </CModalFooter>
+            </CModal>
+
+            <CModal show={invalidDeleteRouteModal} className="roboto-font" onClose={() => setInvalidDeleteRouteModal(!invalidDeleteRouteModal)}>
+                <CModalHeader className='bg-warning text-white py-n5' closeButton>
+                    <strong>There has been an error deleting this route.</strong>
+                </CModalHeader>
+                <CModalBody className="text-lg-left">
+                    Please make sure to remove all rules before deleting this route.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="warning"
+                        onClick={() => setInvalidDeleteRouteModal(!invalidDeleteRouteModal)}
+                    >
+                        Ok.
+                    </CButton>
                 </CModalFooter>
             </CModal>
         </>

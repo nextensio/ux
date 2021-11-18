@@ -52,7 +52,7 @@ const HostEdit = (props) => {
         // regex to check if IP Address/mask
         const reIP = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[0-9][0-9]?$/;
         // regex to check if URL
-        const reURL = /^([a-zA-Z0-9][a-zA-Z0-9-]*\.)+[a-zA-Z]+$/gi;
+        const reURL = /^([a-zA-Z0-9][a-zA-Z0-9-]*\.)+[a-zA-Z]+(:[0-9]+)?$/gi;
         // special host name to indicate that all default internet traffic needs
         // to be sent to nextensio
         const nextensioURL = 'nextensio-default-internet'

@@ -39,7 +39,31 @@ import './tenantviews.scss'
 
 var common = require('../../common')
 
-const fields = [
+const easyFields = [
+    {
+        key: "name",
+        _classes: "data-head"
+    },
+    {
+        key: "type",
+        _classes: "data-field"
+    },
+    {
+        key: "isArray",
+        label: "Multiple Values",
+        _classes: "data-field"
+    },
+    {
+        key: "delete",
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    }
+]
+
+
+const expertFields = [
     {
         key: "name",
         _classes: "data-head"
@@ -54,6 +78,7 @@ const fields = [
     },
     {
         key: "isArray",
+        label: "Multiple Values",
         _classes: "data-field"
     },
     {
@@ -70,13 +95,19 @@ const AttributeEditor = (props) => {
     var initAttrData = Object.freeze(
         []
     );
-    const [inuseAttr, updateInuseAttr] = useState(initAttrData);
-    const [attributeData, updateAttributeData] = useState({ name: '', appliesTo: '', type: 'String', isArray: '' })
+    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '' }
+    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '' }
+    const [attrColl, updateAttrColl] = useState(initAttrData);
+    const [userAttrColl, updateUserAttrColl] = useState(initAttrData)
+    const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
+    const [policyData, updatePolicyData] = useState(Object.freeze([]))
     const [resetWarning, setResetWarning] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [cannotDeleteModal, setCannotDeleteModal] = useState(false)
     const [deleteItem, setDeleteItem] = useState(0);
     const [activeTab, setActiveTab] = useState("Overview")
     const [overwriteModal, setOverwriteModal] = useState(false);
+    const [easyMode, setEasyMode] = useState(true)
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
 
@@ -89,15 +120,44 @@ const AttributeEditor = (props) => {
     };
 
     useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.Tenant.easymode) {
+                    updateAttributeData(initAttrObj)
+                }
+                setEasyMode(data.Tenant.easymode)
+            });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data) });
+            .then(data => { updateAttrColl(data) });
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let policies = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].hasOwnProperty('rego')) {
+                        let rego = String.fromCharCode(...data[i].rego);
+                        policies.push(rego)
+                    }
+                }
+                updatePolicyData(policies)
+            })
     }, []);
+
+    useEffect(() => {
+        let userSet = []
+        for (let i = 0; i < attrColl.length; i++) {
+            if (attrColl[i].appliesTo == "Users") {
+                userSet.push(attrColl[i])
+            }
+        } updateUserAttrColl(userSet)
+    }, [attrColl])
 
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
-            .then(data => { updateInuseAttr(data) });
+            .then(data => { updateAttrColl(data) });
     }
 
     const handleChange = (e) => {
@@ -116,7 +176,7 @@ const AttributeEditor = (props) => {
 
     const reset = (e) => {
         updateErrObj({})
-        updateAttributeData({ name: '', appliesTo: '', type: 'String', isArray: '' });
+        updateAttributeData(easyMode ? initAttrObjEasy : initAttrObj)
         setResetWarning(false);
     }
 
@@ -161,9 +221,9 @@ const AttributeEditor = (props) => {
         if (Object.keys(errs).length !== 0) {
             return
         }
-        for (var i = 0; i < inuseAttr.length; i++) {
-            if (inuseAttr[i].name == attributeData.name &&
-                inuseAttr[i].appliesTo == attributeData.appliesTo) {
+        for (var i = 0; i < attrColl.length; i++) {
+            if (attrColl[i].name == attributeData.name &&
+                attrColl[i].appliesTo == attributeData.appliesTo) {
                 setOverwriteModal(true)
                 return
             }
@@ -189,7 +249,7 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"]);
                 } else {
-                    updateInuseAttr(inuseAttr.concat(attributeData));
+                    updateAttrColl(attrColl.concat(attributeData));
                     reset()
                 }
             })
@@ -199,13 +259,32 @@ const AttributeEditor = (props) => {
 
     }
 
-    const toggleDelete = (item) => {
-        setDeleteModal(!deleteModal);
-        setDeleteItem(item)
+    // Validation check, if attribute name is found in policy this function will return false,
+    // otherwise we will return true. Output is used in the toggleDelete function.
+    function validateDelete(item) {
+        for (let i = 0; i < policyData.length; i++) {
+            if (item.appliesTo === "Users" && policyData[i].includes("input.user." + item.name)) {
+                return false
+            } else if (item.appliesTo === "Bundles" && policyData[i].includes("input.bundle." + item.name)) {
+                return false
+            } else if (item.appliesTo === "Hosts" && policyData[i].includes("input.host." + item.name)) {
+                return false
+            }
+        }
+        return true
     }
 
+    const toggleDelete = (item) => {
+        if (validateDelete(item)) {
+            setDeleteModal(!deleteModal);
+            setDeleteItem(item)
+        } else {
+            setCannotDeleteModal(!cannotDeleteModal)
+        }
+    }
+
+
     const handleDelete = (item) => {
-        let index = inuseAttr.indexOf(item)
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
@@ -224,10 +303,19 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    inuseAttr.splice(index, 1);
-                    updateInuseAttr(inuseAttr);
+                    if (item.appliesTo == "Users") {
+                        let userAttrs = [...userAttrColl]
+                        let index = userAttrs.indexOf(item)
+                        userAttrs.splice(index, 1)
+                        updateUserAttrColl(userAttrs)
+                    }
+                    let attrs = [...attrColl]
+                    let index = attrs.indexOf(item)
+                    attrs.splice(index, 1)
+                    updateAttrColl(attrs)
+                    setDeleteModal(!deleteModal);
                 }
-                setDeleteModal(!deleteModal);
+
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -260,37 +348,43 @@ const AttributeEditor = (props) => {
         <>
             <CRow>
                 <CCol sm="12" lg="6">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
                             Add New Attributes
-                            <div className="text-muted small">Define attribute set for Users, Apps and AppGroups.</div>
+                            <div className="text-muted small">
+                                {easyMode ?
+                                    "Define attribute set for Users." :
+                                    "Define attribute set for Users, Apps and AppGroups."
+                                }
+                            </div>
                         </CCardHeader>
                         <CCardBody>
                             <CForm>
-                                <CFormGroup row>
-                                    <CCol md="4">
-                                        <CLabel>Attribute Applies To</CLabel>
-                                    </CCol>
-                                    <CCol md="8">
-                                        <div>
-                                            <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" checked={attributeData.appliesTo == "Users"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
-                                            </CFormGroup>
-                                            <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio2" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-link" /> Apps</CLabel>
-                                            </CFormGroup>
-                                            <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio3" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
-                                                <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-notes" /> AppGroups</CLabel>
-                                            </CFormGroup>
-                                        </div>
-                                    </CCol>
-                                    {errObj.appliesToErr == true ? <div className="invalid-form-text">Please select which category this attribute applies to.</div> : <></>}
-                                </CFormGroup>
+                                {!easyMode &&
+                                    <CFormGroup row>
+                                        <CCol md="4">
+                                            <CLabel>Attribute Applies To</CLabel>
+                                        </CCol>
+                                        <CCol md="8">
+                                            <div>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio1" name="appliesTo" value="Users" checked={attributeData.appliesTo == "Users"} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio1"><CIcon name="cil-user" /> User</CLabel>
+                                                </CFormGroup>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio2" name="appliesTo" value="Hosts" checked={attributeData.appliesTo == "Hosts"} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio2"><CIcon name="cil-link" /> Apps</CLabel>
+                                                </CFormGroup>
+                                                <CFormGroup variant="custom-radio" inline>
+                                                    <CInputRadio custom id="inline-radio3" name="appliesTo" value="Bundles" checked={attributeData.appliesTo == "Bundles"} onChange={handleChange} />
+                                                    <CLabel variant="custom-checkbox" htmlFor="inline-radio3"><CIcon name="cil-notes" /> AppGroups</CLabel>
+                                                </CFormGroup>
+                                            </div>
+                                        </CCol>
+                                        {errObj.appliesToErr == true ? <div className="invalid-form-text">Please select which category this attribute applies to.</div> : <></>}
+                                    </CFormGroup>}
                                 <CFormGroup>
-                                    <CLabel htmlFor="nf-attribute">Attribute Name</CLabel>
+                                    <CLabel htmlFor="nf-attribute">{easyMode ? "User Attribute Name" : "Attribute Name"}</CLabel>
                                     <CInputGroup>
                                         <CInput name="name" placeholder="Enter Attribute.." value={attributeData.name} onChange={handleChange} invalid={errObj.typeErr} />
                                         <CDropdown className="input-group-append">
@@ -310,7 +404,7 @@ const AttributeEditor = (props) => {
                                 </CFormGroup>
                                 <CFormGroup row>
                                     <CCol md="4">
-                                        <CLabel>Array</CLabel>
+                                        <CLabel>Attribute Has Multiple Values</CLabel>
                                     </CCol>
                                     <CCol md="8">
                                         <div>
@@ -347,7 +441,7 @@ const AttributeEditor = (props) => {
                     </CModal>
                 </CCol>
                 <CCol sm="12" lg="6">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
                             Editor Information
                         </CCardHeader>
@@ -398,51 +492,25 @@ const AttributeEditor = (props) => {
                         </CCardBody>
                     </CCard>
                 </CCol>
-
-                {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
-                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
-                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                        <strong>Confirm Deletion</strong>
-                    </CModalHeader>
-                    <CModalBody className='text-lg-left roboto-font'>
-                        <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
-                        <CCallout color="danger">
-                            <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
-                            <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
-                            <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
-                            <div><strong>Is Array: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
-                        </CCallout>
-                    </CModalBody>
-                    <CModalFooter>
-                        <CButton
-                            color="danger"
-                            onClick={() => { handleDelete(deleteItem) }}
-                        >Confirm</CButton>
-                        <CButton
-                            color="secondary"
-                            onClick={() => setDeleteModal(!deleteModal)}
-                        >Cancel</CButton>
-                    </CModalFooter>
-                </CModal>
             </CRow>
 
             <CRow>
                 <CCol sm="12">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
-                            Existing Attributes
+                            {easyMode ? "Existing User Attributes" : "Existing Attributes"}
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
-                                fields={fields}
-                                items={inuseAttr}
+                                fields={easyMode ? easyFields : expertFields}
+                                items={easyMode ? userAttrColl : attrColl}
                                 pagination
                                 sorter
                                 scopedSlots={{
                                     'appliesTo':
                                         (item, index) => {
                                             return (
-                                                <td className="py-auto roboto-font">
+                                                <td className="py-auto">
                                                     {appliesToStringifyPlural(item.appliesTo)}
                                                 </td>
                                             )
@@ -457,7 +525,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            onClick={() => { toggleDelete(item) }}
+                                                            onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
                                                         </CButton>
@@ -478,6 +546,45 @@ const AttributeEditor = (props) => {
                         </CCardFooter>
                     </CCard>
                 </CCol>
+                {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
+                <CModal className="roboto-font" show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                        <strong>Confirm Deletion</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                        <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
+                        <CCallout color="danger">
+                            <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
+                            <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
+                            <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
+                            <div><strong>Multiple Values: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
+                        </CCallout>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="danger"
+                            onClick={() => { handleDelete(deleteItem) }}
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setDeleteModal(!deleteModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal className="roboto-font" show={cannotDeleteModal} onClose={() => setCannotDeleteModal(!cannotDeleteModal)}>
+                    <CModalHeader className="bg-warning text-dark py-n5" closeButton>
+                        <strong>Attribute In Use!</strong>
+                    </CModalHeader>
+                    <CModalBody className="text-lg-left">
+                        You cannot delete this attribute. It is currently being used in a policy.
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="warning"
+                            onClick={() => setCannotDeleteModal(!cannotDeleteModal)}
+                        >Dismiss</CButton>
+                    </CModalFooter>
+                </CModal>
             </CRow>
         </>
     )

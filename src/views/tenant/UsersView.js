@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
     CButton,
+    CCallout,
     CCard,
     CCardBody,
     CCardFooter,
@@ -9,6 +10,7 @@ import {
     CCollapse,
     CLink,
     CRow,
+    CPagination,
     CDataTable,
     CModal,
     CModalHeader,
@@ -43,6 +45,12 @@ const fields = [
         _classes: "data-field",
     },
     {
+        key: "status",
+        label: "Status",
+        _classes: "data-field",
+        _style: { width: '1%' },
+    },
+    {
         key: 'edit',
         label: '',
         _style: { width: '1%' },
@@ -63,10 +71,14 @@ const UsersView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+
     const [usersData, updateUserData] = useState(initTableData);
     const [userAttrData, updateUserAttrData] = useState(initTableData);
     const [userAttrSet, updateUserAttrSet] = useState(initTableData)
     const [uidData, updateUidData] = useState("")
+    const [status, updateStatus] = useState(Object.freeze([]))
+    const [statusModal, setStatusModal] = useState(false)
+    const [statusPage, setStatusPage] = useState(0)
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
 
@@ -123,10 +135,13 @@ const UsersView = (props) => {
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
-    const toAttributeEditor = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
-        })
+    const handleStatus = (e, item) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/userstatus/' + item.uid), hdrs)
+            .then(response => response.json())
+            .then(data => updateStatus(data))
+        setStatusPage(0)
+        setStatusModal(true)
+        e.stopPropagation()
     }
 
     const handleRefresh = (e) => {
@@ -153,6 +168,12 @@ const UsersView = (props) => {
         setDetails([])
     }
 
+    const toAttrEditor = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+        })
+    }
+
     const confirmDelete = (uid) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + uid, hdrs)
             .then(async response => {
@@ -176,31 +197,39 @@ const UsersView = (props) => {
     }
 
     function matchAttrs(item) {
-        return (
-            <table className="table-attrs-bundle">
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                </tr>
-                {userAttrSet.map(attr => {
-                    return (
-                        <tr>
-                            <td><strong>{attr}</strong></td>
-                            <td>
-                                {["", 0, false].includes(item[attr]) ?
-                                    <div className="text-warning">Default Value Assigned</div> :
-                                    Array.isArray(item[attr]) ?
-                                        item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                            <div className="text-warning">Default Value Assigned</div> :
-                                            item[attr].join(' & ') :
-                                        item[attr].toString()
-                                }
-                            </td>
-                        </tr>
-                    )
-                })}
-            </table>
-        )
+        if (userAttrSet.length != 0) {
+            return (
+                <table className="table-attrs-bundle">
+                    <tr>
+                        <th className="attributes header">Key</th>
+                        <th className="header">Value</th>
+                    </tr>
+                    {userAttrSet.map(attr => {
+                        return (
+                            <tr>
+                                <td><strong>{attr}</strong></td>
+                                <td>
+                                    {["", 0, false].includes(item[attr]) ?
+                                        <div className="text-warning">Default Value Assigned</div> :
+                                        Array.isArray(item[attr]) ?
+                                            item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                                <div className="text-warning">Default Value Assigned</div> :
+                                                item[attr].join(' & ') :
+                                            item[attr].toString()
+                                    }
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </table>
+            )
+        } else {
+            return (
+                <CCallout color="warning">
+                    No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create User attributes.
+                </CCallout>
+            )
+        }
     }
 
     const toggleDetails = (index) => {
@@ -226,7 +255,7 @@ const UsersView = (props) => {
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard className="shadow large">
+                    <CCard className="roboto-font shadow large">
                         <CCardHeader>
                             <CTooltip content="Click for documentation">
                                 <CLink
@@ -252,6 +281,22 @@ const UsersView = (props) => {
                                 clickableRows
                                 onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
+                                    'status':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2 ml-5">
+                                                    <CButton
+                                                        className="button-table"
+                                                        color='info'
+                                                        variant='ghost'
+                                                        size="sm"
+                                                        onClick={e => handleStatus(e, item)}
+                                                    >
+                                                        <FontAwesomeIcon icon="battery-three-quarters" size="lg" className="icon-table-info" />
+                                                    </CButton>
+                                                </td>
+                                            )
+                                        },
                                     'show_details':
                                         (item, index) => {
                                             return (
@@ -266,7 +311,7 @@ const UsersView = (props) => {
                                             // and return the object
                                             return (
                                                 <CCollapse show={details.includes(index)}>
-                                                    <CCardBody className="roboto-font">
+                                                    <CCardBody>
                                                         {matchAttrs(item)}
                                                     </CCardBody>
                                                 </CCollapse>
@@ -323,7 +368,7 @@ const UsersView = (props) => {
                         </CCardFooter>
                     </CCard>
                 </CCol>
-                <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModal show={deleteModal} className="roboto-font" onClose={() => setDeleteModal(!deleteModal)}>
                     <CModalHeader className='bg-danger text-white py-n5' closeButton>
                         <strong>Confirm Deletion</strong>
                     </CModalHeader>
@@ -339,6 +384,39 @@ const UsersView = (props) => {
                             color="secondary"
                             onClick={() => setDeleteModal(!deleteModal)}
                         >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <CModal show={statusModal} className="roboto-font" onClose={() => setStatusModal(!statusModal)}>
+                    <CModalHeader className="bg-info text-white py-n5" closeButton>
+                        <strong>Status</strong>
+                    </CModalHeader>
+                    <CModalBody className="text-lg-left">
+                        {status.length != 0 ?
+                            <div className="pb-3">
+                                <div>There are {status.length} statuses to show.</div>
+                                <CCallout color="info">
+                                    <div>Device: {status[statusPage].device ? status[statusPage].device : <div className="text-warning">None</div>}</div>
+                                    <div>Gateway: {status[statusPage].gateway ? status[statusPage].gateway : <div className="text-warning">None</div>}</div>
+                                    <div>Health: {status[statusPage].health ? status[statusPage].health : <div className="text-warning">None</div>}</div>
+                                    <div>Source: {status[statusPage].source ? status[statusPage].source : <div className="text-warning">None</div>}</div>
+                                </CCallout>
+                                <CPagination
+                                    className="mt-5"
+                                    activePage={statusPage}
+                                    pages={status.length - 1}
+                                    onActivePageChange={(i) => setStatusPage(i)}
+                                    doubleArrows={false}
+                                />
+                            </div> :
+                            <div>
+                                No status to show.
+                            </div>
+                        }
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton color="info" onClick={() => setStatusModal(!statusModal)}>
+                            Ok
+                        </CButton>
                     </CModalFooter>
                 </CModal>
 
