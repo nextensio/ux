@@ -38,6 +38,8 @@ const StatRule = (props) => {
     const [ruleSnippet, updateRuleSnippet] = useState(initRule)
     const [errObj, updateErrObj] = useState(Object.freeze({}))
     const [existingRule, updateExistingRule] = useState(Object.freeze([]))
+    const [generatePolicyModal, setGeneratePolicyModal] = useState(false)
+    const [invalidPolicyModal, setInvalidPolicyModal] = useState(false)
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -202,10 +204,10 @@ const StatRule = (props) => {
     // ------------------Policy generation functions-------------------------
 
     const generatePolicyFromStatsRule = (e, existingRule) => {
-       // Stats policy generation
+        // Stats policy generation
         // existingRule contains data in this format :
         //  [ruleid, rule:[[snippet]]]
-	//  where ruleid = "StatsRule"
+        //  where ruleid = "StatsRule"
         //  snippet is of this form :
         //  ["User Attributes", operator, [array of attribute names], "string", "true"] where
         //  operator is either == or !=
@@ -279,7 +281,7 @@ const StatRule = (props) => {
         let attrSpecified = 0
         let statsAttrValue = "[\"all\"]"
         let RuleStart = "attributes = select {\n"
-	let statsPolicyAttr = "    select := "
+        let statsPolicyAttr = "    select := "
         for (let snippet of statsRule.rule) {
             let ltoken = getStatsRuleLeftToken(snippet)
             let uavalue = getStatsRuleTokenValue(ltoken, snippet)
@@ -296,19 +298,19 @@ const StatRule = (props) => {
             // compress array.
 
             rtoken = rtoken.trim()
-	    if (rtoken.includes(',')) {
+            if (rtoken.includes(',')) {
                 rtoken = rtoken.replaceAll(',', ' ').trim()
-	    }
+            }
             statsAttrValue = statsRightTokenArray(rtoken, "string")
 
-	    let incexc = "include"
-	    if (optoken === "!=") {
-		incexc = "exclude"
-	    }
+            let incexc = "include"
+            if (optoken === "!=") {
+                incexc = "exclude"
+            }
             let attrList = "{\"" + incexc + "\": "
             attrList = attrList + "[" + statsAttrValue + "]}\n"
             statsPolicyAttr = statsPolicyAttr + attrList
-	    break
+            break
         }
         let RuleEnd = "}"
         return policyData + RuleStart + statsPolicyAttr + RuleEnd
@@ -316,64 +318,145 @@ const StatRule = (props) => {
 
     // ------------------Policy generation functions end----------------------
 
-    return (
-        <CRow>
-            <CCol md="6">
-                <CCard className="roboto-font">
-                    <CCardHeader>
-                        Stats Rule Creator
-                        <div className="text-muted small">
-                            Only one stats rule can exist.
-                        </div>
-                    </CCardHeader>
-                    <CCardBody className="roboto-font">
-                        <CRow>
-                            <CCol sm="3">
-                                <div>
-                                    User Attributes
-                                </div>
-                            </CCol>
-                            <CCol sm="3">
-                                <CSelect name="operator" custom value={ruleSnippet[1]} onChange={handleOperator}>
-                                    <option value="==">==</option>
-                                    <option value="!=">!=</option>
-                                </CSelect>
-                            </CCol>
-                            <CCol sm="6">
-                                <CreatableSelect
-                                    name="userAttrs"
-                                    className="mb-3"
-                                    options={userAttrNames}
-                                    isSearchable
-                                    isMulti
-                                    value={ruleSnippet[2]}
-                                    onChange={handleSelectedAttrs}
-                                />
-                                {errObj.attributes && <div className="invalid-form-text">Please select at least one User Attribute.</div>}
-                            </CCol>
-                        </CRow>
-                    </CCardBody>
-                    <CCardFooter>
-                        <CRow>
-                            <CCol sm="3">
-                                <CButton shape="square" variant="outline" block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
-                            </CCol>
-                        </CRow>
-                    </CCardFooter>
-                </CCard>
-            </CCol>
-            <CCol md="6">
-                <CCard className="roboto-font">
-                    <CCardHeader>
-                        Existing Rule
+    const triggerPolicyModal = (e) => {
+        const retval = generatePolicyFromStatsRule(e, existingRule)
+        if (!retval[0]) {
+            setGeneratePolicyModal(true)
+        } else (setInvalidPolicyModal(true))
+    }
 
-                    </CCardHeader>
-                    <CCardBody>
-                        {renderExistingRule()}
-                    </CCardBody>
-                </CCard>
-            </CCol>
-        </CRow>
+    const handlePolicyGeneration = (e) => {
+        var retval = generatePolicyFromStatsRule(e, existingRule)
+        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify({
+                pid: "StatsPolicy", tenant: props.match.params.id,
+                rego: byteRego
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    setGeneratePolicyModal(false)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    };
+
+    return (
+        <>
+            <CRow>
+                <CCol md="6">
+                    <CCard className="roboto-font">
+                        <CCardHeader>
+                            Stats Rule Creator
+                            <div className="text-muted small">
+                                Only one stats rule can exist.
+                            </div>
+                        </CCardHeader>
+                        <CCardBody className="roboto-font">
+                            <CRow>
+                                <CCol sm="3">
+                                    <div>
+                                        User Attributes
+                                    </div>
+                                </CCol>
+                                <CCol sm="3">
+                                    <CSelect name="operator" custom value={ruleSnippet[1]} onChange={handleOperator}>
+                                        <option value="==">==</option>
+                                        <option value="!=">!=</option>
+                                    </CSelect>
+                                </CCol>
+                                <CCol sm="6">
+                                    <CreatableSelect
+                                        name="userAttrs"
+                                        className="mb-3"
+                                        options={userAttrNames}
+                                        isSearchable
+                                        isMulti
+                                        value={ruleSnippet[2]}
+                                        onChange={handleSelectedAttrs}
+                                    />
+                                    {errObj.attributes && <div className="invalid-form-text">Please select at least one User Attribute.</div>}
+                                </CCol>
+                            </CRow>
+                        </CCardBody>
+                        <CCardFooter>
+                            <CRow>
+                                <CCol sm="3">
+                                    <CButton shape="square" variant="outline" block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
+                                </CCol>
+                            </CRow>
+                        </CCardFooter>
+                    </CCard>
+                </CCol>
+                <CCol md="6">
+                    <CCard className="roboto-font">
+                        <CCardHeader>
+                            Existing Rule
+                            {existingRule.length != 0 &&
+                                <CButton
+                                    className="float-right"
+                                    color="primary"
+                                    onClick={triggerPolicyModal}
+                                >
+                                    <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
+                                </CButton>
+                            }
+                        </CCardHeader>
+                        <CCardBody>
+                            {renderExistingRule()}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+            </CRow>
+            <CModal show={generatePolicyModal} className="roboto-font" onClose={() => setGeneratePolicyModal(!generatePolicyModal)}>
+                <CModalHeader className='bg-success text-white py-n5' closeButton>
+                    <strong>Are you sure you want to generate a policy?</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    Please ensure that all your rules are correctly configured before generating a policy.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="success"
+                        onClick={handlePolicyGeneration}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setGeneratePolicyModal(!generatePolicyModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+            <CModal show={invalidPolicyModal} className="roboto-font" onClose={() => setInvalidPolicyModal(!invalidPolicyModal)}>
+                <CModalHeader className='bg-warning text-white py-n5' closeButton>
+                    <strong>There has been an error generating your policy.</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    Please check to make sure all your rules are correctly configured.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="warning"
+                        onClick={() => setInvalidPolicyModal(!invalidPolicyModal)}
+                    >Ok.</CButton>
+                </CModalFooter>
+            </CModal>
+        </>
     )
 }
 
