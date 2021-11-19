@@ -497,6 +497,7 @@ const TracingRule = (props) => {
         let attrSpecified = 0
         let traceReqPolicyAttr = "** Error **"
         let traceReqAttrValue = "\"all\""
+        let traceReq = "{\"" + traceReqRule.rid + "\": "
         let Exprs = ""
         ruleIndex += 1
         let RuleId = "tid" + ruleIndex.toString()
@@ -574,10 +575,9 @@ const TracingRule = (props) => {
             if (uavalue != "array") {
                 lts = ""
             }
-            let traceReq = "{\"" + traceReqRule.rid + "\": "
-            traceReq = traceReq + "[" + traceReqAttrValue + "]}\n"
-            traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
-            if (uavalue === "uid") {
+            if (uavalue === "attr") {
+                // Do nothing
+            } else if (uavalue === "uid") {
                 // ltoken is user id
                 if (!issingle) {
                     // We have an array of values to match this attribute
@@ -609,6 +609,8 @@ const TracingRule = (props) => {
                 }
             }
         }
+        traceReq = traceReq + "[" + traceReqAttrValue + "]}\n"
+        traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
         let RuleEnd = "}"
         return policyData + RuleStart + Exprs + traceReqPolicyAttr + RuleEnd
     }
