@@ -731,7 +731,8 @@ const TracingRule = (props) => {
                                     <CLabel>Rule Name</CLabel>
                                     <CInput name="rid" value={ruleData.rid} onChange={handleChange} invalid={errObj.rid} />
                                     {!errObj.rid ?
-                                        <CFormText>Enter a rule name. Ex: Rule to allow tracing for C-Suites...</CFormText>
+                                     <CFormText>Enter a rule name (a trace request name) to trace one or more specific flows.
+                                                Multiple rules can be specified to trace different groups of flows</CFormText>
                                         :
                                         <CInvalidFeedback>Please enter a valid name</CInvalidFeedback>
                                     }
