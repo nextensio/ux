@@ -9,6 +9,7 @@ import {
     CCol,
     CCollapse,
     CLink,
+    CInputCheckbox,
     CRow,
     CPagination,
     CDataTable,
@@ -28,7 +29,7 @@ var common = require('../../common')
 
 const fields = [
     {
-        key: 'show_details',
+        key: 'select',
         label: '',
         _style: { width: '1%' },
         sorter: false,
@@ -50,20 +51,6 @@ const fields = [
         _classes: "data-field",
         _style: { width: '1%' },
     },
-    {
-        key: 'edit',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    },
-    {
-        key: 'delete',
-        label: '',
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    }
 ]
 
 const UsersView = (props) => {
@@ -82,7 +69,8 @@ const UsersView = (props) => {
     const [zippedData, updateZippedData] = useState(initTableData);
     const [details, setDetails] = useState([]);
 
-    const [deleteUid, setDeleteUid] = useState("");
+    const [selectedUids, updateSelectedUids] = useState(initTableData)
+
     const [deleteModal, setDeleteModal] = useState(false);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -160,10 +148,10 @@ const UsersView = (props) => {
         })
     }
 
-    const handleEdit = (item) => {
+    const handleEdit = (e) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/users/edit',
-            state: item
+            state: selectedUids
         });
         setDetails([])
     }
@@ -174,7 +162,7 @@ const UsersView = (props) => {
         })
     }
 
-    const confirmDelete = (uid) => {
+    const handleDelete = (uid) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + uid, hdrs)
             .then(async response => {
                 const data = await response.json();
@@ -188,12 +176,17 @@ const UsersView = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                setDeleteModal(!deleteModal);
-                handleRefresh()
             })
             .catch(error => {
                 alert('Error contacting server', error);
             });
+    }
+
+    const deleteAll = (e) => {
+        for (let i = 0; i < selectedUids.length; i++) {
+            handleDelete(selectedUids[i])
+        }
+        setDeleteModal(!deleteModal)
     }
 
     function matchAttrs(item) {
@@ -243,13 +236,21 @@ const UsersView = (props) => {
         setDetails(newDetails)
     }
 
-    const toggleDelete = (item) => {
+    const toggleDelete = (e) => {
         setDeleteModal(!deleteModal);
-        setDeleteUid(item.uid)
     }
 
-    const showingIcon = <FontAwesomeIcon icon="angle-right" />
-    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
+    const handleSelectUsers = (e, uid) => {
+        let uids = [...selectedUids]
+        if (selectedUids.includes(uid)) {
+            let index = uids.indexOf(uid)
+            uids.splice(index, 1)
+        } else {
+            uids.push(uid)
+        }
+        updateSelectedUids(uids)
+        e.stopPropagation()
+    }
 
     return (
         <>
@@ -281,6 +282,29 @@ const UsersView = (props) => {
                                 clickableRows
                                 onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
+                                    'details':
+                                        (item, index) => {
+                                            // Match the row uid to the same uid in userAttrData
+                                            // and return the object
+                                            return (
+                                                <CCollapse show={details.includes(index)}>
+                                                    <CCardBody>
+                                                        {matchAttrs(item)}
+                                                    </CCardBody>
+                                                </CCollapse>
+                                            )
+                                        },
+                                    'select':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto pl-5">
+                                                    <CInputCheckbox
+                                                        onClick={e => handleSelectUsers(e, item.uid)}
+                                                        checked={selectedUids.includes(item.uid)}
+                                                    />
+                                                </td>
+                                            )
+                                        },
                                     'status':
                                         (item, index) => {
                                             return (
@@ -297,73 +321,38 @@ const UsersView = (props) => {
                                                 </td>
                                             )
                                         },
-                                    'show_details':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-auto">
-                                                    {details.includes(index) ? hidingIcon : showingIcon}
-                                                </td>
-                                            )
-                                        },
-                                    'details':
-                                        (item, index) => {
-                                            // Match the row uid to the same uid in userAttrData
-                                            // and return the object
-                                            return (
-                                                <CCollapse show={details.includes(index)}>
-                                                    <CCardBody>
-                                                        {matchAttrs(item)}
-                                                    </CCardBody>
-                                                </CCollapse>
-                                            )
-                                        },
-                                    'edit':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CTooltip content='Edit' placement='top'>
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='primary'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => { handleEdit(item) }}
-                                                        >
-                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                        </CButton>
-                                                    </CTooltip>
-                                                </td>
-                                            )
-                                        },
-                                    'delete':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CTooltip content='Delete' className='bottom'>
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='danger'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => { toggleDelete(item) }}
-                                                        >
-                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                        </CButton>
-                                                    </CTooltip>
-                                                </td>
-                                            )
-                                        }
                                 }}
                             />
                         </CCardBody>
                         <CCardFooter>
-                            <CButton className="button-footer-primary" color="primary" variant="outline" onClick={handleRefresh}>
+                            <CButton color="primary" variant="outline" onClick={handleRefresh}>
                                 <CIcon name="cil-reload" />
                                 <strong>{" "}Refresh</strong>
                             </CButton>
-                            <CButton className="button-footer-success" color="success" variant="outline" onClick={handleAdd}>
+                            <CButton color="success" variant="outline" onClick={handleAdd}>
                                 <CIcon name="cil-plus" />
                                 <strong>{" "}Add</strong>
+                            </CButton>
+
+                            <CButton
+                                className="float-right"
+                                color="danger"
+                                variant="outline"
+                                disabled={selectedUids.length === 0}
+                                onClick={toggleDelete}
+                            >
+                                <FontAwesomeIcon icon="trash-alt" />
+                                <strong>{" "}Delete</strong>
+                            </CButton>
+                            <CButton
+                                className="float-right"
+                                color="primary"
+                                variant="outline"
+                                disabled={selectedUids.length === 0}
+                                onClick={handleEdit}
+                            >
+                                <FontAwesomeIcon icon="pen" />
+                                <strong>{" "}Edit</strong>
                             </CButton>
                         </CCardFooter>
                     </CCard>
@@ -373,12 +362,13 @@ const UsersView = (props) => {
                         <strong>Confirm Deletion</strong>
                     </CModalHeader>
                     <CModalBody className='text-lg-left'>
-                        <strong>Are you sure you want to delete {deleteUid}?</strong>
+                        <strong>Are you sure you want to delete the selected Users?</strong>
+                        <div><strong>You have {selectedUids.length} selected.</strong></div>
                     </CModalBody>
                     <CModalFooter>
                         <CButton
                             color="danger"
-                            onClick={() => confirmDelete(deleteUid)}
+                            onClick={deleteAll}
                         >Confirm</CButton>
                         <CButton
                             color="secondary"
@@ -403,7 +393,7 @@ const UsersView = (props) => {
                                 <CPagination
                                     className="mt-5"
                                     activePage={statusPage}
-                                    pages={status.length - 1}
+                                    pages={status.length}
                                     onActivePageChange={(i) => setStatusPage(i)}
                                     doubleArrows={false}
                                 />

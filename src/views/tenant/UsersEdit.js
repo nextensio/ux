@@ -30,7 +30,7 @@ var common = require('../../common')
 const UsersEdit = (props) => {
     // Change maxCharLength to whatever you want for maximum length of input fields.
     const maxCharLength = 20
-    const [userState, updateUserState] = useState("");
+    const [uidData, setUidData] = useState(Object.freeze([]))
     const [userAttrState, updateUserAttrState] = useState("");
     const [attrData, updateAttrData] = useState(Object.freeze([]));
     const [errObj, updateErrObj] = useState({})
@@ -45,8 +45,7 @@ const UsersEdit = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            const { uid, __name, ...rest } = props.location.state
-            updateUserState({ uid, name: __name })
+            setUidData(props.location.state)
         }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -62,30 +61,26 @@ const UsersEdit = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].uid == userState.uid) {
-                        // remove email, gateway, pod from userAttrState
-                        // ...rest is all the user attributes
-                        var { uid, ...rest } = data[i]
-                        updateUserAttrState({ uid, ...rest })
+        if (uidData.length === 1) {
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
+                .then(response => response.json())
+                .then(data => {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].uid == uidData[0]) {
+                            // remove email, gateway, pod from userAttrState
+                            // ...rest is all the user attributes
+                            var { uid, ...rest } = data[i]
+                            updateUserAttrState({ uid, ...rest })
+                        }
                     }
-                }
-            })
-    }, [props, userState]);
+                })
+        }
+    }, [uidData])
 
     const toAttributeEditor = (e) => {
         props.history.push('/tenant/' + props.match.params.id + '/attreditor')
     }
 
-    const handleUserChange = (e) => {
-        updateUserState({
-            ...userState,
-            [e.target.name]: e.target.value.trim()
-        });
-    };
 
     const handleLengthCheck = (e) => {
         // length check to ensure bad guy does not send a massive string to DB
@@ -254,58 +249,53 @@ const UsersEdit = (props) => {
 
     function validate() {
         let errs = {}
-        if (!/\S/.test(userState.name)) {
-            errs.name = true
-        }
         attrData.forEach((item) => {
             if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
                 errs[item.name] = true
             }
         })
-
         updateErrObj(errs)
         return errs
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        let errs = validate()
-        if (Object.keys(errs).length !== 0) {
-            return
-        }
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify({ uid: userState.uid, name: userState.name }),
-        };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
+    function fillEmptyInputs() {
+        let attrState = { ...userAttrState }
+        attrData.forEach((item) => {
+            if (!(item.name in attrState)) {
+                if (item.isArray == "true") {
+                    if (item.type == "String" || item.type == "Date") {
+                        attrState[item.name] = [""]
+                    }
+                    if (item.type == "Number") {
+                        attrState[item.name] = [0]
+                    }
+                    if (item.type == "Boolean") {
+                        attrState[item.name] = [false]
+                    }
                 }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                } else {
-                    handleAttrSubmit(e)
+                if (item.isArray == "false") {
+                    if (item.type == "String" || item.type == "Date") {
+                        attrState[item.name] = ""
+                    }
+                    if (item.type == "Number") {
+                        attrState[item.name] = 0
+                    }
+                    if (item.type == "Boolean") {
+                        attrState[item.name] = false
+                    }
                 }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
-    };
+            }
+        })
+        updateUserAttrState(attrState)
+        return attrState
+    }
 
     // user attribute http post function
-    const handleAttrSubmit = (e) => {
-        e.preventDefault()
+    const handleSubmit = (uid, attrState) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
-            body: JSON.stringify(userAttrState),
+            body: JSON.stringify({ uid: uid, ...attrState }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)
             .then(async response => {
@@ -320,57 +310,45 @@ const UsersEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
-                else {
-                    props.history.push('/tenant/' + props.match.params.id + '/users')
-                }
             })
             .catch(error => {
                 alert('Error contacting server', error);
             })
-    };
+    }
+
+    const submitAll = (e) => {
+        let errs = validate()
+        if (Object.keys(errs).length != 0) {
+            return
+        } else {
+            let attrState = fillEmptyInputs()
+            for (let i = 0; i < uidData.length; i++) {
+                handleSubmit(uidData[i], attrState)
+            }
+        }
+        props.history.push('/tenant/' + props.match.params.id + '/users')
+
+    }
+
+    function renderHeader() {
+        if (uidData.length == 1) {
+            return uidData[0]
+        } else {
+            return uidData.length + " Users"
+        }
+    }
 
     return (
-        <CCard>
+        <CCard className="roboto-font">
             <CCardHeader>
-                <strong>Edit Details for {userState.uid}</strong>
+                <strong>Edit Attributes for {renderHeader()}</strong>
             </CCardHeader>
-            <CCardBody className="roboto-font">
+            <CCardBody>
                 <CRow>
                     <CCol sm="8">
-                        <CForm>
-                            <CFormGroup>
-                                <CLabel>User ID</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-user" />
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="uid" value={userState.uid} readOnly />
-                                    <CInputGroupAppend>
-                                        <CInputGroupText>
-                                            <CIcon name="cil-lock-locked" />
-                                        </CInputGroupText>
-                                    </CInputGroupAppend>
-                                </CInputGroup>
-                            </CFormGroup>
-                            <CFormGroup>
-                                <CLabel>Name</CLabel>
-                                <CInputGroup>
-                                    <CInputGroupPrepend>
-                                        <CInputGroupText className="bg-primary-light text-primary">
-                                            <CIcon name="cil-tag" />
-                                        </CInputGroupText>
-                                    </CInputGroupPrepend>
-                                    <CInput name="name" defaultValue={userState.name} onChange={handleUserChange} invalid={errObj.name} />
-                                    <CInvalidFeedback>Please enter a value.</CInvalidFeedback>
-                                </CInputGroup>
-                            </CFormGroup>
-                        </CForm>
-                        <div className="title py-3">Attributes</div>
                         {attrData.length === 0 &&
                             <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
-                                You have no attributes for AppGroups. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                                You have no attributes for Users. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
                             </div>
                         }
                         {attrData.map(attr => {
@@ -505,7 +483,7 @@ const UsersEdit = (props) => {
                 </CRow>
             </CCardBody>
             <CCardFooter>
-                <CButton className="button-footer-success" color="success" variant="outline" onClick={handleSubmit}>
+                <CButton className="button-footer-success" color="success" variant="outline" onClick={submitAll}>
                     <CIcon name="cil-scrubber" />
                     <strong>{" "}Confirm</strong>
                 </CButton>

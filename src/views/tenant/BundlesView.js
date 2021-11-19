@@ -1044,7 +1044,7 @@ const BundlesView = (props) => {
                                 <CPagination
                                     className="mt-5"
                                     activePage={statusPage}
-                                    pages={status.length - 1}
+                                    pages={status.length}
                                     onActivePageChange={(i) => setStatusPage(i)}
                                     doubleArrows={false}
                                 />
