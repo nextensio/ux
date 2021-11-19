@@ -408,15 +408,14 @@ const StatRule = (props) => {
                     <CCard className="roboto-font">
                         <CCardHeader>
                             Existing Rule
-                            {existingRule.length != 0 &&
-                                <CButton
-                                    className="float-right"
-                                    color="primary"
-                                    onClick={triggerPolicyModal}
-                                >
-                                    <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
-                                </CButton>
-                            }
+                            <CButton
+                                className="float-right"
+                                color="primary"
+                                onClick={triggerPolicyModal}
+                            >
+                                <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
+                            </CButton>
+
                         </CCardHeader>
                         <CCardBody>
                             {renderExistingRule()}
