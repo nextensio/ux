@@ -278,10 +278,11 @@ const StatRule = (props) => {
     }
 
     function processStatsRule(e, statsRule, policyData) {
-        let attrSpecified = 0
         let statsAttrValue = "[\"all\"]"
-        let RuleStart = "attributes = select {\n"
-        let statsPolicyAttr = "    select := "
+	let attrList = ""
+        let RuleStart = ""
+        let statsPolicyAttr = ""
+        let RuleEnd = ""
         for (let snippet of statsRule.rule) {
             let ltoken = getStatsRuleLeftToken(snippet)
             let uavalue = getStatsRuleTokenValue(ltoken, snippet)
@@ -297,22 +298,21 @@ const StatRule = (props) => {
             // space, then split based on space. Remove any null strings to
             // compress array.
 
-            rtoken = rtoken.trim()
-            if (rtoken.includes(',')) {
-                rtoken = rtoken.replaceAll(',', ' ').trim()
-            }
-            statsAttrValue = statsRightTokenArray(rtoken, "string")
-
             let incexc = "include"
             if (optoken === "!=") {
                 incexc = "exclude"
             }
-            let attrList = "{\"" + incexc + "\": "
-            attrList = attrList + "[" + statsAttrValue + "]}\n"
-            statsPolicyAttr = statsPolicyAttr + attrList
+            rtoken = rtoken.trim()
+            if (rtoken.includes(',')) {
+                rtoken = rtoken.replaceAll(',', ' ').trim()
+            }
+            RuleStart = "attributes = select {\n"
+            statsAttrValue = statsRightTokenArray(rtoken, "string")
+            attrList = "{\"" + incexc + "\": [" + statsAttrValue + "]}\n"
+            statsPolicyAttr = "    select := " + attrList
+            RuleEnd = "}"
             break
         }
-        let RuleEnd = "}"
         return policyData + RuleStart + statsPolicyAttr + RuleEnd
     }
 
