@@ -62,14 +62,14 @@ const UsersView = (props) => {
     const [usersData, updateUserData] = useState(initTableData);
     const [userAttrData, updateUserAttrData] = useState(initTableData);
     const [userAttrSet, updateUserAttrSet] = useState(initTableData)
-    const [uidData, updateUidData] = useState("")
+    const [uidData, updateUidData] = useState(Object.freeze({}))
     const [status, updateStatus] = useState(Object.freeze([]))
     const [statusModal, setStatusModal] = useState(false)
     const [statusPage, setStatusPage] = useState(0)
-    const [zippedData, updateZippedData] = useState(initTableData);
+    const [zippedData, updateZippedData] = useState(initTableData)
     const [details, setDetails] = useState([]);
 
-    const [selectedUids, updateSelectedUids] = useState(initTableData)
+    const [selectedUsers, updateSelectedUsers] = useState(initTableData)
 
     const [deleteModal, setDeleteModal] = useState(false);
 
@@ -151,7 +151,7 @@ const UsersView = (props) => {
     const handleEdit = (e) => {
         props.history.push({
             pathname: '/tenant/' + props.match.params.id + '/users/edit',
-            state: selectedUids
+            state: selectedUsers
         });
         setDetails([])
     }
@@ -183,8 +183,8 @@ const UsersView = (props) => {
     }
 
     const deleteAll = (e) => {
-        for (let i = 0; i < selectedUids.length; i++) {
-            handleDelete(selectedUids[i])
+        for (let i = 0; i < selectedUsers.length; i++) {
+            handleDelete(selectedUsers[i])
         }
         setDeleteModal(!deleteModal)
     }
@@ -240,15 +240,15 @@ const UsersView = (props) => {
         setDeleteModal(!deleteModal);
     }
 
-    const handleSelectUsers = (e, uid) => {
-        let uids = [...selectedUids]
-        if (selectedUids.includes(uid)) {
-            let index = uids.indexOf(uid)
-            uids.splice(index, 1)
+    const handleSelectUsers = (e, item) => {
+        let users = [...selectedUsers]
+        if (users.includes(item)) {
+            let index = users.indexOf(item)
+            users.splice(index, 1)
         } else {
-            uids.push(uid)
+            users.push(item)
         }
-        updateSelectedUids(uids)
+        updateSelectedUsers(users)
         e.stopPropagation()
     }
 
@@ -299,8 +299,8 @@ const UsersView = (props) => {
                                             return (
                                                 <td className="py-auto pl-5">
                                                     <CInputCheckbox
-                                                        onClick={e => handleSelectUsers(e, item.uid)}
-                                                        checked={selectedUids.includes(item.uid)}
+                                                        onClick={e => handleSelectUsers(e, item)}
+                                                        checked={selectedUsers.includes(item)}
                                                     />
                                                 </td>
                                             )
@@ -338,7 +338,7 @@ const UsersView = (props) => {
                                 className="float-right"
                                 color="danger"
                                 variant="outline"
-                                disabled={selectedUids.length === 0}
+                                disabled={selectedUsers.length === 0}
                                 onClick={toggleDelete}
                             >
                                 <FontAwesomeIcon icon="trash-alt" />
@@ -348,7 +348,7 @@ const UsersView = (props) => {
                                 className="float-right"
                                 color="primary"
                                 variant="outline"
-                                disabled={selectedUids.length === 0}
+                                disabled={selectedUsers.length === 0}
                                 onClick={handleEdit}
                             >
                                 <FontAwesomeIcon icon="pen" />
@@ -363,7 +363,7 @@ const UsersView = (props) => {
                     </CModalHeader>
                     <CModalBody className='text-lg-left'>
                         <strong>Are you sure you want to delete the selected Users?</strong>
-                        <div><strong>You have {selectedUids.length} selected.</strong></div>
+                        <div><strong>You have {selectedUsers.length} selected.</strong></div>
                     </CModalBody>
                     <CModalFooter>
                         <CButton
