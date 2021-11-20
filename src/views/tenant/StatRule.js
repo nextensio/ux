@@ -215,7 +215,9 @@ const StatRule = (props) => {
         let RetVal = [""]
         let RegoPolicy = ""
         RegoPolicy = generateStatsPolicyHeader(RegoPolicy)
-        RegoPolicy = processStatsRule(e, existingRule[0], RegoPolicy)
+        if ((existingRule.length > 0) && (existingRule[0].rule.length > 0)) {
+            RegoPolicy = processStatsRule(e, existingRule[0], RegoPolicy)
+        }
         RetVal[0] = ""
         RetVal[1] = RegoPolicy
         return RetVal
