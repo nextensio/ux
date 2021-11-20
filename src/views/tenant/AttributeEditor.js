@@ -168,9 +168,14 @@ const AttributeEditor = (props) => {
     };
 
     const handleType = (e, type) => {
+        let isArray = attributeData.isArray
+        if (type == "Boolean") {
+            isArray = "false"
+        }
         updateAttributeData({
             ...attributeData,
-            type: type
+            type: type,
+            isArray: isArray
         });
     }
 
@@ -409,7 +414,13 @@ const AttributeEditor = (props) => {
                                     <CCol md="8">
                                         <div>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio4" name="isArray" value={true} checked={attributeData.isArray == "true"} onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio4"
+                                                    name="isArray"
+                                                    value={true}
+                                                    checked={attributeData.isArray == "true"}
+                                                    onChange={handleChange}
+                                                    disabled={attributeData.type == "Boolean"}
+                                                />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio4">True</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
