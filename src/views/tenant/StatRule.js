@@ -367,7 +367,7 @@ const StatRule = (props) => {
                         <CCardHeader>
                             Stats Rule Creator
                             <div className="text-muted small">
-                                Only one stats rule can exist.
+            Only one stats rule can exist to specify attributes to include or exclude. Use == to include, != to exclude.
                             </div>
                         </CCardHeader>
                         <CCardBody className="roboto-font">
