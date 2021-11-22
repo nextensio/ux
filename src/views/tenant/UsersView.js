@@ -183,6 +183,7 @@ const UsersView = (props) => {
     }
 
     const deleteAll = (e) => {
+        // Remove items from table
         let zipped = [...zippedData]
         let uids = { ...uidData }
         let indexes = []

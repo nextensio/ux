@@ -434,13 +434,13 @@ const BundlesView = (props) => {
     }
 
     const servicesHeader = (
-        <h4 className="roboto-font my-2 ml-2">
+        <h4 className="my-2 ml-2">
             Services
         </h4>
     )
 
     const servicesContent = (
-        <div className="roboto-font pb-3">
+        <div className="pb-3">
             {currentServices.map(service => {
                 return (
                     <div>{service}</div>

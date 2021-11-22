@@ -293,11 +293,11 @@ const HostsRule = (props) => {
     }
 
     return (
-        <CCard>
+        <CCard className="roboto-font">
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
             </CCardHeader>
-            <CCardBody className="roboto-font">
+            <CCardBody>
                 <CRow>
                     <CCol sm="12">
                         <CForm>
