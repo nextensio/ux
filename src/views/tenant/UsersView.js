@@ -162,8 +162,8 @@ const UsersView = (props) => {
         })
     }
 
-    const handleDelete = (uid) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + uid, hdrs)
+    const handleDelete = (item) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + item.uid, hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -183,9 +183,22 @@ const UsersView = (props) => {
     }
 
     const deleteAll = (e) => {
+        let zipped = [...zippedData]
+        let uids = { ...uidData }
+        let indexes = []
         for (let i = 0; i < selectedUsers.length; i++) {
+            let index = zipped.indexOf(selectedUsers[i])
+            indexes.push(index)
+            delete uids[selectedUsers[i].uid]
             handleDelete(selectedUsers[i])
         }
+        indexes.sort()
+        for (let i = indexes.length - 1; i >= 0; i--) {
+            zipped.splice(indexes[i], 1)
+        }
+        updateUidData(uids)
+        updateZippedData(zipped)
+        updateSelectedUsers([])
         setDeleteModal(!deleteModal)
     }
 

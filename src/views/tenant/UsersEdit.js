@@ -165,7 +165,7 @@ const UsersEdit = (props) => {
         })
     }
 
-    const handleSingleBoolAttrChange = (e) => {
+    const handleBoolAttrChange = (e) => {
         let input
         if (e.target.value === "true") {
             input = true
@@ -178,37 +178,6 @@ const UsersEdit = (props) => {
         })
     }
 
-    const handleMultiBoolAttrChange = (e) => {
-        let input
-        if (e.target.value.trim() === "") {
-            input = false
-            // Check if input contains comma, if so separate the values
-        } else if (e.target.value.indexOf(',') > -1) {
-            input = e.target.value.split(',').map(item => {
-                if (item.trim().toLowerCase() === "true") {
-                    return true
-                } else if (item.trim().toLowerCase() === "false") {
-                    return false
-                } else {
-                    // ERR! will be a keyword string used in the validation function
-                    return "ERR!"
-                }
-            })
-        } else {
-            if (e.target.value.trim().toLowerCase() === "true") {
-                input = true
-            } else if (e.target.value.trim().toLowerCase() === "false") {
-                input = false
-            } else {
-                // ERR! will be a keyword string used in the validation function
-                input = "ERR!"
-            }
-        }
-        updateUserAttrState({
-            ...userAttrState,
-            [e.target.name]: [input]
-        })
-    }
 
     const handleSingleDateAttrChange = (e) => {
         let input
@@ -568,32 +537,14 @@ const UsersEdit = (props) => {
                                         </>
                                     }
                                     {attr.type == "Boolean" &&
-                                        <>
-                                            {attr.isArray == "true" ?
-                                                <CFormGroup>
-                                                    <CPopover
-                                                        title="Popover title"
-                                                        content="This attribute has been defined as boolean type and accepts multiple values."
-                                                    >
-                                                        <FontAwesomeIcon icon="info-circle" />
-                                                    </CPopover>
-                                                    {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} defaultValue={userAttrState[attr.name]} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]} />
-                                                    {errObj[attr.name] ?
-                                                        <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
-                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
-                                                    }
-                                                </CFormGroup>
-                                                :
-                                                <CFormGroup>
-                                                    <CLabel>{attr.name}</CLabel>
-                                                    <CSelect name={attr.name} value={userAttrState[attr.name]} custom onChange={handleSingleBoolAttrChange}>
-                                                        <option value={true}>True</option>
-                                                        <option value={false}>False</option>
-                                                    </CSelect>
-                                                </CFormGroup>
-                                            }
-                                        </>
+                                        <CFormGroup>
+                                            <CLabel>{attr.name}</CLabel>
+                                            <CSelect name={attr.name} value={userAttrState[attr.name]} custom onChange={handleBoolAttrChange}>
+                                                <option value={undefined}>Please select a boolean</option>
+                                                <option value={true}>True</option>
+                                                <option value={false}>False</option>
+                                            </CSelect>
+                                        </CFormGroup>
                                     }
                                     {attr.type == "Date" &&
                                         <>
