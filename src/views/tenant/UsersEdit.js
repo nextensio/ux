@@ -224,8 +224,10 @@ const UsersEdit = (props) => {
             errs.name = true
         }
         attrData.forEach((item) => {
-            if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
-                errs[item.name] = true
+	    if (userAttrState[item.name] != undefined) {
+                if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
+                    errs[item.name] = true
+                }
             }
         })
         updateErrObj(errs)
@@ -236,8 +238,10 @@ const UsersEdit = (props) => {
     function validateAll() {
         let errs = {}
         attrData.forEach((item) => {
-            if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
-                errs[item.name] = true
+	    if (userAttrState[item.name] != undefined) {
+                if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
+                    errs[item.name] = true
+                }
             }
         })
         updateErrObj(errs)
