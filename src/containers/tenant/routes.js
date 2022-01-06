@@ -1,7 +1,6 @@
 import React from 'react';
 
 const Home = React.lazy(() => import('../../views/tenant/home/Home'));
-const ClusterConfig = React.lazy(() => import('../../views/tenant/ClusterConfig'));
 const UsersView = React.lazy(() => import('../../views/tenant/UsersView'));
 const UsersAdd = React.lazy(() => import('../../views/tenant/UsersAdd'));
 const UsersEdit = React.lazy(() => import('../../views/tenant/UsersEdit'));
@@ -28,7 +27,6 @@ const Logout = React.lazy(() => import('../../views/tenant/Logout'));
 const routes = [
     { path: '/tenant/:id', exact: true },
     { path: '/tenant/:id/home', name: 'Home', component: Home },
-    { path: '/tenant/:id/clusterconfig', name: 'Cluster Config', component: ClusterConfig, exact: true },
     { path: '/tenant/:id/users', name: 'Users', component: UsersView, exact: true },
     { path: '/tenant/:id/users/add', name: 'Add', component: UsersAdd },
     { path: '/tenant/:id/users/edit', name: 'Edit', component: UsersEdit },
