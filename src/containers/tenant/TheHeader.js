@@ -21,6 +21,8 @@ const TheHeader = (props) => {
         },
     };
 
+    const idTokenJson = common.decodeToken(bearer)
+
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
@@ -56,6 +58,9 @@ const TheHeader = (props) => {
                 className="ml-3 d-md-down-none"
                 onClick={toggleSidebar}
             />
+            <div>
+                {idTokenJson.usertype}
+            </div>
             <div className="ml-auto mr-3 py-3 roboto-font text-dark">
                 {Theme.darkMode ? "Expert Mode" : "Easy Mode"}
             </div>
