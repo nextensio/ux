@@ -36,12 +36,12 @@ const fields = [
         filter: false
     },
     {
-        key: "__uid",
+        key: "uid",
         label: "User ID",
         _classes: "data-head"
     },
     {
-        key: "__name",
+        key: "name",
         label: "Name",
         _classes: "data-field",
     },
@@ -71,6 +71,7 @@ const UsersView = (props) => {
 
     const [selectedUsers, updateSelectedUsers] = useState(initTableData)
 
+    const [editTypeModal, setEditTypeModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false);
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -85,10 +86,14 @@ const UsersView = (props) => {
         setDetails([]);
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
             .then(response => response.json())
-            .then(data => updateUserData(data));
+            .then(data => {
+                updateUserData(data)
+            });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
-            .then(data => updateUserAttrData(data))
+            .then(data => {
+                updateUserAttrData(data)
+            })
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(respone => respone.json())
             .then(data => {
@@ -114,12 +119,14 @@ const UsersView = (props) => {
                 const zipObj = {
                     ...(userAttrData.find((obj) => obj.uid === usersData[i].uid))
                 }
-                zipObj['__uid'] = usersData[i]['uid']
-                zipObj['__name'] = usersData[i]['name']
+                zipObj['uid'] = usersData[i]['uid']
+                zipObj['name'] = usersData[i]['name']
+                zipObj['usertype'] = usersData[i]['usertype']
                 zipper.push(zipObj)
             }
         }
         updateUidData(uidObj)
+        console.log(zipper)
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
@@ -203,10 +210,20 @@ const UsersView = (props) => {
         setDeleteModal(!deleteModal)
     }
 
+    function matchType(item) {
+        return (
+            <div className="border-left pl-3">
+                <div><FontAwesomeIcon icon="id-badge" color="warning" size="lg" /></div>
+                <div>User Type: {item.usertype}</div>
+                <div>User Group: {item.group ? item.group : "No group assigned"}</div>
+            </div>
+        )
+    }
+
     function matchAttrs(item) {
         if (userAttrSet.length != 0) {
             return (
-                <table className="table-attrs-bundle">
+                <table className="table-attrs-bundle mr-3">
                     <tr>
                         <th className="attributes header">Key</th>
                         <th className="header">Value</th>
@@ -303,7 +320,14 @@ const UsersView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        {matchAttrs(item)}
+                                                        <CRow>
+                                                            <CCol md="8">
+                                                                {matchAttrs(item)}
+                                                            </CCol>
+                                                            <CCol md="4">
+                                                                {matchType(item)}
+                                                            </CCol>
+                                                        </CRow>
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
@@ -368,6 +392,16 @@ const UsersView = (props) => {
                                 <FontAwesomeIcon icon="pen" />
                                 <strong>{" "}Edit</strong>
                             </CButton>
+                            <CButton
+                                className="float-right"
+                                color="warning"
+                                variant="outline"
+                                disabled={selectedUsers.length === 0}
+                                onClick={() => setEditTypeModal(!editTypeModal)}
+                            >
+                                <FontAwesomeIcon icon="id-badge" />
+                                <strong>{" "}Type</strong>
+                            </CButton>
                         </CCardFooter>
                     </CCard>
                 </CCol>
@@ -422,6 +456,48 @@ const UsersView = (props) => {
                             Ok
                         </CButton>
                     </CModalFooter>
+                </CModal>
+                <CModal show={editTypeModal} className="roboto-font" onClose={() => setEditTypeModal(!editTypeModal)}>
+                    <CModalHeader className="bg-warning text-dark py-n5">
+                        <strong>Edit Types for {selectedUsers.length === 1 ? selectedUsers[0].uid : `${selectedUsers.length} users`}</strong>
+                    </CModalHeader>
+                    <CModalBody>
+                        <CRow className='pb-3 border-bottom'>
+                            <CCol md="8">
+                                <div>SuperAdmin</div>
+                                <div className="text-muted small">An unchecked box will demote / keep users as regular</div>
+                            </CCol>
+                            <CCol md="4">
+                                <CInputCheckbox />
+                            </CCol>
+                        </CRow>
+                        <CRow className="pt-3">
+                            <CCol md="8">
+                                Group
+                            </CCol>
+                            <CCol md="4">
+                                <div>
+                                    <CInputCheckbox /> DevOps
+                                </div>
+                                <div>
+                                    <CInputCheckbox /> NetOps
+                                </div>
+                                <div>
+                                    <CInputCheckbox /> SecOps
+                                </div>
+                            </CCol>
+                        </CRow>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="warning"
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setEditTypeModal(!editTypeModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+
                 </CModal>
 
             </CRow>
