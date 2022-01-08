@@ -54,6 +54,11 @@ const easyFields = [
         _classes: "data-field"
     },
     {
+        key: "group",
+        label: "Group",
+        _classes: "data-field"
+    },
+    {
         key: "delete",
         label: '',
         _style: { width: '1%' },
@@ -79,6 +84,11 @@ const expertFields = [
     {
         key: "isArray",
         label: "Multiple Values",
+        _classes: "data-field"
+    },
+    {
+        key: "group",
+        label: "Group",
         _classes: "data-field"
     },
     {
@@ -189,6 +199,8 @@ const AttributeEditor = (props) => {
     function validate() {
         var errors = {}
         attributeData.name = attributeData.name.trim()
+	// TODO: change this to userType from bearer token
+	attributeData.group = "superadmin"
         // If the tenant does not input any value for name or select a type errObj will have typeErr
         if (attributeData.name == "") {
             errors.typeErr = true
@@ -238,7 +250,7 @@ const AttributeEditor = (props) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify({
-                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray, group: attributeData.group
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
@@ -267,6 +279,9 @@ const AttributeEditor = (props) => {
     // Validation check, if attribute name is found in policy this function will return false,
     // otherwise we will return true. Output is used in the toggleDelete function.
     function validateDelete(item) {
+	if (item.name.startsWith('_')) {
+	    return false
+	}
         for (let i = 0; i < policyData.length; i++) {
             if (item.appliesTo === "Users" && policyData[i].includes("input.user." + item.name)) {
                 return false
@@ -587,7 +602,7 @@ const AttributeEditor = (props) => {
                         <strong>Attribute In Use!</strong>
                     </CModalHeader>
                     <CModalBody className="text-lg-left">
-                        You cannot delete this attribute. It is currently being used in a policy.
+                        You cannot delete this attribute. It is either system defined or being used in a policy.
                     </CModalBody>
                     <CModalFooter>
                         <CButton
