@@ -147,26 +147,26 @@ const HostsView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/hosts/add')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/add')
     }
 
     const handleRule = (e, host, routetag) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/rule',
             state: [host, routetag]
         })
     }
 
     const handleRuleEdit = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/rule',
             state: [item, "Edit"]
         })
     }
 
     const handleAttrConfig = (index, configIndex) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/routeconfig',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/routeconfig',
             state: [hostsData[index], configIndex]
         });
         setDetails([])
@@ -175,7 +175,7 @@ const HostsView = (props) => {
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/edit',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/edit',
             state: hostsData[index]
         });
         setDetails([])
@@ -183,7 +183,7 @@ const HostsView = (props) => {
 
     const toAttrEditor = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor'
         })
     }
 

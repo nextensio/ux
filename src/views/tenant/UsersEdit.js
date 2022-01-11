@@ -80,7 +80,7 @@ const UsersEdit = (props) => {
     }, [selectedUsers])
 
     const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
     }
 
 
@@ -224,7 +224,7 @@ const UsersEdit = (props) => {
             errs.name = true
         }
         attrData.forEach((item) => {
-	    if (userAttrState[item.name] != undefined) {
+            if (userAttrState[item.name] != undefined) {
                 if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
                     errs[item.name] = true
                 }
@@ -238,7 +238,7 @@ const UsersEdit = (props) => {
     function validateAll() {
         let errs = {}
         attrData.forEach((item) => {
-	    if (userAttrState[item.name] != undefined) {
+            if (userAttrState[item.name] != undefined) {
                 if (item.isArray == "true" && JSON.stringify(userAttrState[item.name]).includes("ERR!")) {
                     errs[item.name] = true
                 }
@@ -364,7 +364,7 @@ const UsersEdit = (props) => {
                     alert(data["Result"])
                 }
                 if (last == true) {
-                    props.history.push('/tenant/' + props.match.params.id + '/users')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/users')
                 }
 
             })

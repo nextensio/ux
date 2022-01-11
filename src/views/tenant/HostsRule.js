@@ -284,7 +284,7 @@ const HostsRule = (props) => {
                     alert(data["Result"])
                 } else {
                     // bundle attribute http post must be run after bundle http post
-                    props.history.push('/tenant/' + props.match.params.id + '/hosts')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
                 }
             })
             .catch(error => {

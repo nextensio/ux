@@ -13,11 +13,11 @@ import CIcon from '@coreui/icons-react'
 const TheHeaderDropdown = (props) => {
 
     const toProfile = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/profile')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/profile')
     }
 
     const toSettings = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/settings')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/settings')
     }
 
     return (

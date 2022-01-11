@@ -80,7 +80,7 @@ const UsersAdd = (props) => {
     }, []);
 
     const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
     }
 
     const handleUserChange = (e) => {
@@ -336,7 +336,7 @@ const UsersAdd = (props) => {
                     alert(data["Result"])
                 }
                 else {
-                    props.history.push('/tenant/' + props.match.params.id + '/users')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/users')
                 }
             })
             .catch(error => {

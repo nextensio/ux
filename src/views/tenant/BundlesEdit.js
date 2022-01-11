@@ -110,7 +110,7 @@ const BundlesEdit = (props) => {
     }, [props, bundleState]);
 
     const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
     }
 
     const handleBundleChange = (e) => {
@@ -401,7 +401,7 @@ const BundlesEdit = (props) => {
                     alert(data["Result"])
                 }
                 else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles')
                 }
             })
             .catch(error => {

@@ -152,14 +152,14 @@ const UsersView = (props) => {
     // if a tenant tries to create a uid that already exists, I will reject this. 
     const handleAdd = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/users/add',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/users/add',
             state: uidData
         })
     }
 
     const handleEdit = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/users/edit',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/users/edit',
             state: selectedUsers
         });
         setDetails([])
@@ -167,7 +167,7 @@ const UsersView = (props) => {
 
     const toAttrEditor = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor'
         })
     }
 

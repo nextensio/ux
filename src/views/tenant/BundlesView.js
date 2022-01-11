@@ -204,28 +204,28 @@ const BundlesView = (props) => {
 
     const handleAdd = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/add',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/add',
             state: bidData
         })
     }
 
     const handleRule = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/rule',
             state: [item.bid, "Add"]
         })
     }
 
     const handleRuleEdit = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/rule',
             state: [item, "Edit"]
         })
     }
 
     const handleEdit = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/edit',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/edit',
             state: item
         });
         setDetails([]);
@@ -233,7 +233,7 @@ const BundlesView = (props) => {
 
     const toAttrEditor = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor'
         })
     }
 

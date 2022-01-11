@@ -28,15 +28,15 @@ const HostRouteConfig = (props) => {
     );
     const [hostState, updateHostState] = useState("");
     const [attrNames, setAttrNames] = useState(initAttrNames);
-    
+
     // Route object ie {tag: '', hostattr1: '', hostattr2: '', ...}
     // is held in routeObj State
     const [routeObj, updateRouteObj] = useState("");
-    
+
     // Route object index is held in configIndex since routeattrs property is in list form
     // [{tag: '', ...}, {tag: '', ...}, {tag: '', ...}]
     const [configIndex, setConfigIndex] = useState("");
-    
+
     // attrData is different from attrNames in that the variable contains the name and type of 
     // the attributes, ie {name: "employeeLevel", type: "Number", appliesTo: "Hosts", ...}
     const [attrData, setAttrData] = useState(Object.freeze([]));
@@ -65,7 +65,7 @@ const HostRouteConfig = (props) => {
         if (hostState != "") {
             updateRouteObj(hostState.routeattrs[configIndex])
             const hostStateAttrs = []
-            Object.keys(hostState.routeattrs[configIndex]).forEach((key,index) => {
+            Object.keys(hostState.routeattrs[configIndex]).forEach((key, index) => {
                 hostStateAttrs.push(key)
             })
             setAttrNames(hostStateAttrs)
@@ -89,7 +89,7 @@ const HostRouteConfig = (props) => {
     }, [props, attrNames]);
 
     const handleAttrChange = (e) => {
-        let input 
+        let input
         input = e.target.value.trim()
         updateRouteObj({
             ...routeObj,
@@ -162,7 +162,7 @@ const HostRouteConfig = (props) => {
         })
     }
 
-    
+
     const handleMultiBoolAttrChange = (e) => {
         let input
         if (e.target.value.trim() === "") {
@@ -207,7 +207,7 @@ const HostRouteConfig = (props) => {
         const dateRe = /^\d{4}-\d{2}-\d{2}$/;
         if (e.target.value.trim() === "") {
             input = ""
-        // Check if input contains comma, if so separate the values
+            // Check if input contains comma, if so separate the values
         } else if (e.target.value.indexOf(',') > -1) {
             input = e.target.value.split(',').map(item => {
                 // convert to Epoch GMT
@@ -232,13 +232,13 @@ const HostRouteConfig = (props) => {
     }
 
     function fillEmptyInputs() {
-        let attrState = {...routeObj}
-        attrData.forEach((item) => { 
-            if (!(item.name in attrState)) { 
+        let attrState = { ...routeObj }
+        attrData.forEach((item) => {
+            if (!(item.name in attrState)) {
                 if (item.isArray == "true") {
                     if (item.type == "String" || item.type == "Date") {
                         attrState[item.name] = [""]
-                    } 
+                    }
                     if (item.type == "Number") {
                         attrState[item.name] = [0]
                     }
@@ -249,7 +249,7 @@ const HostRouteConfig = (props) => {
                 if (item.isArray == "false") {
                     if (item.type == "String" || item.type == "Date") {
                         attrState[item.name] = ""
-                    } 
+                    }
                     if (item.type == "Number") {
                         attrState[item.name] = 0
                     }
@@ -269,7 +269,7 @@ const HostRouteConfig = (props) => {
         if (!alphanumericRe.test(String(routeObj.tag))) {
             errs.tag = true
         }
-        attrData.forEach((item) => { 
+        attrData.forEach((item) => {
             if (item.isArray == "true" && JSON.stringify(attrState[item.name]).includes("ERR!")) {
                 errs[item.name] = true
             }
@@ -304,7 +304,7 @@ const HostRouteConfig = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/hosts')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
                 }
             })
             .catch(error => {
@@ -316,11 +316,11 @@ const HostRouteConfig = (props) => {
         <>
             <CCard>
                 <CCardHeader>
-                    Modify Attributes for {hostState.host} 
+                    Modify Attributes for {hostState.host}
                     <div className="subtitle">
-                        {routeObj.tag!=""
+                        {routeObj.tag != ""
                             ?
-                           routeObj.tag + "." + hostState.host
+                            routeObj.tag + "." + hostState.host
                             :
                             <></>
                         }
@@ -330,7 +330,7 @@ const HostRouteConfig = (props) => {
                     <CForm>
                         <CFormGroup>
                             <CLabel htmlFor="nf-email">Route</CLabel>
-                            <CInput name='tag' defaultValue={routeObj.tag} onChange={handleAttrChange} invalid={errObj.tag}/>
+                            <CInput name='tag' defaultValue={routeObj.tag} onChange={handleAttrChange} invalid={errObj.tag} />
                             <CInvalidFeedback>Routes can only have alphanumeric values.</CInvalidFeedback>
                         </CFormGroup>
                         <div className="title py-3">Attributes</div>
@@ -341,65 +341,65 @@ const HostRouteConfig = (props) => {
                                         <>
                                             {attr.isArray == "true" ?
                                                 <CFormGroup>
-                                                    <CPopover 
+                                                    <CPopover
                                                         title="Popover title"
                                                         content="This attribute has been defined as string type and accepts multiple values."
                                                     >
-                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                        <FontAwesomeIcon icon="info-circle" />
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiStringAttrChange} invalid={errObj[attr.name + "Length"]}/>
+                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiStringAttrChange} invalid={errObj[attr.name + "Length"]} />
                                                     {errObj[attr.name + "Length"] ?
                                                         <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
                                                     }
                                                 </CFormGroup>
-                                            :
+                                                :
                                                 <CFormGroup>
-                                                    <CPopover 
+                                                    <CPopover
                                                         title="Popover title"
                                                         content="This attribute has been defined as string type and accepts a single value."
                                                     >
-                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                        <FontAwesomeIcon icon="info-circle" />
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleAttrChange} invalid={errObj[attr.name + "Length"]}/>
+                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleAttrChange} invalid={errObj[attr.name + "Length"]} />
                                                     {errObj[attr.name + "Length"] ?
                                                         <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                        <CFormText>Enter attribute value.</CFormText> 
+                                                        <CFormText>Enter attribute value.</CFormText>
                                                     }
                                                 </CFormGroup>
                                             }
                                         </>
                                     }
-                                    {attr.type == "Number" && 
+                                    {attr.type == "Number" &&
                                         <>
                                             {attr.isArray == "true" ?
                                                 <CFormGroup>
-                                                    <CPopover 
+                                                    <CPopover
                                                         title="Popover title"
                                                         content="This attribute has been defined as number type and accepts multiple values."
                                                     >
-                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                        <FontAwesomeIcon icon="info-circle" />
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]}/>
+                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]} />
                                                     {errObj[attr.name] ?
                                                         <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
-                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
                                                     }
                                                 </CFormGroup>
-                                            :
+                                                :
                                                 <CFormGroup>
-                                                    <CPopover 
+                                                    <CPopover
                                                         title="Popover title"
                                                         content="This attribute has been defined as number type and accepts a single value."
                                                     >
-                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                        <FontAwesomeIcon icon="info-circle" />
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="number" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleSingleNumberAttrChange}/>
-                                                    <CFormText>Enter attribute value.</CFormText> 
+                                                    <CInput type="number" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleSingleNumberAttrChange} />
+                                                    <CFormText>Enter attribute value.</CFormText>
                                                 </CFormGroup>
                                             }
                                         </>
@@ -408,20 +408,20 @@ const HostRouteConfig = (props) => {
                                         <>
                                             {attr.isArray == "true" ?
                                                 <CFormGroup>
-                                                    <CPopover 
+                                                    <CPopover
                                                         title="Popover title"
                                                         content="This attribute has been defined as boolean type and accepts multiple values."
                                                     >
-                                                        <FontAwesomeIcon icon="info-circle"/>
+                                                        <FontAwesomeIcon icon="info-circle" />
                                                     </CPopover>
                                                     {' '}<CLabel>{attr.name}</CLabel>
-                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]}/>
+                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]} />
                                                     {errObj[attr.name] ?
                                                         <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
-                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
                                                     }
                                                 </CFormGroup>
-                                            :
+                                                :
                                                 <CFormGroup>
                                                     <CLabel>{attr.name}</CLabel>
                                                     <CSelect name={attr.name} value={routeObj[attr.name]} custom onChange={handleSingleBoolAttrChange}>
@@ -434,29 +434,29 @@ const HostRouteConfig = (props) => {
                                     }
                                     {attr.type == "Date" &&
                                         <>
-                                        {attr.isArray == "true" ?
-                                            <CFormGroup>
-                                                <CPopover 
-                                                    title="Popover title"
-                                                    content="This attribute has been defined as date type and accepts multiple values."
-                                                >
-                                                    <FontAwesomeIcon icon="info-circle"/>
-                                                </CPopover>
-                                                {' '}<CLabel>{attr.name}</CLabel>
-                                                <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]}/>
-                                                {errObj[attr.name] ?
-                                                    <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
-                                                    <CFormText>Enter attribute values. Use commas to delimit.</CFormText> 
-                                                }
-                                            </CFormGroup>
-                                        :
-                                            <CFormGroup>
-                                                <CLabel>{attr.name}</CLabel>
-                                                <CInputGroup>
-                                                    <CInput type="date" id="date-input" value={routeObj[attr.name]} name={attr.name} placeholder={attr.name} onChange={handleSingleDateAttrChange} />
-                                                </CInputGroup>
-                                            </CFormGroup>
-                                        }
+                                            {attr.isArray == "true" ?
+                                                <CFormGroup>
+                                                    <CPopover
+                                                        title="Popover title"
+                                                        content="This attribute has been defined as date type and accepts multiple values."
+                                                    >
+                                                        <FontAwesomeIcon icon="info-circle" />
+                                                    </CPopover>
+                                                    {' '}<CLabel>{attr.name}</CLabel>
+                                                    <CInput type="text" name={attr.name} defaultValue={routeObj[attr.name]} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]} />
+                                                    {errObj[attr.name] ?
+                                                        <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
+                                                        <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                    }
+                                                </CFormGroup>
+                                                :
+                                                <CFormGroup>
+                                                    <CLabel>{attr.name}</CLabel>
+                                                    <CInputGroup>
+                                                        <CInput type="date" id="date-input" value={routeObj[attr.name]} name={attr.name} placeholder={attr.name} onChange={handleSingleDateAttrChange} />
+                                                    </CInputGroup>
+                                                </CFormGroup>
+                                            }
                                         </>
                                     }
                                 </CForm>
