@@ -33,13 +33,13 @@ const TheSidebar = (props) => {
         for (var i = 0; i < navigation.length; i++) {
             if (navigation[i].hasOwnProperty('to')) {
                 newNav[i].to = navigation[i].to.replace(":id", props.match.params.id)
+                newNav[i].to = navigation[i].to.replace(":group", props.match.params.group)
             }
-            
         }
         updateNav(newNav)
     }, [JSON.stringify(props.match.params)]);
 
-    const logoutURL = '/tenant/' + props.match.params.id + '/logout';
+    const logoutURL = '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/logout';
 
     return (
 

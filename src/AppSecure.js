@@ -33,7 +33,7 @@ const AppSecure = () => {
                 onAuthRequired={customAuthHandler}
             >
                 <Switch>
-                    <Route path="/tenant/:id" name="Tenant" render={props => <TenantLayout {...props} />} />
+                    <Route path="/tenant/:id/:group" name="Tenant" render={props => <TenantLayout {...props} />} />
                     <Route path='/' render={props => <HomeLayout {...props} />} />
                 </Switch>
             </Security>
@@ -47,7 +47,7 @@ const AppSecure = () => {
                 onAuthRequired={customAuthHandler}
             >
                 <Switch>
-                    <SecureRoute path="/tenant/:id" name="Tenant" render={props => <TenantLayout {...props} />} />
+                    <SecureRoute path="/tenant/:id/:group" name="Tenant" render={props => <TenantLayout {...props} />} />
                     <SecureRoute path="/home" name="Home" render={props => <HomeLayout {...props} />} />
                     <Route path='/' exact={true} component={Root} />
                     <Route path='/signup' render={() => <SignUp />} />

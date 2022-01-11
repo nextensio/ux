@@ -35,7 +35,7 @@ const TheContent = () => {
                   )} />
               )
             })}
-            <Redirect exact from="/tenant/:id" to="/tenant/:id/home"/>
+            <Redirect exact from="/tenant/:id/:group" to="/tenant/:id/:group/home" />
           </Switch>
         </Suspense>
       </CContainer>

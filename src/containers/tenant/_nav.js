@@ -8,7 +8,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Home',
-        to: '/tenant/:id/home',
+        to: '/tenant/:id/:group/home',
         className: 'roboto-font',
         icon: {
             name: 'cil-home',
@@ -18,7 +18,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Users',
-        to: '/tenant/:id/users',
+        to: '/tenant/:id/:group/users',
         className: 'roboto-font',
         icon: {
             name: 'cil-user',
@@ -28,7 +28,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Apps',
-        to: '/tenant/:id/hosts',
+        to: '/tenant/:id/:group/hosts',
         className: 'roboto-font',
         icon: {
             name: 'cil-link',
@@ -38,7 +38,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'AppGroups',
-        to: '/tenant/:id/bundles',
+        to: '/tenant/:id/:group/bundles',
         className: 'roboto-font',
         icon: {
             name: 'cil-notes',
@@ -48,7 +48,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Stats',
-        to: '/tenant/:id/stats',
+        to: '/tenant/:id/:group/stats',
         className: 'roboto-font',
         icon: {
             name: 'cil-chart',
@@ -58,7 +58,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Tracing',
-        to: '/tenant/:id/tracing',
+        to: '/tenant/:id/:group/tracing',
         className: 'roboto-font',
         icon: {
             name: 'cil-graph',
@@ -68,7 +68,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Attribute Editor',
-        to: '/tenant/:id/attreditor',
+        to: '/tenant/:id/:group/attreditor',
         className: 'roboto-font',
         icon: {
             name: 'cil-code',
@@ -78,7 +78,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Policies',
-        to: '/tenant/:id/policy',
+        to: '/tenant/:id/:group/policy',
         className: 'roboto-font',
         icon: {
             name: 'cil-fingerprint',
@@ -96,7 +96,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Images',
-        to: '/tenant/:id/images',
+        to: '/tenant/:id/:group/images',
         className: 'roboto-font',
         icon: {
             name: 'cil-3d',
@@ -142,7 +142,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Settings',
-        to: '/tenant/:id/settings',
+        to: '/tenant/:id/:group/settings',
         className: 'roboto-font',
         icon: {
             name: 'cil-settings',

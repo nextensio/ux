@@ -102,8 +102,8 @@ const UsersView = (props) => {
                     if (data[i].appliesTo == "Users") {
                         if (!data[i].name.startsWith('_')) {
                             users.push(data[i].name)
-			}
-		    }
+                        }
+                    }
                 }
                 users.sort()
                 updateUserAttrSet(users)
@@ -464,10 +464,25 @@ const UsersView = (props) => {
                         <strong>Edit Types for {selectedUsers.length === 1 ? selectedUsers[0].uid : `${selectedUsers.length} users`}</strong>
                     </CModalHeader>
                     <CModalBody>
-                        <CRow className='pb-3 border-bottom'>
+                        <CRow className='pb-3'>
                             <CCol md="8">
                                 <div>SuperAdmin</div>
-                                <div className="text-muted small">An unchecked box will demote / keep users as regular</div>
+                            </CCol>
+                            <CCol md="4">
+                                <CInputCheckbox />
+                            </CCol>
+                        </CRow>
+                        <CRow className='pb-3'>
+                            <CCol md="8">
+                                <div>GroupAdmin</div>
+                            </CCol>
+                            <CCol md="4">
+                                <CInputCheckbox />
+                            </CCol>
+                        </CRow>
+                        <CRow className='pb-3 border-bottom'>
+                            <CCol md="8">
+                                <div>Regular</div>
                             </CCol>
                             <CCol md="4">
                                 <CInputCheckbox />

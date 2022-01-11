@@ -40,7 +40,7 @@ const Home = (props) => {
     const [newClusterData, updateNewClusterData] = useState(initConfigData)
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [newClusterModal, setNewClusterModal] = useState(false)
-    const [allClusterData, updateAllClusterData] = useState(Object.freeze([]))
+    const [group, updateGroup] = useState("")
 
     // When the user clicks on a gateway, make api call to see what existing image and apodrepl are for that gateway
     // Set as placeholder
@@ -49,6 +49,7 @@ const Home = (props) => {
 
     const [clusterErrObj, updateClusterErrObj] = useState(Object.freeze({}))
     const [idpErrObj, updateIdpErrObj] = useState(Object.freeze({}))
+    const [groupConfigModal, setGroupConfigModal] = useState(false)
 
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -58,6 +59,14 @@ const Home = (props) => {
             Authorization: bearer,
         },
     };
+
+    const idTokenJson = common.decodeToken(bearer)
+
+    useEffect(() => {
+        if (props.match.params.group != idTokenJson.usertype) {
+            window.location.href = '/tenant/' + props.match.params.id + '/' + idTokenJson.usertype + '/'
+        }
+    }, [])
 
     // Gateways used for gateway configuration
     useEffect(() => {
@@ -85,6 +94,10 @@ const Home = (props) => {
                 })
             });
     }, [newClusterData.gateway])
+
+    const applyNewGroup = (e) => {
+        window.location.href = '/tenant/' + props.match.params.id + '/' + group + '/'
+    }
 
     function validateClusterFields() {
         let errs = {};
@@ -153,10 +166,18 @@ const Home = (props) => {
         resetIdpJson(e)
     }
 
+    const handleGroupChange = (e) => {
+        updateGroup(e.target.value)
+    }
 
     const resetIdpJson = (e) => {
         updateIdpJson({})
         updateIdpErrObj({})
+    }
+
+    const cancelGroupChange = (e) => {
+        updateGroup("")
+        setGroupConfigModal(!groupConfigModal)
     }
 
     const cancelNewClusterEdit = (e) => {
@@ -208,7 +229,7 @@ const Home = (props) => {
                 <h4 className="title">Home</h4>
             </CCallout>
             <CRow>
-                <CCol md="6">
+                <CCol md="4">
                     <CCard className="roboto-font border-rounded shadow">
                         <CCardHeader>
                             Gateway Configuration
@@ -226,7 +247,7 @@ const Home = (props) => {
                         </CCardBody>
                     </CCard>
                 </CCol>
-                <CCol md="6">
+                <CCol md="4">
                     <CCard className="roboto-font border-rounded shadow">
                         <CCardHeader>
                             Identity Provider Configuration
@@ -252,6 +273,23 @@ const Home = (props) => {
                                     </CDropdownItem>
                                 </CDropdownMenu>
                             </CDropdown>
+                        </CCardHeader>
+                        <CCardBody>
+                            <CDataTable />
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+                <CCol md="4">
+                    <CCard className="roboto-font border-rounded shadow">
+                        <CCardHeader>
+                            Group - {props.match.params.group}
+                            <CButton
+                                className="float-right"
+                                color="info"
+                                onClick={() => setGroupConfigModal(!groupConfigModal)}
+                            >
+                                Create
+                            </CButton>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable />
@@ -439,6 +477,27 @@ const Home = (props) => {
                     <CButton
                         color="secondary"
                         onClick={cancelNewClusterEdit}
+                    ><strong>Cancel</strong></CButton>
+                </CModalFooter>
+            </CModal>
+            <CModal className="roboto-font" show={groupConfigModal}>
+                <CModalHeader className="bg-info text-white py-n5">
+                    Group Configuration
+                </CModalHeader>
+                <CModalBody>
+                    <CLabel>Group Name</CLabel>
+                    <CInputGroup>
+                        <CInput onChange={handleGroupChange} />
+                    </CInputGroup>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="info"
+                        onClick={applyNewGroup}
+                    ><strong>Configure</strong></CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={cancelGroupChange}
                     ><strong>Cancel</strong></CButton>
                 </CModalFooter>
             </CModal>

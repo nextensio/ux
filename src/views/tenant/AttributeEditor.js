@@ -41,6 +41,11 @@ var common = require('../../common')
 
 const easyFields = [
     {
+        key: "accessable",
+        label: '',
+        _style: { width: '1%' },
+    },
+    {
         key: "name",
         _classes: "data-head"
     },
@@ -70,9 +75,15 @@ const easyFields = [
 
 const expertFields = [
     {
+        key: "accessable",
+        label: '',
+        _style: { width: '1%' },
+    },
+    {
         key: "name",
         _classes: "data-head"
     },
+
     {
         key: "appliesTo",
         _classes: "data-field"
@@ -102,13 +113,15 @@ const expertFields = [
 ]
 
 const AttributeEditor = (props) => {
+
+
     var initAttrData = Object.freeze(
         []
     );
-    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '' }
-    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '' }
+    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '', group: '' }
+    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '', group: '' }
+
     const [attrColl, updateAttrColl] = useState(initAttrData);
-    const [userAttrColl, updateUserAttrColl] = useState(initAttrData)
     const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
     const [policyData, updatePolicyData] = useState(Object.freeze([]))
     const [resetWarning, setResetWarning] = useState(false);
@@ -117,7 +130,7 @@ const AttributeEditor = (props) => {
     const [deleteItem, setDeleteItem] = useState(0);
     const [activeTab, setActiveTab] = useState("Overview")
     const [overwriteModal, setOverwriteModal] = useState(false);
-    const [easyMode, setEasyMode] = useState(true)
+    const [easyMode, setEasyMode] = useState(false)
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
 
@@ -129,18 +142,44 @@ const AttributeEditor = (props) => {
         },
     };
 
+    const idTokenJson = common.decodeToken(bearer)
+
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => {
-                if (!data.Tenant.easymode) {
-                    updateAttributeData(initAttrObj)
+                if (!easyMode) { // if (!data.Tenant.easymode) 
+                    // const fetchUser = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs).then(res => res.json());
+                    // const fetchBundles = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Bundles'), hdrs).then(res => res.json());
+                    // const fetchHosts = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Hosts'), hdrs).then(res => res.json())
+                    // const allData = Promise.all([fetchUser, fetchBundles, fetchHosts])
+                    // allData.then((res) => {
+                    //     var merged = [].concat.apply([], res);
+                    //     updateAttrColl(merged)
+                    // })
+
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+                        .then(response => response.json())
+                        .then(data => {
+                            updateAttrColl(data)
+                        });
+                } else {
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+                        .then(response => response.json())
+                        .then(data => {
+                            let userData = []
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].appliesTo == "Users") {
+                                    userData.push(data[i])
+                                }
+                            }
+                            console.log(userData)
+                            updateAttrColl(userData)
+                        })
                 }
-                setEasyMode(data.Tenant.easymode)
+                // setEasyMode(data.Tenant.easymode)
             });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
-            .then(response => response.json())
-            .then(data => { updateAttrColl(data) });
+
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -155,15 +194,6 @@ const AttributeEditor = (props) => {
             })
     }, []);
 
-    useEffect(() => {
-        let userSet = []
-        for (let i = 0; i < attrColl.length; i++) {
-            if (attrColl[i].appliesTo == "Users") {
-                userSet.push(attrColl[i])
-            }
-        } updateUserAttrColl(userSet)
-    }, [attrColl])
-
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -175,6 +205,7 @@ const AttributeEditor = (props) => {
             ...attributeData,
             [e.target.name]: e.target.value
         });
+        console.log(attributeData)
     };
 
     const handleType = (e, type) => {
@@ -199,8 +230,7 @@ const AttributeEditor = (props) => {
     function validate() {
         var errors = {}
         attributeData.name = attributeData.name.trim()
-	// TODO: change this to userType from bearer token
-	attributeData.group = "superadmin"
+        attributeData.group = idTokenJson.usertype
         // If the tenant does not input any value for name or select a type errObj will have typeErr
         if (attributeData.name == "") {
             errors.typeErr = true
@@ -279,9 +309,9 @@ const AttributeEditor = (props) => {
     // Validation check, if attribute name is found in policy this function will return false,
     // otherwise we will return true. Output is used in the toggleDelete function.
     function validateDelete(item) {
-	if (item.name.startsWith('_')) {
-	    return false
-	}
+        if (item.name.startsWith('_')) {
+            return false
+        }
         for (let i = 0; i < policyData.length; i++) {
             if (item.appliesTo === "Users" && policyData[i].includes("input.user." + item.name)) {
                 return false
@@ -323,12 +353,6 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    if (item.appliesTo == "Users") {
-                        let userAttrs = [...userAttrColl]
-                        let index = userAttrs.indexOf(item)
-                        userAttrs.splice(index, 1)
-                        updateUserAttrColl(userAttrs)
-                    }
                     let attrs = [...attrColl]
                     let index = attrs.indexOf(item)
                     attrs.splice(index, 1)
@@ -529,10 +553,23 @@ const AttributeEditor = (props) => {
                         <CCardBody>
                             <CDataTable
                                 fields={easyMode ? easyFields : expertFields}
-                                items={easyMode ? userAttrColl : attrColl}
+                                items={attrColl}
                                 pagination
                                 sorter
                                 scopedSlots={{
+                                    'accessable':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto">
+                                                    <CIcon
+                                                        name="cil-circle"
+                                                        className={(idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype)
+                                                            ? "text-danger"
+                                                            : "text-success"}
+                                                    />
+                                                </td>
+                                            )
+                                        },
                                     'appliesTo':
                                         (item, index) => {
                                             return (
@@ -551,6 +588,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
+                                                            disabled={idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype}
                                                             onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
