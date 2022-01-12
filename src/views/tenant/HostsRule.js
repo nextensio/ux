@@ -19,7 +19,8 @@ import {
     CModalFooter,
     CModalHeader,
     CRow,
-    CSelect
+    CSelect,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -49,6 +50,9 @@ const HostsRule = (props) => {
     const [snippetType, updateSnippetType] = useState(initSnippetType)
     const [editingSnippet, setEditingSnippet] = useState("")
     const [deleteModal, setDeleteModal] = useState(false)
+    const [lockInfoModal, setLockInfoModal] = useState(false)
+    const [lock, setLock] = useState(false)
+
     const initRuleData = Object.freeze({
         host: "",
         rid: "",
@@ -125,10 +129,19 @@ const HostsRule = (props) => {
                         user.push(data[i].name)
                     }
                 }
-                console.log(user)
                 updateAccessibleUserAttrs(user)
             })
     }, [])
+
+    function lockable() {
+        let snips = ruleData.rule
+        for (let i in snips) {
+            if (snips[i][0] !== "User ID" && snips[i][0] !== "tag" && !accessibleUserAttrs.includes(snips[i][0])) {
+                return "not lockable"
+            }
+        }
+        return "lockable"
+    }
 
     // Returns true if the attributes are part of your usertype scope
     function getAccessibleAttributes(userAttr) {
@@ -276,6 +289,11 @@ const HostsRule = (props) => {
         })
     }
 
+    const lockRule = (e) => {
+        setLock(!lock)
+        setLockInfoModal(!lockInfoModal)
+    }
+
     function validate() {
         let err = {}
         if (!ruleData.rid) {
@@ -326,6 +344,12 @@ const HostsRule = (props) => {
         <CCard className="roboto-font">
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
+                <div className="float-right">
+                    {lock ? "Unlock Rule" : "Lock Rule"}
+                    <CButton className="ml-3" color="primary" onClick={() => setLockInfoModal(!lockInfoModal)}>
+                        <FontAwesomeIcon icon={lock ? "lock" : "lock-open"} />
+                    </CButton>
+                </div>
             </CCardHeader>
             <CCardBody>
                 <CRow>
@@ -508,7 +532,17 @@ const HostsRule = (props) => {
                     >Cancel</CButton>
                 </CModalFooter>
             </CModal>
-        </CCard >
+            <CModal className="roboto-font" show={lockInfoModal}>
+                <CModalHeader><strong>Attention</strong></CModalHeader>
+                <CModalBody>You can lock this because all snippets used are defined in this group.</CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="success"
+                        onClick={lockRule}
+                    >{lock ? "Unlock" : "Lock"}</CButton>
+                </CModalFooter>
+            </CModal>
+        </CCard>
     )
 }
 
