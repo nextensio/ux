@@ -534,9 +534,9 @@ const TracingRule = (props) => {
 
             rtoken = rtoken.trim()
             if (uavalue === "attr") {
-		if (rtoken.includes(',')) {
+                if (rtoken.includes(',')) {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
-		}
+                }
                 traceReqAttrValue = traceReqRightTokenArray(rtoken, "string")
                 attrSpecified = 1
             } else if ((uatype === "string") || (uavalue === "uid")) {
@@ -731,8 +731,8 @@ const TracingRule = (props) => {
                                     <CLabel>Rule Name</CLabel>
                                     <CInput name="rid" value={ruleData.rid} onChange={handleChange} invalid={errObj.rid} />
                                     {!errObj.rid ?
-                                     <CFormText>Enter a rule name (a trace request name) to trace one or more specific flows.
-                                                Multiple rules can be specified to trace different groups of flows</CFormText>
+                                        <CFormText>Enter a rule name (a trace request name) to trace one or more specific flows.
+                                            Multiple rules can be specified to trace different groups of flows</CFormText>
                                         :
                                         <CInvalidFeedback>Please enter a valid name</CInvalidFeedback>
                                     }
@@ -838,14 +838,8 @@ const TracingRule = (props) => {
                     </CRow>
                 </CCardBody>
                 <CCardFooter className="roboto-font">
-                    <CRow className="mt-3">
-                        <CCol sm="3">
-                            <CButton block variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                        </CCol>
-                        <CCol sm="3">
-                            <CButton block variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>{Object.keys(editingRule).length != 0 ? "Modify Rule" : "Create Rule"}</strong></CButton>
-                        </CCol>
-                    </CRow>
+                    <CButton className="button-footer-danger" variant="outline" variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                    <CButton className="button-footer-success" variant="outline" variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-scrubber" /> <strong>{Object.keys(editingRule).length != 0 ? "Modify" : "Create"}</strong></CButton>
                 </CCardFooter>
             </CCard>
             <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>

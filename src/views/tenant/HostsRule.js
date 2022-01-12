@@ -441,14 +441,8 @@ const HostsRule = (props) => {
                 </CRow>
             </CCardBody>
             <CCardFooter>
-                <CRow className="mt-3">
-                    <CCol sm="3">
-                        <CButton block onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                    </CCol>
-                    <CCol sm="3">
-                        <CButton block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
-                    </CCol>
-                </CRow>
+                <CButton className="button-footer-danger" variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                <CButton className="button-footer-success" variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-scrubber" /> <strong>Create</strong></CButton>
             </CCardFooter>
             <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>

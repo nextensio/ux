@@ -281,7 +281,7 @@ const StatRule = (props) => {
 
     function processStatsRule(e, statsRule, policyData) {
         let statsAttrValue = "[\"all\"]"
-	let attrList = ""
+        let attrList = ""
         let RuleStart = ""
         let statsPolicyAttr = ""
         let RuleEnd = ""
@@ -367,7 +367,7 @@ const StatRule = (props) => {
                         <CCardHeader>
                             Stats Rule Creator
                             <div className="text-muted small">
-            Only one stats rule can exist to specify attributes to include or exclude. Use == to include, != to exclude.
+                                Only one stats rule can exist to specify attributes to include or exclude. Use == to include, != to exclude.
                             </div>
                         </CCardHeader>
                         <CCardBody className="roboto-font">
@@ -398,11 +398,7 @@ const StatRule = (props) => {
                             </CRow>
                         </CCardBody>
                         <CCardFooter>
-                            <CRow>
-                                <CCol sm="3">
-                                    <CButton shape="square" variant="outline" block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
-                                </CCol>
-                            </CRow>
+                            <CButton className="button-footer-success" variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-scrubber" /> <strong>Create</strong></CButton>
                         </CCardFooter>
                     </CCard>
                 </CCol>
