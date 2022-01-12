@@ -38,7 +38,12 @@ const HostsRule = (props) => {
     const [host, setHost] = useState("")
     const [tag, setTag] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
+
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on token usertype property
+    const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
+
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
@@ -49,6 +54,7 @@ const HostsRule = (props) => {
         rid: "",
         rule: []
     })
+
     const [ruleData, updateRuleData] = useState(initRuleData)
     const [errObj, updateErrObj] = useState({})
 
@@ -110,7 +116,31 @@ const HostsRule = (props) => {
                 }
                 updateUserAttrs(user)
             })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var user = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].name) {
+                        user.push(data[i].name)
+                    }
+                }
+                console.log(user)
+                updateAccessibleUserAttrs(user)
+            })
     }, [])
+
+    // Returns true if the attributes are part of your usertype scope
+    function getAccessibleAttributes(userAttr) {
+        if (userAttr === "User ID") {
+            return true
+        } else if (accessibleUserAttrs.includes(userAttr)) {
+            return true
+        } else {
+            return false
+        }
+    }
+
 
     const handleChange = (e) => {
         updateRuleData({
@@ -328,13 +358,15 @@ const HostsRule = (props) => {
                                             <option value="">User Attrs</option>
                                             <option value="User ID">User ID</option>
                                             {userAttrs.map((item, index) => {
-                                                return (
-                                                    <option
-                                                        value={item.name}
-                                                    >
-                                                        {item.name}
-                                                    </option>
-                                                )
+                                                if (getAccessibleAttributes(item.name)) {
+                                                    return (
+                                                        <option
+                                                            value={item.name}
+                                                        >
+                                                            {item.name}
+                                                        </option>
+                                                    )
+                                                }
                                             })}
                                         </CSelect>
                                     </CCol>
@@ -386,6 +418,7 @@ const HostsRule = (props) => {
                                     className="mb-1"
                                     size="sm"
                                     color="success"
+                                    disabled={!getAccessibleAttributes("tag")}
                                 >
                                     tag == {tag}
                                     <CButton
@@ -410,27 +443,40 @@ const HostsRule = (props) => {
                                                 value={item}
                                                 className="mb-1"
                                                 size="sm"
+                                                disabled={!getAccessibleAttributes(item[0])}
                                                 color={item == editingSnippet ? "warning" : "success"}
                                             >
                                                 {item.slice(0, 3).join(' ')}
-                                                <CButton
-                                                    className="button-table float-right"
-                                                    color='danger'
-                                                    variant='ghost'
-                                                    size="sm"
-                                                    onClick={() => removeSnippetFromRule(item)}
-                                                >
-                                                    <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                </CButton>
-                                                <CButton
-                                                    className="button-table float-right"
-                                                    color='primary'
-                                                    variant='ghost'
-                                                    size="sm"
-                                                    onClick={() => populateSnippetEditor(item)}
-                                                >
-                                                    <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                </CButton>
+                                                {getAccessibleAttributes(item[0]) ?
+                                                    <>
+                                                        <CButton
+                                                            className="button-table float-right"
+                                                            color='danger'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => removeSnippetFromRule(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                        </CButton>
+                                                        <CButton
+                                                            className="button-table float-right"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => populateSnippetEditor(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </>
+                                                    :
+                                                    <CButton
+                                                        size="sm"
+                                                        className="float-right"
+                                                        disabled
+                                                    >
+                                                        <FontAwesomeIcon icon="lock" size="lg" />
+                                                    </CButton>
+                                                }
                                             </CListGroupItem>
                                         </div>
                                     )

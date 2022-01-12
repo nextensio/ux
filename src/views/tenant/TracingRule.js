@@ -37,7 +37,15 @@ const TracingRule = (props) => {
 
     const [uids, updateUids] = useState(Object.freeze([]))
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
-    const [userAttrNames, updateUserAttrNames] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on token usertype property
+    const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on token usertype property in object format 
+    // ({value: <accessibleUserAttr>, label: <accessibleUserAttr>}). Needed for CreateableSelect library
+    const [accessibleUserAttrsForRHS, updateAccessibleUserAttrsForRHS] = useState(Object.freeze([]))
+
+
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
@@ -76,25 +84,50 @@ const TracingRule = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var userAttrObjs = []
-                var userAttrNames = []
+                var user = []
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == "Users") {
-                        userAttrObjs.push(data[i])
-                        userAttrNames.push({ value: data[i].name, label: data[i].name })
+                        user.push(data[i])
                     }
                 }
-                updateUserAttrNames(userAttrNames)
-                updateUserAttrs(userAttrObjs)
+                updateUserAttrs(user)
+            })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var userAttrNames = []
+                var userAttrObjs = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].name) {
+                        userAttrNames.push(data[i].name)
+                        userAttrObjs.push({ value: data[i].name, label: data[i].name })
+                    }
+                }
+                updateAccessibleUserAttrs(userAttrNames)
+                updateAccessibleUserAttrsForRHS(userAttrObjs)
             })
     }, [])
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alltracereqrules'), hdrs)
             .then(response => response.json())
-            .then(data => updateExistingRules(data))
+            .then(data => {
+                console.log(data)
+                updateExistingRules(data)
+            })
 
     }, [])
+
+    // Returns true if the attributes are part of your usertype scope
+    function getAccessibleAttributes(userAttr) {
+        if (userAttr === "User ID") {
+            return true
+        } else if (accessibleUserAttrs.includes(userAttr)) {
+            return true
+        } else {
+            return false
+        }
+    }
 
     const handleChange = (e) => {
         updateRuleData({
@@ -338,7 +371,7 @@ const TracingRule = (props) => {
             return (
                 <CreatableSelect
                     name="userAttrs"
-                    options={userAttrNames}
+                    options={accessibleUserAttrsForRHS}
                     value={snippetData[2]}
                     isSearchable
                     isMulti
@@ -756,13 +789,16 @@ const TracingRule = (props) => {
                                                 <option value="User Attributes">User Attributes</option>
                                                 <option value="User ID">User ID</option>
                                                 {userAttrs.map((item, index) => {
-                                                    return (
-                                                        <option
-                                                            value={item.name}
-                                                        >
-                                                            {item.name}
-                                                        </option>
-                                                    )
+                                                    if (getAccessibleAttributes(item.name)) {
+                                                        return (
+                                                            <option
+                                                                value={item.name}
+                                                            >
+                                                                {item.name}
+                                                            </option>
+                                                        )
+                                                    }
+
                                                 })}
                                             </CSelect>
                                         </CCol>
@@ -805,29 +841,43 @@ const TracingRule = (props) => {
                                                 <CListGroupItem
                                                     key={item}
                                                     value={item}
+                                                    disabled={!getAccessibleAttributes(item[0])}
                                                     className="mb-1"
                                                     size="sm"
                                                     color={item == editingSnippet ? "warning" : "success"}
                                                 >
                                                     {item.slice(0, 3).join(' ')}
-                                                    <CButton
-                                                        className="button-table float-right"
-                                                        color='danger'
-                                                        variant='ghost'
-                                                        size="sm"
-                                                        onClick={() => removeSnippetFromRule(item)}
-                                                    >
-                                                        <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                    </CButton>
-                                                    <CButton
-                                                        className="button-table float-right"
-                                                        color='primary'
-                                                        variant='ghost'
-                                                        size="sm"
-                                                        onClick={() => populateSnippetEditor(item)}
-                                                    >
-                                                        <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                    </CButton>
+                                                    {getAccessibleAttributes(item[0])
+                                                        ?
+                                                        <>
+                                                            <CButton
+                                                                className="button-table float-right"
+                                                                color='danger'
+                                                                variant='ghost'
+                                                                size="sm"
+                                                                onClick={() => removeSnippetFromRule(item)}
+                                                            >
+                                                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                            </CButton>
+                                                            <CButton
+                                                                className="button-table float-right"
+                                                                color='primary'
+                                                                variant='ghost'
+                                                                size="sm"
+                                                                onClick={() => populateSnippetEditor(item)}
+                                                            >
+                                                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                                            </CButton>
+                                                        </>
+                                                        :
+                                                        <CButton
+                                                            size="sm"
+                                                            className="float-right"
+                                                            disabled
+                                                        >
+                                                            <FontAwesomeIcon icon="lock" size="lg" />
+                                                        </CButton>
+                                                    }
                                                 </CListGroupItem>
                                             </div>
                                         )
