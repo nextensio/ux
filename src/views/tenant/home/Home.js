@@ -119,18 +119,18 @@ const Home = (props) => {
         let errs = {}
         if (!idpJson.name) {
             errs.name = true
-        } if (!idpJson.clientId) {
+        } if (!idpJson.client) {
             errs.clientId = true
-        } if (!idpJson.clientSecret) {
+        } if (!idpJson.secret) {
             errs.clientSecret = true
         } if (idpJson.provider === "OIDC") {
             if (!idpJson.issuer) {
                 errs.issuer = true
-            } if (!idpJson.authEndpoint) {
+            } if (!idpJson.auth) {
                 errs.authEndpoint = true
-            } if (!idpJson.tokenEndpoint) {
+            } if (!idpJson.token) {
                 errs.tokenEndpoint = true
-            } if (!idpJson.jwksEndpoint) {
+            } if (!idpJson.jwks) {
                 errs.jwksEndpoint = true
             }
         }
@@ -145,6 +145,13 @@ const Home = (props) => {
     }
 
     const handleIdpJsonChange = (e) => {
+        if (e.target.name == "name") {
+            let words = e.target.value.split(/\s+/);
+            if (words.length != 1) {
+                alert("IDP Name has to be one single word " + words)
+                return
+            }
+        }
         updateIdpJson({
             ...idpJson,
             [e.target.name]: e.target.value
@@ -159,18 +166,42 @@ const Home = (props) => {
     }
 
     const handleIdpSubmit = (e) => {
+        console.log('IDP is: ' + idpJson);
         let errs = validateIdpFields()
         if (Object.keys(errs).length !== 0) {
             return
         }
-        resetIdpJson(e)
+        e.preventDefault()
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            body: JSON.stringify(idpJson),
+        };
+        resetIdpJson()
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/idp'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
     }
 
     const handleGroupChange = (e) => {
         updateGroup(e.target.value)
     }
 
-    const resetIdpJson = (e) => {
+    const resetIdpJson = () => {
         updateIdpJson({})
         updateIdpErrObj({})
     }
@@ -330,11 +361,22 @@ const Home = (props) => {
                     </CRow>
                     <CRow className="mt-4">
                         <CCol sm="4">
+                            <CLabel>Matching domain</CLabel>
+                        </CCol>
+                        <CCol sm="8">
+                            <CInputGroup>
+                                <CInput name="domain" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.domain} />
+                                <CInvalidFeedback>Domain cannot be empty</CInvalidFeedback>
+                            </CInputGroup>
+                        </CCol>
+                    </CRow>
+                    <CRow className="mt-4">
+                        <CCol sm="4">
                             <CLabel>Client ID</CLabel>
                         </CCol>
                         <CCol sm="8">
                             <CInputGroup>
-                                <CInput name="clientId" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientId} />
+                                <CInput name="client" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientId} />
                                 <CInvalidFeedback>Client ID cannot be empty</CInvalidFeedback>
                             </CInputGroup>
                         </CCol>
@@ -345,7 +387,7 @@ const Home = (props) => {
                         </CCol>
                         <CCol sm="8">
                             <CInputGroup>
-                                <CInput name="clientSecret" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientSecret} />
+                                <CInput name="secret" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientSecret} />
                                 <CInvalidFeedback>Client Secret cannot be empty</CInvalidFeedback>
                             </CInputGroup>
                         </CCol>
@@ -370,7 +412,7 @@ const Home = (props) => {
                                 </CCol>
                                 <CCol sm="8">
                                     <CInputGroup>
-                                        <CInput name="authEndpoint" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.authEndpoint} />
+                                        <CInput name="auth" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.authEndpoint} />
                                         <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
                                     </CInputGroup>
                                 </CCol>
@@ -381,7 +423,7 @@ const Home = (props) => {
                                 </CCol>
                                 <CCol sm="8">
                                     <CInputGroup>
-                                        <CInput name="tokenEndpoint" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.tokenEndpoint} />
+                                        <CInput name="token" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.tokenEndpoint} />
                                         <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
                                     </CInputGroup>
                                 </CCol>
@@ -392,7 +434,7 @@ const Home = (props) => {
                                 </CCol>
                                 <CCol sm="8">
                                     <CInputGroup>
-                                        <CInput name="jwksEndpoint" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.jwksEndpoint} />
+                                        <CInput name="jwks" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.jwksEndpoint} />
                                         <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
                                     </CInputGroup>
                                 </CCol>
