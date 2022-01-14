@@ -30,8 +30,8 @@ const AppSecure = () => {
             <Switch>
                 <SecureRoute path="/tenant/:id/:group" name="Tenant" render={props => <TenantLayout {...props} />} />
                 <SecureRoute path="/home" name="Home" render={props => <HomeLayout {...props} />} />
-                <Route path='/' exact={true} component={Root} />
                 <Route path='/signup' render={() => <SignUp />} />
+                <Route path='/' exact={true} component={Root} />
                 <Route path={CALLBACK_PATH} exact={true} component={LoginCallback} />
             </Switch>
         </Security>
