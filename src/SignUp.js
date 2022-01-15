@@ -34,7 +34,7 @@ const SignUp = (props) => {
         let errs = {}
         const emailRe = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const enterpriseRe = /^[a-z0-9]+$/;
-        if (!emailRe.test(String(signupData.email).toLowerCase())){
+        if (!emailRe.test(String(signupData.email).toLowerCase())) {
             errs.email = true
         }
         if (!enterpriseRe.test(signupData.tenant)) {
@@ -75,15 +75,15 @@ const SignUp = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    alert("Please check your email, activate your account and then login here")
-                    props.history.push('/login')
+                    alert("Please check your email, activate your account and then login")
+                    props.history.push('/home')
                 }
             })
             .catch(error => {
                 alert('Error contacting server', error);
             });
     };
-    
+
     return (
         // Create a new Enterprise. You will be the administrator for this Enterprise. You will receive an email from nextensio.okta.com asking you to verify your email id and set a password. Once you set a password, you can login and configure your Enterprise to use Nextensio!
         // An Enterprise ID, like pepsi / pepsi100 / sprite etc.. (One word with only lower case alphabets, numbers)
@@ -104,17 +104,17 @@ const SignUp = (props) => {
                                                 <CIcon name="cil-user" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput type="text" name="tenant" onChange={handleChange} invalid={errObj.tenant}/>
+                                        <CInput type="text" name="tenant" onChange={handleChange} invalid={errObj.tenant} />
                                         <CInvalidFeedback>Please only use lowercase alphanumeric for your Enterprise ID.</CInvalidFeedback>
                                     </CInputGroup>
                                     <CLabel>Email</CLabel>
                                     <CInputGroup className="mb-3">
                                         <CInputGroupPrepend>
                                             <CInputGroupText>
-                                                <CIcon name="cil-envelope-closed"/>
+                                                <CIcon name="cil-envelope-closed" />
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
-                                        <CInput type="text" name="email" onChange={handleChange} invalid={errObj.email}/>
+                                        <CInput type="text" name="email" onChange={handleChange} invalid={errObj.email} />
                                         <CInvalidFeedback>Please enter a valid email.</CInvalidFeedback>
                                     </CInputGroup>
                                 </CForm>
