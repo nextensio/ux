@@ -49,6 +49,8 @@ const StatRule = (props) => {
         },
     };
 
+    const idTokenJson = common.decodeToken(bearer)
+
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -374,14 +376,11 @@ const StatRule = (props) => {
                             <CRow>
                                 <CCol sm="3">
                                     <div>
-                                        User Attributes
+                                        {props.match.params.group} User Attributes
                                     </div>
                                 </CCol>
                                 <CCol sm="3">
-                                    <CSelect name="operator" custom value={ruleSnippet[1]} onChange={handleOperator}>
-                                        <option value="==">==</option>
-                                        <option value="!=">!=</option>
-                                    </CSelect>
+                                    <></>
                                 </CCol>
                                 <CCol sm="6">
                                     <CreatableSelect

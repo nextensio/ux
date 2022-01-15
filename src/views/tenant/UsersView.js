@@ -10,6 +10,7 @@ import {
     CCollapse,
     CLink,
     CInputCheckbox,
+    CInputRadio,
     CRow,
     CPagination,
     CDataTable,
@@ -46,8 +47,14 @@ const fields = [
         _classes: "data-field",
     },
     {
+        key: "type",
+        label: "",
+        _classes: "data-field",
+        _style: { width: '1%' }
+    },
+    {
         key: "status",
-        label: "Status",
+        label: "",
         _classes: "data-field",
         _style: { width: '1%' },
     },
@@ -69,7 +76,10 @@ const UsersView = (props) => {
     const [zippedData, updateZippedData] = useState(initTableData)
     const [details, setDetails] = useState([]);
 
+    const [userToGroup, updateUserToGroup] = useState(Object.freeze({}))
     const [selectedUsers, updateSelectedUsers] = useState(initTableData)
+
+    const [userGroupError, updateUserGroupError] = useState(false)
 
     const [editTypeModal, setEditTypeModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false);
@@ -92,6 +102,7 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 updateUserAttrData(data)
             })
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
@@ -128,7 +139,6 @@ const UsersView = (props) => {
             }
         }
         updateUidData(uidObj)
-        console.log(zipper)
         updateZippedData(zipper)
     }, [usersData, userAttrData])
 
@@ -172,7 +182,7 @@ const UsersView = (props) => {
     }
 
     const handleDelete = (item) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/') + item.uid, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/user/' + item.uid), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -184,6 +194,38 @@ const UsersView = (props) => {
                 // check for error response
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const handleUserTypeSubmit = (e) => {
+        if (!userToGroup.group) {
+            updateUserGroupError(true)
+            return
+        }
+        const requestOptions = {
+            method: 'POST',
+            headers: { Authorization: bearer },
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user/adminrole/' + userToGroup.uid + '/' + userToGroup.group), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    updateUserGroupError(false)
+                    updateUserToGroup({})
+                    setEditTypeModal(!editTypeModal)
                 }
             })
             .catch(error => {
@@ -210,16 +252,6 @@ const UsersView = (props) => {
         updateZippedData(zipped)
         updateSelectedUsers([])
         setDeleteModal(!deleteModal)
-    }
-
-    function matchType(item) {
-        return (
-            <div className="border-left pl-3">
-                <div><FontAwesomeIcon icon="id-badge" color="warning" size="lg" /></div>
-                <div>User Type: {item.usertype}</div>
-                <div>User Group: {item.group ? item.group : "No group assigned"}</div>
-            </div>
-        )
     }
 
     function matchAttrs(item) {
@@ -285,6 +317,19 @@ const UsersView = (props) => {
         e.stopPropagation()
     }
 
+    const handleType = (e, item) => {
+        updateUserToGroup({ uid: item.uid, group: "" })
+        setEditTypeModal(!editTypeModal)
+        e.stopPropagation()
+    }
+
+    const handleTypeChange = (e) => {
+        updateUserToGroup({
+            ...userToGroup,
+            group: e.target.value
+        })
+    }
+
     return (
         <>
             <CRow>
@@ -323,11 +368,8 @@ const UsersView = (props) => {
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
                                                         <CRow>
-                                                            <CCol md="8">
+                                                            <CCol md="12">
                                                                 {matchAttrs(item)}
-                                                            </CCol>
-                                                            <CCol md="4">
-                                                                {matchType(item)}
                                                             </CCol>
                                                         </CRow>
                                                     </CCardBody>
@@ -342,6 +384,22 @@ const UsersView = (props) => {
                                                         onClick={e => handleSelectUsers(e, item)}
                                                         checked={selectedUsers.includes(item)}
                                                     />
+                                                </td>
+                                            )
+                                        },
+                                    'type':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2 ml-5">
+                                                    <CButton
+                                                        className="button-table"
+                                                        color="warning"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={(e) => handleType(e, item)}
+                                                    >
+                                                        <FontAwesomeIcon icon="id-badge" size="lg" className="icon-table-edit" />
+                                                    </CButton>
                                                 </td>
                                             )
                                         },
@@ -394,7 +452,7 @@ const UsersView = (props) => {
                                 <FontAwesomeIcon icon="pen" />
                                 <strong>{" "}Edit</strong>
                             </CButton>
-                            <CButton
+                            {/* <CButton
                                 className="float-right"
                                 color="warning"
                                 variant="outline"
@@ -403,7 +461,7 @@ const UsersView = (props) => {
                             >
                                 <FontAwesomeIcon icon="id-badge" />
                                 <strong>{" "}Type</strong>
-                            </CButton>
+                            </CButton> */}
                         </CCardFooter>
                     </CCard>
                 </CCol>
@@ -461,53 +519,33 @@ const UsersView = (props) => {
                 </CModal>
                 <CModal show={editTypeModal} className="roboto-font" onClose={() => setEditTypeModal(!editTypeModal)}>
                     <CModalHeader className="bg-warning text-dark py-n5">
-                        <strong>Edit Types for {selectedUsers.length === 1 ? selectedUsers[0].uid : `${selectedUsers.length} users`}</strong>
+                        <strong>Edit Type for {userToGroup.uid}</strong>
                     </CModalHeader>
                     <CModalBody>
-                        <CRow className='pb-3'>
-                            <CCol md="8">
-                                <div>SuperAdmin</div>
-                            </CCol>
-                            <CCol md="4">
-                                <CInputCheckbox />
-                            </CCol>
-                        </CRow>
-                        <CRow className='pb-3'>
-                            <CCol md="8">
-                                <div>GroupAdmin</div>
-                            </CCol>
-                            <CCol md="4">
-                                <CInputCheckbox />
-                            </CCol>
-                        </CRow>
-                        <CRow className='pb-3 border-bottom'>
-                            <CCol md="8">
-                                <div>Regular</div>
-                            </CCol>
-                            <CCol md="4">
-                                <CInputCheckbox />
-                            </CCol>
-                        </CRow>
                         <CRow className="pt-3">
                             <CCol md="8">
                                 Group
                             </CCol>
                             <CCol md="4">
                                 <div>
-                                    <CInputCheckbox /> DevOps
+                                    <CInputRadio name="group" value="admin-devops" checked={userToGroup.group === "admin-devops"} onChange={handleTypeChange} /> DevOps
                                 </div>
                                 <div>
-                                    <CInputCheckbox /> NetOps
+                                    <CInputRadio name="group" value="admin-netops" checked={userToGroup.group === "admin-netops"} onChange={handleTypeChange} /> NetOps
                                 </div>
                                 <div>
-                                    <CInputCheckbox /> SecOps
+                                    <CInputRadio name="group" value="admin-secops" checked={userToGroup.group === "admin-secops"} onChange={handleTypeChange} /> SecOps
                                 </div>
                             </CCol>
+                        </CRow>
+                        <CRow>
+                            <div className="invalid-form-text" hidden={!userGroupError}>You need to select a group.</div>
                         </CRow>
                     </CModalBody>
                     <CModalFooter>
                         <CButton
                             color="warning"
+                            onClick={handleUserTypeSubmit}
                         >Confirm</CButton>
                         <CButton
                             color="secondary"

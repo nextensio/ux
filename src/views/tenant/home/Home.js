@@ -166,7 +166,6 @@ const Home = (props) => {
     }
 
     const handleIdpSubmit = (e) => {
-        console.log('IDP is: ' + idpJson);
         let errs = validateIdpFields()
         if (Object.keys(errs).length !== 0) {
             return
@@ -177,7 +176,7 @@ const Home = (props) => {
             headers: { 'Content-Type': 'application/json', Authorization: bearer },
             body: JSON.stringify(idpJson),
         };
-        resetIdpJson()
+
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/idp'), requestOptions)
             .then(async response => {
                 const data = await response.json();
@@ -191,6 +190,7 @@ const Home = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 }
+                resetIdpJson()
             })
             .catch(error => {
                 alert('Error contacting server', error);
