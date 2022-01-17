@@ -21,15 +21,51 @@ import {
     CModalHeader,
     CModalBody,
     CModalFooter,
-    CSelect
+    CSelect,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { withRouter } from 'react-router-dom';
 import '../tenantviews.scss'
 import { useOktaAuth } from '@okta/okta-react';
 import Map from './mapbox/Mapbox'
 
 var common = require('../../../common')
+
+const groupFields = [
+    {
+        key: "admGroup",
+        label: "Name",
+        _classes: "data-head",
+    },
+    {
+        key: "delete",
+        label: "",
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    }
+]
+
+const idpFields = [
+    {
+        key: "name",
+        label: "Name",
+        _classes: "data-head",
+    },
+    {
+        key: "provider",
+        _classes: "data-field"
+    },
+    {
+        key: "delete",
+        label: "",
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    }
+]
 
 const Home = (props) => {
     const initConfigData = Object.freeze({
@@ -47,6 +83,8 @@ const Home = (props) => {
     const [existingClusterDataByGateway, setExistingClusterDataByGateway] = useState(initConfigData)
     const [idpJson, updateIdpJson] = useState(Object.freeze({}))
 
+    const [allIdps, updateAllIdps] = useState("")
+    const [allGroups, updateAllGroups] = useState(Object.freeze([]))
     const [clusterErrObj, updateClusterErrObj] = useState(Object.freeze({}))
     const [idpErrObj, updateIdpErrObj] = useState(Object.freeze({}))
     const [groupConfigModal, setGroupConfigModal] = useState(false)
@@ -80,8 +118,24 @@ const Home = (props) => {
                 names.sort()
                 updateGatewayData(names)
             });
+        // Fetch for Idps
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allidps'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                updateAllIdps(data)
+            })
+        // Fetch for Admin Groups
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let groups = []
+                for (let i = 0; i < data.AdmGroups.length; i++) {
+                    groups.push({ admGroup: data.AdmGroups[i] })
+                }
+                updateAllGroups(groups)
+            })
     }, []);
-
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + newClusterData.gateway), hdrs)
@@ -95,9 +149,6 @@ const Home = (props) => {
             });
     }, [newClusterData.gateway])
 
-    const applyNewGroup = (e) => {
-        window.location.href = '/tenant/' + props.match.params.id + '/' + group + '/'
-    }
 
     function validateClusterFields() {
         let errs = {};
@@ -189,8 +240,39 @@ const Home = (props) => {
                 // check for error response
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
+                } else {
+                    let idps = [...allIdps]
+                    idps.push(idpJson)
+                    updateAllIdps(idps)
+                    resetIdpJson()
                 }
-                resetIdpJson()
+
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const handleIdpDelete = (item) => {
+        console.log('/api/v1/tenant/' + props.match.params.id + '/del/idp/' + item.name)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/idp/' + item.name), hdrs)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    let index = allIdps.indexOf(item)
+                    let idps = [...allIdps]
+                    idps.splice(index, 1)
+                    updateAllIdps(idps)
+                }
             })
             .catch(error => {
                 alert('Error contacting server', error);
@@ -216,6 +298,53 @@ const Home = (props) => {
         updateNewClusterData(initConfigData)
         setExistingClusterDataByGateway(initConfigData)
         updateClusterErrObj({})
+    }
+
+    const handleGroupCreate = (e) => {
+        const requestOptions = {
+            method: 'POST',
+            headers: { Authorization: bearer },
+        }
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/admgroups/' + group), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    updateGroup("")
+                    setGroupConfigModal(!groupConfigModal)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const handleGroupDelete = (item) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/admgroups/' + item.admGroup), hdrs)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
     }
 
     const handleClusterDataSubmit = (e) => {
@@ -274,7 +403,9 @@ const Home = (props) => {
                             </CButton>
                         </CCardHeader>
                         <CCardBody>
-                            <CDataTable />
+                            <CDataTable
+
+                            />
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -306,14 +437,43 @@ const Home = (props) => {
                             </CDropdown>
                         </CCardHeader>
                         <CCardBody>
-                            <CDataTable />
+                            <CDataTable
+                                fields={idpFields}
+                                items={allIdps}
+                                itemsPerPageSelect
+                                sorter
+                                pagination
+                                scopedSlots={{
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='danger'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => handleIdpDelete(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
+                                            )
+                                        }
+                                }}
+                            />
                         </CCardBody>
                     </CCard>
                 </CCol>
                 <CCol md="4">
                     <CCard className="roboto-font border-rounded shadow">
                         <CCardHeader>
-                            Group - {props.match.params.group}
+                            Groups
                             <CButton
                                 className="float-right"
                                 color="info"
@@ -323,7 +483,36 @@ const Home = (props) => {
                             </CButton>
                         </CCardHeader>
                         <CCardBody>
-                            <CDataTable />
+                            <CDataTable
+                                items={allGroups}
+                                fields={groupFields}
+                                itemsPerPageSelect
+                                sorter
+                                pagination
+                                scopedSlots={{
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='danger'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => handleGroupDelete(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
+                                            )
+                                        }
+                                }}
+                            />
                         </CCardBody>
                     </CCard>
                 </CCol>
@@ -535,7 +724,7 @@ const Home = (props) => {
                 <CModalFooter>
                     <CButton
                         color="info"
-                        onClick={applyNewGroup}
+                        onClick={handleGroupCreate}
                     ><strong>Configure</strong></CButton>
                     <CButton
                         color="secondary"

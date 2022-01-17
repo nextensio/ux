@@ -76,6 +76,7 @@ const UsersView = (props) => {
     const [zippedData, updateZippedData] = useState(initTableData)
     const [details, setDetails] = useState([]);
 
+    const [adminGroups, updateAdminGroups] = useState(Object.freeze([]))
     const [userToGroup, updateUserToGroup] = useState(Object.freeze({}))
     const [selectedUsers, updateSelectedUsers] = useState(initTableData)
 
@@ -102,11 +103,10 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 updateUserAttrData(data)
             })
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
-            .then(respone => respone.json())
+            .then(response => response.json())
             .then(data => {
                 let users = []
                 for (let i = 0; i < data.length; i++) {
@@ -119,6 +119,9 @@ const UsersView = (props) => {
                 users.sort()
                 updateUserAttrSet(users)
             })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
+            .then(response => response.json())
+            .then(data => console.log(data))
     }, []);
 
     // Might be an inefficient way of rendering both user and user attrs

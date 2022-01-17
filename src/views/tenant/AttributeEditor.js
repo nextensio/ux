@@ -563,9 +563,10 @@ const AttributeEditor = (props) => {
                                                 <td className="py-auto">
                                                     <CIcon
                                                         name="cil-circle"
-                                                        className={(idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype)
-                                                            ? "text-danger"
-                                                            : "text-success"}
+                                                        className={
+                                                            item.name[0] == "_" || (idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype)
+                                                                ? "text-danger"
+                                                                : "text-success"}
                                                     />
                                                 </td>
                                             )
@@ -588,7 +589,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            disabled={idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype}
+                                                            disabled={item.name[0] == "_" || (idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype)}
                                                             onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
