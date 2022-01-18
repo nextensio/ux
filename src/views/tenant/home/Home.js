@@ -122,7 +122,6 @@ const Home = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allidps'), hdrs)
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 updateAllIdps(data)
             })
         // Fetch for Admin Groups
@@ -320,6 +319,9 @@ const Home = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
+                    let groups = [...allGroups]
+                    groups.push({ admGroup: group })
+                    updateAllGroups(groups)
                     updateGroup("")
                     setGroupConfigModal(!groupConfigModal)
                 }
@@ -342,6 +344,11 @@ const Home = (props) => {
                 // check for error response
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
+                } else {
+                    let groups = [...allGroups]
+                    let index = groups.indexOf(item)
+                    groups.splice(index, 1)
+                    updateAllGroups(groups)
                 }
             })
             .catch(error => {

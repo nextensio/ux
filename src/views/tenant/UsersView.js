@@ -78,6 +78,7 @@ const UsersView = (props) => {
 
     const [adminGroups, updateAdminGroups] = useState(Object.freeze([]))
     const [userToGroup, updateUserToGroup] = useState(Object.freeze({}))
+    const [selectedUserGroup, updateSelectedUserGroup] = useState("")
     const [selectedUsers, updateSelectedUsers] = useState(initTableData)
 
     const [userGroupError, updateUserGroupError] = useState(false)
@@ -121,7 +122,9 @@ const UsersView = (props) => {
             })
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
             .then(response => response.json())
-            .then(data => console.log(data))
+            .then(data => {
+                updateAdminGroups(data.AdmGroups)
+            })
     }, []);
 
     // Might be an inefficient way of rendering both user and user attrs
@@ -321,7 +324,13 @@ const UsersView = (props) => {
     }
 
     const handleType = (e, item) => {
-        updateUserToGroup({ uid: item.uid, group: "" })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/user/adminrole/' + item.uid), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                updateSelectedUserGroup(data)
+            });
+        updateUserToGroup({ uid: item.uid, currentGroup: item.usertype, group: "" })
         setEditTypeModal(!editTypeModal)
         e.stopPropagation()
     }
@@ -455,16 +464,6 @@ const UsersView = (props) => {
                                 <FontAwesomeIcon icon="pen" />
                                 <strong>{" "}Edit</strong>
                             </CButton>
-                            {/* <CButton
-                                className="float-right"
-                                color="warning"
-                                variant="outline"
-                                disabled={selectedUsers.length === 0}
-                                onClick={() => setEditTypeModal(!editTypeModal)}
-                            >
-                                <FontAwesomeIcon icon="id-badge" />
-                                <strong>{" "}Type</strong>
-                            </CButton> */}
                         </CCardFooter>
                     </CCard>
                 </CCol>
@@ -526,19 +525,26 @@ const UsersView = (props) => {
                     </CModalHeader>
                     <CModalBody>
                         <CRow className="pt-3">
+                            <CCol md="12">
+                                Current Group: {userToGroup.currentGroup}
+                            </CCol>
+                        </CRow>
+                        <CRow className="pt-3">
                             <CCol md="8">
                                 Group
                             </CCol>
                             <CCol md="4">
-                                <div>
-                                    <CInputRadio name="group" value="admin-devops" checked={userToGroup.group === "admin-devops"} onChange={handleTypeChange} /> DevOps
-                                </div>
-                                <div>
-                                    <CInputRadio name="group" value="admin-netops" checked={userToGroup.group === "admin-netops"} onChange={handleTypeChange} /> NetOps
-                                </div>
-                                <div>
-                                    <CInputRadio name="group" value="admin-secops" checked={userToGroup.group === "admin-secops"} onChange={handleTypeChange} /> SecOps
-                                </div>
+                                {adminGroups != null ? adminGroups.map(adminGroup => {
+                                    return (
+                                        <div>
+                                            <CInputRadio name="group" value={adminGroup} checked={userToGroup.group === adminGroup} onChange={handleTypeChange} /> {adminGroup}
+                                        </div>
+                                    )
+                                }) :
+                                    <div>
+                                        You have no groups created
+                                    </div>
+                                }
                             </CCol>
                         </CRow>
                         <CRow>
