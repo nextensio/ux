@@ -130,8 +130,10 @@ const Home = (props) => {
             .then(response => response.json())
             .then(data => {
                 let groups = []
-                for (let i = 0; i < data.AdmGroups.length; i++) {
-                    groups.push({ admGroup: data.AdmGroups[i] })
+                if (data.AdmGroups != null) {
+                    for (let i = 0; i < data.AdmGroups.length; i++) {
+                        groups.push({ admGroup: data.AdmGroups[i] })
+                    }
                 }
                 updateAllGroups(groups)
             })
