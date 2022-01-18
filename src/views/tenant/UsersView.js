@@ -78,7 +78,6 @@ const UsersView = (props) => {
 
     const [adminGroups, updateAdminGroups] = useState(Object.freeze([]))
     const [userToGroup, updateUserToGroup] = useState(Object.freeze({}))
-    const [selectedUserGroup, updateSelectedUserGroup] = useState("")
     const [selectedUsers, updateSelectedUsers] = useState(initTableData)
 
     const [userGroupError, updateUserGroupError] = useState(false)
@@ -208,7 +207,7 @@ const UsersView = (props) => {
     }
 
     const handleUserTypeSubmit = (e) => {
-        if (!userToGroup.group) {
+        if (!userToGroup.newGroup) {
             updateUserGroupError(true)
             return
         }
@@ -216,7 +215,7 @@ const UsersView = (props) => {
             method: 'POST',
             headers: { Authorization: bearer },
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user/adminrole/' + userToGroup.uid + '/' + userToGroup.group), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user/adminrole/' + userToGroup.uid + '/' + userToGroup.newGroup), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -327,10 +326,13 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/user/adminrole/' + item.uid), hdrs)
             .then(response => response.json())
             .then(data => {
-                console.log(data)
-                updateSelectedUserGroup(data)
+                updateUserToGroup({
+                    uid: item.uid,
+                    currentGroup: data.UserRole,
+                    newGroup: ""
+                })
             });
-        updateUserToGroup({ uid: item.uid, currentGroup: item.usertype, group: "" })
+
         setEditTypeModal(!editTypeModal)
         e.stopPropagation()
     }
@@ -338,7 +340,7 @@ const UsersView = (props) => {
     const handleTypeChange = (e) => {
         updateUserToGroup({
             ...userToGroup,
-            group: e.target.value
+            newGroup: e.target.value
         })
     }
 
@@ -537,7 +539,7 @@ const UsersView = (props) => {
                                 {adminGroups != null ? adminGroups.map(adminGroup => {
                                     return (
                                         <div>
-                                            <CInputRadio name="group" value={adminGroup} checked={userToGroup.group === adminGroup} onChange={handleTypeChange} /> {adminGroup}
+                                            <CInputRadio name="newGroup" value={adminGroup} checked={userToGroup.newGroup === adminGroup} onChange={handleTypeChange} /> {adminGroup}
                                         </div>
                                     )
                                 }) :
