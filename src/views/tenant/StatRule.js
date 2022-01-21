@@ -278,7 +278,7 @@ const StatRule = (props) => {
 
     function generateStatsPolicyHeader(policyData) {
         return policyData +
-            "package user.stats\ndefault attributes = {\"exclude\": [\"uid\", \"maj_ver\", \"min_ver\", \"_hostname\", \"_model\", \"_osMinor\", \"_osPatch\", \"_osName\"]}\n\n"
+            "package user.stats\ndefault attributes = {\"exclude\": [\"all\"]}\n\n"
     }
 
     function processStatsRule(e, statsRule, policyData) {
@@ -287,6 +287,7 @@ const StatRule = (props) => {
         let RuleStart = ""
         let statsPolicyAttr = ""
         let RuleEnd = ""
+        let snippetFound = false
         for (let snippet of statsRule.rule) {
             let ltoken = getStatsRuleLeftToken(snippet)
             let uavalue = getStatsRuleTokenValue(ltoken, snippet)
@@ -294,6 +295,7 @@ const StatRule = (props) => {
             let rtoken = getStatsRuleRightToken(snippet)
             let rtokenarray = [""]
             let optoken = getStatsRuleOpToken(snippet)
+            snippetFound = true
 
             // rtoken is always an array of string values.
             // For string values, add double quotes if missing.
@@ -302,20 +304,18 @@ const StatRule = (props) => {
             // space, then split based on space. Remove any null strings to
             // compress array.
 
-            let incexc = "include"
-            if (optoken === "!=") {
-                incexc = "exclude"
-            }
             rtoken = rtoken.trim()
             if (rtoken.includes(',')) {
                 rtoken = rtoken.replaceAll(',', ' ').trim()
             }
-            RuleStart = "attributes = select {\n"
             statsAttrValue = statsRightTokenArray(rtoken, "string")
-            attrList = "{\"" + incexc + "\": [" + statsAttrValue + "]}\n"
+            attrList = attrList + statsAttrValue
+        }
+        if (snippetFound === true) {
+            RuleStart = "attributes = select {\n"
+            attrList = "{\"include\": [" + attrList + "]}\n"
             statsPolicyAttr = "    select := " + attrList
             RuleEnd = "}"
-            break
         }
         return policyData + RuleStart + statsPolicyAttr + RuleEnd
     }
