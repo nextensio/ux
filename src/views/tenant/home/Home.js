@@ -6,6 +6,7 @@ import {
     CCardBody,
     CCardHeader,
     CCol,
+    CContainer,
     CDataTable,
     CDropdown,
     CDropdownToggle,
@@ -397,9 +398,10 @@ const Home = (props) => {
             <CCallout color="primary">
                 <h4 className="title">Home</h4>
             </CCallout>
-            <CRow>
+
+            <CRow className="mb-4">
                 <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow">
+                    <CCard className="roboto-font border-rounded shadow element pb-n5">
                         <CCardHeader>
                             Gateway Configuration
                             <CButton
@@ -411,15 +413,14 @@ const Home = (props) => {
                                 Configure
                             </CButton>
                         </CCardHeader>
-                        <CCardBody>
+                        <CCardBody className="mb-n4">
                             <CDataTable
-
                             />
                         </CCardBody>
                     </CCard>
                 </CCol>
                 <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow">
+                    <CCard className="roboto-font border-rounded shadow element pb-n5">
                         <CCardHeader>
                             Identity Provider Configuration
                             <CDropdown className="float-right">
@@ -445,7 +446,7 @@ const Home = (props) => {
                                 </CDropdownMenu>
                             </CDropdown>
                         </CCardHeader>
-                        <CCardBody>
+                        <CCardBody className="mb-n4">
                             <CDataTable
                                 fields={idpFields}
                                 items={allIdps}
@@ -480,7 +481,7 @@ const Home = (props) => {
                     </CCard>
                 </CCol>
                 <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow">
+                    <CCard className="roboto-font border-rounded shadow element">
                         <CCardHeader>
                             Groups
                             <CButton
@@ -491,7 +492,7 @@ const Home = (props) => {
                                 Create
                             </CButton>
                         </CCardHeader>
-                        <CCardBody>
+                        <CCardBody className="mb-n4">
                             <CDataTable
                                 items={allGroups}
                                 fields={groupFields}
@@ -526,6 +527,7 @@ const Home = (props) => {
                     </CCard>
                 </CCol>
             </CRow>
+
             <CRow>
                 <CCol sm="12">
                     <CCard>
