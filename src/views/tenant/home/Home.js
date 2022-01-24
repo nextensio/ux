@@ -6,7 +6,7 @@ import {
     CCardBody,
     CCardHeader,
     CCol,
-    CContainer,
+    CCollapse,
     CDataTable,
     CDropdown,
     CDropdownToggle,
@@ -78,6 +78,7 @@ const Home = (props) => {
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [newClusterModal, setNewClusterModal] = useState(false)
     const [group, updateGroup] = useState("")
+    const [groupDetails, setGroupDetails] = useState(-1);
 
     // When the user clicks on a gateway, make api call to see what existing image and apodrepl are for that gateway
     // Set as placeholder
@@ -89,6 +90,7 @@ const Home = (props) => {
     const [clusterErrObj, updateClusterErrObj] = useState(Object.freeze({}))
     const [idpErrObj, updateIdpErrObj] = useState(Object.freeze({}))
     const [groupConfigModal, setGroupConfigModal] = useState(false)
+    const [grpAdmins, updateGrpAdmins] = useState([])
 
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -151,6 +153,14 @@ const Home = (props) => {
             });
     }, [newClusterData.gateway])
 
+    const getAdminsForGroup = (group) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let admins = data.GrpAdmins
+                updateGrpAdmins(admins)
+            })
+    }
 
     function validateClusterFields() {
         let errs = {};
@@ -393,6 +403,28 @@ const Home = (props) => {
             });
     };
 
+    const toggleGroupDetails = (item, index) => {
+        getAdminsForGroup(item.admGroup)
+        const currentGroupIndex = groupDetails
+        if (index === currentGroupIndex) {
+            setGroupDetails(-1)
+        } else {
+            setGroupDetails(index)
+        }
+    }
+
+    function grpAdminsRender() {
+        if (grpAdmins == null) {
+            return <div>No admins for this group.</div>
+        } else {
+            return (grpAdmins.map(admin => {
+                return (
+                    <div>{admin}</div>
+                )
+            }))
+        }
+    }
+
     return (
         <>
             <CCallout color="primary">
@@ -499,7 +531,21 @@ const Home = (props) => {
                                 itemsPerPageSelect
                                 sorter
                                 pagination
+                                clickableRows
+                                onRowClick={(item, index) => { toggleGroupDetails(item, index) }}
                                 scopedSlots={{
+                                    'details':
+                                        (item, index) => {
+                                            // Match the row uid to the same uid in userAttrData
+                                            // and return the object
+                                            return (
+                                                <CCollapse show={groupDetails === index}>
+                                                    <CCardBody>
+                                                        {groupDetails === index && grpAdminsRender()}
+                                                    </CCardBody>
+                                                </CCollapse>
+                                            )
+                                        },
                                     'delete':
                                         (item, index) => {
                                             return (
