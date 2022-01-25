@@ -108,14 +108,6 @@ const Home = (props) => {
         },
     };
 
-    const idTokenJson = common.decodeToken(bearer)
-
-    useEffect(() => {
-        if (props.match.params.group != idTokenJson.usertype) {
-            window.location.href = '/tenant/' + props.match.params.id + '/' + idTokenJson.usertype + '/'
-        }
-    }, [])
-
     // Gateways used for gateway configuration
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allgateways'), hdrs)
@@ -160,14 +152,6 @@ const Home = (props) => {
             });
     }, [newClusterData.gateway])
 
-    const getAdminsForGroup = (group) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                let admins = data.GrpAdmins
-                updateGrpAdmins(admins)
-            })
-    }
 
     function validateClusterFields() {
         let errs = {};
@@ -409,6 +393,16 @@ const Home = (props) => {
                 alert('Error contacting server', error);
             });
     };
+
+    const getAdminsForGroup = (group) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                // let admins = data.GrpAdmins
+                // updateGrpAdmins(admins)
+            })
+    }
 
     const toggleGroupDetails = (item, index) => {
         getAdminsForGroup(item.admGroup)

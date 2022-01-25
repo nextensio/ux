@@ -6,12 +6,7 @@ import {
     CCardFooter,
     CCardHeader,
     CCol,
-    CForm,
-    CFormGroup,
-    CFormText,
-    CInput,
-    CInputGroup,
-    CLabel,
+    CInputRadio,
     CRow,
     CDataTable,
     CModal,
@@ -62,6 +57,7 @@ const TenantsView = (props) => {
     const [deleteIndex, setDeleteIndex] = useState(0);
 
     const [group, setGroup] = useState("")
+    const [perTenantGroups, updatePerTenantGroups] = useState(Object.freeze([]))
     const [groupModal, setGroupModal] = useState(false)
     const [redirItem, setRedirItem] = useState(Object.freeze({}))
 
@@ -72,8 +68,6 @@ const TenantsView = (props) => {
             Authorization: bearer,
         },
     };
-
-    console.log(props)
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
@@ -108,8 +102,16 @@ const TenantsView = (props) => {
         })
     }
 
-    const confirmRedir = (item) => {
-        window.location.href = '/tenant/' + item._id + '/' + group + '/'
+    const getGroupsForTenant = (tenant) => {
+        fetch(common.api_href('/api/v1/tenant/' + tenant + '/get/alladmgroups'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                if (data.AdmGroups != null) {
+                    updatePerTenantGroups(data.AdmGroups)
+                } else {
+                    updatePerTenantGroups(null)
+                }
+            })
     }
 
     const handleDelete = (index) => {
@@ -134,19 +136,29 @@ const TenantsView = (props) => {
             });
     }
 
-    const handleGroupChange = (e) => {
+    const handleGroupSelect = (e) => {
         setGroup(e.target.value)
     }
 
     const handleRedirConfiguration = (item) => {
         setRedirItem(item)
+        getGroupsForTenant(item._id)
         setGroupModal(!groupModal)
+    }
+
+    const confirmRedir = (tenantId, groupName) => {
+        window.location.href = '/tenant/' + tenantId + '/' + groupName + '/'
     }
 
     const toggleDelete = (index) => {
         setDeleteModal(!deleteModal);
         setDeleteIndex(index)
     }
+
+    useEffect(() => {
+        console.log(group)
+        console.log(redirItem)
+    }, [group])
 
     return (
         <>
@@ -235,23 +247,32 @@ const TenantsView = (props) => {
 
                     {/* Modal for group selection */}
                     <CModal className="roboto-font" show={groupModal} onClose={() => setGroupModal(!groupModal)}>
-                        <CModalHeader className="bg-info text-white py-n5">Input your group.</CModalHeader>
+                        <CModalHeader className="bg-info text-white py-n5">Select your group.</CModalHeader>
                         <CModalBody>
-                            <CForm>
-                                <CFormGroup>
-                                    <CLabel>Group Name</CLabel>
-                                    <CInputGroup>
-                                        <CInput onChange={handleGroupChange} />
-                                    </CInputGroup>
-                                    <CFormText>Input your group name. Leaving it as blank will give you superadmin privileges.</CFormText>
-                                </CFormGroup>
-                            </CForm>
-
+                            <CRow className="pt-3">
+                                <CCol md="8">
+                                    Groups
+                                </CCol>
+                                <CCol md="4">
+                                    <div>
+                                        <CInputRadio name="groups" value={"superadmin"} checked={group === "superadmin"} onChange={handleGroupSelect} /> superadmin
+                                    </div>
+                                    {perTenantGroups != null ? perTenantGroups.map(perTenantGroup => {
+                                        return (
+                                            <div>
+                                                <CInputRadio name="groups" value={perTenantGroup} checked={group === perTenantGroup} onChange={handleGroupSelect} /> {perTenantGroup}
+                                            </div>
+                                        )
+                                    }) :
+                                        confirmRedir(redirItem._id, "superadmin")
+                                    }
+                                </CCol>
+                            </CRow>
                         </CModalBody>
                         <CModalFooter>
                             <CButton
                                 color="success"
-                                onClick={() => confirmRedir(redirItem)}
+                                onClick={() => confirmRedir(redirItem._id, group)}
                             >
                                 Confirm
                             </CButton>
