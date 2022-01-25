@@ -24,6 +24,7 @@ import {
     CModalFooter,
     CSelect,
     CTooltip,
+    CTextarea
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -173,19 +174,44 @@ const Home = (props) => {
         let errs = {}
         if (!idpJson.name) {
             errs.name = true
-        } if (!idpJson.client) {
-            errs.clientId = true
-        } if (!idpJson.secret) {
-            errs.clientSecret = true
-        } if (idpJson.provider === "OIDC") {
+        }
+        if (!idpJson.domain) {
+            errs.domain = true
+        }
+        if (idpJson.provider !== "SAML2") {
+            if (!idpJson.client) {
+                errs.clientId = true
+            }
+            if (!idpJson.secret) {
+                errs.clientSecret = true
+            }
+        }
+        if (idpJson.provider === "OIDC") {
             if (!idpJson.issuer) {
                 errs.issuer = true
-            } if (!idpJson.auth) {
+            }
+            if (!idpJson.auth) {
                 errs.authEndpoint = true
-            } if (!idpJson.token) {
+            }
+            if (!idpJson.token) {
                 errs.tokenEndpoint = true
-            } if (!idpJson.jwks) {
+            }
+            if (!idpJson.jwks) {
                 errs.jwksEndpoint = true
+            }
+        }
+        if (idpJson.provider === "SAML2") {
+            if (!idpJson.issuer) {
+                errs.issuer = true
+            }
+            if (!idpJson.sso) {
+                errs.sso = true
+            }
+            if (!idpJson.audience) {
+                errs.audience = true
+            }
+            if (!idpJson.cert) {
+                errs.cert = true
             }
         }
         updateIdpErrObj(errs)
@@ -465,20 +491,32 @@ const Home = (props) => {
                                     <CIcon className="mr-1" name="cil-plus" />Add Identity Provider
                                 </CDropdownToggle>
                                 <CDropdownMenu>
-                                    <CDropdownItem onClick={() => updateIdpProvider("Facebook")}>
-                                        Add Facebook
+                                    <CDropdownItem onClick={() => updateIdpProvider("FACEBOOK")}>
+                                        Facebook
                                     </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("Google")}>
-                                        Add Google
+                                    <CDropdownItem onClick={() => updateIdpProvider("GOOGLE")}>
+                                        Google
                                     </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("LinkedIn")}>
-                                        Add LinkedIn
+                                    <CDropdownItem onClick={() => updateIdpProvider("LINKEDIN")}>
+                                        LinkedIn
                                     </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("Microsoft")}>
-                                        Add Microsoft
+                                    <CDropdownItem onClick={() => updateIdpProvider("MICROSOFT")}>
+                                        Microsoft
+                                    </CDropdownItem>
+                                    <CDropdownItem onClick={() => updateIdpProvider("GITHUB")}>
+                                        Github
+                                    </CDropdownItem>
+                                    <CDropdownItem onClick={() => updateIdpProvider("AMAZON")}>
+                                        Amazon
+                                    </CDropdownItem>
+                                    <CDropdownItem onClick={() => updateIdpProvider("SALESFORCE")}>
+                                        Salesforce
+                                    </CDropdownItem>
+                                    <CDropdownItem onClick={() => updateIdpProvider("SAML2")}>
+                                        SAML2.0
                                     </CDropdownItem>
                                     <CDropdownItem onClick={() => updateIdpProvider("OIDC")}>
-                                        Add OpenID Connect IdP
+                                        OpenID Connect IdP
                                     </CDropdownItem>
                                 </CDropdownMenu>
                             </CDropdown>
@@ -629,28 +667,32 @@ const Home = (props) => {
                             </CInputGroup>
                         </CCol>
                     </CRow>
-                    <CRow className="mt-4">
-                        <CCol sm="4">
-                            <CLabel>Client ID</CLabel>
-                        </CCol>
-                        <CCol sm="8">
-                            <CInputGroup>
-                                <CInput name="client" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientId} />
-                                <CInvalidFeedback>Client ID cannot be empty</CInvalidFeedback>
-                            </CInputGroup>
-                        </CCol>
-                    </CRow>
-                    <CRow className="mt-4 pb-4 border-bottom">
-                        <CCol sm="4">
-                            <CLabel>Client Secret</CLabel>
-                        </CCol>
-                        <CCol sm="8">
-                            <CInputGroup>
-                                <CInput name="secret" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientSecret} />
-                                <CInvalidFeedback>Client Secret cannot be empty</CInvalidFeedback>
-                            </CInputGroup>
-                        </CCol>
-                    </CRow>
+                    {idpJson.provider !== "SAML2" &&
+                        <>
+                            <CRow className="mt-4">
+                                <CCol sm="4">
+                                    <CLabel>Client ID</CLabel>
+                                </CCol>
+                                <CCol sm="8">
+                                    <CInputGroup>
+                                        <CInput name="client" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientId} />
+                                        <CInvalidFeedback>Client ID cannot be empty</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CCol>
+                            </CRow>
+                            <CRow className="mt-4 pb-4 border-bottom">
+                                <CCol sm="4">
+                                    <CLabel>Client Secret</CLabel>
+                                </CCol>
+                                <CCol sm="8">
+                                    <CInputGroup>
+                                        <CInput name="secret" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientSecret} />
+                                        <CInvalidFeedback>Client Secret cannot be empty</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CCol>
+                            </CRow>
+                        </>
+                    }
                     {idpJson.provider === "OIDC" &&
                         <>
                             <CLabel className="mt-3"><strong>Endpoints</strong></CLabel>
@@ -694,6 +736,54 @@ const Home = (props) => {
                                 <CCol sm="8">
                                     <CInputGroup>
                                         <CInput name="jwks" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.jwksEndpoint} />
+                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CCol>
+                            </CRow>
+                        </>
+                    }
+                    {idpJson.provider === "SAML2" &&
+                        <>
+                            <CRow className="mt-4">
+                                <CCol sm="4">
+                                    <CLabel>Issuer</CLabel>
+                                </CCol>
+                                <CCol sm="8">
+                                    <CInputGroup>
+                                        <CInput name="issuer" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.issuer} />
+                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CCol>
+                            </CRow>
+                            <CRow className="mt-4">
+                                <CCol sm="4">
+                                    <CLabel>Single Sign On URL</CLabel>
+                                </CCol>
+                                <CCol sm="8">
+                                    <CInputGroup>
+                                        <CInput name="sso" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.sso} />
+                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CCol>
+                            </CRow>
+                            <CRow className="mt-4">
+                                <CCol sm="4">
+                                    <CLabel>Audience</CLabel>
+                                </CCol>
+                                <CCol sm="8">
+                                    <CInputGroup>
+                                        <CInput name="audience" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.audience} />
+                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
+                                    </CInputGroup>
+                                </CCol>
+                            </CRow>
+                            <CRow className="mt-4 pb-4">
+                                <CCol sm="4">
+                                    <CLabel>Signature Certificate</CLabel>
+                                </CCol>
+                                <CCol sm="8">
+                                    <CInputGroup>
+                                        <CTextarea name="cert" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.cert} />
                                         <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
                                     </CInputGroup>
                                 </CCol>
