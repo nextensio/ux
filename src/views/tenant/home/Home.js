@@ -36,6 +36,13 @@ var common = require('../../../common')
 
 const groupFields = [
     {
+        key: 'show_details',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: "admGroup",
         label: "Name",
         _classes: "data-head",
@@ -425,6 +432,10 @@ const Home = (props) => {
         }
     }
 
+
+    const showingIcon = <FontAwesomeIcon icon="angle-right" />
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
+
     return (
         <>
             <CCallout color="primary">
@@ -534,6 +545,14 @@ const Home = (props) => {
                                 clickableRows
                                 onRowClick={(item, index) => { toggleGroupDetails(item, index) }}
                                 scopedSlots={{
+                                    'show_details':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto">
+                                                    {groupDetails === index ? hidingIcon : showingIcon}
+                                                </td>
+                                            )
+                                        },
                                     'details':
                                         (item, index) => {
                                             // Match the row uid to the same uid in userAttrData
