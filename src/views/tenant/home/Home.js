@@ -6,6 +6,7 @@ import {
     CCardBody,
     CCardHeader,
     CCol,
+    CCollapse,
     CDataTable,
     CDropdown,
     CDropdownToggle,
@@ -35,6 +36,13 @@ import Map from './mapbox/Mapbox'
 var common = require('../../../common')
 
 const groupFields = [
+    {
+        key: 'show_details',
+        label: '',
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
     {
         key: "admGroup",
         label: "Name",
@@ -78,6 +86,7 @@ const Home = (props) => {
     const [gatewayData, updateGatewayData] = useState(Object.freeze([]));
     const [newClusterModal, setNewClusterModal] = useState(false)
     const [group, updateGroup] = useState("")
+    const [groupDetails, setGroupDetails] = useState(-1);
 
     // When the user clicks on a gateway, make api call to see what existing image and apodrepl are for that gateway
     // Set as placeholder
@@ -89,6 +98,7 @@ const Home = (props) => {
     const [clusterErrObj, updateClusterErrObj] = useState(Object.freeze({}))
     const [idpErrObj, updateIdpErrObj] = useState(Object.freeze({}))
     const [groupConfigModal, setGroupConfigModal] = useState(false)
+    const [grpAdmins, updateGrpAdmins] = useState([])
 
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -151,6 +161,14 @@ const Home = (props) => {
             });
     }, [newClusterData.gateway])
 
+    const getAdminsForGroup = (group) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let admins = data.GrpAdmins
+                updateGrpAdmins(admins)
+            })
+    }
 
     function validateClusterFields() {
         let errs = {};
@@ -418,14 +436,41 @@ const Home = (props) => {
             });
     };
 
+    const toggleGroupDetails = (item, index) => {
+        getAdminsForGroup(item.admGroup)
+        const currentGroupIndex = groupDetails
+        if (index === currentGroupIndex) {
+            setGroupDetails(-1)
+        } else {
+            setGroupDetails(index)
+        }
+    }
+
+    function grpAdminsRender() {
+        if (grpAdmins == null) {
+            return <div>No admins for this group.</div>
+        } else {
+            return (grpAdmins.map(admin => {
+                return (
+                    <div>{admin}</div>
+                )
+            }))
+        }
+    }
+
+
+    const showingIcon = <FontAwesomeIcon icon="angle-right" />
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
+
     return (
         <>
             <CCallout color="primary">
                 <h4 className="title">Home</h4>
             </CCallout>
-            <CRow>
+
+            <CRow className="mb-4">
                 <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow">
+                    <CCard className="roboto-font border-rounded shadow element pb-n5">
                         <CCardHeader>
                             Gateway Configuration
                             <CButton
@@ -437,15 +482,14 @@ const Home = (props) => {
                                 Configure
                             </CButton>
                         </CCardHeader>
-                        <CCardBody>
+                        <CCardBody className="mb-n4">
                             <CDataTable
-
                             />
                         </CCardBody>
                     </CCard>
                 </CCol>
                 <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow">
+                    <CCard className="roboto-font border-rounded shadow element pb-n5">
                         <CCardHeader>
                             Identity Provider Configuration
                             <CDropdown className="float-right">
@@ -483,7 +527,7 @@ const Home = (props) => {
                                 </CDropdownMenu>
                             </CDropdown>
                         </CCardHeader>
-                        <CCardBody>
+                        <CCardBody className="mb-n4">
                             <CDataTable
                                 fields={idpFields}
                                 items={allIdps}
@@ -518,7 +562,7 @@ const Home = (props) => {
                     </CCard>
                 </CCol>
                 <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow">
+                    <CCard className="roboto-font border-rounded shadow element">
                         <CCardHeader>
                             Groups
                             <CButton
@@ -529,14 +573,36 @@ const Home = (props) => {
                                 Create
                             </CButton>
                         </CCardHeader>
-                        <CCardBody>
+                        <CCardBody className="mb-n4">
                             <CDataTable
                                 items={allGroups}
                                 fields={groupFields}
                                 itemsPerPageSelect
                                 sorter
                                 pagination
+                                clickableRows
+                                onRowClick={(item, index) => { toggleGroupDetails(item, index) }}
                                 scopedSlots={{
+                                    'show_details':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto">
+                                                    {groupDetails === index ? hidingIcon : showingIcon}
+                                                </td>
+                                            )
+                                        },
+                                    'details':
+                                        (item, index) => {
+                                            // Match the row uid to the same uid in userAttrData
+                                            // and return the object
+                                            return (
+                                                <CCollapse show={groupDetails === index}>
+                                                    <CCardBody>
+                                                        {groupDetails === index && grpAdminsRender()}
+                                                    </CCardBody>
+                                                </CCollapse>
+                                            )
+                                        },
                                     'delete':
                                         (item, index) => {
                                             return (
@@ -564,6 +630,7 @@ const Home = (props) => {
                     </CCard>
                 </CCol>
             </CRow>
+
             <CRow>
                 <CCol sm="12">
                     <CCard>

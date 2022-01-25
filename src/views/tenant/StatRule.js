@@ -70,12 +70,6 @@ const StatRule = (props) => {
             })
     }, [])
 
-    const handleOperator = (e) => {
-        let rule = [...ruleSnippet]
-        rule[1] = e.target.value
-        updateRuleSnippet(rule)
-    }
-
     const handleSelectedAttrs = (e) => {
         let rule = [...ruleSnippet]
         rule[2] = e
@@ -369,7 +363,7 @@ const StatRule = (props) => {
                         <CCardHeader>
                             Stats Rule Creator
                             <div className="text-muted small">
-                                Only one stats rule can exist to specify attributes to include or exclude. Use == to include, != to exclude.
+                                Specify which attributes to include based on your group.
                             </div>
                         </CCardHeader>
                         <CCardBody className="roboto-font">
