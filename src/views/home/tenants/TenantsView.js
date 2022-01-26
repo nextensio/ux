@@ -109,7 +109,11 @@ const TenantsView = (props) => {
             .then(response => response.json())
             .then(data => {
                 if (data.AdmGroups != null) {
-                    updatePerTenantGroups(data.AdmGroups)
+                    var groups = [];
+                    for (var i = 0; i < data.AdmGroups.length; i++) {
+                        groups.push("admin-" + data.AdmGroups[i]);
+                    }
+                    updatePerTenantGroups(groups)
                 } else {
                     updatePerTenantGroups(null)
                 }
@@ -158,8 +162,6 @@ const TenantsView = (props) => {
     }
 
     useEffect(() => {
-        console.log(group)
-        console.log(redirItem)
     }, [group])
 
     return (
