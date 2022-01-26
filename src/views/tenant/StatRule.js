@@ -51,15 +51,13 @@ const StatRule = (props) => {
         },
     };
 
-    const idTokenJson = common.decodeToken(bearer)
-
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var userAttrNames = []
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == "Users") {
+                    if (data[i].appliesTo == "Users" && data[i].group === props.match.params.group || data[i].name[0] == "_") {
                         userAttrNames.push({ value: data[i].name, label: data[i].name })
                     }
                 }
