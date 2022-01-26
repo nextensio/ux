@@ -35,6 +35,14 @@ import Map from './mapbox/Mapbox'
 
 var common = require('../../../common')
 
+const clusterFields = [
+    {
+        key: 'name',
+        label: 'Gateway',
+        _classes: 'data-head',
+    }
+]
+
 const groupFields = [
     {
         key: 'show_details',
@@ -102,6 +110,7 @@ const Home = (props) => {
 
 
     const { oktaAuth, authState } = useOktaAuth();
+    console.log(authState)
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
@@ -127,7 +136,9 @@ const Home = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allidps'), hdrs)
             .then(response => response.json())
             .then(data => {
-                updateAllIdps(data)
+                if (data) {
+                    updateAllIdps(data)
+                }
             })
         // Fetch for Admin Groups
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
@@ -426,9 +437,8 @@ const Home = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
             .then(response => response.json())
             .then(data => {
-                console.log(data)
-                // let admins = data.GrpAdmins
-                // updateGrpAdmins(admins)
+                let admins = data.GrpAdmins
+                updateGrpAdmins(admins)
             })
     }
 
@@ -480,6 +490,9 @@ const Home = (props) => {
                         </CCardHeader>
                         <CCardBody className="mb-n4">
                             <CDataTable
+                                fields={clusterFields}
+                                itemsPerPageSelect
+                                sorter
                             />
                         </CCardBody>
                     </CCard>
