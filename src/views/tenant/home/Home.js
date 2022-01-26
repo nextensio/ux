@@ -35,6 +35,14 @@ import Map from './mapbox/Mapbox'
 
 var common = require('../../../common')
 
+const clusterFields = [
+    {
+        key: 'name',
+        label: 'Gateway',
+        _classes: 'data-head',
+    }
+]
+
 const groupFields = [
     {
         key: 'show_details',
@@ -102,6 +110,7 @@ const Home = (props) => {
 
 
     const { oktaAuth, authState } = useOktaAuth();
+    console.log(authState)
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
@@ -480,6 +489,9 @@ const Home = (props) => {
                         </CCardHeader>
                         <CCardBody className="mb-n4">
                             <CDataTable
+                                fields={clusterFields}
+                                itemsPerPageSelect
+                                sorter
                             />
                         </CCardBody>
                     </CCard>
