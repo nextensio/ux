@@ -72,7 +72,9 @@ const CertsView = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -156,7 +158,7 @@ const CertsView = (props) => {
     }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
-    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary"/>
+    const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
     return (
         <>
@@ -176,7 +178,7 @@ const CertsView = (props) => {
                                 sorter
                                 pagination
                                 clickableRows
-                                onRowClick={(item, index) => {toggleDetails(index)}}
+                                onRowClick={(item, index) => { toggleDetails(index) }}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {

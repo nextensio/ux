@@ -45,7 +45,9 @@ const StatRule = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -142,7 +144,7 @@ const StatRule = (props) => {
         const ruleObj = { rid: "StatsRule", rule: [snip] }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(ruleObj)
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/statsrule/'), requestOptions)
@@ -328,7 +330,7 @@ const StatRule = (props) => {
         var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 pid: "StatsPolicy", tenant: props.match.params.id,
                 rego: byteRego

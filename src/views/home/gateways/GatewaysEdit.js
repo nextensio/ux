@@ -41,7 +41,9 @@ const GatewaysEdit = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -64,7 +66,7 @@ const GatewaysEdit = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 name: gwData.name + '.nextensio.net', location: gwData.location, region: gwData.region,
                 zone: gwData.zone, provider: gwData.provider

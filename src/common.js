@@ -18,6 +18,14 @@ export function decodeToken(token) {
     return idTokenJSON;
 }
 
+export function getGroup(token, props) {
+    const userInfo = decodeToken(token);
+    if (typeof props.match.params.group === 'undefined') {
+        return userInfo['usertype'];
+    }
+    return props.match.params.group;
+}
+
 const CALLBACK_PATH = '/login/callback';
 
 const oktaAuthConfig = {

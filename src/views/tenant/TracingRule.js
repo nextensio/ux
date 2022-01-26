@@ -38,10 +38,10 @@ const TracingRule = (props) => {
     const [uids, updateUids] = useState(Object.freeze([]))
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
 
-    // array of all the attributes you are allowed to access based on token usertype property
+    // array of all the attributes you are allowed to access based on token admin group
     const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
 
-    // array of all the attributes you are allowed to access based on token usertype property in object format 
+    // array of all the attributes you are allowed to access based on admin group in object format 
     // ({value: <accessibleUserAttr>, label: <accessibleUserAttr>}). Needed for CreateableSelect library
     const [accessibleUserAttrsForRHS, updateAccessibleUserAttrsForRHS] = useState(Object.freeze([]))
 
@@ -67,7 +67,9 @@ const TracingRule = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -118,7 +120,7 @@ const TracingRule = (props) => {
 
     }, [])
 
-    // Returns true if the attributes are part of your usertype scope
+    // Returns true if the attributes are part of your admin group
     function getAccessibleAttributes(userAttr) {
         if (userAttr === "User ID") {
             return true
@@ -292,7 +294,7 @@ const TracingRule = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 rid: ruleData.rid,
                 rule: ruleData.rule
@@ -665,7 +667,7 @@ const TracingRule = (props) => {
         var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 pid: "TracePolicy", tenant: props.match.params.id,
                 rego: byteRego

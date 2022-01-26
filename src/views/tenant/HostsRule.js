@@ -42,7 +42,7 @@ const HostsRule = (props) => {
 
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
 
-    // array of all the attributes you are allowed to access based on token usertype property
+    // array of all the attributes you are allowed to access based on admin group
     const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
 
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
@@ -66,7 +66,9 @@ const HostsRule = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -143,7 +145,7 @@ const HostsRule = (props) => {
         return "lockable"
     }
 
-    // Returns true if the attributes are part of your usertype scope
+    // Returns true if the attributes are part of your admin group
     function getAccessibleAttributes(userAttr) {
         if (userAttr === "User ID") {
             return true
@@ -312,7 +314,7 @@ const HostsRule = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 host: ruleData.host, rid: ruleData.rid,
                 rule: ruleData.rule,

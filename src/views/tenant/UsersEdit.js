@@ -40,7 +40,9 @@ const UsersEdit = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -318,7 +320,7 @@ const UsersEdit = (props) => {
     const handleInfoSubmit = (attrState) => {
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(userData)
         }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user'), requestOptions)
@@ -347,7 +349,7 @@ const UsersEdit = (props) => {
     const handleSubmit = (uid, attrState, last) => {
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({ uid: uid, ...attrState }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)

@@ -105,7 +105,9 @@ const Home = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -253,7 +255,7 @@ const Home = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(idpJson),
         };
 
@@ -332,7 +334,7 @@ const Home = (props) => {
     const handleGroupCreate = (e) => {
         const requestOptions = {
             method: 'POST',
-            headers: { Authorization: bearer },
+            headers: hdrs.headers,
         }
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/admgroups/' + group), requestOptions)
             .then(async response => {
@@ -394,7 +396,7 @@ const Home = (props) => {
         apods = parseInt(apods, 10)
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 gateway: newClusterData.gateway, image: newClusterData.image, apodrepl: apods,
             }),

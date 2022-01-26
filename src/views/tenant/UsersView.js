@@ -89,7 +89,9 @@ const UsersView = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -213,7 +215,7 @@ const UsersView = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { Authorization: bearer },
+            headers: hdrs.headers,
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user/adminrole/' + userToGroup.uid + '/' + userToGroup.newGroup), requestOptions)
             .then(async response => {

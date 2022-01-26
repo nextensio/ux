@@ -138,7 +138,9 @@ const AttributeEditor = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -230,7 +232,6 @@ const AttributeEditor = (props) => {
     function validate() {
         var errors = {}
         attributeData.name = attributeData.name.trim()
-        attributeData.group = idTokenJson.usertype
         // If the tenant does not input any value for name or select a type errObj will have typeErr
         if (attributeData.name == "") {
             errors.typeErr = true
@@ -278,9 +279,9 @@ const AttributeEditor = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
-                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray, group: attributeData.group
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
@@ -337,7 +338,7 @@ const AttributeEditor = (props) => {
     const handleDelete = (item) => {
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(item),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/attrset'), requestOptions)
@@ -511,12 +512,12 @@ const AttributeEditor = (props) => {
                                     <CTabContent>
                                         <CTabPane active={activeTab === "Overview"} >
                                             <p>Attributes are a set of properties with values, ie key/value pairs. The keys are just strings, values can be
-                                                one of string, array of strings, number, array of numbers, boolean, array of booleans.
+                                            one of string, array of strings, number, array of numbers, boolean, array of booleans.
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Applies To"}>
                                             <p>Each attribute either applies to (ie is a property of) a User, App or AppGroup. If the same attribute/key
-                                                is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
+                                            is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Type"}>
@@ -527,13 +528,13 @@ const AttributeEditor = (props) => {
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Examples"}>
                                             <p>allowTeams: ["engineering", "support"] is an example of array of strings. trustScore: 90 is an example
-                                                of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
-                                                example where the attribute says that an app access is allowed only monday-friday
+                                            of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
+                                            example where the attribute says that an app access is allowed only monday-friday
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Policies"}>
                                             <p>Policies are written in an industry standard language getting wide acceptance - Rego. Rego provides
-                                                simple constructs to do access control etc.., using the attributes and their values
+                                            simple constructs to do access control etc.., using the attributes and their values
                                             </p>
                                         </CTabPane>
                                     </CTabContent>
@@ -564,7 +565,7 @@ const AttributeEditor = (props) => {
                                                     <CIcon
                                                         name="cil-circle"
                                                         className={
-                                                            item.name[0] == "_" || (idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype)
+                                                            item.name[0] == "_" || (item.group !== props.match.params.group)
                                                                 ? "text-danger"
                                                                 : "text-success"}
                                                     />
@@ -589,7 +590,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            disabled={item.name[0] == "_" || (idTokenJson.usertype !== "superadmin" && item.group !== idTokenJson.usertype)}
+                                                            disabled={item.name[0] == "_" || (item.group !== props.match.params.group)}
                                                             onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />

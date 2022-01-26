@@ -21,7 +21,7 @@ const TheLayout = (props) => {
             <div className="c-app c-default-layout">
                 <TheSidebar />
                 <div className="c-wrapper">
-                    <TheHeader/>
+                    <TheHeader />
                     <div className="c-body">
                         <TheContent />
                     </div>
@@ -30,7 +30,7 @@ const TheLayout = (props) => {
             </div>
         )
     } else {
-        return <Redirect to={'/tenant/' + userInfo['tenant'] + '/home'} />
+        return <Redirect to={'/tenant/' + userInfo['tenant'] + '/' + userInfo['usertype'] + '/home'} />
     }
 }
 
