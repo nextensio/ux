@@ -325,9 +325,9 @@ const BundlesAdd = (props) => {
 
     function validate(attrState) {
         let errs = {}
-        const emailRe = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const bundleRe = /^[a-z0-9]+$/;
         const podRe = /^[-+]?\d+$/
-        if (!emailRe.test(String(bundleData.bid).toLowerCase())) {
+        if (!bundleRe.test(String(bundleData.bid).trim())) {
             errs.bid = true
         }
         if (!bundleData.name) {
@@ -443,7 +443,7 @@ const BundlesAdd = (props) => {
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput name="bid" onChange={e => { handleBundleChange(e); handleAttrChange(e) }} invalid={errObj.bid} />
-                                        <CInvalidFeedback >Please enter a valid email</CInvalidFeedback>
+                                        <CInvalidFeedback >Valid bundle id is small letter alpha numeric word (no special characters)</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>
