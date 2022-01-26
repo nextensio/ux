@@ -114,12 +114,11 @@ const expertFields = [
 
 const AttributeEditor = (props) => {
 
-
     var initAttrData = Object.freeze(
         []
     );
-    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '', group: '' }
-    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '', group: '' }
+    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: 'false', group: props.match.params.group }
+    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: 'false', group: props.match.params.group }
 
     const [attrColl, updateAttrColl] = useState(initAttrData);
     const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
@@ -143,9 +142,6 @@ const AttributeEditor = (props) => {
             'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
-
-    const idTokenJson = common.decodeToken(bearer)
-
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
@@ -175,7 +171,6 @@ const AttributeEditor = (props) => {
                                     userData.push(data[i])
                                 }
                             }
-                            console.log(userData)
                             updateAttrColl(userData)
                         })
                 }
@@ -281,7 +276,7 @@ const AttributeEditor = (props) => {
             method: 'POST',
             headers: hdrs.headers,
             body: JSON.stringify({
-                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray, group: attributeData.group
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
@@ -456,7 +451,7 @@ const AttributeEditor = (props) => {
                                             <CFormGroup variant="custom-radio" inline>
                                                 <CInputRadio custom id="inline-radio4"
                                                     name="isArray"
-                                                    value={true}
+                                                    value="true"
                                                     checked={attributeData.isArray == "true"}
                                                     onChange={handleChange}
                                                     disabled={attributeData.type == "Boolean"}
@@ -464,7 +459,7 @@ const AttributeEditor = (props) => {
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio4">True</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio5" name="isArray" value={false} checked={attributeData.isArray == "false"} onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio5" name="isArray" value="false" checked={attributeData.isArray == "false"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio5">False</CLabel>
                                             </CFormGroup>
                                         </div>
@@ -512,12 +507,12 @@ const AttributeEditor = (props) => {
                                     <CTabContent>
                                         <CTabPane active={activeTab === "Overview"} >
                                             <p>Attributes are a set of properties with values, ie key/value pairs. The keys are just strings, values can be
-                                            one of string, array of strings, number, array of numbers, boolean, array of booleans.
+                                                one of string, array of strings, number, array of numbers, boolean, array of booleans.
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Applies To"}>
                                             <p>Each attribute either applies to (ie is a property of) a User, App or AppGroup. If the same attribute/key
-                                            is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
+                                                is a property of all three, the same attribute can be defined three times choosing each as "Applies To"
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Type"}>
@@ -528,13 +523,13 @@ const AttributeEditor = (props) => {
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Examples"}>
                                             <p>allowTeams: ["engineering", "support"] is an example of array of strings. trustScore: 90 is an example
-                                            of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
-                                            example where the attribute says that an app access is allowed only monday-friday
+                                                of a single number value attribute. allowedDays: [true, true, true, true, true, false, false] is an
+                                                example where the attribute says that an app access is allowed only monday-friday
                                             </p>
                                         </CTabPane>
                                         <CTabPane active={activeTab === "Policies"}>
                                             <p>Policies are written in an industry standard language getting wide acceptance - Rego. Rego provides
-                                            simple constructs to do access control etc.., using the attributes and their values
+                                                simple constructs to do access control etc.., using the attributes and their values
                                             </p>
                                         </CTabPane>
                                     </CTabContent>
