@@ -110,7 +110,7 @@ const Home = (props) => {
 
 
     const { oktaAuth, authState } = useOktaAuth();
-    console.log(authState)
+
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
@@ -296,7 +296,6 @@ const Home = (props) => {
     }
 
     const handleIdpDelete = (item) => {
-        console.log('/api/v1/tenant/' + props.match.params.id + '/del/idp/' + item.name)
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/idp/' + item.name), hdrs)
             .then(async response => {
                 const data = await response.json();

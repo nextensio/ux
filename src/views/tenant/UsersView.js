@@ -110,12 +110,11 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 let users = []
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == "Users") {
-                        if (!data[i].name.startsWith('_')) {
-                            users.push(data[i].name)
-                        }
+                        users.push(data[i].name)
                     }
                 }
                 users.sort()
@@ -141,7 +140,7 @@ const UsersView = (props) => {
                 }
                 zipObj['uid'] = usersData[i]['uid']
                 zipObj['name'] = usersData[i]['name']
-                zipObj['usertype'] = usersData[i]['usertype']
+                // zipObj['usertype'] = usersData[i]['usertype']
                 zipper.push(zipObj)
             }
         }
@@ -262,6 +261,7 @@ const UsersView = (props) => {
     }
 
     function matchAttrs(item) {
+        console.log(item)
         if (userAttrSet.length != 0) {
             return (
                 <table className="table-attrs-bundle mr-3">
@@ -270,21 +270,31 @@ const UsersView = (props) => {
                         <th className="header">Value</th>
                     </tr>
                     {userAttrSet.map(attr => {
-                        return (
-                            <tr>
-                                <td><strong>{attr}</strong></td>
-                                <td>
-                                    {["", 0, false].includes(item[attr]) ?
-                                        <div className="text-warning">Default Value Assigned</div> :
-                                        Array.isArray(item[attr]) ?
-                                            item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
-                                                <div className="text-warning">Default Value Assigned</div> :
-                                                item[attr].join(' & ') :
-                                            item[attr].toString()
-                                    }
-                                </td>
-                            </tr>
-                        )
+                        if (attr[0] === "_") {
+                            return (
+                                <tr>
+                                    <td><strong>{attr}</strong></td>
+                                    <td><div className="text-warning">Default Value Assigned</div></td>
+                                </tr>
+                            )
+                        } else {
+                            return (
+                                <tr>
+                                    <td><strong>{attr}</strong></td>
+                                    <td>
+                                        {["", 0, false].includes(item[attr]) ?
+                                            <div className="text-warning">Default Value Assigned</div> :
+                                            Array.isArray(item[attr]) ?
+                                                item[attr].length == 1 && ["", 0, false].includes(item[attr][0]) ?
+                                                    <div className="text-warning">Default Value Assigned</div> :
+                                                    item[attr].join(' & ') :
+                                                item[attr].toString()
+                                        }
+                                    </td>
+                                </tr>
+                            )
+                        }
+
                     })}
                 </table>
             )

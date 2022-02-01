@@ -99,14 +99,21 @@ const BundlesAdd = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var fields = [];
+                var bundleAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Bundles') {
-                        fields.push(data[i]);
+                    if (data[i].appliesTo === "Bundles") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            bundleAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            bundleAttrs.push(data[i])
+                        }
                     }
                 }
-                fields.sort()
-                updateAttrData(fields);
+                updateAttrData(bundleAttrs);
             });
     }, []);
 

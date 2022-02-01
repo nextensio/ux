@@ -31,6 +31,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 var common = require('../../common')
 
 const UsersAdd = (props) => {
+
+    const assumedGroup = props.match.params.group
+
     // Change maxCharLength to whatever you want for maximum length of input fields.
     const maxCharLength = 20
     const initUserData = Object.freeze({
@@ -71,13 +74,21 @@ const UsersAdd = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var dataObjs = [];
+                var userAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Users') {
-                        dataObjs.push(data[i]);
+                    if (data[i].appliesTo === "Users") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            userAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            userAttrs.push(data[i])
+                        }
                     }
                 }
-                updateAttrData(dataObjs);
+                updateAttrData(userAttrs);
             });
     }, []);
 
@@ -389,117 +400,115 @@ const UsersAdd = (props) => {
                                 </div>
                             }
                             {attrData.map(attr => {
-                                if (attr.name[0] != "_") {
-                                    return (
-                                        <CForm>
-                                            {attr.type == "String" &&
-                                                <>
-                                                    {attr.isArray == "true" ?
-                                                        <CFormGroup>
-                                                            <CPopover
-                                                                title="Popover title"
-                                                                content="This attribute has been defined as string type and accepts multiple values."
-                                                            >
-                                                                <FontAwesomeIcon icon="info-circle" />
-                                                            </CPopover>
-                                                            {' '}<CLabel>{attr.name}</CLabel>
-                                                            <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]} />
-                                                            {errObj[attr.name + "Length"] ?
-                                                                <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                                <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
-                                                            }
-                                                        </CFormGroup>
-                                                        :
-                                                        <CFormGroup>
-                                                            <CPopover
-                                                                title="Popover title"
-                                                                content="This attribute has been defined as string type and accepts a single value."
-                                                            >
-                                                                <FontAwesomeIcon icon="info-circle" />
-                                                            </CPopover>
-                                                            {' '}<CLabel>{attr.name}</CLabel>
-                                                            <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]} />
-                                                            {errObj[attr.name + "Length"] ?
-                                                                <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
-                                                                <CFormText>Enter attribute value.</CFormText>
-                                                            }
-                                                        </CFormGroup>
-                                                    }
-                                                </>
-                                            }
-                                            {attr.type == "Number" &&
-                                                <>
-                                                    {attr.isArray == "true" ?
-                                                        <CFormGroup>
-                                                            <CPopover
-                                                                title="Popover title"
-                                                                content="This attribute has been defined as number type and accepts multiple values."
-                                                            >
-                                                                <FontAwesomeIcon icon="info-circle" />
-                                                            </CPopover>
-                                                            {' '}<CLabel>{attr.name}</CLabel>
-                                                            <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]} />
-                                                            {errObj[attr.name] ?
-                                                                <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
-                                                                <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
-                                                            }
-                                                        </CFormGroup>
-                                                        :
-                                                        <CFormGroup>
-                                                            <CPopover
-                                                                title="Popover title"
-                                                                content="This attribute has been defined as number type and accepts a single value."
-                                                            >
-                                                                <FontAwesomeIcon icon="info-circle" />
-                                                            </CPopover>
-                                                            {' '}<CLabel>{attr.name}</CLabel>
-                                                            <CInput type="number" name={attr.name} placeholder={attr.name} onChange={handleSingleNumberAttrChange} />
+                                return (
+                                    <CForm>
+                                        {attr.type == "String" &&
+                                            <>
+                                                {attr.isArray == "true" ?
+                                                    <CFormGroup>
+                                                        <CPopover
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as string type and accepts multiple values."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle" />
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiStringAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]} />
+                                                        {errObj[attr.name + "Length"] ?
+                                                            <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                        }
+                                                    </CFormGroup>
+                                                    :
+                                                    <CFormGroup>
+                                                        <CPopover
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as string type and accepts a single value."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle" />
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleAttrChange} maxLength={maxCharLength} invalid={errObj[attr.name + "Length"]} />
+                                                        {errObj[attr.name + "Length"] ?
+                                                            <CInvalidFeedback>Max character length reached.</CInvalidFeedback> :
                                                             <CFormText>Enter attribute value.</CFormText>
-                                                        </CFormGroup>
-                                                    }
-                                                </>
-                                            }
-                                            {attr.type == "Boolean" &&
-                                                <CFormGroup>
-                                                    <CLabel>{attr.name}</CLabel>
-                                                    <CSelect name={attr.name} custom onChange={handleBoolAttrChange}>
-                                                        <option value={undefined}>Please select a boolean</option>
-                                                        <option value={true}>True</option>
-                                                        <option value={false}>False</option>
-                                                    </CSelect>
-                                                </CFormGroup>
+                                                        }
+                                                    </CFormGroup>
+                                                }
+                                            </>
+                                        }
+                                        {attr.type == "Number" &&
+                                            <>
+                                                {attr.isArray == "true" ?
+                                                    <CFormGroup>
+                                                        <CPopover
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as number type and accepts multiple values."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle" />
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiNumberAttrChange} invalid={errObj[attr.name]} />
+                                                        {errObj[attr.name] ?
+                                                            <CInvalidFeedback>This attribute is designated for integers. Do not leave hanging commas.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                        }
+                                                    </CFormGroup>
+                                                    :
+                                                    <CFormGroup>
+                                                        <CPopover
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as number type and accepts a single value."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle" />
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="number" name={attr.name} placeholder={attr.name} onChange={handleSingleNumberAttrChange} />
+                                                        <CFormText>Enter attribute value.</CFormText>
+                                                    </CFormGroup>
+                                                }
+                                            </>
+                                        }
+                                        {attr.type == "Boolean" &&
+                                            <CFormGroup>
+                                                <CLabel>{attr.name}</CLabel>
+                                                <CSelect name={attr.name} custom onChange={handleBoolAttrChange}>
+                                                    <option value={undefined}>Please select a boolean</option>
+                                                    <option value={true}>True</option>
+                                                    <option value={false}>False</option>
+                                                </CSelect>
+                                            </CFormGroup>
 
-                                            }
-                                            {attr.type == "Date" &&
-                                                <>
-                                                    {attr.isArray == "true" ?
-                                                        <CFormGroup>
-                                                            <CPopover
-                                                                title="Popover title"
-                                                                content="This attribute has been defined as date type and accepts multiple values."
-                                                            >
-                                                                <FontAwesomeIcon icon="info-circle" />
-                                                            </CPopover>
-                                                            {' '}<CLabel>{attr.name}</CLabel>
-                                                            <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]} />
-                                                            {errObj[attr.name] ?
-                                                                <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
-                                                                <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
-                                                            }
-                                                        </CFormGroup>
-                                                        :
-                                                        <CFormGroup>
-                                                            <CLabel>{attr.name}</CLabel>
-                                                            <CInputGroup>
-                                                                <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleSingleDateAttrChange} />
-                                                            </CInputGroup>
-                                                        </CFormGroup>
-                                                    }
-                                                </>
-                                            }
-                                        </CForm>
-                                    )
-                                }
+                                        }
+                                        {attr.type == "Date" &&
+                                            <>
+                                                {attr.isArray == "true" ?
+                                                    <CFormGroup>
+                                                        <CPopover
+                                                            title="Popover title"
+                                                            content="This attribute has been defined as date type and accepts multiple values."
+                                                        >
+                                                            <FontAwesomeIcon icon="info-circle" />
+                                                        </CPopover>
+                                                        {' '}<CLabel>{attr.name}</CLabel>
+                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiDateAttrChange} invalid={errObj[attr.name]} />
+                                                        {errObj[attr.name] ?
+                                                            <CInvalidFeedback>Please enter your format as YYYY-MM-DD. Do not leave hanging commas.</CInvalidFeedback> :
+                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
+                                                        }
+                                                    </CFormGroup>
+                                                    :
+                                                    <CFormGroup>
+                                                        <CLabel>{attr.name}</CLabel>
+                                                        <CInputGroup>
+                                                            <CInput type="date" id="date-input" name={attr.name} placeholder={attr.name} onChange={handleSingleDateAttrChange} />
+                                                        </CInputGroup>
+                                                    </CFormGroup>
+                                                }
+                                            </>
+                                        }
+                                    </CForm>
+                                )
                             })}
                         </CCol>
                     </CRow>

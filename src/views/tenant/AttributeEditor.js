@@ -114,11 +114,13 @@ const expertFields = [
 
 const AttributeEditor = (props) => {
 
+    const assumedGroup = props.match.params.group
+
     var initAttrData = Object.freeze(
         []
     );
-    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: 'false', group: props.match.params.group }
-    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: 'false', group: props.match.params.group }
+    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: 'false', group: assumedGroup }
+    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: 'false', group: assumedGroup }
 
     const [attrColl, updateAttrColl] = useState(initAttrData);
     const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
@@ -560,9 +562,10 @@ const AttributeEditor = (props) => {
                                                     <CIcon
                                                         name="cil-circle"
                                                         className={
-                                                            item.name[0] == "_" || (item.group !== props.match.params.group)
+                                                            item.name[0] == "_" || (item.group !== props.match.params.group) && (props.match.params.group !== "superadmin")
                                                                 ? "text-danger"
-                                                                : "text-success"}
+                                                                : "text-success"
+                                                        }
                                                     />
                                                 </td>
                                             )
@@ -585,7 +588,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            disabled={item.name[0] == "_" || (item.group !== props.match.params.group)}
+                                                            disabled={item.name[0] == "_" || (item.group !== props.match.params.group && props.match.params.group !== "superadmin")}
                                                             onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />

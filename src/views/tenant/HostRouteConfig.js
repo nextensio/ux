@@ -80,15 +80,27 @@ const HostRouteConfig = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                const attrObjs = [];
+                const hostAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (attrNames.includes(data[i].name) && data[i].appliesTo == "Hosts") {
-                        attrObjs.push(data[i]);
+                    if (data[i].appliesTo === "Hosts") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            hostAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            hostAttrs.push(data[i])
+                        }
                     }
                 }
-                setAttrData(attrObjs)
+                setAttrData(hostAttrs)
             });
     }, [props, attrNames]);
+
+    const toAttributeEditor = (e) => {
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
+    }
 
     const handleAttrChange = (e) => {
         let input
@@ -336,6 +348,11 @@ const HostRouteConfig = (props) => {
                             <CInvalidFeedback>Routes can only have alphanumeric values.</CInvalidFeedback>
                         </CFormGroup>
                         <div className="title py-3">Attributes</div>
+                        {attrData.length === 0 &&
+                            <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
+                                You have no attributes for Apps. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                            </div>
+                        }
                         {attrData.map(attr => {
                             return (
                                 <CForm>

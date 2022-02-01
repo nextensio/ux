@@ -53,13 +53,21 @@ const UsersEdit = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var fields = [];
+                var userAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Users') {
-                        fields.push(data[i]);
+                    if (data[i].appliesTo == "Users") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            userAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            userAttrs.push(data[i])
+                        }
                     }
                 }
-                updateAttrData(fields);
+                updateAttrData(userAttrs);
             });
     }, []);
 
@@ -458,6 +466,8 @@ const UsersEdit = (props) => {
         }
     }
 
+    console.log(attrData)
+
     return (
         <CCard className="roboto-font">
             <CCardHeader>
@@ -467,6 +477,7 @@ const UsersEdit = (props) => {
                 <CRow>
                     <CCol sm="8">
                         {renderUserInfo()}
+                        <div className="title py-3">Attributes</div>
                         {attrData.length === 0 &&
                             <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
                                 You have no attributes for Users. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
