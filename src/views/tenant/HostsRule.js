@@ -87,6 +87,7 @@ const HostsRule = (props) => {
                         return
                     }
                 }
+                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
             // This logic block executes if we are adding a new rule
             else {
@@ -97,6 +98,7 @@ const HostsRule = (props) => {
                 })
                 setHost(props.location.state[0])
                 setTag(props.location.state[1])
+                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
         }
     }, [])
@@ -134,16 +136,6 @@ const HostsRule = (props) => {
                 updateAccessibleUserAttrs(user)
             })
     }, [])
-
-    function lockable() {
-        let snips = ruleData.rule
-        for (let i in snips) {
-            if (snips[i][0] !== "User ID" && snips[i][0] !== "tag" && !accessibleUserAttrs.includes(snips[i][0])) {
-                return "not lockable"
-            }
-        }
-        return "lockable"
-    }
 
     // Returns true if the attributes are part of your admin group
     function getAccessibleAttributes(userAttr) {
@@ -294,6 +286,7 @@ const HostsRule = (props) => {
     const lockRule = (e) => {
         setLock(!lock)
         setLockInfoModal(!lockInfoModal)
+        lockHostRule();
     }
 
     function validate() {
@@ -321,6 +314,45 @@ const HostsRule = (props) => {
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/hostrule/'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    // bundle attribute http post must be run after bundle http post
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const lockHostRule = () => {
+        let err = validate()
+        if (Object.keys(err) != 0) {
+            return
+        }
+        var group = "";
+        if (lock) {
+            group = props.match.params.group;
+        }
+        const requestOptions = {
+            method: 'POST',
+            headers: hdrs.headers,
+            body: JSON.stringify({
+                host: ruleData.host, rid: ruleData.rid,
+                group: group,
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/lockhostrule/'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -535,8 +567,6 @@ const HostsRule = (props) => {
                 </CModalFooter>
             </CModal>
             <CModal className="roboto-font" show={lockInfoModal}>
-                <CModalHeader><strong>Attention</strong></CModalHeader>
-                <CModalBody>You can lock this because all snippets used are defined in this group.</CModalBody>
                 <CModalFooter>
                     <CButton
                         color="success"
