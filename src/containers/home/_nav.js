@@ -47,6 +47,16 @@ export default [
         },
     },
     {
+        _tag: 'CSidebarNavItem',
+        name: 'Client ID',
+        to: '/home/clientid',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-notes',
+            size: 'lg',
+        },
+    },
+    {
         _tag: 'CSidebarNavDivider',
         className: 'm-2'
     },
