@@ -107,7 +107,9 @@ const HostsView = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -147,26 +149,26 @@ const HostsView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/hosts/add')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/add')
     }
 
     const handleRule = (e, host, routetag) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/rule',
             state: [host, routetag]
         })
     }
 
     const handleRuleEdit = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/rule',
             state: [item, "Edit"]
         })
     }
 
     const handleAttrConfig = (index, configIndex) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/routeconfig',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/routeconfig',
             state: [hostsData[index], configIndex]
         });
         setDetails([])
@@ -175,7 +177,7 @@ const HostsView = (props) => {
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/hosts/edit',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts/edit',
             state: hostsData[index]
         });
         setDetails([])
@@ -183,7 +185,7 @@ const HostsView = (props) => {
 
     const toAttrEditor = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor'
         })
     }
 
@@ -267,7 +269,7 @@ const HostsView = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(host),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/hostattr'), requestOptions)
@@ -319,7 +321,7 @@ const HostsView = (props) => {
         var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 pid: "RoutePolicy", tenant: props.match.params.id,
                 rego: byteRego
@@ -716,7 +718,7 @@ const HostsView = (props) => {
         <>
             <CRow>
                 <CCol xs="24" lg="12">
-                    <CCard className="shadow rounded">
+                    <CCard className="roboto-font shadow rounded">
                         <CCardHeader>
                             <CTooltip content="Click for Documentation">
                                 <CLink
@@ -811,7 +813,7 @@ const HostsView = (props) => {
                                                     <CCardBody onClick={e => e.stopPropagation()}>
                                                         {/**This button is used to add another route */}
                                                         <CButton
-                                                            className="roboto-font float-right mb-3"
+                                                            className="float-right mb-3"
                                                             color="primary"
                                                             variant="outline"
                                                             shape="square"
@@ -823,10 +825,10 @@ const HostsView = (props) => {
                                                         {routeConfig.length ?
                                                             <table className="my-3 table">
                                                                 <tr>
-                                                                    <th className="attributes header roboto-font border-right">Routes</th>
+                                                                    <th className="attributes header border-right">Routes</th>
                                                                     {routeConfig.map((route, i) => {
                                                                         return (
-                                                                            <td className="attributes header roboto-font">
+                                                                            <td className="attributes header">
                                                                                 <strong className="text-success">{route.tag}</strong>
                                                                                 <div>
                                                                                     {easyMode ?
@@ -872,9 +874,8 @@ const HostsView = (props) => {
                                                                     })}
                                                                 </tr>
                                                                 {easyMode ?
-
                                                                     <tr>
-                                                                        <th className="attributes roboto-font border-right">
+                                                                        <th className="attributes border-right">
                                                                             <CCallout color="info">Rules</CCallout>
                                                                         </th>
 
@@ -891,7 +892,7 @@ const HostsView = (props) => {
                                                                         {hostAttrSet.map(attr => {
                                                                             return (
                                                                                 <tr>
-                                                                                    <th className="attributes roboto-font border-right">{attr}</th>
+                                                                                    <th className="attributes border-right">{attr}</th>
                                                                                     {routeConfig.map((route, i) => {
                                                                                         return (
                                                                                             <>
@@ -906,13 +907,13 @@ const HostsView = (props) => {
                                                                     </>
                                                                 }
                                                             </table> :
-                                                            <CCallout className="roboto-font" color="warning">
+                                                            <CCallout color="warning">
                                                                 No routes configured for {item.host}. Click Add Route to add a route.
                                                             </CCallout>
 
                                                         }
                                                         {!easyMode && hostAttrSet.length == 0 &&
-                                                            <CCallout className="roboto-font" color="warning">
+                                                            <CCallout color="warning">
                                                                 No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create Application attributes.
                                                             </CCallout>
                                                         }

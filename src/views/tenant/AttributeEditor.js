@@ -41,6 +41,11 @@ var common = require('../../common')
 
 const easyFields = [
     {
+        key: "accessable",
+        label: '',
+        _style: { width: '1%' },
+    },
+    {
         key: "name",
         _classes: "data-head"
     },
@@ -51,6 +56,11 @@ const easyFields = [
     {
         key: "isArray",
         label: "Multiple Values",
+        _classes: "data-field"
+    },
+    {
+        key: "group",
+        label: "Group",
         _classes: "data-field"
     },
     {
@@ -65,9 +75,15 @@ const easyFields = [
 
 const expertFields = [
     {
+        key: "accessable",
+        label: '',
+        _style: { width: '1%' },
+    },
+    {
         key: "name",
         _classes: "data-head"
     },
+
     {
         key: "appliesTo",
         _classes: "data-field"
@@ -82,6 +98,11 @@ const expertFields = [
         _classes: "data-field"
     },
     {
+        key: "group",
+        label: "Group",
+        _classes: "data-field"
+    },
+    {
         key: "delete",
         label: '',
         _style: { width: '1%' },
@@ -92,13 +113,16 @@ const expertFields = [
 ]
 
 const AttributeEditor = (props) => {
+
+    const assumedGroup = props.match.params.group
+
     var initAttrData = Object.freeze(
         []
     );
-    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: '' }
-    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: '' }
+    const initAttrObj = { name: '', appliesTo: '', type: 'String', isArray: 'false', group: assumedGroup }
+    const initAttrObjEasy = { name: '', appliesTo: 'Users', type: 'String', isArray: 'false', group: assumedGroup }
+
     const [attrColl, updateAttrColl] = useState(initAttrData);
-    const [userAttrColl, updateUserAttrColl] = useState(initAttrData)
     const [attributeData, updateAttributeData] = useState(initAttrObjEasy)
     const [policyData, updatePolicyData] = useState(Object.freeze([]))
     const [resetWarning, setResetWarning] = useState(false);
@@ -107,7 +131,7 @@ const AttributeEditor = (props) => {
     const [deleteItem, setDeleteItem] = useState(0);
     const [activeTab, setActiveTab] = useState("Overview")
     const [overwriteModal, setOverwriteModal] = useState(false);
-    const [easyMode, setEasyMode] = useState(true)
+    const [easyMode, setEasyMode] = useState(false)
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
 
@@ -115,22 +139,46 @@ const AttributeEditor = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
-
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => {
-                if (!data.Tenant.easymode) {
-                    updateAttributeData(initAttrObj)
+                if (!easyMode) { // if (!data.Tenant.easymode) 
+                    // const fetchUser = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs).then(res => res.json());
+                    // const fetchBundles = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Bundles'), hdrs).then(res => res.json());
+                    // const fetchHosts = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Hosts'), hdrs).then(res => res.json())
+                    // const allData = Promise.all([fetchUser, fetchBundles, fetchHosts])
+                    // allData.then((res) => {
+                    //     var merged = [].concat.apply([], res);
+                    //     updateAttrColl(merged)
+                    // })
+
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+                        .then(response => response.json())
+                        .then(data => {
+                            updateAttrColl(data)
+                        });
+                } else {
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+                        .then(response => response.json())
+                        .then(data => {
+                            let userData = []
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].appliesTo == "Users") {
+                                    userData.push(data[i])
+                                }
+                            }
+                            updateAttrColl(userData)
+                        })
                 }
-                setEasyMode(data.Tenant.easymode)
+                // setEasyMode(data.Tenant.easymode)
             });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
-            .then(response => response.json())
-            .then(data => { updateAttrColl(data) });
+
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -145,15 +193,6 @@ const AttributeEditor = (props) => {
             })
     }, []);
 
-    useEffect(() => {
-        let userSet = []
-        for (let i = 0; i < attrColl.length; i++) {
-            if (attrColl[i].appliesTo == "Users") {
-                userSet.push(attrColl[i])
-            }
-        } updateUserAttrColl(userSet)
-    }, [attrColl])
-
     const handleRefresh = (e) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
@@ -165,12 +204,18 @@ const AttributeEditor = (props) => {
             ...attributeData,
             [e.target.name]: e.target.value
         });
+        console.log(attributeData)
     };
 
     const handleType = (e, type) => {
+        let isArray = attributeData.isArray
+        if (type == "Boolean") {
+            isArray = "false"
+        }
         updateAttributeData({
             ...attributeData,
-            type: type
+            type: type,
+            isArray: isArray
         });
     }
 
@@ -231,9 +276,9 @@ const AttributeEditor = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
-                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray
+                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray, group: attributeData.group
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
@@ -262,6 +307,9 @@ const AttributeEditor = (props) => {
     // Validation check, if attribute name is found in policy this function will return false,
     // otherwise we will return true. Output is used in the toggleDelete function.
     function validateDelete(item) {
+        if (item.name.startsWith('_')) {
+            return false
+        }
         for (let i = 0; i < policyData.length; i++) {
             if (item.appliesTo === "Users" && policyData[i].includes("input.user." + item.name)) {
                 return false
@@ -287,7 +335,7 @@ const AttributeEditor = (props) => {
     const handleDelete = (item) => {
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(item),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/attrset'), requestOptions)
@@ -303,12 +351,6 @@ const AttributeEditor = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    if (item.appliesTo == "Users") {
-                        let userAttrs = [...userAttrColl]
-                        let index = userAttrs.indexOf(item)
-                        userAttrs.splice(index, 1)
-                        updateUserAttrColl(userAttrs)
-                    }
                     let attrs = [...attrColl]
                     let index = attrs.indexOf(item)
                     attrs.splice(index, 1)
@@ -409,11 +451,17 @@ const AttributeEditor = (props) => {
                                     <CCol md="8">
                                         <div>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio4" name="isArray" value={true} checked={attributeData.isArray == "true"} onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio4"
+                                                    name="isArray"
+                                                    value="true"
+                                                    checked={attributeData.isArray == "true"}
+                                                    onChange={handleChange}
+                                                    disabled={attributeData.type == "Boolean"}
+                                                />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio4">True</CLabel>
                                             </CFormGroup>
                                             <CFormGroup variant="custom-radio" inline>
-                                                <CInputRadio custom id="inline-radio5" name="isArray" value={false} checked={attributeData.isArray == "false"} onChange={handleChange} />
+                                                <CInputRadio custom id="inline-radio5" name="isArray" value="false" checked={attributeData.isArray == "false"} onChange={handleChange} />
                                                 <CLabel variant="custom-checkbox" htmlFor="inline-radio5">False</CLabel>
                                             </CFormGroup>
                                         </div>
@@ -503,10 +551,25 @@ const AttributeEditor = (props) => {
                         <CCardBody>
                             <CDataTable
                                 fields={easyMode ? easyFields : expertFields}
-                                items={easyMode ? userAttrColl : attrColl}
+                                items={attrColl}
                                 pagination
                                 sorter
                                 scopedSlots={{
+                                    'accessable':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-auto">
+                                                    <CIcon
+                                                        name="cil-circle"
+                                                        className={
+                                                            item.name[0] == "_" || (item.group !== props.match.params.group) && (props.match.params.group !== "superadmin")
+                                                                ? "text-danger"
+                                                                : "text-success"
+                                                        }
+                                                    />
+                                                </td>
+                                            )
+                                        },
                                     'appliesTo':
                                         (item, index) => {
                                             return (
@@ -525,6 +588,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
+                                                            disabled={item.name[0] == "_" || (item.group !== props.match.params.group && props.match.params.group !== "superadmin")}
                                                             onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
@@ -576,7 +640,7 @@ const AttributeEditor = (props) => {
                         <strong>Attribute In Use!</strong>
                     </CModalHeader>
                     <CModalBody className="text-lg-left">
-                        You cannot delete this attribute. It is currently being used in a policy.
+                        You cannot delete this attribute. It is either system defined or being used in a policy.
                     </CModalBody>
                     <CModalFooter>
                         <CButton

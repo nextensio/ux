@@ -128,7 +128,9 @@ const BundlesView = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -204,28 +206,28 @@ const BundlesView = (props) => {
 
     const handleAdd = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/add',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/add',
             state: bidData
         })
     }
 
     const handleRule = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/rule',
             state: [item.bid, "Add"]
         })
     }
 
     const handleRuleEdit = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/rule',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/rule',
             state: [item, "Edit"]
         })
     }
 
     const handleEdit = (item) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/bundles/edit',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles/edit',
             state: item
         });
         setDetails([]);
@@ -233,12 +235,12 @@ const BundlesView = (props) => {
 
     const toAttrEditor = (e) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/attreditor'
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor'
         })
     }
 
     const handleDelete = (bid) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundle/') + bid, hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundle/' + bid), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -434,13 +436,13 @@ const BundlesView = (props) => {
     }
 
     const servicesHeader = (
-        <h4 className="roboto-font my-2 ml-2">
+        <h4 className="my-2 ml-2">
             Services
         </h4>
     )
 
     const servicesContent = (
-        <div className="roboto-font pb-3">
+        <div className="pb-3">
             {currentServices.map(service => {
                 return (
                     <div>{service}</div>
@@ -454,7 +456,7 @@ const BundlesView = (props) => {
         var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 pid: "AccessPolicy", tenant: props.match.params.id,
                 rego: byteRego
@@ -1044,7 +1046,7 @@ const BundlesView = (props) => {
                                 <CPagination
                                     className="mt-5"
                                     activePage={statusPage}
-                                    pages={status.length - 1}
+                                    pages={status.length}
                                     onActivePageChange={(i) => setStatusPage(i)}
                                     doubleArrows={false}
                                 />

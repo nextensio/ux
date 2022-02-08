@@ -37,7 +37,15 @@ const TracingRule = (props) => {
 
     const [uids, updateUids] = useState(Object.freeze([]))
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
-    const [userAttrNames, updateUserAttrNames] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on token admin group
+    const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on admin group in object format 
+    // ({value: <accessibleUserAttr>, label: <accessibleUserAttr>}). Needed for CreateableSelect library
+    const [accessibleUserAttrsForRHS, updateAccessibleUserAttrsForRHS] = useState(Object.freeze([]))
+
+
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
@@ -59,7 +67,9 @@ const TracingRule = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -76,25 +86,50 @@ const TracingRule = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var userAttrObjs = []
-                var userAttrNames = []
+                var user = []
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == "Users") {
-                        userAttrObjs.push(data[i])
-                        userAttrNames.push({ value: data[i].name, label: data[i].name })
+                        user.push(data[i])
                     }
                 }
-                updateUserAttrNames(userAttrNames)
-                updateUserAttrs(userAttrObjs)
+                updateUserAttrs(user)
+            })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var userAttrNames = []
+                var userAttrObjs = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].name) {
+                        userAttrNames.push(data[i].name)
+                        userAttrObjs.push({ value: data[i].name, label: data[i].name })
+                    }
+                }
+                updateAccessibleUserAttrs(userAttrNames)
+                updateAccessibleUserAttrsForRHS(userAttrObjs)
             })
     }, [])
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alltracereqrules'), hdrs)
             .then(response => response.json())
-            .then(data => updateExistingRules(data))
+            .then(data => {
+                console.log(data)
+                updateExistingRules(data)
+            })
 
     }, [])
+
+    // Returns true if the attributes are part of your admin group
+    function getAccessibleAttributes(userAttr) {
+        if (userAttr === "User ID") {
+            return true
+        } else if (accessibleUserAttrs.includes(userAttr)) {
+            return true
+        } else {
+            return false
+        }
+    }
 
     const handleChange = (e) => {
         updateRuleData({
@@ -259,7 +294,7 @@ const TracingRule = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 rid: ruleData.rid,
                 rule: ruleData.rule
@@ -338,7 +373,7 @@ const TracingRule = (props) => {
             return (
                 <CreatableSelect
                     name="userAttrs"
-                    options={userAttrNames}
+                    options={accessibleUserAttrsForRHS}
                     value={snippetData[2]}
                     isSearchable
                     isMulti
@@ -496,7 +531,8 @@ const TracingRule = (props) => {
     function processTraceReqRule(e, traceReqRule, policyData, ruleIndex) {
         let attrSpecified = 0
         let traceReqPolicyAttr = "** Error **"
-        let traceReqAttrValue = "[\"all\"]"
+        let traceReqAttrValue = ""
+        let traceReq = "{\"" + traceReqRule.rid + "\": "
         let Exprs = ""
         ruleIndex += 1
         let RuleId = "tid" + ruleIndex.toString()
@@ -532,11 +568,11 @@ const TracingRule = (props) => {
             let rts = "array[_]"
 
             rtoken = rtoken.trim()
-            if (uavalue === "attr") {
-		if (rtoken.includes(',')) {
+            if ((uavalue === "attr") || uavalue.endsWith('-attr')) {
+                if (rtoken.includes(',')) {
                     rtoken = rtoken.replaceAll(',', ' ').trim()
-		}
-                traceReqAttrValue = traceReqRightTokenArray(rtoken, "string")
+                }
+                traceReqAttrValue = traceReqAttrValue + traceReqRightTokenArray(rtoken, "string")
                 attrSpecified = 1
             } else if ((uatype === "string") || (uavalue === "uid")) {
                 // User attribute is string type. rtoken must be a string or
@@ -574,10 +610,8 @@ const TracingRule = (props) => {
             if (uavalue != "array") {
                 lts = ""
             }
-            if (uavalue === "attr") {
-                let traceReq = "{\"" + traceReqRule.rid + "\": "
-                traceReq = traceReq + "[" + traceReqAttrValue + "]}\n"
-                traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
+            if ((uavalue === "attr") || uavalue.endsWith('-attr')) {
+                // Do nothing
             } else if (uavalue === "uid") {
                 // ltoken is user id
                 if (!issingle) {
@@ -610,6 +644,11 @@ const TracingRule = (props) => {
                 }
             }
         }
+        if (attrSpecified != 1) {
+            traceReqAttrValue = "\"all\""
+        }
+        traceReq = traceReq + "[" + traceReqAttrValue + "]}\n"
+        traceReqPolicyAttr = "    " + RuleId + " := " + traceReq
         let RuleEnd = "}"
         return policyData + RuleStart + Exprs + traceReqPolicyAttr + RuleEnd
     }
@@ -628,7 +667,7 @@ const TracingRule = (props) => {
         var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 pid: "TracePolicy", tenant: props.match.params.id,
                 rego: byteRego
@@ -730,7 +769,8 @@ const TracingRule = (props) => {
                                     <CLabel>Rule Name</CLabel>
                                     <CInput name="rid" value={ruleData.rid} onChange={handleChange} invalid={errObj.rid} />
                                     {!errObj.rid ?
-                                        <CFormText>Enter a rule name. Ex: Rule to allow tracing for C-Suites...</CFormText>
+                                        <CFormText>Enter a rule name (a trace request name) to trace one or more specific flows.
+                                            Multiple rules can be specified to trace different groups of flows</CFormText>
                                         :
                                         <CInvalidFeedback>Please enter a valid name</CInvalidFeedback>
                                     }
@@ -754,13 +794,16 @@ const TracingRule = (props) => {
                                                 <option value="User Attributes">User Attributes</option>
                                                 <option value="User ID">User ID</option>
                                                 {userAttrs.map((item, index) => {
-                                                    return (
-                                                        <option
-                                                            value={item.name}
-                                                        >
-                                                            {item.name}
-                                                        </option>
-                                                    )
+                                                    if (getAccessibleAttributes(item.name)) {
+                                                        return (
+                                                            <option
+                                                                value={item.name}
+                                                            >
+                                                                {item.name}
+                                                            </option>
+                                                        )
+                                                    }
+
                                                 })}
                                             </CSelect>
                                         </CCol>
@@ -803,29 +846,43 @@ const TracingRule = (props) => {
                                                 <CListGroupItem
                                                     key={item}
                                                     value={item}
+                                                    disabled={!getAccessibleAttributes(item[0])}
                                                     className="mb-1"
                                                     size="sm"
                                                     color={item == editingSnippet ? "warning" : "success"}
                                                 >
                                                     {item.slice(0, 3).join(' ')}
-                                                    <CButton
-                                                        className="button-table float-right"
-                                                        color='danger'
-                                                        variant='ghost'
-                                                        size="sm"
-                                                        onClick={() => removeSnippetFromRule(item)}
-                                                    >
-                                                        <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                    </CButton>
-                                                    <CButton
-                                                        className="button-table float-right"
-                                                        color='primary'
-                                                        variant='ghost'
-                                                        size="sm"
-                                                        onClick={() => populateSnippetEditor(item)}
-                                                    >
-                                                        <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                    </CButton>
+                                                    {getAccessibleAttributes(item[0])
+                                                        ?
+                                                        <>
+                                                            <CButton
+                                                                className="button-table float-right"
+                                                                color='danger'
+                                                                variant='ghost'
+                                                                size="sm"
+                                                                onClick={() => removeSnippetFromRule(item)}
+                                                            >
+                                                                <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                            </CButton>
+                                                            <CButton
+                                                                className="button-table float-right"
+                                                                color='primary'
+                                                                variant='ghost'
+                                                                size="sm"
+                                                                onClick={() => populateSnippetEditor(item)}
+                                                            >
+                                                                <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                                            </CButton>
+                                                        </>
+                                                        :
+                                                        <CButton
+                                                            size="sm"
+                                                            className="float-right"
+                                                            disabled
+                                                        >
+                                                            <FontAwesomeIcon icon="lock" size="lg" />
+                                                        </CButton>
+                                                    }
                                                 </CListGroupItem>
                                             </div>
                                         )
@@ -836,14 +893,8 @@ const TracingRule = (props) => {
                     </CRow>
                 </CCardBody>
                 <CCardFooter className="roboto-font">
-                    <CRow className="mt-3">
-                        <CCol sm="3">
-                            <CButton block variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                        </CCol>
-                        <CCol sm="3">
-                            <CButton block variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>{Object.keys(editingRule).length != 0 ? "Modify Rule" : "Create Rule"}</strong></CButton>
-                        </CCol>
-                    </CRow>
+                    <CButton className="button-footer-danger" variant="outline" variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                    <CButton className="button-footer-success" variant="outline" variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-scrubber" /> <strong>{Object.keys(editingRule).length != 0 ? "Modify" : "Create"}</strong></CButton>
                 </CCardFooter>
             </CCard>
             <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>

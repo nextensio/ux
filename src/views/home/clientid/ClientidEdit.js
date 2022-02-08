@@ -16,7 +16,8 @@ import {
     CCardHeader,
     CFormGroup,
     CFormText,
-    CCardFooter
+    CCardFooter,
+    CTextarea
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
@@ -24,17 +25,11 @@ import { useOktaAuth } from '@okta/okta-react';
 
 var common = require('../../../common')
 
-function validateEnterprise(tenant) {
-    var re = /^[a-z0-9]+$/;
-    return re.test(tenant)
-}
-
-const TenantsEdit = (props) => {
-
-    const initTenantData = Object.freeze({
-        _id: "unknown",
+const ClientidEdit = (props) => {
+    const initUserData = Object.freeze({
+        clientid: "",
     });
-    const [tenantData, updateTenantData] = useState(initTenantData);
+    const [userData, updateUserData] = useState(initUserData);
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -48,52 +43,45 @@ const TenantsEdit = (props) => {
 
     useEffect(() => {
         if (typeof props.location.state != 'undefined') {
-            updateTenantData({
-                _id: props.location.state._id,
-                name: props.location.state.name,
-            })
+            updateUserData(props.location.state)
         }
     }, []);
 
     const handleChange = (e) => {
-        updateTenantData({
-            ...tenantData,
-            [e.target.name]: e.target.value.trim()
+        if (e.target.name == "clientid") {
+            var target = e.target.value;
+        } else {
+            var target = e.target.value.trim();
+        }
+        updateUserData({
+            ...userData,
+            [e.target.name]: target
         });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!validateEnterprise(tenantData._id.trim())) {
-            alert(tenantData._id.trim() + " <- has to be one word, only lower case alphabets and numbers allowed")
-            return
-        }
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
             body: JSON.stringify({
-                _id: tenantData._id.trim(),
+                clientid: userData.clientid
             }),
         };
-
-        fetch(common.api_href('/api/v1/global/add/tenant'), requestOptions)
+        fetch(common.api_href('/api/v1/global/add/clientid'), requestOptions)
             .then(async response => {
                 const data = await response.json();
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                }
                 if (!response.ok) {
                     // get error message from body or default to response status
-                    const error = (data && data.message) || response.status;
                     alert(error);
+                    const error = (data && data.message) || response.status;
                     return Promise.reject(error);
                 }
                 // check for error response
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/home/tenants')
+                    props.history.push('/home/clientid')
                 }
             })
             .catch(error => {
@@ -104,13 +92,13 @@ const TenantsEdit = (props) => {
     return (
         <CCard>
             <CCardHeader>
-                <strong>Add Tenant</strong>
+                <strong>Add Client ID</strong>
             </CCardHeader>
             <CCardBody>
                 <CForm>
                     <CFormGroup>
-                        <CLabel htmlFor="nf-email">Enterprise ID</CLabel>
-                        <CInput name="_id" placeholder={tenantData._id} onChange={handleChange} />
+                        <CLabel htmlFor="nf-password">Client ID</CLabel>
+                        <CInput name="clientid" placeholder={userData.clientid} onChange={handleChange} />
                     </CFormGroup>
                 </CForm>
             </CCardBody>
@@ -124,4 +112,4 @@ const TenantsEdit = (props) => {
     )
 }
 
-export default withRouter(TenantsEdit)
+export default withRouter(ClientidEdit)

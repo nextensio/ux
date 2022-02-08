@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
     CHeader,
+    CHeaderNav,
+    CHeaderNavItem,
     CToggler,
 } from '@coreui/react'
 import { useTheme } from './Context'
@@ -17,9 +19,13 @@ const TheHeader = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
+
+    const idTokenJson = common.decodeToken(bearer)
 
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
@@ -56,9 +62,13 @@ const TheHeader = (props) => {
                 className="ml-3 d-md-down-none"
                 onClick={toggleSidebar}
             />
-            <div className="ml-auto mr-3 py-3 roboto-font text-dark">
-                {Theme.darkMode ? "Expert Mode" : "Easy Mode"}
-            </div>
+
+            <CHeaderNav className="ml-auto mr-3 py-3 roboto-font text-dark">
+                <CHeaderNavItem className="mr-3">{idTokenJson.usertype}</CHeaderNavItem>
+                <CHeaderNavItem>|</CHeaderNavItem>
+                <CHeaderNavItem className="ml-3">{Theme.darkMode ? "Expert Mode" : "Easy Mode"}</CHeaderNavItem>
+
+            </CHeaderNav>
         </CHeader>
     )
 }

@@ -36,7 +36,12 @@ const BundlesRule = (props) => {
 
     const [bid, setBid] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
+
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on admin group
+    const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
+
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
@@ -54,7 +59,9 @@ const BundlesRule = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -96,7 +103,30 @@ const BundlesRule = (props) => {
                 }
                 updateUserAttrs(user)
             })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var user = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].name) {
+                        user.push(data[i].name)
+                    }
+                }
+                updateAccessibleUserAttrs(user)
+            })
     }, [])
+
+    // Returns true if the attributes are part of your admin group
+    function getAccessibleAttributes(userAttr) {
+        if (userAttr === "User ID") {
+            return true
+        } else if (accessibleUserAttrs.includes(userAttr)) {
+            return true
+        } else {
+            return false
+        }
+    }
+
 
     const handleChange = (e) => {
         updateRuleData({
@@ -248,7 +278,7 @@ const BundlesRule = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 bid: ruleData.bid, rid: ruleData.rid,
                 rule: ruleData.rule
@@ -267,7 +297,7 @@ const BundlesRule = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles')
                 }
             })
             .catch(error => {
@@ -276,11 +306,11 @@ const BundlesRule = (props) => {
     }
 
     return (
-        <CCard>
+        <CCard className="roboto-font">
             <CCardHeader>
                 Rule Generator for {ruleData.bid}
             </CCardHeader>
-            <CCardBody className="roboto-font">
+            <CCardBody>
                 <CRow>
                     <CCol sm="12">
                         <CForm>
@@ -312,13 +342,15 @@ const BundlesRule = (props) => {
                                             <option value="">User Attrs</option>
                                             <option value="User ID">User ID</option>
                                             {userAttrs.map((item, index) => {
-                                                return (
-                                                    <option
-                                                        value={item.name}
-                                                    >
-                                                        {item.name}
-                                                    </option>
-                                                )
+                                                if (getAccessibleAttributes(item.name)) {
+                                                    return (
+                                                        <option
+                                                            value={item.name}
+                                                        >
+                                                            {item.name}
+                                                        </option>
+                                                    )
+                                                }
                                             })}
                                         </CSelect>
                                     </CCol>
@@ -364,7 +396,6 @@ const BundlesRule = (props) => {
                         <CFormText>These snippets will be AND'ed together.</CFormText>
                         <div className="roboto-font bg-gray-100 text-dark" style={{ minHeight: '100px', padding: 10 }}>
                             <div hidden={!(ruleData.rule.length == 0 && errObj.rule == true)} className="text-danger">Please add at least one snippet!</div>
-
                             <CListGroup>
                                 {ruleData.rule.map((item, index) => {
                                     return (
@@ -372,29 +403,43 @@ const BundlesRule = (props) => {
                                             <CListGroupItem
                                                 key={item}
                                                 value={item}
+                                                disabled={!getAccessibleAttributes(item[0])}
                                                 className="mb-1"
                                                 size="sm"
                                                 color={item == editingSnippet ? "warning" : "success"}
                                             >
                                                 {item.slice(0, 3).join(' ')}
-                                                <CButton
-                                                    className="button-table float-right"
-                                                    color='danger'
-                                                    variant='ghost'
-                                                    size="sm"
-                                                    onClick={() => removeSnippetFromRule(item)}
-                                                >
-                                                    <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                </CButton>
-                                                <CButton
-                                                    className="button-table float-right"
-                                                    color='primary'
-                                                    variant='ghost'
-                                                    size="sm"
-                                                    onClick={() => populateSnippetEditor(item)}
-                                                >
-                                                    <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                </CButton>
+                                                {getAccessibleAttributes(item[0])
+                                                    ?
+                                                    <>
+                                                        <CButton
+                                                            className="button-table float-right"
+                                                            color='danger'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => removeSnippetFromRule(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                        </CButton>
+                                                        <CButton
+                                                            className="button-table float-right"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => populateSnippetEditor(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </>
+                                                    :
+                                                    <CButton
+                                                        size="sm"
+                                                        className="float-right"
+                                                        disabled
+                                                    >
+                                                        <FontAwesomeIcon icon="lock" size="lg" />
+                                                    </CButton>
+                                                }
                                             </CListGroupItem>
                                         </div>
                                     )
@@ -405,14 +450,8 @@ const BundlesRule = (props) => {
                 </CRow>
             </CCardBody>
             <CCardFooter>
-                <CRow className="mt-3">
-                    <CCol sm="3">
-                        <CButton block onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                    </CCol>
-                    <CCol sm="3">
-                        <CButton block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
-                    </CCol>
-                </CRow>
+                <CButton className="button-footer-danger" variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                <CButton className="button-footer-success" variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-scrubber" /> <strong>Create</strong></CButton>
             </CCardFooter>
             <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>

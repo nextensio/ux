@@ -36,7 +36,9 @@ const HostEdit = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -74,7 +76,7 @@ const HostEdit = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(hostData),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/hostattr'), requestOptions)
@@ -90,7 +92,7 @@ const HostEdit = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/hosts')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
                 }
             })
             .catch(error => {

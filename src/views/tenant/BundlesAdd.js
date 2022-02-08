@@ -59,7 +59,9 @@ const BundlesAdd = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -97,19 +99,26 @@ const BundlesAdd = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var fields = [];
+                var bundleAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Bundles') {
-                        fields.push(data[i]);
+                    if (data[i].appliesTo === "Bundles") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            bundleAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            bundleAttrs.push(data[i])
+                        }
                     }
                 }
-                fields.sort()
-                updateAttrData(fields);
+                updateAttrData(bundleAttrs);
             });
     }, []);
 
     const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
     }
 
     const handleBundleChange = (e) => {
@@ -323,9 +332,9 @@ const BundlesAdd = (props) => {
 
     function validate(attrState) {
         let errs = {}
-        const emailRe = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const bundleRe = /^[a-z0-9]+$/;
         const podRe = /^[-+]?\d+$/
-        if (!emailRe.test(String(bundleData.bid).toLowerCase())) {
+        if (!bundleRe.test(String(bundleData.bid).trim())) {
             errs.bid = true
         }
         if (!bundleData.name) {
@@ -364,7 +373,7 @@ const BundlesAdd = (props) => {
         })
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 bid: bundleData.bid, name: bundleData.name,
                 services: services, cpodrepl: cpodrepl,
@@ -397,7 +406,7 @@ const BundlesAdd = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(attrState),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
@@ -414,7 +423,7 @@ const BundlesAdd = (props) => {
                     alert(data["Result"])
                 }
                 else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles')
                 }
             })
             .catch(error => {
@@ -441,7 +450,7 @@ const BundlesAdd = (props) => {
                                             </CInputGroupText>
                                         </CInputGroupPrepend>
                                         <CInput name="bid" onChange={e => { handleBundleChange(e); handleAttrChange(e) }} invalid={errObj.bid} />
-                                        <CInvalidFeedback >Please enter a valid email</CInvalidFeedback>
+                                        <CInvalidFeedback >Valid bundle id is small letter alpha numeric word (no special characters)</CInvalidFeedback>
                                     </CInputGroup>
                                 </CFormGroup>
                                 <CFormGroup>

@@ -42,19 +42,19 @@ const fields = [
     },
     {
         key: "changeby",
-	label: "Changed By",
+        label: "Changed By",
         _classes: "data-field",
         _style: { width: '30%' }
     },
     {
         key: "changeat",
-	label: "Change Time",
+        label: "Change Time",
         _classes: "data-field",
         _style: { width: '30%' }
     },
     {
         key: "minver",
-	label: "Ver",
+        label: "Ver",
         _classes: "data-field",
         _style: { width: '1%' }
     },
@@ -90,7 +90,9 @@ const PolicyView = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -131,12 +133,12 @@ const PolicyView = (props) => {
     }
 
     const handleAdd = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/policy/add')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/policy/add')
     }
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/policy/edit',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/policy/edit',
             state: policyData[index]
         });
         setDetails([])

@@ -31,6 +31,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 var common = require('../../common')
 
 const UsersAdd = (props) => {
+
+    const assumedGroup = props.match.params.group
+
     // Change maxCharLength to whatever you want for maximum length of input fields.
     const maxCharLength = 20
     const initUserData = Object.freeze({
@@ -58,7 +61,9 @@ const UsersAdd = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -69,18 +74,26 @@ const UsersAdd = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var dataObjs = [];
+                var userAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Users') {
-                        dataObjs.push(data[i]);
+                    if (data[i].appliesTo === "Users") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            userAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            userAttrs.push(data[i])
+                        }
                     }
                 }
-                updateAttrData(dataObjs);
+                updateAttrData(userAttrs);
             });
     }, []);
 
     const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
     }
 
     const handleUserChange = (e) => {
@@ -171,7 +184,7 @@ const UsersAdd = (props) => {
         })
     }
 
-    const handleSingleBoolAttrChange = (e) => {
+    const handleBoolAttrChange = (e) => {
         let input
         if (e.target.value === "true") {
             input = true
@@ -184,37 +197,6 @@ const UsersAdd = (props) => {
         })
     }
 
-    const handleMultiBoolAttrChange = (e) => {
-        let input
-        if (e.target.value.trim() === "") {
-            input = false
-            // Check if input contains comma, if so separate the values
-        } else if (e.target.value.indexOf(',') > -1) {
-            input = e.target.value.split(',').map(item => {
-                if (item.trim().toLowerCase() === "true") {
-                    return true
-                } else if (item.trim().toLowerCase() === "false") {
-                    return false
-                } else {
-                    // ERR! will be a keyword string used in the validation function
-                    return "ERR!"
-                }
-            })
-        } else {
-            if (e.target.value.trim().toLowerCase() === "true") {
-                input = true
-            } else if (e.target.value.trim().toLowerCase() === "false") {
-                input = false
-            } else {
-                // ERR! will be a keyword string used in the validation function
-                input = "ERR!"
-            }
-        }
-        updateUserAttrData({
-            ...userAttrData,
-            [e.target.name]: [input]
-        })
-    }
 
     const handleSingleDateAttrChange = (e) => {
         let input
@@ -320,7 +302,7 @@ const UsersAdd = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({ uid: userData.uid, name: userData.name }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/user'), requestOptions)
@@ -350,7 +332,7 @@ const UsersAdd = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(attrState),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)
@@ -367,7 +349,7 @@ const UsersAdd = (props) => {
                     alert(data["Result"])
                 }
                 else {
-                    props.history.push('/tenant/' + props.match.params.id + '/users')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/users')
                 }
             })
             .catch(error => {
@@ -378,11 +360,11 @@ const UsersAdd = (props) => {
 
     return (
         <>
-            <CCard>
+            <CCard className="roboto-font">
                 <CCardHeader>
                     <strong>Add User</strong>
                 </CCardHeader>
-                <CCardBody className="roboto-font">
+                <CCardBody>
                     <CRow>
                         <CCol sm="8">
                             <CForm>
@@ -414,7 +396,7 @@ const UsersAdd = (props) => {
                             <div className="title py-3">Attributes</div>
                             {attrData.length === 0 &&
                                 <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
-                                    You have no attributes for AppGroups. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                                    You have no attributes for Users. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
                                 </div>
                             }
                             {attrData.map(attr => {
@@ -488,33 +470,15 @@ const UsersAdd = (props) => {
                                             </>
                                         }
                                         {attr.type == "Boolean" &&
-                                            <>
-                                                {attr.isArray == "true" ?
-                                                    <CFormGroup>
-                                                        <CPopover
-                                                            title="Popover title"
-                                                            content="This attribute has been defined as boolean type and accepts multiple values."
-                                                        >
-                                                            <FontAwesomeIcon icon="info-circle" />
-                                                        </CPopover>
-                                                        {' '}<CLabel>{attr.name}</CLabel>
-                                                        <CInput type="text" name={attr.name} placeholder={attr.name} onChange={handleMultiBoolAttrChange} invalid={errObj[attr.name]} />
-                                                        {errObj[attr.name] ?
-                                                            <CInvalidFeedback>This attribute is designated for booleans. Do not leave hanging commas.</CInvalidFeedback> :
-                                                            <CFormText>Enter attribute values. Use commas to delimit.</CFormText>
-                                                        }
-                                                    </CFormGroup>
-                                                    :
-                                                    <CFormGroup>
-                                                        <CLabel>{attr.name}</CLabel>
-                                                        <CSelect name={attr.name} custom onChange={handleSingleBoolAttrChange}>
-                                                            <option value={undefined}>Please select a boolean</option>
-                                                            <option value={true}>True</option>
-                                                            <option value={false}>False</option>
-                                                        </CSelect>
-                                                    </CFormGroup>
-                                                }
-                                            </>
+                                            <CFormGroup>
+                                                <CLabel>{attr.name}</CLabel>
+                                                <CSelect name={attr.name} custom onChange={handleBoolAttrChange}>
+                                                    <option value={undefined}>Please select a boolean</option>
+                                                    <option value={true}>True</option>
+                                                    <option value={false}>False</option>
+                                                </CSelect>
+                                            </CFormGroup>
+
                                         }
                                         {attr.type == "Date" &&
                                             <>
@@ -556,7 +520,7 @@ const UsersAdd = (props) => {
                     </CButton>
                 </CCardFooter>
             </CCard>
-            <CModal show={overwriteModal} onClose={() => setOverwriteModal(!overwriteModal)}>
+            <CModal show={overwriteModal} className="roboto-font" onClose={() => setOverwriteModal(!overwriteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
                     <strong>Are you sure you want to overwrite?</strong>
                 </CModalHeader>

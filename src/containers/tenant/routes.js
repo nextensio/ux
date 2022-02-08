@@ -1,7 +1,6 @@
 import React from 'react';
 
 const Home = React.lazy(() => import('../../views/tenant/home/Home'));
-const ClusterConfig = React.lazy(() => import('../../views/tenant/ClusterConfig'));
 const UsersView = React.lazy(() => import('../../views/tenant/UsersView'));
 const UsersAdd = React.lazy(() => import('../../views/tenant/UsersAdd'));
 const UsersEdit = React.lazy(() => import('../../views/tenant/UsersEdit'));
@@ -26,31 +25,30 @@ const Images = React.lazy(() => import('../../views/tenant/Images'));
 const Logout = React.lazy(() => import('../../views/tenant/Logout'));
 
 const routes = [
-    { path: '/tenant/:id', exact: true },
-    { path: '/tenant/:id/home', name: 'Home', component: Home },
-    { path: '/tenant/:id/clusterconfig', name: 'Cluster Config', component: ClusterConfig, exact: true },
-    { path: '/tenant/:id/users', name: 'Users', component: UsersView, exact: true },
-    { path: '/tenant/:id/users/add', name: 'Add', component: UsersAdd },
-    { path: '/tenant/:id/users/edit', name: 'Edit', component: UsersEdit },
-    { path: '/tenant/:id/hosts', name: 'Hosts', component: HostsView, exact: true },
-    { path: '/tenant/:id/hosts/add', name: 'Add', component: HostsAdd },
-    { path: '/tenant/:id/hosts/edit', name: 'Edit', component: HostsEdit },
-    { path: '/tenant/:id/hosts/rule', name: 'Rule', component: HostsRule },
-    { path: '/tenant/:id/hosts/routeconfig', name: 'Route Configure', component: HostRouteConfig },
-    { path: '/tenant/:id/bundles', name: 'Bundles', component: BundlesView, exact: true },
-    { path: '/tenant/:id/bundles/add', name: 'Add', component: BundlesAdd },
-    { path: '/tenant/:id/bundles/edit', name: 'Edit', component: BundlesEdit },
-    { path: '/tenant/:id/bundles/rule', name: 'Rule', component: BundlesRule },
-    { path: '/tenant/:id/stats', name: 'Stats', component: StatRule },
-    { path: '/tenant/:id/tracing', name: 'Tracing', component: TracingRule },
-    { path: '/tenant/:id/policy', name: 'Policies', component: PolicyView, exact: true },
-    { path: '/tenant/:id/policy/add', name: 'Add', component: PolicyAdd },
-    { path: '/tenant/:id/policy/edit', name: 'Edit', component: PolicyEdit },
-    { path: '/tenant/:id/attreditor', name: 'Attribute Editor', component: AttributeEditor },
-    { path: '/tenant/:id/profile', name: 'Profile', component: Profile, exact: true },
-    { path: '/tenant/:id/settings', name: 'Settings', component: Settings, exact: true },
-    { path: '/tenant/:id/images', name: 'Images', component: Images, exact: true },
-    { path: '/tenant/:id/logout', name: 'Log Out', component: Logout },
+    { path: '/tenant/:id/:group', exact: true },
+    { path: '/tenant/:id/:group/home', name: 'Home', component: Home },
+    { path: '/tenant/:id/:group/users', name: 'Users', component: UsersView, exact: true },
+    { path: '/tenant/:id/:group/users/add', name: 'Add', component: UsersAdd },
+    { path: '/tenant/:id/:group/users/edit', name: 'Edit', component: UsersEdit },
+    { path: '/tenant/:id/:group/hosts', name: 'Hosts', component: HostsView, exact: true },
+    { path: '/tenant/:id/:group/hosts/add', name: 'Add', component: HostsAdd },
+    { path: '/tenant/:id/:group/hosts/edit', name: 'Edit', component: HostsEdit },
+    { path: '/tenant/:id/:group/hosts/rule', name: 'Rule', component: HostsRule },
+    { path: '/tenant/:id/:group/hosts/routeconfig', name: 'Route Configure', component: HostRouteConfig },
+    { path: '/tenant/:id/:group/bundles', name: 'Bundles', component: BundlesView, exact: true },
+    { path: '/tenant/:id/:group/bundles/add', name: 'Add', component: BundlesAdd },
+    { path: '/tenant/:id/:group/bundles/edit', name: 'Edit', component: BundlesEdit },
+    { path: '/tenant/:id/:group/bundles/rule', name: 'Rule', component: BundlesRule },
+    { path: '/tenant/:id/:group/stats', name: 'Stats', component: StatRule },
+    { path: '/tenant/:id/:group/tracing', name: 'Tracing', component: TracingRule },
+    { path: '/tenant/:id/:group/policy', name: 'Policies', component: PolicyView, exact: true },
+    { path: '/tenant/:id/:group/policy/add', name: 'Add', component: PolicyAdd },
+    { path: '/tenant/:id/:group/policy/edit', name: 'Edit', component: PolicyEdit },
+    { path: '/tenant/:id/:group/attreditor', name: 'Attribute Editor', component: AttributeEditor },
+    { path: '/tenant/:id/:group/profile', name: 'Profile', component: Profile, exact: true },
+    { path: '/tenant/:id/:group/settings', name: 'Settings', component: Settings, exact: true },
+    { path: '/tenant/:id/:group/images', name: 'Images', component: Images, exact: true },
+    { path: '/tenant/:id/:group/logout', name: 'Log Out', component: Logout },
 ];
 
 export default routes;

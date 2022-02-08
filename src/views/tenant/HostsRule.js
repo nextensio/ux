@@ -19,7 +19,8 @@ import {
     CModalFooter,
     CModalHeader,
     CRow,
-    CSelect
+    CSelect,
+    CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -38,17 +39,26 @@ const HostsRule = (props) => {
     const [host, setHost] = useState("")
     const [tag, setTag] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
+
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
+
+    // array of all the attributes you are allowed to access based on admin group
+    const [accessibleUserAttrs, updateAccessibleUserAttrs] = useState(Object.freeze([]))
+
     const [operatorStatus, updateOperatorStatus] = useState(initOperatorStatus)
     const [snippetData, updateSnippetData] = useState(initSnippetData)
     const [snippetType, updateSnippetType] = useState(initSnippetType)
     const [editingSnippet, setEditingSnippet] = useState("")
     const [deleteModal, setDeleteModal] = useState(false)
+    const [lockInfoModal, setLockInfoModal] = useState(false)
+    const [lock, setLock] = useState(false)
+
     const initRuleData = Object.freeze({
         host: "",
         rid: "",
         rule: []
     })
+
     const [ruleData, updateRuleData] = useState(initRuleData)
     const [errObj, updateErrObj] = useState({})
 
@@ -56,7 +66,9 @@ const HostsRule = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -75,6 +87,7 @@ const HostsRule = (props) => {
                         return
                     }
                 }
+                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
             // This logic block executes if we are adding a new rule
             else {
@@ -85,6 +98,7 @@ const HostsRule = (props) => {
                 })
                 setHost(props.location.state[0])
                 setTag(props.location.state[1])
+                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
         }
     }, [])
@@ -110,7 +124,30 @@ const HostsRule = (props) => {
                 }
                 updateUserAttrs(user)
             })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                var user = []
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].name) {
+                        user.push(data[i].name)
+                    }
+                }
+                updateAccessibleUserAttrs(user)
+            })
     }, [])
+
+    // Returns true if the attributes are part of your admin group
+    function getAccessibleAttributes(userAttr) {
+        if (userAttr === "User ID") {
+            return true
+        } else if (accessibleUserAttrs.includes(userAttr)) {
+            return true
+        } else {
+            return false
+        }
+    }
+
 
     const handleChange = (e) => {
         updateRuleData({
@@ -246,6 +283,12 @@ const HostsRule = (props) => {
         })
     }
 
+    const lockRule = (e) => {
+        setLock(!lock)
+        setLockInfoModal(!lockInfoModal)
+        lockHostRule();
+    }
+
     function validate() {
         let err = {}
         if (!ruleData.rid) {
@@ -264,7 +307,7 @@ const HostsRule = (props) => {
         }
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 host: ruleData.host, rid: ruleData.rid,
                 rule: ruleData.rule,
@@ -284,7 +327,46 @@ const HostsRule = (props) => {
                     alert(data["Result"])
                 } else {
                     // bundle attribute http post must be run after bundle http post
-                    props.history.push('/tenant/' + props.match.params.id + '/hosts')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const lockHostRule = () => {
+        let err = validate()
+        if (Object.keys(err) != 0) {
+            return
+        }
+        var group = "";
+        if (lock) {
+            group = props.match.params.group;
+        }
+        const requestOptions = {
+            method: 'POST',
+            headers: hdrs.headers,
+            body: JSON.stringify({
+                host: ruleData.host, rid: ruleData.rid,
+                group: group,
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/lockhostrule/'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    // bundle attribute http post must be run after bundle http post
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
                 }
             })
             .catch(error => {
@@ -293,11 +375,17 @@ const HostsRule = (props) => {
     }
 
     return (
-        <CCard>
+        <CCard className="roboto-font">
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
+                <div className="float-right">
+                    {lock ? "Unlock Rule" : "Lock Rule"}
+                    <CButton className="ml-3" color="primary" onClick={() => setLockInfoModal(!lockInfoModal)}>
+                        <FontAwesomeIcon icon={lock ? "lock" : "lock-open"} />
+                    </CButton>
+                </div>
             </CCardHeader>
-            <CCardBody className="roboto-font">
+            <CCardBody>
                 <CRow>
                     <CCol sm="12">
                         <CForm>
@@ -328,13 +416,15 @@ const HostsRule = (props) => {
                                             <option value="">User Attrs</option>
                                             <option value="User ID">User ID</option>
                                             {userAttrs.map((item, index) => {
-                                                return (
-                                                    <option
-                                                        value={item.name}
-                                                    >
-                                                        {item.name}
-                                                    </option>
-                                                )
+                                                if (getAccessibleAttributes(item.name)) {
+                                                    return (
+                                                        <option
+                                                            value={item.name}
+                                                        >
+                                                            {item.name}
+                                                        </option>
+                                                    )
+                                                }
                                             })}
                                         </CSelect>
                                     </CCol>
@@ -386,6 +476,7 @@ const HostsRule = (props) => {
                                     className="mb-1"
                                     size="sm"
                                     color="success"
+                                    disabled={!getAccessibleAttributes("tag")}
                                 >
                                     tag == {tag}
                                     <CButton
@@ -410,27 +501,40 @@ const HostsRule = (props) => {
                                                 value={item}
                                                 className="mb-1"
                                                 size="sm"
+                                                disabled={!getAccessibleAttributes(item[0])}
                                                 color={item == editingSnippet ? "warning" : "success"}
                                             >
                                                 {item.slice(0, 3).join(' ')}
-                                                <CButton
-                                                    className="button-table float-right"
-                                                    color='danger'
-                                                    variant='ghost'
-                                                    size="sm"
-                                                    onClick={() => removeSnippetFromRule(item)}
-                                                >
-                                                    <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                </CButton>
-                                                <CButton
-                                                    className="button-table float-right"
-                                                    color='primary'
-                                                    variant='ghost'
-                                                    size="sm"
-                                                    onClick={() => populateSnippetEditor(item)}
-                                                >
-                                                    <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
-                                                </CButton>
+                                                {getAccessibleAttributes(item[0]) ?
+                                                    <>
+                                                        <CButton
+                                                            className="button-table float-right"
+                                                            color='danger'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => removeSnippetFromRule(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                        </CButton>
+                                                        <CButton
+                                                            className="button-table float-right"
+                                                            color='primary'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => populateSnippetEditor(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="pen" size="lg" className="icon-table-edit" />
+                                                        </CButton>
+                                                    </>
+                                                    :
+                                                    <CButton
+                                                        size="sm"
+                                                        className="float-right"
+                                                        disabled
+                                                    >
+                                                        <FontAwesomeIcon icon="lock" size="lg" />
+                                                    </CButton>
+                                                }
                                             </CListGroupItem>
                                         </div>
                                     )
@@ -441,14 +545,8 @@ const HostsRule = (props) => {
                 </CRow>
             </CCardBody>
             <CCardFooter>
-                <CRow className="mt-3">
-                    <CCol sm="3">
-                        <CButton block onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
-                    </CCol>
-                    <CCol sm="3">
-                        <CButton block onClick={handleSubmit} color="success"><CIcon name="cil-arrow-right" /> <strong>Create Rule</strong></CButton>
-                    </CCol>
-                </CRow>
+                <CButton className="button-footer-danger" variant="outline" onClick={e => setDeleteModal(!deleteModal)} color="danger"><CIcon name="cil-ban" /> <strong>Reset</strong></CButton>
+                <CButton className="button-footer-success" variant="outline" onClick={handleSubmit} color="success"><CIcon name="cil-scrubber" /> <strong>Create</strong></CButton>
             </CCardFooter>
             <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
                 <CModalHeader className='bg-danger text-white py-n5' closeButton>
@@ -468,7 +566,15 @@ const HostsRule = (props) => {
                     >Cancel</CButton>
                 </CModalFooter>
             </CModal>
-        </CCard >
+            <CModal className="roboto-font" show={lockInfoModal}>
+                <CModalFooter>
+                    <CButton
+                        color="success"
+                        onClick={lockRule}
+                    >{lock ? "Unlock" : "Lock"}</CButton>
+                </CModalFooter>
+            </CModal>
+        </CCard>
     )
 }
 

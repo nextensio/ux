@@ -1,19 +1,14 @@
 import React, { lazy, useState, useEffect } from 'react'
 import {
-    CBadge,
     CButton,
-    CButtonGroup,
     CCard,
     CCardBody,
     CCardFooter,
     CCardHeader,
     CCol,
+    CInputRadio,
     CRow,
     CDataTable,
-    CDropdown,
-    CDropdownToggle,
-    CDropdownMenu,
-    CDropdownItem,
     CModal,
     CModalHeader,
     CModalBody,
@@ -60,13 +55,19 @@ const TenantsView = (props) => {
     const [tenantsData, updateTenantData] = useState(initTableData);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
-    const [dummyRedir, setDummyRedir] = useState(false);
+
+    const [group, setGroup] = useState("")
+    const [perTenantGroups, updatePerTenantGroups] = useState(Object.freeze([]))
+    const [groupModal, setGroupModal] = useState(false)
+    const [redirItem, setRedirItem] = useState(Object.freeze({}))
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -103,9 +104,20 @@ const TenantsView = (props) => {
         })
     }
 
-    const handleDetails = (item) => {
-        window.location.href = '/tenant/' + item._id + '/';
-        setDummyRedir(true);
+    const getGroupsForTenant = (tenant) => {
+        fetch(common.api_href('/api/v1/tenant/' + tenant + '/get/alladmgroups'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                if (data.AdmGroups != null) {
+                    var groups = [];
+                    for (var i = 0; i < data.AdmGroups.length; i++) {
+                        groups.push("admin-" + data.AdmGroups[i]);
+                    }
+                    updatePerTenantGroups(groups)
+                } else {
+                    updatePerTenantGroups(null)
+                }
+            })
     }
 
     const handleDelete = (index) => {
@@ -130,10 +142,27 @@ const TenantsView = (props) => {
             });
     }
 
+    const handleGroupSelect = (e) => {
+        setGroup(e.target.value)
+    }
+
+    const handleRedirConfiguration = (item) => {
+        setRedirItem(item)
+        getGroupsForTenant(item._id)
+        setGroupModal(!groupModal)
+    }
+
+    const confirmRedir = (tenantId, groupName) => {
+        window.location.href = '/tenant/' + tenantId + '/' + groupName + '/'
+    }
+
     const toggleDelete = (index) => {
         setDeleteModal(!deleteModal);
         setDeleteIndex(index)
     }
+
+    useEffect(() => {
+    }, [group])
 
     return (
         <>
@@ -142,7 +171,6 @@ const TenantsView = (props) => {
                     <CCard className="shadow rounded">
                         <CCardHeader>
                             <strong>Tenants</strong>
-                            <CButton onClick={e => console.log(tenantsData)}>data</CButton>
                             <div className="text-muted small">Click on a row to navigate to Tenants page</div>
                         </CCardHeader>
                         <CCardBody>
@@ -156,7 +184,7 @@ const TenantsView = (props) => {
                                 sorter
                                 hover
                                 clickableRows
-                                onRowClick={(item) => { handleDetails(item) }}
+                                onRowClick={(item) => { handleRedirConfiguration(item) }}
                                 scopedSlots={{
                                     'edit':
                                         (item, index) => {
@@ -220,6 +248,45 @@ const TenantsView = (props) => {
                             </CButton>
                         </CCardFooter>
                     </CCard>
+
+                    {/* Modal for group selection */}
+                    <CModal className="roboto-font" show={groupModal} onClose={() => setGroupModal(!groupModal)}>
+                        <CModalHeader className="bg-info text-white py-n5">Select your group.</CModalHeader>
+                        <CModalBody>
+                            <CRow className="pt-3">
+                                <CCol md="8">
+                                    Groups
+                                </CCol>
+                                <CCol md="4">
+                                    <div>
+                                        <CInputRadio name="groups" value={"superadmin"} checked={group === "superadmin"} onChange={handleGroupSelect} /> superadmin
+                                    </div>
+                                    {perTenantGroups != null ? perTenantGroups.map(perTenantGroup => {
+                                        return (
+                                            <div>
+                                                <CInputRadio name="groups" value={perTenantGroup} checked={group === perTenantGroup} onChange={handleGroupSelect} /> {perTenantGroup}
+                                            </div>
+                                        )
+                                    }) :
+                                        confirmRedir(redirItem._id, "superadmin")
+                                    }
+                                </CCol>
+                            </CRow>
+                        </CModalBody>
+                        <CModalFooter>
+                            <CButton
+                                color="success"
+                                onClick={() => confirmRedir(redirItem._id, group)}
+                            >
+                                Confirm
+                            </CButton>
+                            <CButton
+                                color="secondary"
+                                onClick={() => setGroupModal(!groupModal)}
+                            >Cancel</CButton>
+                        </CModalFooter>
+                    </CModal>
+
                     <CModal show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
                         <CModalHeader className='bg-danger text-white py-n5' closeButton>
                             <strong>Confirm Deletion</strong>

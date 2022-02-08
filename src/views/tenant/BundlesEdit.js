@@ -42,7 +42,9 @@ const BundlesEdit = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -65,13 +67,21 @@ const BundlesEdit = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
-                var fields = [];
+                var bundleAttrs = [];
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == 'Bundles') {
-                        fields.push(data[i]);
+                    if (data[i].appliesTo === "Bundles") {
+                        if (data[i].name[0] === "_") {
+                            continue
+                        }
+                        else if (props.match.params.group === "superadmin") {
+                            bundleAttrs.push(data[i])
+
+                        } else if (data[i].group === props.match.params.group) {
+                            bundleAttrs.push(data[i])
+                        }
                     }
                 }
-                updateAttrData(fields);
+                updateAttrData(bundleAttrs);
             });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
             .then(response => response.json())
@@ -110,7 +120,7 @@ const BundlesEdit = (props) => {
     }, [props, bundleState]);
 
     const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/attreditor')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
     }
 
     const handleBundleChange = (e) => {
@@ -353,7 +363,7 @@ const BundlesEdit = (props) => {
         })
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 bid: bundleState.bid, name: bundleState.name,
                 services: services, cpodrepl: cpodrepl,
@@ -384,7 +394,7 @@ const BundlesEdit = (props) => {
         e.preventDefault()
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify(bundleAttrState),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/bundleattr'), requestOptions)
@@ -401,7 +411,7 @@ const BundlesEdit = (props) => {
                     alert(data["Result"])
                 }
                 else {
-                    props.history.push('/tenant/' + props.match.params.id + '/bundles')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/bundles')
                 }
             })
             .catch(error => {

@@ -35,7 +35,9 @@ const PolicyAdd = (props) => {
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
+            'Content-Type': 'application/json',
             Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
         },
     };
 
@@ -53,7 +55,7 @@ const PolicyAdd = (props) => {
         var ucode = policyData.rego.split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: bearer },
+            headers: hdrs.headers,
             body: JSON.stringify({
                 pid: policyData.pid, tenant: policyData.tenant,
                 rego: ucode
@@ -72,7 +74,7 @@ const PolicyAdd = (props) => {
                 if (data["Result"] != "ok") {
                     alert(data["Result"])
                 } else {
-                    props.history.push('/tenant/' + props.match.params.id + '/policy')
+                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/policy')
                 }
             })
             .catch(error => {

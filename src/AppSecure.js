@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { oktaAuthConfig, oktaSignInConfig } from './common';
+import { oktaAuthConfig, CALLBACK_PATH } from './common';
 import { Security, SecureRoute, LoginCallback } from '@okta/okta-react';
 import Root from './Root';
 import { OktaAuth } from '@okta/okta-auth-js';
@@ -11,7 +11,6 @@ const HomeLayout = React.lazy(() => import('./containers/home/TheLayout'));
 const TenantLayout = React.lazy(() => import('./containers/tenant/TheLayout'));
 
 // Pages
-const Login = React.lazy(() => import('./Login'));
 const SignUp = React.lazy(() => import('./SignUp'));
 
 const oktaAuth = new OktaAuth(oktaAuthConfig);
@@ -19,44 +18,24 @@ const oktaAuth = new OktaAuth(oktaAuthConfig);
 const AppSecure = () => {
     const history = useHistory();
 
-    const customAuthHandler = () => {
-        history.push('/login');
+    const restoreOriginalUri = () => {
+        // Callback function to restore URI during login
     };
-    if (process.env.REACT_APP_IGNORE_AUTH == "true") {
-        // NOTE NOTE: This is only for local testbeds, this is NOT a production setting
-        // TODO: This is cumbersome to add the route in two places, one as secure and one
-        // as non-secure, need to find a better way to do this to allow local testbeds to
-        // work without being secure / without needing okta etc..
-        return (
-            <Security
-                oktaAuth={oktaAuth}
-                onAuthRequired={customAuthHandler}
-            >
-                <Switch>
-                    <Route path="/tenant/:id" name="Tenant" render={props => <TenantLayout {...props} />} />
-                    <Route path='/' render={props => <HomeLayout {...props} />} />
-                </Switch>
-            </Security>
-        );
 
-    } else {
-
-        return (
-            <Security
-                oktaAuth={oktaAuth}
-                onAuthRequired={customAuthHandler}
-            >
-                <Switch>
-                    <SecureRoute path="/tenant/:id" name="Tenant" render={props => <TenantLayout {...props} />} />
-                    <SecureRoute path="/home" name="Home" render={props => <HomeLayout {...props} />} />
-                    <Route path='/' exact={true} component={Root} />
-                    <Route path='/signup' render={() => <SignUp />} />
-                    <Route path='/login' render={() => <Login config={oktaSignInConfig} />} />
-                    <Route path='/login/callback' component={LoginCallback} />
-                </Switch>
-            </Security>
-        );
-    }
+    return (
+        <Security
+            oktaAuth={oktaAuth}
+            restoreOriginalUri={restoreOriginalUri}
+        >
+            <Switch>
+                <SecureRoute path="/tenant/:id/:group" name="Tenant" render={props => <TenantLayout {...props} />} />
+                <SecureRoute path="/home" name="Home" render={props => <HomeLayout {...props} />} />
+                <Route path='/signup' render={() => <SignUp />} />
+                <Route path='/' exact={true} component={Root} />
+                <Route path={CALLBACK_PATH} exact={true} component={LoginCallback} />
+            </Switch>
+        </Security>
+    );
 }
 
 export default AppSecure;
