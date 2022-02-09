@@ -63,7 +63,7 @@ const ClientidView = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/clientid/09876432087648932147823456123768'), hdrs)
+        fetch(common.api_href('/api/v1/noauth/clientid/09876432087648932147823456123768'), hdrs)
             .then(response => response.json())
             .then(data => {
                 if (data.Result == 'ok') {
