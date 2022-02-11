@@ -145,9 +145,9 @@ const Home = (props) => {
             .then(response => response.json())
             .then(data => {
                 let groups = []
-                if (data.AdmGroups != null) {
-                    for (let i = 0; i < data.AdmGroups.length; i++) {
-                        groups.push({ admGroup: data.AdmGroups[i] })
+                if (data.admgroups != null) {
+                    for (let i = 0; i < data.admgroups.length; i++) {
+                        groups.push({ admGroup: data.admgroups[i] })
                     }
                 }
                 updateAllGroups(groups)
@@ -436,7 +436,7 @@ const Home = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
             .then(response => response.json())
             .then(data => {
-                let admins = data.GrpAdmins
+                let admins = data.grpadmins
                 updateGrpAdmins(admins)
             })
     }

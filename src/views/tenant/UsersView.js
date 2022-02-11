@@ -123,7 +123,7 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
             .then(response => response.json())
             .then(data => {
-                updateAdminGroups(data.AdmGroups)
+                updateAdminGroups(data.admgroups)
             })
     }, []);
 

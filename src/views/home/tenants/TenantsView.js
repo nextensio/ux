@@ -108,10 +108,10 @@ const TenantsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + tenant + '/get/alladmgroups'), hdrs)
             .then(response => response.json())
             .then(data => {
-                if (data.AdmGroups != null) {
+                if (data.admgroups != null) {
                     var groups = [];
-                    for (var i = 0; i < data.AdmGroups.length; i++) {
-                        groups.push("admin-" + data.AdmGroups[i]);
+                    for (var i = 0; i < data.admgroups.length; i++) {
+                        groups.push("admin-" + data.admgroups[i]);
                     }
                     updatePerTenantGroups(groups)
                 } else {
