@@ -58,10 +58,7 @@ const StatRule = (props) => {
                 var userAttrNames = []
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == "Users") {
-                        if (props.match.params.group === "superadmin") {
-                            userAttrNames.push({ value: data[i].name, label: data[i].name })
-
-                        } else if (data[i].appliesTo == "Users" && data[i].group === props.match.params.group || data[i].name[0] == "_") {
+                        if (data[i].appliesTo == "Users" && data[i].group === props.match.params.group || data[i].name[0] == "_") {
                             userAttrNames.push({ value: data[i].name, label: data[i].name })
                         }
                     }

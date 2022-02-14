@@ -86,10 +86,7 @@ const HostRouteConfig = (props) => {
                         if (data[i].name[0] === "_") {
                             continue
                         }
-                        else if (props.match.params.group === "superadmin") {
-                            hostAttrs.push(data[i])
-
-                        } else if (data[i].group === props.match.params.group) {
+                        else if (data[i].group === props.match.params.group) {
                             hostAttrs.push(data[i])
                         }
                     }

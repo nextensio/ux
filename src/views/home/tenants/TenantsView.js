@@ -62,6 +62,8 @@ const TenantsView = (props) => {
     const [redirItem, setRedirItem] = useState(Object.freeze({}))
 
     const { oktaAuth, authState } = useOktaAuth();
+    const token = common.GetAccessToken(authState);
+    const userInfo = common.decodeToken(token);
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
         headers: {
@@ -259,7 +261,7 @@ const TenantsView = (props) => {
                                 </CCol>
                                 <CCol md="4">
                                     <div>
-                                        <CInputRadio name="groups" value={"superadmin"} checked={group === "superadmin"} onChange={handleGroupSelect} /> superadmin
+                                        <CInputRadio name="groups" value={userInfo['usertype']} checked={group === userInfo['usertype']} onChange={handleGroupSelect} /> {userInfo['usertype']}
                                     </div>
                                     {perTenantGroups != null ? perTenantGroups.map(perTenantGroup => {
                                         return (
@@ -268,7 +270,7 @@ const TenantsView = (props) => {
                                             </div>
                                         )
                                     }) :
-                                        confirmRedir(redirItem._id, "superadmin")
+                                        confirmRedir(redirItem._id, userInfo['usertype'])
                                     }
                                 </CCol>
                             </CRow>

@@ -10,6 +10,7 @@ import {
     CFormText,
     CInput,
     CInputGroup,
+    CInputCheckbox,
     CInputGroupPrepend,
     CInputGroupText,
     CInvalidFeedback,
@@ -25,7 +26,8 @@ var common = require('./common')
 const SignUp = (props) => {
     const initSignupData = Object.freeze({
         email: "",
-        tenant: ""
+        tenant: "",
+        ismsp: false
     });
     const [signupData, updateSignupData] = useState(initSignupData);
     const [errObj, updateErrObj] = useState({})
@@ -45,9 +47,13 @@ const SignUp = (props) => {
     }
 
     const handleChange = (e) => {
+        var value = e.target.value.trim();
+        if (e.target.name == 'ismsp') {
+            value = !signupData.ismsp;
+        }
         updateSignupData({
             ...signupData,
-            [e.target.name]: e.target.value.trim()
+            [e.target.name]: value
         });
     };
 
@@ -60,7 +66,7 @@ const SignUp = (props) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: signupData.email.trim(), tenant: signupData.tenant.trim() }),
+            body: JSON.stringify({ email: signupData.email.trim(), tenant: signupData.tenant.trim(), ismsp: signupData.ismsp }),
         };
         fetch(common.api_href('/api/v1/noauth/signup'), requestOptions)
             .then(async response => {
@@ -116,6 +122,14 @@ const SignUp = (props) => {
                                         </CInputGroupPrepend>
                                         <CInput type="text" name="email" onChange={handleChange} invalid={errObj.email} />
                                         <CInvalidFeedback>Please enter a valid email.</CInvalidFeedback>
+                                    </CInputGroup>
+                                    <CInputGroup className="mb-3">
+                                        <CLabel>Managed Service Provider</CLabel>
+                                        <CInputCheckbox
+                                            name="ismsp"
+                                            onChange={handleChange}
+                                            checked={signupData.ismsp}
+                                        />
                                     </CInputGroup>
                                 </CForm>
                             </CCardBody>

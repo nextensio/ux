@@ -562,7 +562,7 @@ const AttributeEditor = (props) => {
                                                     <CIcon
                                                         name="cil-circle"
                                                         className={
-                                                            item.name[0] == "_" || (item.group !== props.match.params.group) && (props.match.params.group !== "superadmin")
+                                                            item.name[0] == "_" || (item.group !== props.match.params.group)
                                                                 ? "text-danger"
                                                                 : "text-success"
                                                         }
@@ -588,7 +588,7 @@ const AttributeEditor = (props) => {
                                                             color='danger'
                                                             variant='ghost'
                                                             size="sm"
-                                                            disabled={item.name[0] == "_" || (item.group !== props.match.params.group && props.match.params.group !== "superadmin")}
+                                                            disabled={item.name[0] == "_" || (item.group !== props.match.params.group)}
                                                             onClick={() => toggleDelete(item)}
                                                         >
                                                             <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
