@@ -50,7 +50,6 @@ const HostsRule = (props) => {
     const [snippetType, updateSnippetType] = useState(initSnippetType)
     const [editingSnippet, setEditingSnippet] = useState("")
     const [deleteModal, setDeleteModal] = useState(false)
-    const [lockInfoModal, setLockInfoModal] = useState(false)
     const [lock, setLock] = useState(false)
 
     const initRuleData = Object.freeze({
@@ -78,8 +77,14 @@ const HostsRule = (props) => {
             // or it is Edit, which means that we are editing an existing rule
             if (props.location.state[1] == "Edit") {
                 let rule = props.location.state[0]
+                console.log(rule)
                 updateRuleData(rule)
                 setHost(rule.host)
+
+                // Set the lock status
+                if (rule.group != '') {
+                    setLock(true)
+                }
                 // Iterate over the rule.rule array to find the tag value
                 for (var i = 0; i < rule.rule.length; i++) {
                     if (rule.rule[i][0] == "tag") {
@@ -87,7 +92,6 @@ const HostsRule = (props) => {
                         return
                     }
                 }
-                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
             // This logic block executes if we are adding a new rule
             else {
@@ -98,7 +102,6 @@ const HostsRule = (props) => {
                 })
                 setHost(props.location.state[0])
                 setTag(props.location.state[1])
-                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
         }
     }, [])
@@ -283,12 +286,6 @@ const HostsRule = (props) => {
         })
     }
 
-    const lockRule = (e) => {
-        setLock(!lock)
-        setLockInfoModal(!lockInfoModal)
-        lockHostRule();
-    }
-
     function validate() {
         let err = {}
         if (!ruleData.rid) {
@@ -299,6 +296,7 @@ const HostsRule = (props) => {
         updateErrObj(err)
         return err
     }
+
 
     const handleSubmit = (e) => {
         let err = validate()
@@ -335,54 +333,15 @@ const HostsRule = (props) => {
             });
     }
 
-    const lockHostRule = () => {
-        let err = validate()
-        if (Object.keys(err) != 0) {
-            return
-        }
-        var group = "";
-        if (lock) {
-            group = props.match.params.group;
-        }
-        const requestOptions = {
-            method: 'POST',
-            headers: hdrs.headers,
-            body: JSON.stringify({
-                host: ruleData.host, rid: ruleData.rid,
-                group: group,
-            }),
-        };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/lockhostrule/'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                } else {
-                    // bundle attribute http post must be run after bundle http post
-                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
-                }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
-    }
+
 
     return (
         <CCard className="roboto-font">
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
                 <div className="float-right">
-                    {lock ? "Unlock Rule" : "Lock Rule"}
-                    <CButton className="ml-3" color="primary" onClick={() => setLockInfoModal(!lockInfoModal)}>
-                        <FontAwesomeIcon icon={lock ? "lock" : "lock-open"} />
-                    </CButton>
+                    {lock ? "Rule is locked" : "Rule is unlocked"}
+                    <FontAwesomeIcon className="ml-3" icon={lock ? "lock" : "lock-open"} />
                 </div>
             </CCardHeader>
             <CCardBody>
@@ -564,14 +523,6 @@ const HostsRule = (props) => {
                         color="secondary"
                         onClick={() => setDeleteModal(!deleteModal)}
                     >Cancel</CButton>
-                </CModalFooter>
-            </CModal>
-            <CModal className="roboto-font" show={lockInfoModal}>
-                <CModalFooter>
-                    <CButton
-                        color="success"
-                        onClick={lockRule}
-                    >{lock ? "Unlock" : "Lock"}</CButton>
                 </CModalFooter>
             </CModal>
         </CCard>

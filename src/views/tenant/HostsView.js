@@ -120,7 +120,10 @@ const HostsView = (props) => {
             .then(data => { setEasyMode(data.Tenant.easymode) });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostrules'), hdrs)
             .then(response => response.json())
-            .then(data => updateHostRuleData(data));
+            .then(data => {
+                console.log(data)
+                updateHostRuleData(data)
+            });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -290,6 +293,46 @@ const HostsView = (props) => {
                 alert('Error contacting server', error);
             });
     };
+
+    const handleRuleLock = (rule) => {
+        let ruleGroup = rule.group
+        let newGroup
+        if (ruleGroup == "") {
+            newGroup = props.match.params.group;
+        } else {
+            newGroup = ""
+        }
+        const requestOptions = {
+            method: 'POST',
+            headers: hdrs.headers,
+            body: JSON.stringify({
+                host: rule.host, rid: rule.rid,
+                group: newGroup,
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/lockhostrule/'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    let rules = [...hostRuleData]
+                    let index = rules.indexOf(rule)
+                    rules[index].group = newGroup
+                    updateHostRuleData(rules)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
 
     const handleRuleDelete = (rule) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid), hdrs)
@@ -636,6 +679,14 @@ const HostsView = (props) => {
         return rules
     }
 
+    function isRuleLocked(rule) {
+        if (rule.group != "") {
+            return true
+        } else {
+            return false
+        }
+    }
+
     const matchRule = (host, tag) => {
         let rules = ruleReturn(host, tag)
         if (rules.length != 0) {
@@ -664,6 +715,16 @@ const HostsView = (props) => {
                                     onClick={e => handleRuleEdit(rule)}
                                 >
                                     Edit
+                                </CButton>
+                                <CButton
+                                    className="float-right mr-1"
+                                    color="primary"
+                                    variant="outline"
+                                    shape="square"
+                                    size="sm"
+                                    onClick={e => handleRuleLock(rule)}
+                                >
+                                    {isRuleLocked(rule) ? "Unlock" : "Lock"}
                                 </CButton>
                             </CListGroupItem>
                         )
