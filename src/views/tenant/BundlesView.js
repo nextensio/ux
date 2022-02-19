@@ -164,7 +164,7 @@ const BundlesView = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundlerules'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/bundlerules/all'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleRuleData(data));
     }, [ruleCreator])
@@ -262,6 +262,7 @@ const BundlesView = (props) => {
     }
 
     const handleRuleDelete = (rule) => {
+	// Need group id in api
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid), hdrs)
             .then(async response => {
                 const data = await response.json();
@@ -452,17 +453,17 @@ const BundlesView = (props) => {
     )
 
     const handlePolicyGeneration = (e) => {
-        var retval = generatePolicyFromBundleRules(e, bundleRuleData)
-        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
+        // var retval = generatePolicyFromBundleRules(e, bundleRuleData)
+        // var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            body: JSON.stringify({
-                pid: "AccessPolicy", tenant: props.match.params.id,
-                rego: byteRego
-            }),
+            //body: JSON.stringify({
+            //    pid: "AccessPolicy", tenant: props.match.params.id,
+            //    rego: byteRego
+            //}),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/AccessPolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
