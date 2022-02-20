@@ -263,7 +263,7 @@ const BundlesView = (props) => {
 
     const handleRuleDelete = (rule) => {
 	// Need group id in api
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid + '/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

@@ -55,6 +55,9 @@ const HostsRule = (props) => {
     const initRuleData = Object.freeze({
         host: "",
         rid: "",
+	group: "",
+	version: 0,
+	admin: "",
         rule: []
     })
 

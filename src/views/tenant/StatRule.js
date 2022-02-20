@@ -179,7 +179,8 @@ const StatRule = (props) => {
     }
 
     const handleRuleDelete = (rule) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/statsrule/' + rule.rid), hdrs)
+	// Need group id in api
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/statsrule/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -326,17 +327,17 @@ const StatRule = (props) => {
     }
 
     const handlePolicyGeneration = (e) => {
-        var retval = generatePolicyFromStatsRule(e, existingRule)
-        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
+        // var retval = generatePolicyFromStatsRule(e, existingRule)
+        // var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            body: JSON.stringify({
-                pid: "StatsPolicy", tenant: props.match.params.id,
-                rego: byteRego
-            }),
+            // body: JSON.stringify({
+            //     pid: "StatsPolicy", tenant: props.match.params.id,
+            //     rego: byteRego
+            // }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/StatsPolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

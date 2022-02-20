@@ -52,6 +52,9 @@ const TracingRule = (props) => {
     const [editingSnippet, setEditingSnippet] = useState("")
     const initRuleData = Object.freeze({
         rid: "",
+	group: "",
+	version: 0,
+	admin: "",
         rule: []
     })
     const [ruleData, updateRuleData] = useState(initRuleData)
@@ -111,7 +114,7 @@ const TracingRule = (props) => {
     }, [])
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alltracereqrules'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tracereqrules/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 console.log(data)
@@ -334,7 +337,8 @@ const TracingRule = (props) => {
     }
 
     const handleRuleDelete = (rule) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/tracereqrule/' + rule.rid), hdrs)
+	// Need group id in api
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/tracereqrule/' + rule.rid + '/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -663,17 +667,17 @@ const TracingRule = (props) => {
     }
 
     const handlePolicyGeneration = (e) => {
-        var retval = generatePolicyFromTraceReqRules(e, existingRules)
-        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
+        // var retval = generatePolicyFromTraceReqRules(e, existingRules)
+        // var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            body: JSON.stringify({
-                pid: "TracePolicy", tenant: props.match.params.id,
-                rego: byteRego
-            }),
+            // body: JSON.stringify({
+            //     pid: "TracePolicy", tenant: props.match.params.id,
+            //     rego: byteRego
+            // }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/TracePolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

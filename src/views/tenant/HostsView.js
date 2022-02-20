@@ -118,7 +118,7 @@ const HostsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => { setEasyMode(data.Tenant.easymode) });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostrules'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/hostrules/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 console.log(data)
@@ -146,7 +146,7 @@ const HostsView = (props) => {
 
     const handleRefresh = (e) => {
         setDetails([])
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/hostrules/all'), hdrs)
             .then(response => response.json())
             .then(data => updateHostData(data));
     }
@@ -335,7 +335,8 @@ const HostsView = (props) => {
     }
 
     const handleRuleDelete = (rule) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid), hdrs)
+	// Need group id in api
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid + '/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -360,17 +361,17 @@ const HostsView = (props) => {
     }
 
     const handlePolicyGeneration = (e) => {
-        var retval = generatePolicyFromHostRules(e, hostRuleData)
-        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
+        // var retval = generatePolicyFromHostRules(e, hostRuleData)
+        // var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            body: JSON.stringify({
-                pid: "RoutePolicy", tenant: props.match.params.id,
-                rego: byteRego
-            }),
+            // body: JSON.stringify({
+            //     pid: "RoutePolicy", tenant: props.match.params.id,
+            //     rego: byteRego
+            // }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/RoutePolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -680,11 +681,12 @@ const HostsView = (props) => {
     }
 
     function isRuleLocked(rule) {
-        if (rule.group != "") {
-            return true
-        } else {
-            return false
-        }
+        //if (rule.group != "") {
+        //    return true
+        //} else {
+        //    return false
+        //}
+	return false
     }
 
     const matchRule = (host, tag) => {
