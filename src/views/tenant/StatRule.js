@@ -141,7 +141,7 @@ const StatRule = (props) => {
             attrVals.push(snip[2][i].value)
         }
         snip[2] = attrVals.toString()
-        const ruleObj = { rid: "StatsRule", rule: [snip] }
+        const ruleObj = { rid: "StatsRule", group: props.match.params.group, rule: [snip] }
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
@@ -200,121 +200,13 @@ const StatRule = (props) => {
             });
     }
 
-    // ------------------Policy generation functions-------------------------
+    // -------------Policy generation now done in controller-----------------
 
     const generatePolicyFromStatsRule = (e, existingRule) => {
-        // Stats policy generation
-        // existingRule contains data in this format :
-        //  [ruleid, rule:[[snippet]]]
-        //  where ruleid = "StatsRule"
-        //  snippet is of this form :
-        //  ["User Attributes", operator, [array of attribute names], "string", "true"] where
-        //  operator is either == or !=
-
         let RetVal = [""]
-        let RegoPolicy = ""
-        RegoPolicy = generateStatsPolicyHeader(RegoPolicy)
-        if ((existingRule.length > 0) && (existingRule[0].rule.length > 0)) {
-            RegoPolicy = processStatsRule(e, existingRule[0], RegoPolicy)
-        }
         RetVal[0] = ""
-        RetVal[1] = RegoPolicy
+        RetVal[1] = ""
         return RetVal
-    }
-
-    function getStatsRuleLeftToken(snippet) {
-        return snippet[0]
-    }
-
-    function getStatsRuleRightToken(snippet) {
-        return snippet[2]
-    }
-
-    function getStatsRuleOpToken(snippet) {
-        return snippet[1]
-    }
-
-    function getStatsRuleTokenType(snippet) {
-        return "string"
-    }
-
-    function getStatsRuleTokenValue(name, snippet) {
-        if (name === "User Attributes") {
-            return "attr"
-        }
-        return "array"
-    }
-
-    function statsRightTokenArray(rtok, uatype) {
-        let rtokenarray = rtok.split(' ')
-        // Now remove null string elements from array
-        let newarray = [""]
-        let j = 0
-        let rtoken1 = ""
-        for (var i = 0; i < rtokenarray.length; i++) {
-            rtoken1 = rtokenarray[i].trim()
-            if (rtoken1.length > 0) {
-                if (uatype === "string") {
-                    if (!rtoken1.startsWith('"')) {
-                        rtoken1 = '"' + rtoken1
-                    }
-                    if (!rtoken1.endsWith('"')) {
-                        rtoken1 += '"'
-                    }
-                } else if (uatype === "number") {
-                    if (rtoken1.includes('"')) {
-                        rtoken1 = rtoken1.replaceAll('"', ' ').trim()
-                    }
-                }
-                newarray[j] = rtoken1
-                j++
-            }
-        }
-        return newarray
-    }
-
-    function generateStatsPolicyHeader(policyData) {
-        return policyData +
-            "package user.stats\ndefault attributes = {\"exclude\": [\"all\"]}\n\n"
-    }
-
-    function processStatsRule(e, statsRule, policyData) {
-        let statsAttrValue = "[\"all\"]"
-        let attrList = ""
-        let RuleStart = ""
-        let statsPolicyAttr = ""
-        let RuleEnd = ""
-        let snippetFound = false
-        for (let snippet of statsRule.rule) {
-            let ltoken = getStatsRuleLeftToken(snippet)
-            let uavalue = getStatsRuleTokenValue(ltoken, snippet)
-            let uatype = getStatsRuleTokenType(snippet).toLowerCase()
-            let rtoken = getStatsRuleRightToken(snippet)
-            let rtokenarray = [""]
-            let optoken = getStatsRuleOpToken(snippet)
-            snippetFound = true
-
-            // rtoken is always an array of string values.
-            // For string values, add double quotes if missing.
-            // Always trim all values.
-            // For processing array of values, first replace any comma with a
-            // space, then split based on space. Remove any null strings to
-            // compress array.
-
-            rtoken = rtoken.trim()
-            if (rtoken.includes(',')) {
-                rtoken = rtoken.replaceAll(',', ' ').trim()
-            }
-            statsAttrValue = statsRightTokenArray(rtoken, "string")
-            attrList = attrList + statsAttrValue
-        }
-        if (snippetFound === true) {
-            RuleStart = "attributes = select {\n"
-            attrList = "{\"include\": [" + attrList + "]}\n"
-            statsPolicyAttr = "    select := " + attrList
-            RuleEnd = "}"
-        }
-        return policyData + RuleStart + statsPolicyAttr + RuleEnd
     }
 
     // ------------------Policy generation functions end----------------------
@@ -327,15 +219,9 @@ const StatRule = (props) => {
     }
 
     const handlePolicyGeneration = (e) => {
-        // var retval = generatePolicyFromStatsRule(e, existingRule)
-        // var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            // body: JSON.stringify({
-            //     pid: "StatsPolicy", tenant: props.match.params.id,
-            //     rego: byteRego
-            // }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/StatsPolicy'), requestOptions)
             .then(async response => {
