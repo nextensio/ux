@@ -263,7 +263,7 @@ const BundlesView = (props) => {
 
     const handleRuleDelete = (rule) => {
         // Need group id in api
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid + '/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -440,15 +440,9 @@ const BundlesView = (props) => {
     )
 
     const handlePolicyGeneration = (e) => {
-        // var retval = generatePolicyFromBundleRules(e, bundleRuleData)
-        // var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            //body: JSON.stringify({
-            //    pid: "AccessPolicy", tenant: props.match.params.id,
-            //    rego: byteRego
-            //}),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/AccessPolicy'), requestOptions)
             .then(async response => {
@@ -472,249 +466,13 @@ const BundlesView = (props) => {
     };
 
 
-    // ------------------Policy generation functions-------------------------
+    // --------------Policy generation now in controller--------------------
 
     const generatePolicyFromBundleRules = (e, bundleRuleData) => {
-        // Access policy generation
-        // bundleRuleData contains data in this format :
-        //  [bid1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-        //  [bid1, ruleid2, rule:[[snippet1], [snippet2], ..]]
-        //  [bid2, ruleid1, rule:[[snippet1], [snippet2], ..]]
-        //  [bid3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-        //  [bid3, ruleid2, rule:[[snippet1], ..]]
-        //    and so on ...
-        //  A snippet is of this form :
-        //  [userattr, operator, const, type, isArray] where
-        //  type == "string", "boolean", "number"
-        //  isArray == "true" or "false"
-        //  operator values are ==, !=, >, <, >=, <=
-
         let RetVal = [""]
-        let RegoPolicy = ""
-        RegoPolicy = generateAccessPolicyHeader(RegoPolicy)
-        // for each entry/row in bundleRuleData, generate Rego code
-        for (var i = 0; i < bundleRuleData.length; i++) {
-            RegoPolicy = processBundleRule(e, bundleRuleData[i], RegoPolicy)
-        }
         RetVal[0] = ""
-        RetVal[1] = RegoPolicy
+        RetVal[1] = ""
         return RetVal
-    }
-
-    function getBundleRuleLeftToken(snippet) {
-        return snippet[0]
-    }
-
-    function getBundleRuleRightToken(snippet) {
-        return snippet[2]
-    }
-
-    function getBundleRuleOpToken(snippet) {
-        return snippet[1]
-    }
-
-    function getBundleRuleTokenType(snippet) {
-        return snippet[3]
-    }
-
-    function getBundleRuleTokenValue(name, snippet) {
-        if (name === "User ID") {
-            return "uid"
-        }
-        if (snippet[4] == "true") {
-            return "array"
-        } else {
-            return "single"
-        }
-    }
-
-    function bundleRightTokenArray(rtok, uatype) {
-        let rtokenarray = rtok.split(' ')
-        // Now remove null string elements from array
-        let newarray = [""]
-        let j = 0
-        let rtoken1 = ""
-        for (var i = 0; i < rtokenarray.length; i++) {
-            rtoken1 = rtokenarray[i].trim()
-            if (rtoken1.length > 0) {
-                if (uatype === "string") {
-                    if (!rtoken1.startsWith('"')) {
-                        rtoken1 = '"' + rtoken1
-                    }
-                    if (!rtoken1.endsWith('"')) {
-                        rtoken1 += '"'
-                    }
-                } else if (uatype === "number") {
-                    if (rtoken1.includes('"')) {
-                        rtoken1 = rtoken1.replaceAll('"', ' ').trim()
-                    }
-                }
-                newarray[j] = rtoken1
-                j++
-            }
-        }
-        return newarray
-    }
-
-    function bundleCheckWildCard(rtok) {
-        if (rtok.includes('*')) {
-            return true
-        }
-        if (rtok.includes('?')) {
-            return true
-        }
-        if (rtok.includes('[') && rtok.includes(']')) {
-            return true
-        }
-        return false
-    }
-
-    function bundleProcessWildCard(ltok, rtok, op, lts) {
-        let Mexpr = "glob.match(" + rtok + ", [], input.user." + ltok + lts
-        if (op === "==") {
-            Mexpr = "    " + Mexpr + ")\n"
-        } else {
-            Mexpr = "    !" + Mexpr + ")\n"
-        }
-        return Mexpr
-    }
-
-    function bundleProcessArray(ltok, rtarray, op, lts) {
-        // When optoken is ==, we need
-        //   foobararray := [value1, value2, value3, ..]
-        //   input.user.uid == foobararray[_]
-        // When optoken is !=, we need
-        //   input.user.uid != value1
-        //   input.user.uid != value2 and so on
-        // Logical OR for == changes to logical AND for !=
-        let Aexpr = ""
-        if (op === "!=") {
-            for (var i = 0; i < rtarray.length; i++) {
-                Aexpr += "    input.user." + ltok + lts + " != " + rtarray[i] + "\n"
-            }
-        } else {
-            Aexpr = "    " + ltok + "array := ["
-            for (var i = 0; i < rtarray.length; i++) {
-                if (i > 0) {
-                    Aexpr += ", "
-                }
-                Aexpr += rtarray[i]
-            }
-            Aexpr += "]\n"
-            Aexpr += "    input.user." + ltok + lts + " == " + ltok + "array[_]\n"
-        }
-        return Aexpr
-    }
-
-    function generateAccessPolicyHeader(policyData) {
-        return policyData +
-            "package app.access\nallow = is_allowed\ndefault is_allowed = false\n\n"
-    }
-
-    function processBundleRule(e, bundleRule, policyData) {
-        let Exprs = ""
-        let RuleStart = "is_allowed {\n"
-        let BidConst = "    input.bid == \"" + bundleRule.bid + "\"\n"
-        for (let snippet of bundleRule.rule) {
-            let ltoken = getBundleRuleLeftToken(snippet)
-            let uavalue = getBundleRuleTokenValue(ltoken, snippet)
-            let uatype = getBundleRuleTokenType(snippet).toLowerCase()
-            let rtoken = getBundleRuleRightToken(snippet)
-            let rtokenarray = [""]
-            let optoken = getBundleRuleOpToken(snippet)
-
-            // Do some pre-processing on rtoken to figure out more details.
-            // rtoken is always a constant. Could be single value or array
-            // of values.
-            // Single value can have wild card if string type. Support only '*'
-            // for now, with delimiter as '.'.
-            // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
-            // For string values, add double quotes if missing.
-            // Always trim all values.
-            // For processing array of values, first replace any comma with a
-            // space, then split based on space. Remove any null strings to
-            // compress array.
-            // To search for anything other than a word or whitespace, use
-            // 'const regex = /[^\w\s]/g' if using regexp matching (future).
-
-            let haswildcard = false
-            let issingle = true
-            let lts = "[_]"
-            let rts = "array[_]"
-
-            rtoken = rtoken.trim()
-            if ((uatype === "string") || (uavalue === "uid")) {
-                // User attribute is string type. rtoken must be a string or
-                // string array
-                if (rtoken.includes(',')) {
-                    rtoken = rtoken.replaceAll(',', ' ').trim()
-                }
-                if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
-                    issingle = false
-                    rtokenarray = bundleRightTokenArray(rtoken, "string")
-                }
-                if (issingle) {
-                    haswildcard = bundleCheckWildCard(rtoken)
-                    if (!rtoken.startsWith('"')) {
-                        rtoken = '"' + rtoken
-                    }
-                    if (!rtoken.endsWith('"')) {
-                        rtoken += '"'
-                    }
-                }
-            } else {
-                if (rtoken.includes(',')) {
-                    rtoken = rtoken.replaceAll(',', ' ').trim()
-                }
-                if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple non-string values
-                    issingle = false
-                    rtokenarray = bundleRightTokenArray(rtoken, uatype)
-                }
-            }
-
-            if (issingle) {
-                rts = ""
-            }
-            if (uavalue != "array") {
-                lts = ""
-            }
-            if (uavalue === "uid") {
-                // ltoken is user id
-                if (!issingle) {
-                    // We have an array of values to match this attribute.
-                    Exprs += bundleProcessArray("uid", rtokenarray, optoken, "")
-                } else {
-                    // We have a single value to match
-                    if (haswildcard) {
-                        // glob.match("*foo.com", [], input.user.uid)
-                        Exprs += bundleProcessWildCard("uid", rtoken, optoken, "")
-                    } else {
-                        // input.user.uid <op> "value"
-                        Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
-                    }
-                }
-            } else {
-                // ltoken is an array type user attribute
-                // It could be matched with a single value, or with multiple
-                // values. If single value, it could have a wildcard.
-                if (!issingle) {
-                    // We have an array of values to match this attribute
-                    Exprs += bundleProcessArray(ltoken, rtokenarray, optoken, lts)
-                } else {
-                    // We have a single value to match
-                    if (haswildcard && (uatype === "string")) {
-                        Exprs += bundleProcessWildCard(ltoken, rtoken, optoken, lts)
-                    } else {
-                        Exprs += "    input.user." + ltoken + lts
-                        Exprs += " " + optoken + " " + rtoken + rts + "\n"
-                    }
-                }
-            }
-        }
-        let RuleEnd = "}\n\n"
-        return policyData + RuleStart + BidConst + Exprs + RuleEnd
     }
 
     // ------------------Policy generation functions end----------------------
