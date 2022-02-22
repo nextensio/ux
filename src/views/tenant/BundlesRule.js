@@ -49,9 +49,9 @@ const BundlesRule = (props) => {
     const initRuleData = Object.freeze({
         bid: "",
         rid: "",
-	group: "",
-	version: 0,
-	admin: "",
+        group: "",
+        version: 0,
+        admin: "",
         rule: []
     })
     const [ruleData, updateRuleData] = useState(initRuleData)

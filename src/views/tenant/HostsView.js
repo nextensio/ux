@@ -294,46 +294,6 @@ const HostsView = (props) => {
             });
     };
 
-    const handleRuleLock = (rule) => {
-        let ruleGroup = rule.group
-        let newGroup
-        if (ruleGroup == "") {
-            newGroup = props.match.params.group;
-        } else {
-            newGroup = ""
-        }
-        const requestOptions = {
-            method: 'POST',
-            headers: hdrs.headers,
-            body: JSON.stringify({
-                host: rule.host, rid: rule.rid,
-                group: newGroup,
-            }),
-        };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/lockhostrule/'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                } else {
-                    let rules = [...hostRuleData]
-                    let index = rules.indexOf(rule)
-                    rules[index].group = newGroup
-                    updateHostRuleData(rules)
-                }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
-    }
-
     const handleRuleDelete = (rule) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid), hdrs)
             .then(async response => {
@@ -679,13 +639,6 @@ const HostsView = (props) => {
         return rules
     }
 
-    function isRuleLocked(rule) {
-        if (rule.group != "") {
-            return true
-        } else {
-            return false
-        }
-    }
 
     const matchRule = (host, tag) => {
         let rules = ruleReturn(host, tag)
@@ -715,16 +668,6 @@ const HostsView = (props) => {
                                     onClick={e => handleRuleEdit(rule)}
                                 >
                                     Edit
-                                </CButton>
-                                <CButton
-                                    className="float-right mr-1"
-                                    color="primary"
-                                    variant="outline"
-                                    shape="square"
-                                    size="sm"
-                                    onClick={e => handleRuleLock(rule)}
-                                >
-                                    {isRuleLocked(rule) ? "Unlock" : "Lock"}
                                 </CButton>
                             </CListGroupItem>
                         )
@@ -874,7 +817,7 @@ const HostsView = (props) => {
                                                     <CCardBody onClick={e => e.stopPropagation()}>
                                                         {/**This button is used to add another route */}
                                                         <CButton
-                                                            className="float-right mb-3"
+                                                            className="d-flex justify-content-center mb-3"
                                                             color="primary"
                                                             variant="outline"
                                                             shape="square"

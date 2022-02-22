@@ -123,7 +123,7 @@ const SignUp = (props) => {
                                         <CInput type="text" name="email" onChange={handleChange} invalid={errObj.email} />
                                         <CInvalidFeedback>Please enter a valid email.</CInvalidFeedback>
                                     </CInputGroup>
-                                    <CInputGroup className="mb-3">
+                                    <CInputGroup className="mt-4 ml-4">
                                         <CLabel>Managed Service Provider</CLabel>
                                         <CInputCheckbox
                                             name="ismsp"

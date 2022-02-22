@@ -112,9 +112,7 @@ const BundlesView = (props) => {
 
     // Used to check if bid already exists in bundlesAdd page
     const [bidData, updateBidData] = useState("");
-    const [zippedData, updateZippedData] = useState(initTableData);
-
-    const [ruleCreator, setRuleCreator] = useState("")
+    const [zippedData, updateZippedData] = useState(initTableData)
 
     const [details, setDetails] = useState([]);
     const [invalidPolicyModal, setInvalidPolicyModal] = useState(false);
@@ -143,6 +141,12 @@ const BundlesView = (props) => {
 
     useEffect(() => {
         setDetails([]);
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/bundlerules/all'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                updateBundleRuleData(data)
+            });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allbundles'), hdrs)
             .then(response => response.json())
             .then(data => updateBundleData(data));
@@ -163,11 +167,6 @@ const BundlesView = (props) => {
             });
     }, []);
 
-    useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/bundlerules/all'), hdrs)
-            .then(response => response.json())
-            .then(data => updateBundleRuleData(data));
-    }, [ruleCreator])
 
     useEffect(() => {
         const zipper = []
@@ -261,8 +260,9 @@ const BundlesView = (props) => {
             });
     }
 
+
     const handleRuleDelete = (rule) => {
-	// Need group id in api
+        // Need group id in api
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/bundlerule/' + rule.bid + '/' + rule.rid), hdrs)
             .then(async response => {
                 const data = await response.json();
@@ -297,19 +297,6 @@ const BundlesView = (props) => {
         setDetails(newDetails)
     }
 
-    const toggleRuleClose = () => {
-        setRuleCreator("")
-    }
-
-    const toggleRuleCreator = (e, rule) => {
-        if (ruleCreator == rule.rid) {
-            toggleRuleClose()
-        } else {
-            setRuleCreator(rule.rid)
-        }
-        e.stopPropagation()
-    }
-
     const toggleDelete = (item) => {
         setDeleteModal(!deleteModal);
         setDeleteBid(item.bid)
@@ -333,7 +320,7 @@ const BundlesView = (props) => {
                         {rules.map(rule => {
                             return (
                                 <>
-                                    <CListGroupItem color={ruleCreator == rule.rid ? "warning" : "info"}>
+                                    <CListGroupItem color="info">
                                         <strong>{rule.rid}</strong>
                                         <CButton
                                             className="float-right"
@@ -347,7 +334,7 @@ const BundlesView = (props) => {
                                         </CButton>
                                         <CButton
                                             className="float-right mr-1"
-                                            color={ruleCreator == rule.rid ? "danger" : "primary"}
+                                            color="primary"
                                             variant="outline"
                                             shape="square"
                                             size="sm"

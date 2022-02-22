@@ -50,7 +50,6 @@ const HostsRule = (props) => {
     const [snippetType, updateSnippetType] = useState(initSnippetType)
     const [editingSnippet, setEditingSnippet] = useState("")
     const [deleteModal, setDeleteModal] = useState(false)
-    const [lock, setLock] = useState(false)
 
     const initRuleData = Object.freeze({
         host: "",
@@ -81,10 +80,6 @@ const HostsRule = (props) => {
                 updateRuleData(rule)
                 setHost(rule.host)
 
-                // Set the lock status
-                if (rule.group != '') {
-                    setLock(true)
-                }
                 // Iterate over the rule.rule array to find the tag value
                 for (var i = 0; i < rule.rule.length; i++) {
                     if (rule.rule[i][0] == "tag") {
@@ -339,10 +334,6 @@ const HostsRule = (props) => {
         <CCard className="roboto-font">
             <CCardHeader>
                 Rule Generator for {tag}.{ruleData.host}
-                <div className="float-right">
-                    {lock ? "Rule is locked" : "Rule is unlocked"}
-                    <FontAwesomeIcon className="ml-3" icon={lock ? "lock" : "lock-open"} />
-                </div>
             </CCardHeader>
             <CCardBody>
                 <CRow>
