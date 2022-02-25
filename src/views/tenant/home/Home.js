@@ -844,7 +844,7 @@ const Home = (props) => {
                         </CCol>
                         <CCol sm="8">
                             <CInputGroup>
-                                <CInput
+                                <CTextarea
                                     placeholder={existingClusterDataByGateway.image}
                                     disabled={!newClusterData.gateway}
                                     name="image"
