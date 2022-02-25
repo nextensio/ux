@@ -150,14 +150,14 @@ const AttributeEditor = (props) => {
             .then(tenantData => {
                 setEasyMode(tenantData.Tenant.easymode)
                 if (!tenantData.Tenant.easyMode) {
-                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
                         .then(response => response.json())
                         .then(data => {
                             console.log(data)
                             updateAttrColl(data)
                         });
                 } else {
-                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
                         .then(response => response.json())
                         .then(data => {
                             let userData = []
@@ -186,7 +186,7 @@ const AttributeEditor = (props) => {
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => { updateAttrColl(data) });
     }
