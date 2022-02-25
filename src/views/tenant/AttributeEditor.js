@@ -147,20 +147,13 @@ const AttributeEditor = (props) => {
     useEffect(() => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
-            .then(data => {
-                if (!easyMode) { // if (!data.Tenant.easymode) 
-                    // const fetchUser = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs).then(res => res.json());
-                    // const fetchBundles = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Bundles'), hdrs).then(res => res.json());
-                    // const fetchHosts = fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Hosts'), hdrs).then(res => res.json())
-                    // const allData = Promise.all([fetchUser, fetchBundles, fetchHosts])
-                    // allData.then((res) => {
-                    //     var merged = [].concat.apply([], res);
-                    //     updateAttrColl(merged)
-                    // })
-
+            .then(tenantData => {
+                setEasyMode(tenantData.Tenant.easymode)
+                if (!tenantData.Tenant.easyMode) {
                     fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
                         .then(response => response.json())
                         .then(data => {
+                            console.log(data)
                             updateAttrColl(data)
                         });
                 } else {
@@ -176,7 +169,6 @@ const AttributeEditor = (props) => {
                             updateAttrColl(userData)
                         })
                 }
-                // setEasyMode(data.Tenant.easymode)
             });
 
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allpolicies'), hdrs)
