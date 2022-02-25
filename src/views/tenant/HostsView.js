@@ -14,6 +14,7 @@ import {
     CLink,
     CDataTable,
     CInput,
+    CInvalidFeedback,
     CModal,
     CModalHeader,
     CModalBody,
@@ -92,6 +93,7 @@ const HostsView = (props) => {
     const [hostAttrSet, updateHostAttrSet] = useState(initTableData)
 
     const [addRoute, updateAddRoute] = useState("")
+    const [addRouteErr, setAddRouteErr] = useState(false)
     const [addRouteItem, updateAddRouteItem] = useState("")
     const [details, setDetails] = useState([]);
 
@@ -201,11 +203,26 @@ const HostsView = (props) => {
         updateAddRoute(e.target.value)
     }
 
+    function validateTag(item) {
+        if (item.routeattrs) {
+            for (let i = 0; i < item.routeattrs.length; i++) {
+                if (item.routeattrs[i].tag == addRoute) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
     // Creates route objects in the hostData.config list
     // Each route object has a tag key and host attribute keys, with an empty strings as values
     // ex. {tag: '', hostAttr1: '', hostAttr2: '', hostAttr3: '', ...etc}
     // then immediately pushes to DB
     const addTag = (e, item) => {
+        if (!validateTag(item)) {
+            setAddRouteErr(true)
+            return
+        }
         let routeObj = {}
         hostAttrSet.map(attr => {
             routeObj[attr] = ""
@@ -215,6 +232,7 @@ const HostsView = (props) => {
         handleSubmit(e, item)
         updateAddRouteItem("")
         updateAddRoute("")
+        setAddRouteErr(false)
         setAddRouteModal(!addRouteModal)
     }
     //
@@ -719,7 +737,8 @@ const HostsView = (props) => {
                     <strong>{addRoute}.{addRouteItem.host && addRouteItem.host}</strong>
                     <CFormGroup className="mt-3">
                         <CLabel>Name</CLabel>
-                        <CInput value={addRoute} onChange={handleRouteAdd} />
+                        <CInput value={addRoute} onChange={handleRouteAdd} invalid={addRouteErr} />
+                        <CInvalidFeedback>This route already exists!</CInvalidFeedback>
                     </CFormGroup>
                 </CModalBody>
                 <CModalFooter>
