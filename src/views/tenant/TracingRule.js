@@ -52,9 +52,9 @@ const TracingRule = (props) => {
     const [editingSnippet, setEditingSnippet] = useState("")
     const initRuleData = Object.freeze({
         rid: "",
-	group: "",
-	version: 0,
-	admin: "",
+        group: "",
+        version: 0,
+        admin: "",
         rule: []
     })
     const [ruleData, updateRuleData] = useState(initRuleData)
@@ -86,7 +86,7 @@ const TracingRule = (props) => {
                 }
                 updateUids(uids)
             });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var user = []
@@ -300,8 +300,8 @@ const TracingRule = (props) => {
             headers: hdrs.headers,
             body: JSON.stringify({
                 rid: ruleData.rid,
-		group: props.match.params.group,
-		version: ruleData.version,
+                group: props.match.params.group,
+                version: ruleData.version,
                 rule: ruleData.rule
             }),
         };
@@ -339,7 +339,7 @@ const TracingRule = (props) => {
     }
 
     const handleRuleDelete = (rule) => {
-	// Need group id in api
+        // Need group id in api
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/tracereqrule/' + rule.rid + '/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();

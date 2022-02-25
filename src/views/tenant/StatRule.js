@@ -52,7 +52,7 @@ const StatRule = (props) => {
     };
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var userAttrNames = []
@@ -179,7 +179,7 @@ const StatRule = (props) => {
     }
 
     const handleRuleDelete = (rule) => {
-	// Need group id in api
+        // Need group id in api
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/statsrule/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();

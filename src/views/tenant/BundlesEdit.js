@@ -64,7 +64,7 @@ const BundlesEdit = (props) => {
             })
             updateBundleState({ bid, name: __name, cpodrepl: __cpodrepl, services: services })
         }
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var bundleAttrs = [];

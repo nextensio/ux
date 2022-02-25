@@ -54,9 +54,9 @@ const HostsRule = (props) => {
     const initRuleData = Object.freeze({
         host: "",
         rid: "",
-	group: "",
-	version: 0,
-	admin: "",
+        group: "",
+        version: 0,
+        admin: "",
         rule: []
     })
 
@@ -114,7 +114,7 @@ const HostsRule = (props) => {
                 }
                 updateUids(uids)
             });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var user = []
