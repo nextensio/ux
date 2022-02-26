@@ -64,6 +64,13 @@ const easyFields = [
         _classes: "data-field"
     },
     {
+        key: "editGroup",
+        label: "",
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: "delete",
         label: '',
         _style: { width: '1%' },
@@ -103,6 +110,13 @@ const expertFields = [
         _classes: "data-field"
     },
     {
+        key: "editGroup",
+        label: "",
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    },
+    {
         key: "delete",
         label: '',
         _style: { width: '1%' },
@@ -135,6 +149,10 @@ const AttributeEditor = (props) => {
     // This object will contain any error messages used when validating attribute. 
     const [errObj, updateErrObj] = useState({})
 
+    const [adminGroups, updateAdminGroups] = useState(Object.freeze([]))
+    const [attributeToEdit, setAttributeToEdit] = useState(Object.freeze({}))
+    const [editGroupModal, setEditGroupModal] = useState(false)
+
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
     const hdrs = {
@@ -149,25 +167,14 @@ const AttributeEditor = (props) => {
             .then(response => response.json())
             .then(tenantData => {
                 setEasyMode(tenantData.Tenant.easymode)
-                if (!tenantData.Tenant.easyMode) {
+                if (!tenantData.Tenant.easymode) {
                     fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
                         .then(response => response.json())
-                        .then(data => {
-                            console.log(data)
-                            updateAttrColl(data)
-                        });
+                        .then(data => updateAttrColl(data))
                 } else {
-                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
+                    fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/Users'), hdrs)
                         .then(response => response.json())
-                        .then(data => {
-                            let userData = []
-                            for (let i = 0; i < data.length; i++) {
-                                if (data[i].appliesTo == "Users") {
-                                    userData.push(data[i])
-                                }
-                            }
-                            updateAttrColl(userData)
-                        })
+                        .then(data => updateAttrColl(data))
                 }
             });
 
@@ -182,6 +189,11 @@ const AttributeEditor = (props) => {
                     }
                 }
                 updatePolicyData(policies)
+            })
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                updateAdminGroups(data.admgroups)
             })
     }, []);
 
@@ -209,6 +221,18 @@ const AttributeEditor = (props) => {
             type: type,
             isArray: isArray
         });
+    }
+
+    const handleGroup = (e, item) => {
+        updateAttributeData(item)
+        setEditGroupModal(!editGroupModal)
+    }
+
+    const handleGroupChange = (e) => {
+        updateAttributeData({
+            ...attributeData,
+            [e.target.name]: e.target.value
+        })
     }
 
     const reset = (e) => {
@@ -270,7 +294,11 @@ const AttributeEditor = (props) => {
             method: 'POST',
             headers: hdrs.headers,
             body: JSON.stringify({
-                name: attributeData.name, appliesTo: attributeData.appliesTo, type: attributeData.type, isArray: attributeData.isArray, group: attributeData.group
+                name: attributeData.name,
+                appliesTo: attributeData.appliesTo,
+                type: attributeData.type,
+                isArray: attributeData.isArray,
+                group: attributeData.group
             }),
         };
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/attrset'), requestOptions)
@@ -570,6 +598,23 @@ const AttributeEditor = (props) => {
                                                 </td>
                                             )
                                         },
+                                    'editGroup':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CButton
+                                                        className="button-table"
+                                                        color="warning"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        disabled={item.name[0] !== "_"}
+                                                        onClick={(e) => handleGroup(e, item)}
+                                                    >
+                                                        <FontAwesomeIcon icon="id-badge" size="lg" className="icon-table-edit" />
+                                                    </CButton>
+                                                </td>
+                                            )
+                                        },
                                     'delete':
                                         (item, index) => {
                                             return (
@@ -602,46 +647,93 @@ const AttributeEditor = (props) => {
                         </CCardFooter>
                     </CCard>
                 </CCol>
-                {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
-                <CModal className="roboto-font" show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
-                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
-                        <strong>Confirm Deletion</strong>
-                    </CModalHeader>
-                    <CModalBody className='text-lg-left'>
-                        <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
-                        <CCallout color="danger">
-                            <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
-                            <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
-                            <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
-                            <div><strong>Multiple Values: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
-                        </CCallout>
-                    </CModalBody>
-                    <CModalFooter>
-                        <CButton
-                            color="danger"
-                            onClick={() => { handleDelete(deleteItem) }}
-                        >Confirm</CButton>
-                        <CButton
-                            color="secondary"
-                            onClick={() => setDeleteModal(!deleteModal)}
-                        >Cancel</CButton>
-                    </CModalFooter>
-                </CModal>
-                <CModal className="roboto-font" show={cannotDeleteModal} onClose={() => setCannotDeleteModal(!cannotDeleteModal)}>
-                    <CModalHeader className="bg-warning text-dark py-n5" closeButton>
-                        <strong>Attribute In Use!</strong>
-                    </CModalHeader>
-                    <CModalBody className="text-lg-left">
-                        You cannot delete this attribute. It is either system defined or being used in a policy.
-                    </CModalBody>
-                    <CModalFooter>
-                        <CButton
-                            color="warning"
-                            onClick={() => setCannotDeleteModal(!cannotDeleteModal)}
-                        >Dismiss</CButton>
-                    </CModalFooter>
-                </CModal>
             </CRow>
+
+            {/* Warning to be triggered if tenant attempts to delete an attribute. Confirms deletion or cancels */}
+            <CModal className="roboto-font" show={deleteModal} onClose={() => setDeleteModal(!deleteModal)}>
+                <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                    <strong>Confirm Deletion</strong>
+                </CModalHeader>
+                <CModalBody className='text-lg-left'>
+                    <strong>Are you sure you want to delete this attribute? This attribute will be deleted from every {appliesToStringify(deleteItem.appliesTo)}.</strong>
+                    <CCallout color="danger">
+                        <div><strong>Name: </strong><strong className="text-danger">{deleteItem.name}</strong></div>
+                        <div><strong>Applies To: </strong><strong className="text-danger">{appliesToStringifyPlural(deleteItem.appliesTo)}</strong></div>
+                        <div><strong>Type: </strong><strong className="text-danger">{deleteItem.type}</strong></div>
+                        <div><strong>Multiple Values: </strong><strong className="text-danger">{deleteItem.isArray}</strong></div>
+                    </CCallout>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="danger"
+                        onClick={() => { handleDelete(deleteItem) }}
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setDeleteModal(!deleteModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+            </CModal>
+            <CModal className="roboto-font" show={cannotDeleteModal} onClose={() => setCannotDeleteModal(!cannotDeleteModal)}>
+                <CModalHeader className="bg-warning text-dark py-n5" closeButton>
+                    <strong>Attribute In Use!</strong>
+                </CModalHeader>
+                <CModalBody className="text-lg-left">
+                    You cannot delete this attribute. It is either system defined or being used in a policy.
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="warning"
+                        onClick={() => setCannotDeleteModal(!cannotDeleteModal)}
+                    >Dismiss</CButton>
+                </CModalFooter>
+            </CModal>
+            <CModal show={editGroupModal} className="roboto-font" onClose={() => setEditGroupModal(!editGroupModal)}>
+                <CModalHeader className="bg-warning text-dark py-n5">
+                    <strong>Edit Group Ownership for {attributeData.name}</strong>
+                </CModalHeader>
+                <CModalBody>
+                    <CRow className="pt-3">
+                        <CCol md="8">
+                            <strong>Current Group Ownership</strong>
+                        </CCol>
+                        <CCol md="4">
+                            <strong>{attributeData.group}</strong>
+                        </CCol>
+                    </CRow>
+                    <CRow className="pt-3">
+                        <CCol md="8">
+                            <strong>New Group</strong>
+                        </CCol>
+                        <CCol md="4">
+                            {adminGroups != null ? adminGroups.map(adminGroup => {
+                                return (
+                                    <div>
+                                        <CInputRadio name="group" value={adminGroup} checked={attributeData.group === adminGroup} onChange={handleGroupChange} /> {adminGroup}
+                                    </div>
+                                )
+                            }) :
+                                <div>
+                                    You have no groups created
+                                </div>
+                            }
+                        </CCol>
+                    </CRow>
+                    <CRow>
+                        <div className="invalid-form-text" hidden={true}>You need to select a group.</div>
+                    </CRow>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="warning"
+                    >Confirm</CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={() => setEditGroupModal(!editGroupModal)}
+                    >Cancel</CButton>
+                </CModalFooter>
+
+            </CModal>
         </>
     )
 }
