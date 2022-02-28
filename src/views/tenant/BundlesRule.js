@@ -100,7 +100,7 @@ const BundlesRule = (props) => {
             .then(data => {
                 var user = []
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == "Users") {
+                    if (data[i].appliesTo == "Users" && data[i].name[0] != "_") {
                         user.push(data[i])
                     }
                 }
@@ -130,6 +130,16 @@ const BundlesRule = (props) => {
         }
     }
 
+    // Checks if the userID is already used in a snippet for the rule
+    // Returns true if it is
+    function userIDActiveInRule() {
+        for (let i = 0; i < ruleData.rule.length; i++) {
+            if (ruleData.rule[i][0] === "User ID") {
+                return true
+            }
+        }
+        return false
+    }
 
     const handleChange = (e) => {
         updateRuleData({
@@ -343,7 +353,7 @@ const BundlesRule = (props) => {
                                     <CCol sm="4">
                                         <CSelect value={snippetData[0]} custom onChange={handleLHSSelect} placeholder="User Attrs">
                                             <option value="">User Attrs</option>
-                                            <option value="User ID">User ID</option>
+                                            <option hidden={userIDActiveInRule()} value="User ID">User ID</option>
                                             {userAttrs.map((item, index) => {
                                                 if (getAccessibleAttributes(item.name)) {
                                                     return (

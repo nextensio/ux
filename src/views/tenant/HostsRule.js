@@ -79,7 +79,6 @@ const HostsRule = (props) => {
             // or it is Edit, which means that we are editing an existing rule
             if (props.location.state[1] == "Edit") {
                 let rule = props.location.state[0]
-                console.log(rule)
                 updateRuleData(rule)
                 setHost(rule.host)
 
@@ -119,7 +118,7 @@ const HostsRule = (props) => {
             .then(data => {
                 var user = []
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == "Users") {
+                    if (data[i].appliesTo == "Users" && data[i].name[0] != "_") {
                         user.push(data[i])
                     }
                 }
@@ -134,6 +133,7 @@ const HostsRule = (props) => {
                         user.push(data[i].name)
                     }
                 }
+                console.log(data)
                 updateAccessibleUserAttrs(user)
             })
     }, [])
@@ -149,8 +149,19 @@ const HostsRule = (props) => {
         }
     }
 
+    // Checks if the userID is already used in a snippet for the rule
+    // Returns true if it is
+    function userIDActiveInRule() {
+        for (let i = 0; i < ruleData.rule.length; i++) {
+            if (ruleData.rule[i][0] === "User ID") {
+                return true
+            }
+        }
+        return false
+    }
 
     const handleChange = (e) => {
+        console.log(ruleData)
         updateRuleData({
             ...ruleData,
             [e.target.name]: e.target.value
@@ -367,7 +378,7 @@ const HostsRule = (props) => {
                                     <CCol sm="4">
                                         <CSelect value={snippetData[0]} custom onChange={handleLHSSelect} placeholder="User Attrs">
                                             <option value="">User Attrs</option>
-                                            <option value="User ID">User ID</option>
+                                            <option hidden={userIDActiveInRule()} value="User ID">User ID</option>
                                             {userAttrs.map((item, index) => {
                                                 if (getAccessibleAttributes(item.name)) {
                                                     return (
