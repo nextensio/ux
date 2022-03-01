@@ -37,7 +37,6 @@ const HostsRule = (props) => {
     const initSnippetData = ["", "==", ""]
 
     const [host, setHost] = useState("")
-    const [tag, setTag] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
 
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
@@ -81,24 +80,15 @@ const HostsRule = (props) => {
                 let rule = props.location.state[0]
                 updateRuleData(rule)
                 setHost(rule.host)
-
-                // Iterate over the rule.rule array to find the tag value
-                for (var i = 0; i < rule.rule.length; i++) {
-                    if (rule.rule[i][0] == "tag") {
-                        setTag(rule.rule[i][2])
-                        return
-                    }
-                }
             }
             // This logic block executes if we are adding a new rule
             else {
                 updateRuleData({
                     ...ruleData,
-                    host: props.location.state[0],
-                    rule: [["tag", "==", props.location.state[1], "Route", "false"]]
+                    host: props.location.state[1] + "." + props.location.state[0],
+                    rule: []
                 })
                 setHost(props.location.state[0])
-                setTag(props.location.state[1])
             }
         }
     }, [])
@@ -133,7 +123,6 @@ const HostsRule = (props) => {
                         user.push(data[i].name)
                     }
                 }
-                console.log(data)
                 updateAccessibleUserAttrs(user)
             })
     }, [])
@@ -291,7 +280,7 @@ const HostsRule = (props) => {
         updateRuleData({
             ...initRuleData,
             host: host,
-            rule: [["tag", "==", tag, "Route", "false"]]
+            rule: []
         })
     }
 
@@ -299,7 +288,7 @@ const HostsRule = (props) => {
         let err = {}
         if (!ruleData.rid) {
             err.rid = true
-        } if (ruleData.rule.length <= 1) {
+        } if (ruleData.rule.length == 0) {
             err.rule = true
         }
         updateErrObj(err)
@@ -347,7 +336,7 @@ const HostsRule = (props) => {
     return (
         <CCard className="roboto-font">
             <CCardHeader>
-                Rule Generator for {tag}.{ruleData.host}
+                Rule Generator for {ruleData.host}
             </CCardHeader>
             <CCardBody>
                 <CRow>
@@ -366,7 +355,7 @@ const HostsRule = (props) => {
                 </CRow>
                 <CRow>
                     <CCol sm="12">
-                        <CCard accentColor={(ruleData.rule.length <= 1 && errObj.rule == true) ? "danger" : "success"}>
+                        <CCard accentColor={(ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
                             <CCardBody>
                                 <CRow>
                                     <CCol sm="12">
@@ -433,31 +422,9 @@ const HostsRule = (props) => {
                         <CLabel>Current Rule</CLabel>
                         <CFormText>These snippets will be AND'ed together.</CFormText>
                         <div className="roboto-font bg-gray-100 text-dark" style={{ minHeight: '100px', padding: 10 }}>
-                            <div hidden={!(ruleData.rule.length <= 1 && errObj.rule == true)} className="text-danger">Please add at least one non-tag snippet!</div>
-
+                            <div hidden={!(ruleData.rule.length == 0 && errObj.rule == true)} className="text-danger">Please add at least snippet!</div>
                             <CListGroup>
-                                <CListGroupItem
-                                    className="mb-1"
-                                    size="sm"
-                                    color="success"
-                                    disabled={!getAccessibleAttributes("tag")}
-                                >
-                                    tag == {tag}
-                                    <CButton
-                                        size="sm"
-                                        className="float-right"
-                                        disabled
-                                    >
-                                        <FontAwesomeIcon icon="lock" size="lg" />
-                                    </CButton>
-                                </CListGroupItem>
-                                {ruleData.rule.filter((item, index) => {
-                                    if (item[0] == "tag") {
-                                        return false
-                                    } else {
-                                        return true
-                                    }
-                                }).map(item => {
+                                {ruleData.rule.map(item => {
                                     return (
                                         <div>
                                             <CListGroupItem
