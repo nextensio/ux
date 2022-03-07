@@ -65,6 +65,21 @@ const groupFields = [
     }
 ]
 
+const keyFields = [
+    {
+        key: "name",
+        label: "Name",
+        _classes: "data-head",
+    },
+    {
+        key: "delete",
+        label: "",
+        _style: { width: '1%' },
+        sorter: false,
+        filter: false
+    }
+]
+
 const idpFields = [
     {
         key: "name",
@@ -95,6 +110,7 @@ const Home = (props) => {
     const [newClusterModal, setNewClusterModal] = useState(false)
     const [group, updateGroup] = useState("")
     const [groupDetails, setGroupDetails] = useState(-1);
+    const [apiKey, updateAPIKey] = useState("")
 
     // When the user clicks on a gateway, make api call to see what existing image and apodrepl are for that gateway
     // Set as placeholder
@@ -103,9 +119,11 @@ const Home = (props) => {
 
     const [allIdps, updateAllIdps] = useState("")
     const [allGroups, updateAllGroups] = useState(Object.freeze([]))
+    const [allKeys, updateAllKeys] = useState(Object.freeze([]))
     const [clusterErrObj, updateClusterErrObj] = useState(Object.freeze({}))
     const [idpErrObj, updateIdpErrObj] = useState(Object.freeze({}))
     const [groupConfigModal, setGroupConfigModal] = useState(false)
+    const [keyConfigModal, setKeyConfigModal] = useState(false)
     const [grpAdmins, updateGrpAdmins] = useState([])
 
 
@@ -145,12 +163,24 @@ const Home = (props) => {
             .then(response => response.json())
             .then(data => {
                 let groups = []
-                if (data.AdmGroups != null) {
-                    for (let i = 0; i < data.AdmGroups.length; i++) {
-                        groups.push({ admGroup: data.AdmGroups[i] })
+                if (data.admgroups != null) {
+                    for (let i = 0; i < data.admgroups.length; i++) {
+                        groups.push({ admGroup: data.admgroups[i] })
                     }
                 }
                 updateAllGroups(groups)
+            })
+        // Fetch for API Keys
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserkeys'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                let keys = []
+                if (data.keys != null) {
+                    for (let i = 0; i < data.keys.length; i++) {
+                        keys.push({ name: data.keys[i].name })
+                    }
+                }
+                updateAllKeys(keys)
             })
     }, []);
 
@@ -324,6 +354,10 @@ const Home = (props) => {
         updateGroup(e.target.value)
     }
 
+    const handleKeyChange = (e) => {
+        updateAPIKey(e.target.value)
+    }
+
     const resetIdpJson = () => {
         updateIdpJson({})
         updateIdpErrObj({})
@@ -332,6 +366,11 @@ const Home = (props) => {
     const cancelGroupChange = (e) => {
         updateGroup("")
         setGroupConfigModal(!groupConfigModal)
+    }
+
+    const cancelKeyChange = (e) => {
+        updateAPIKey("")
+        setKeyConfigModal(!keyConfigModal)
     }
 
     const cancelNewClusterEdit = (e) => {
@@ -371,6 +410,40 @@ const Home = (props) => {
             });
     }
 
+    const handleKeyCreate = (e) => {
+        const requestOptions = {
+            method: 'POST',
+            headers: hdrs.headers,
+            body: JSON.stringify({
+                name: apiKey,
+            }),
+        }
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userkey'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    let keys = [...allKeys]
+                    keys.push({ name: apiKey })
+                    updateAllKeys(keys)
+                    updateAPIKey("")
+                    setKeyConfigModal(!keyConfigModal)
+                    prompt("Save the key - you will not be able to retrieve it again", data["key"])
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
     const handleGroupDelete = (item) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/admgroups/' + item.admGroup), hdrs)
             .then(async response => {
@@ -389,6 +462,31 @@ const Home = (props) => {
                     let index = groups.indexOf(item)
                     groups.splice(index, 1)
                     updateAllGroups(groups)
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
+
+    const handleKeyDelete = (item) => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/userkey/' + item.name), hdrs)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"])
+                } else {
+                    let keys = [...allKeys]
+                    let index = keys.indexOf(item)
+                    keys.splice(index, 1)
+                    updateAllKeys(keys)
                 }
             })
             .catch(error => {
@@ -436,7 +534,7 @@ const Home = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/groupadms/' + group), hdrs)
             .then(response => response.json())
             .then(data => {
-                let admins = data.GrpAdmins
+                let admins = data.grpadmins
                 updateGrpAdmins(admins)
             })
     }
@@ -569,6 +667,11 @@ const Home = (props) => {
                         </CCardBody>
                     </CCard>
                 </CCol>
+
+            </CRow>
+
+            <CRow>
+
                 <CCol md="4">
                     <CCard className="roboto-font border-rounded shadow element">
                         <CCardHeader>
@@ -637,22 +740,56 @@ const Home = (props) => {
                         </CCardBody>
                     </CCard>
                 </CCol>
-            </CRow>
 
-            <CRow>
-                <CCol sm="12">
-                    <CCard>
-                        <CCardHeader className="bg-gradient-primary">
-                            Gateways Heatmap
+                <CCol md="4">
+                    <CCard className="roboto-font border-rounded shadow element">
+                        <CCardHeader>
+                            API Keys
+                            <CButton
+                                className="float-right"
+                                color="info"
+                                onClick={() => setKeyConfigModal(!keyConfigModal)}
+                            >
+                                Create
+                            </CButton>
                         </CCardHeader>
-                        <CCardBody className="parent-container">
-                            <CEmbed>
-                                <Map className="fit-snug" {...props} />
-                            </CEmbed>
+                        <CCardBody className="mb-n4">
+                            <CDataTable
+                                items={allKeys}
+                                fields={keyFields}
+                                itemsPerPageSelect
+                                sorter
+                                pagination
+                                scopedSlots={{
+                                    'delete':
+                                        (item, index) => {
+                                            return (
+                                                <td className="py-2">
+                                                    <CTooltip
+                                                        content='Delete'
+                                                        placement='top'
+                                                    >
+                                                        <CButton
+                                                            className="button-table"
+                                                            color='danger'
+                                                            variant='ghost'
+                                                            size="sm"
+                                                            onClick={() => handleKeyDelete(item)}
+                                                        >
+                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
+                                                        </CButton>
+                                                    </CTooltip>
+                                                </td>
+                                            )
+                                        }
+                                }}
+                            />
                         </CCardBody>
                     </CCard>
                 </CCol>
+
             </CRow>
+
             <CModal closeOnBackdrop={false} className="roboto-font" show={idpJson.provider}>
                 <CModalHeader className="bg-info text-white py-n5">
                     <strong>Add Identity Provider - {idpJson.provider}</strong>
@@ -844,7 +981,7 @@ const Home = (props) => {
                         </CCol>
                         <CCol sm="8">
                             <CInputGroup>
-                                <CInput
+                                <CTextarea
                                     placeholder={existingClusterDataByGateway.image}
                                     disabled={!newClusterData.gateway}
                                     name="image"
@@ -903,6 +1040,28 @@ const Home = (props) => {
                     <CButton
                         color="secondary"
                         onClick={cancelGroupChange}
+                    ><strong>Cancel</strong></CButton>
+                </CModalFooter>
+            </CModal>
+
+            <CModal className="roboto-font" show={keyConfigModal}>
+                <CModalHeader className="bg-info text-white py-n5">
+                    API Key Configuration
+                </CModalHeader>
+                <CModalBody>
+                    <CLabel>Key Name</CLabel>
+                    <CInputGroup>
+                        <CInput onChange={handleKeyChange} />
+                    </CInputGroup>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton
+                        color="info"
+                        onClick={handleKeyCreate}
+                    ><strong>Create</strong></CButton>
+                    <CButton
+                        color="secondary"
+                        onClick={cancelKeyChange}
                     ><strong>Cancel</strong></CButton>
                 </CModalFooter>
             </CModal>

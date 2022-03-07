@@ -37,7 +37,6 @@ const HostsRule = (props) => {
     const initSnippetData = ["", "==", ""]
 
     const [host, setHost] = useState("")
-    const [tag, setTag] = useState("")
     const [uids, updateUids] = useState(Object.freeze([]))
 
     const [userAttrs, updateUserAttrs] = useState(Object.freeze([]))
@@ -50,12 +49,13 @@ const HostsRule = (props) => {
     const [snippetType, updateSnippetType] = useState(initSnippetType)
     const [editingSnippet, setEditingSnippet] = useState("")
     const [deleteModal, setDeleteModal] = useState(false)
-    const [lockInfoModal, setLockInfoModal] = useState(false)
-    const [lock, setLock] = useState(false)
 
     const initRuleData = Object.freeze({
         host: "",
         rid: "",
+        group: "",
+        version: 0,
+        admin: "",
         rule: []
     })
 
@@ -80,25 +80,15 @@ const HostsRule = (props) => {
                 let rule = props.location.state[0]
                 updateRuleData(rule)
                 setHost(rule.host)
-                // Iterate over the rule.rule array to find the tag value
-                for (var i = 0; i < rule.rule.length; i++) {
-                    if (rule.rule[i][0] == "tag") {
-                        setTag(rule.rule[i][2])
-                        return
-                    }
-                }
-                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
             // This logic block executes if we are adding a new rule
             else {
                 updateRuleData({
                     ...ruleData,
-                    host: props.location.state[0],
-                    rule: [["tag", "==", props.location.state[1], "Route", "false"]]
+                    host: props.location.state[1] + "." + props.location.state[0],
+                    rule: []
                 })
                 setHost(props.location.state[0])
-                setTag(props.location.state[1])
-                setLock(typeof ruleData.group === 'undefined' || ruleData.group == "")
             }
         }
     }, [])
@@ -113,12 +103,12 @@ const HostsRule = (props) => {
                 }
                 updateUids(uids)
             });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var user = []
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].appliesTo == "Users") {
+                    if (data[i].appliesTo == "Users" && data[i].name[0] != "_") {
                         user.push(data[i])
                     }
                 }
@@ -148,8 +138,19 @@ const HostsRule = (props) => {
         }
     }
 
+    // Checks if the userID is already used in a snippet for the rule
+    // Returns true if it is
+    function userIDActiveInRule() {
+        for (let i = 0; i < ruleData.rule.length; i++) {
+            if (ruleData.rule[i][0] === "User ID") {
+                return true
+            }
+        }
+        return false
+    }
 
     const handleChange = (e) => {
+        console.log(ruleData)
         updateRuleData({
             ...ruleData,
             [e.target.name]: e.target.value
@@ -279,26 +280,21 @@ const HostsRule = (props) => {
         updateRuleData({
             ...initRuleData,
             host: host,
-            rule: [["tag", "==", tag, "Route", "false"]]
+            rule: []
         })
-    }
-
-    const lockRule = (e) => {
-        setLock(!lock)
-        setLockInfoModal(!lockInfoModal)
-        lockHostRule();
     }
 
     function validate() {
         let err = {}
         if (!ruleData.rid) {
             err.rid = true
-        } if (ruleData.rule.length <= 1) {
+        } if (ruleData.rule.length == 0) {
             err.rule = true
         }
         updateErrObj(err)
         return err
     }
+
 
     const handleSubmit = (e) => {
         let err = validate()
@@ -335,55 +331,12 @@ const HostsRule = (props) => {
             });
     }
 
-    const lockHostRule = () => {
-        let err = validate()
-        if (Object.keys(err) != 0) {
-            return
-        }
-        var group = "";
-        if (lock) {
-            group = props.match.params.group;
-        }
-        const requestOptions = {
-            method: 'POST',
-            headers: hdrs.headers,
-            body: JSON.stringify({
-                host: ruleData.host, rid: ruleData.rid,
-                group: group,
-            }),
-        };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/lockhostrule/'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                } else {
-                    // bundle attribute http post must be run after bundle http post
-                    props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/hosts')
-                }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
-    }
+
 
     return (
         <CCard className="roboto-font">
             <CCardHeader>
-                Rule Generator for {tag}.{ruleData.host}
-                <div className="float-right">
-                    {lock ? "Unlock Rule" : "Lock Rule"}
-                    <CButton className="ml-3" color="primary" onClick={() => setLockInfoModal(!lockInfoModal)}>
-                        <FontAwesomeIcon icon={lock ? "lock" : "lock-open"} />
-                    </CButton>
-                </div>
+                Rule Generator for {ruleData.host}
             </CCardHeader>
             <CCardBody>
                 <CRow>
@@ -402,7 +355,7 @@ const HostsRule = (props) => {
                 </CRow>
                 <CRow>
                     <CCol sm="12">
-                        <CCard accentColor={(ruleData.rule.length <= 1 && errObj.rule == true) ? "danger" : "success"}>
+                        <CCard accentColor={(ruleData.rule.length == 0 && errObj.rule == true) ? "danger" : "success"}>
                             <CCardBody>
                                 <CRow>
                                     <CCol sm="12">
@@ -414,7 +367,7 @@ const HostsRule = (props) => {
                                     <CCol sm="4">
                                         <CSelect value={snippetData[0]} custom onChange={handleLHSSelect} placeholder="User Attrs">
                                             <option value="">User Attrs</option>
-                                            <option value="User ID">User ID</option>
+                                            <option hidden={userIDActiveInRule()} value="User ID">User ID</option>
                                             {userAttrs.map((item, index) => {
                                                 if (getAccessibleAttributes(item.name)) {
                                                     return (
@@ -469,31 +422,9 @@ const HostsRule = (props) => {
                         <CLabel>Current Rule</CLabel>
                         <CFormText>These snippets will be AND'ed together.</CFormText>
                         <div className="roboto-font bg-gray-100 text-dark" style={{ minHeight: '100px', padding: 10 }}>
-                            <div hidden={!(ruleData.rule.length <= 1 && errObj.rule == true)} className="text-danger">Please add at least one non-tag snippet!</div>
-
+                            <div hidden={!(ruleData.rule.length == 0 && errObj.rule == true)} className="text-danger">Please add at least snippet!</div>
                             <CListGroup>
-                                <CListGroupItem
-                                    className="mb-1"
-                                    size="sm"
-                                    color="success"
-                                    disabled={!getAccessibleAttributes("tag")}
-                                >
-                                    tag == {tag}
-                                    <CButton
-                                        size="sm"
-                                        className="float-right"
-                                        disabled
-                                    >
-                                        <FontAwesomeIcon icon="lock" size="lg" />
-                                    </CButton>
-                                </CListGroupItem>
-                                {ruleData.rule.filter((item, index) => {
-                                    if (item[0] == "tag") {
-                                        return false
-                                    } else {
-                                        return true
-                                    }
-                                }).map(item => {
+                                {ruleData.rule.map(item => {
                                     return (
                                         <div>
                                             <CListGroupItem
@@ -564,14 +495,6 @@ const HostsRule = (props) => {
                         color="secondary"
                         onClick={() => setDeleteModal(!deleteModal)}
                     >Cancel</CButton>
-                </CModalFooter>
-            </CModal>
-            <CModal className="roboto-font" show={lockInfoModal}>
-                <CModalFooter>
-                    <CButton
-                        color="success"
-                        onClick={lockRule}
-                    >{lock ? "Unlock" : "Lock"}</CButton>
                 </CModalFooter>
             </CModal>
         </CCard>

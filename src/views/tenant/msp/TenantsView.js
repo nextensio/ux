@@ -48,10 +48,11 @@ const fields = [
     },
 ]
 
-const TenantsView = (props) => {
+const TenantsMSPView = (props) => {
     const initTableData = Object.freeze(
         []
     );
+    const [mspTenants, updateMspTenants] = useState(initTableData);
     const [tenantsData, updateTenantData] = useState(initTableData);
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(0);
@@ -73,35 +74,62 @@ const TenantsView = (props) => {
         },
     };
 
-    useEffect(() => {
-        fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
+    const getTenant = (tenant) => {
+        fetch(common.api_href('/api/v1/tenant/' + tenant + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    data[i].domains = JSON.stringify(data[i].domains)
+                if (data.Result != 'ok') {
+                    alert(data.Result);
+                } else {
+                    data.domains = JSON.stringify(data.Tenant.domains)
+                    var tarr = []
+                    tarr.push(data.Tenant)
+                    updateTenantData(tarr.concat(tenantsData))
                 }
-                updateTenantData(data)
+            });
+    }
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/mgdtenants'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                if (data.Result != 'ok') {
+                    alert(data.Result);
+                } else {
+                    if (data.tenants != null) {
+                        updateMspTenants(data.tenants)
+                        for (var i = 0; i < data.tenants.length; i++) {
+                            getTenant(data.tenants[i])
+                        }
+                    }
+                }
             });
     }, []);
 
     const handleRefresh = (e) => {
-        fetch(common.api_href('/api/v1/global/get/alltenants'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/mgdtenants'), hdrs)
             .then(response => response.json())
             .then(data => {
-                for (var i = 0; i < data.length; i++) {
-                    data[i].domains = JSON.stringify(data[i].domains)
+                if (data.Result != 'ok') {
+                    alert(data.Result);
+                } else {
+                    if (data.tenants != null) {
+                        updateMspTenants(data.tenants)
+                        for (var i = 0; i < data.tenants.length; i++) {
+                            getTenant(data[i])
+                        }
+                    }
                 }
-                updateTenantData(data)
             });
     }
 
     const handleAdd = (e) => {
-        props.history.push('/home/tenants/add')
+        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/msp/add')
     }
 
     const handleEdit = (index) => {
         props.history.push({
-            pathname: '/home/tenants/add',
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/msp/add',
             state: tenantsData[index]
         })
     }
@@ -123,7 +151,7 @@ const TenantsView = (props) => {
     }
 
     const handleDelete = (index) => {
-        fetch(common.api_href('/api/v1/global/del/tenant/') + tenantsData[index]._id, hdrs)
+        fetch(common.api_href('/api/v1/tenant/') + tenantsData[index]._id + '/del/tenant', hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -313,4 +341,4 @@ const TenantsView = (props) => {
     )
 }
 
-export default withRouter(TenantsView)
+export default withRouter(TenantsMSPView)

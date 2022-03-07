@@ -14,6 +14,7 @@ import {
     CLink,
     CDataTable,
     CInput,
+    CInvalidFeedback,
     CModal,
     CModalHeader,
     CModalBody,
@@ -92,6 +93,7 @@ const HostsView = (props) => {
     const [hostAttrSet, updateHostAttrSet] = useState(initTableData)
 
     const [addRoute, updateAddRoute] = useState("")
+    const [addRouteErr, setAddRouteErr] = useState(false)
     const [addRouteItem, updateAddRouteItem] = useState("")
     const [details, setDetails] = useState([]);
 
@@ -118,10 +120,13 @@ const HostsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
             .then(response => response.json())
             .then(data => { setEasyMode(data.Tenant.easymode) });
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostrules'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/hostrules/all'), hdrs)
             .then(response => response.json())
-            .then(data => updateHostRuleData(data));
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+            .then(data => {
+                console.log(data)
+                updateHostRuleData(data)
+            });
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 let hosts = []
@@ -143,7 +148,7 @@ const HostsView = (props) => {
 
     const handleRefresh = (e) => {
         setDetails([])
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allhostattr'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/hostrules/all'), hdrs)
             .then(response => response.json())
             .then(data => updateHostData(data));
     }
@@ -198,11 +203,26 @@ const HostsView = (props) => {
         updateAddRoute(e.target.value)
     }
 
+    function validateTag(item) {
+        if (item.routeattrs) {
+            for (let i = 0; i < item.routeattrs.length; i++) {
+                if (item.routeattrs[i].tag == addRoute) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
     // Creates route objects in the hostData.config list
     // Each route object has a tag key and host attribute keys, with an empty strings as values
     // ex. {tag: '', hostAttr1: '', hostAttr2: '', hostAttr3: '', ...etc}
     // then immediately pushes to DB
     const addTag = (e, item) => {
+        if (!validateTag(item)) {
+            setAddRouteErr(true)
+            return
+        }
         let routeObj = {}
         hostAttrSet.map(attr => {
             routeObj[attr] = ""
@@ -212,6 +232,7 @@ const HostsView = (props) => {
         handleSubmit(e, item)
         updateAddRouteItem("")
         updateAddRoute("")
+        setAddRouteErr(false)
         setAddRouteModal(!addRouteModal)
     }
     //
@@ -292,7 +313,8 @@ const HostsView = (props) => {
     };
 
     const handleRuleDelete = (rule) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid), hdrs)
+        // Need group id in api
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/hostrule/' + rule.host + '/' + rule.rid + '/' + props.match.params.group), hdrs)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -317,17 +339,11 @@ const HostsView = (props) => {
     }
 
     const handlePolicyGeneration = (e) => {
-        var retval = generatePolicyFromHostRules(e, hostRuleData)
-        var byteRego = retval[1].split('').map(function (c) { return c.charCodeAt(0) });
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
-            body: JSON.stringify({
-                pid: "RoutePolicy", tenant: props.match.params.id,
-                rego: byteRego
-            }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/policy/generate/RoutePolicy'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -366,275 +382,28 @@ const HostsView = (props) => {
         setDetails(newDetails)
     }
 
-    // ------------------Policy generation functions-------------------------
+    // ---------------Policy generation now in controller--------------------
 
     const generatePolicyFromHostRules = (e, hostRuleData) => {
-        // Route policy generation
-        // hostRuleData contains data in this format :
-        //  [host1, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-        //  [host1, ruleid2, rule:[[snippet1], [snippet2], ..]]
-        //  [host2, ruleid1, rule:[[snippet1], [snippet2], ..]]
-        //  [host3, ruleid1, rule:[[snippet1], [snippet2], [snippet3], ..]]
-        //  [host3, ruleid2, rule:[[snippet1], ..]]
-        //    and so on ...
-        //  A snippet is of this form :
-        //  [userattr, operator, const, type, isArray] where
-        //  type == "string", "boolean", "number"
-        //  isArray == "true" or "false"
-        //  operator values are ==, !=, >, <, >=, <=
-
         let RetVal = [""]
-        let RegoPolicy = ""
-        RegoPolicy = generateRoutePolicyHeader(RegoPolicy)
-        // for each entry/row in hostRuleData, generate Rego code
-        for (var i = 0; i < hostRuleData.length; i++) {
-            RegoPolicy = processHostRule(e, hostRuleData[i], RegoPolicy)
-        }
         RetVal[0] = ""
-        RetVal[1] = RegoPolicy
+        RetVal[1] = ""
         return RetVal
-    }
-
-    function getHostRuleLeftToken(snippet) {
-        return snippet[0]
-    }
-
-    function getHostRuleRightToken(snippet) {
-        return snippet[2]
-    }
-
-    function getHostRuleOpToken(snippet) {
-        return snippet[1]
-    }
-
-    function getHostRuleTokenType(snippet) {
-        return snippet[3]
-    }
-
-    function getHostRuleTokenValue(name, snippet) {
-        if (name === "User ID") {
-            return "uid"
-        }
-        if (name === "tag") {
-            return "tag"
-        }
-        if (snippet[4] == "true") {
-            return "array"
-        } else {
-            return "single"
-        }
-    }
-
-    function hostRightTokenArray(rtok, uatype) {
-        let rtokenarray = rtok.split(' ')
-        // Now remove null string elements from array
-        let newarray = [""]
-        let j = 0
-        let rtoken1 = ""
-        for (var i = 0; i < rtokenarray.length; i++) {
-            rtoken1 = rtokenarray[i].trim()
-            if (rtoken1.length > 0) {
-                if (uatype === "string") {
-                    if (!rtoken1.startsWith('"')) {
-                        rtoken1 = '"' + rtoken1
-                    }
-                    if (!rtoken1.endsWith('"')) {
-                        rtoken1 += '"'
-                    }
-                } else if (uatype === "number") {
-                    if (rtoken1.includes('"')) {
-                        rtoken1 = rtoken1.replaceAll('"', ' ').trim()
-                    }
-                }
-                newarray[j] = rtoken1
-                j++
-            }
-        }
-        return newarray
-    }
-
-    function hostCheckWildCard(rtok) {
-        if (rtok.includes('*')) {
-            return true
-        }
-        if (rtok.includes('?')) {
-            return true
-        }
-        if (rtok.includes('[') && rtok.includes(']')) {
-            return true
-        }
-        return false
-    }
-
-    function hostProcessWildCard(ltok, rtok, op, lts) {
-        let Mexpr = "glob.match(" + rtok + ", [], input.user." + ltok + lts
-        if (op === "==") {
-            Mexpr = "    " + Mexpr + ")\n"
-        } else {
-            Mexpr = "    !" + Mexpr + ")\n"
-        }
-        return Mexpr
-    }
-
-    function hostProcessArray(ltok, rtarray, op, lts) {
-        // When optoken is ==, we need
-        //   foobararray := [value1, value2, value3, ..]
-        //   input.user.uid == foobararray[_]
-        // When optoken is !=, we need
-        //   input.user.uid != value1
-        //   input.user.uid != value2 and so on
-        // Logical OR for == changes to logical AND for !=
-        let Aexpr = ""
-        if (op === "!=") {
-            for (var i = 0; i < rtarray.length; i++) {
-                Aexpr += "    input.user." + ltok + lts + " != " + rtarray[i] + "\n"
-            }
-        } else {
-            Aexpr = "    " + ltok + "array := ["
-            for (var i = 0; i < rtarray.length; i++) {
-                if (i > 0) {
-                    Aexpr += ", "
-                }
-                Aexpr += rtarray[i]
-            }
-            Aexpr += "]\n"
-            Aexpr += "    input.user." + ltok + lts + " == " + ltok + "array[_]\n"
-        }
-        return Aexpr
-    }
-
-    function generateRoutePolicyHeader(policyData) {
-        return policyData +
-            "package user.routing\ndefault route_tag = \"\"\n\n"
-    }
-
-    function processHostRule(e, hostRule, policyData) {
-        let tagSpecified = 0
-        let routePolicyTag = "** Error **"
-        let routeTagValue = "deny"
-        let Exprs = ""
-        let RuleStart = "route_tag = rtag {\n"
-        let HostConst = "    input.host == \"" + hostRule.host + "\"\n"
-        for (let snippet of hostRule.rule) {
-            let ltoken = getHostRuleLeftToken(snippet)
-            let uavalue = getHostRuleTokenValue(ltoken, snippet)
-            let uatype = getHostRuleTokenType(snippet).toLowerCase()
-            let rtoken = getHostRuleRightToken(snippet)
-            let rtokenarray = [""]
-            let optoken = getHostRuleOpToken(snippet)
-
-            // Do some pre-processing on rtoken to figure out more details.
-            // rtoken is always a constant. Could be single value or array
-            // of values.
-            // Single value can have wild card if string type. Support only '*'
-            // for now, with delimiter as '.'.
-            // Multiple values can be entered as [x y z] or [x,y,z] or [x, y, z]
-            // For string values, add double quotes if missing.
-            // Always trim all values.
-            // For processing array of values, first replace any comma with a
-            // space, then split based on space. Remove any null strings to
-            // compress array.
-            // To search for anything other than a word or whitespace, use
-            // 'const regex = /[^\w\s]/g' if using regexp matching (future).
-
-            let haswildcard = false
-            let issingle = true
-            let lts = "[_]"
-            let rts = "array[_]"
-
-            rtoken = rtoken.trim()
-            if (ltoken === "tag") {
-                routeTagValue = rtoken
-                tagSpecified = 1
-            } else if ((uatype === "string") || (uavalue === "uid")) {
-                // User attribute is string type. rtoken must be a string or
-                // string array
-                if (rtoken.includes(',')) {
-                    rtoken = rtoken.replaceAll(',', ' ').trim()
-                }
-                if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple string values
-                    issingle = false
-                    rtokenarray = hostRightTokenArray(rtoken, "string")
-                }
-                if (issingle) {
-                    haswildcard = hostCheckWildCard(rtoken)
-                    if (!rtoken.startsWith('"')) {
-                        rtoken = '"' + rtoken
-                    }
-                    if (!rtoken.endsWith('"')) {
-                        rtoken += '"'
-                    }
-                }
-            } else {
-                if (rtoken.includes(',')) {
-                    rtoken = rtoken.replaceAll(',', ' ').trim()
-                }
-                if (rtoken.includes(' ')) {
-                    // Seems to be case of multiple non-string values
-                    issingle = false
-                    rtokenarray = hostRightTokenArray(rtoken, uatype)
-                }
-            }
-            if (issingle) {
-                rts = ""
-            }
-            if (uavalue != "array") {
-                lts = ""
-            }
-            if (uavalue === "tag") {
-                routePolicyTag = "    rtag := \"" + routeTagValue + "\"\n"
-            } else if (uavalue === "uid") {
-                // ltoken is user id
-                if (!issingle) {
-                    // We have an array of values to match this attribute
-                    Exprs += hostProcessArray("uid", rtokenarray, optoken, "")
-                } else {
-                    // We have a single value to match
-                    if (haswildcard) {
-                        // glob.match("*foo.com", [], input.user.uid)
-                        Exprs += hostProcessWildCard("uid", rtoken, optoken, "")
-                    } else {
-                        Exprs += "    input.user.uid " + optoken + " " + rtoken + "\n"
-                    }
-                }
-            } else {
-                // ltoken is a user attribute.
-                // It could be matched with a single value, or with multiple
-                // values. If single value, it could have a wildcard.
-                if (!issingle) {
-                    // We have an array of values to match this attribute
-                    Exprs += hostProcessArray(ltoken, rtokenarray, optoken, lts)
-                } else {
-                    // We have a single value to match
-                    if (haswildcard && (uatype === "string")) {
-                        Exprs += hostProcessWildCard(ltoken, rtoken, optoken, lts)
-                    } else {
-                        Exprs += "    input.user." + ltoken + lts
-                        Exprs += " " + optoken + " " + rtoken + rts + "\n"
-                    }
-                }
-            }
-        }
-        let RuleEnd = "}\n\n"
-        return policyData + RuleStart + HostConst + Exprs + routePolicyTag + RuleEnd
     }
 
     // ------------------Policy generation functions end----------------------
 
     function ruleReturn(host, tag) {
         let rules = []
+        let tagDotHost = tag + "." + host
         for (var i = 0; i < hostRuleData.length; i++) {
-            if (host == hostRuleData[i].host) {
-                for (var j = 0; j < hostRuleData[i].rule.length; j++) {
-                    if (hostRuleData[i].rule[j][3] == "Route" && hostRuleData[i].rule[j][2] == tag) {
-                        rules.push(hostRuleData[i])
-                    }
-                }
+            if (tagDotHost == hostRuleData[i].host) {
+                rules.push(hostRuleData[i])
             }
         }
         return rules
     }
+
 
     const matchRule = (host, tag) => {
         let rules = ruleReturn(host, tag)
@@ -813,7 +582,7 @@ const HostsView = (props) => {
                                                     <CCardBody onClick={e => e.stopPropagation()}>
                                                         {/**This button is used to add another route */}
                                                         <CButton
-                                                            className="float-right mb-3"
+                                                            className="d-flex justify-content-center mb-3"
                                                             color="primary"
                                                             variant="outline"
                                                             shape="square"
@@ -965,7 +734,8 @@ const HostsView = (props) => {
                     <strong>{addRoute}.{addRouteItem.host && addRouteItem.host}</strong>
                     <CFormGroup className="mt-3">
                         <CLabel>Name</CLabel>
-                        <CInput value={addRoute} onChange={handleRouteAdd} />
+                        <CInput value={addRoute} onChange={handleRouteAdd} invalid={addRouteErr} />
+                        <CInvalidFeedback>This route already exists!</CInvalidFeedback>
                     </CFormGroup>
                 </CModalBody>
                 <CModalFooter>

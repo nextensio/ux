@@ -77,7 +77,7 @@ const HostRouteConfig = (props) => {
     // We call the attribute api and match the host attribute defined by tenant with the ones in our DB
     // Then we extract the type to create the attrData state. example {name: attr1, type: string}
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 const hostAttrs = [];
@@ -86,10 +86,7 @@ const HostRouteConfig = (props) => {
                         if (data[i].name[0] === "_") {
                             continue
                         }
-                        else if (props.match.params.group === "superadmin") {
-                            hostAttrs.push(data[i])
-
-                        } else if (data[i].group === props.match.params.group) {
+                        else if (data[i].group === props.match.params.group) {
                             hostAttrs.push(data[i])
                         }
                     }

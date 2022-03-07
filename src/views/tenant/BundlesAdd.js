@@ -96,7 +96,7 @@ const BundlesAdd = (props) => {
         if (typeof props.location.state != 'undefined') {
             updateExistingBidData(props.location.state)
         }
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allattrset'), hdrs)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
             .then(response => response.json())
             .then(data => {
                 var bundleAttrs = [];
@@ -105,10 +105,7 @@ const BundlesAdd = (props) => {
                         if (data[i].name[0] === "_") {
                             continue
                         }
-                        else if (props.match.params.group === "superadmin") {
-                            bundleAttrs.push(data[i])
-
-                        } else if (data[i].group === props.match.params.group) {
+                        else if (data[i].group === props.match.params.group) {
                             bundleAttrs.push(data[i])
                         }
                     }

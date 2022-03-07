@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 
 const ThemeContext = React.createContext()
-const SettingsContext = React.createContext()
 
 export function useTheme() {
     return useContext(ThemeContext)

@@ -23,6 +23,8 @@ const Profile = React.lazy(() => import('../../views/tenant/Profile'));
 const Settings = React.lazy(() => import('../../views/tenant/Settings'));
 const Images = React.lazy(() => import('../../views/tenant/Images'));
 const Logout = React.lazy(() => import('../../views/tenant/Logout'));
+const TenantsMSPView = React.lazy(() => import('../../views/tenant/msp/TenantsView'));
+const TenantsMSPEdit = React.lazy(() => import('../../views/tenant/msp/TenantsEdit'));
 
 const routes = [
     { path: '/tenant/:id/:group', exact: true },
@@ -49,6 +51,8 @@ const routes = [
     { path: '/tenant/:id/:group/settings', name: 'Settings', component: Settings, exact: true },
     { path: '/tenant/:id/:group/images', name: 'Images', component: Images, exact: true },
     { path: '/tenant/:id/:group/logout', name: 'Log Out', component: Logout },
+    { path: '/tenant/:id/:group/msp', name: 'MSP-View', component: TenantsMSPView, exact: true },
+    { path: '/tenant/:id/:group/msp/add', name: 'MSP-Edit', component: TenantsMSPEdit },
 ];
 
 export default routes;
