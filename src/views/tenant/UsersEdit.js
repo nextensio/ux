@@ -357,7 +357,7 @@ const UsersEdit = (props) => {
             headers: hdrs.headers,
             body: JSON.stringify({ uid: uid, ...attrState }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr/' + uid), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {

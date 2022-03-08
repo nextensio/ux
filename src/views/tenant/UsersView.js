@@ -114,7 +114,9 @@ const UsersView = (props) => {
                 let users = []
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == "Users") {
-                        users.push(data[i].name)
+                        if (data[i].name[0] != "_") {
+                            users.push(data[i].name)
+                        }
                     }
                 }
                 users.sort()
