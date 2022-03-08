@@ -150,7 +150,7 @@ const HostsView = (props) => {
         setDetails([])
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/hostrules/all'), hdrs)
             .then(response => response.json())
-            .then(data => updateHostData(data));
+            .then(data => updateHostRuleData(data));
     }
 
     const handleAdd = (e) => {
