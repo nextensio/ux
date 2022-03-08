@@ -36,13 +36,13 @@ const TheLayout = (props) => {
 
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + userInfo['tenant'] + '/get/tenant'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                console.log(userInfo['tenant'])
-                updateTenantData({ tenant: data.Tenant._id, type: data.Tenant.type })
-            });
+        if (userInfo['tenant']) {
+            fetch(common.api_href('/api/v1/tenant/' + userInfo['tenant'] + '/get/tenant'), hdrs)
+                .then(response => response.json())
+                .then(data => {
+                    updateTenantData({ tenant: data.Tenant._id, type: data.Tenant.type })
+                })
+        }
     }, []);
 
     // We need the tenant type till we can show the appropriate page
