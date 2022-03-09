@@ -208,7 +208,6 @@ const AttributeEditor = (props) => {
             ...attributeData,
             [e.target.name]: e.target.value
         });
-        console.log(attributeData)
     };
 
     const handleType = (e, type) => {
