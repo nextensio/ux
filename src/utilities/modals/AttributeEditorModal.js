@@ -21,7 +21,7 @@ import {
 
 import { AddAttributeApi } from '../apis/apis'
 
-const AttributeEditor = ({ props, apiHdrs, userBundleOrHost, show, showFunc }) => {
+const AttributeEditorModal = ({ props, apiHdrs, userBundleOrHost, show, showFunc }) => {
 
     const assumedGroup = props.match.params.group
 
@@ -170,4 +170,4 @@ const AttributeEditor = ({ props, apiHdrs, userBundleOrHost, show, showFunc }) =
     )
 }
 
-export default AttributeEditor
+export default AttributeEditorModal

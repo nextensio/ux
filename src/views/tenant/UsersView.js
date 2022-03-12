@@ -33,7 +33,8 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import AttributeEditor from '../../utilities/modals/AttributeModal';
+import AttributeEditorModal from '../../utilities/modals/AttributeEditorModal';
+import { GetAllUsers } from 'src/utilities/apis/apis';
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -108,13 +109,19 @@ const UsersView = (props) => {
         },
     };
 
+    const tenantID = props.match.params.id
+    const headers = hdrs.headers
+
     useEffect(() => {
         setDetails([]);
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                updateUserData(data)
-            });
+        // let allUsers = GetAllUsers(tenantID, headers)
+        // updateUserData(allUsers)
+        const allUsers = async () => {
+            const users = await GetAllUsers(tenantID, headers)
+            return users
+        }
+        updateUserData(allUsers)
+
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -607,7 +614,7 @@ const UsersView = (props) => {
                         >Cancel</CButton>
                     </CModalFooter>
                 </CModal>
-                <AttributeEditor props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Users"} show={addAttrModal} showFunc={triggerAddAttr} />
+                <AttributeEditorModal props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Users"} show={addAttrModal} showFunc={triggerAddAttr} />
             </CRow>
         </>
     )

@@ -29,7 +29,7 @@ import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
-import AttributeEditor from 'src/utilities/modals/AttributeModal';
+import AttributeEditorModal from 'src/utilities/modals/AttributeEditorModal';
 
 
 var common = require('../../common')
@@ -814,7 +814,7 @@ const HostsView = (props) => {
                     </CButton>
                 </CModalFooter>
             </CModal>
-            <AttributeEditor props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Hosts"} show={addAttrModal} showFunc={triggerAddAttr} />
+            <AttributeEditorModal props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Hosts"} show={addAttrModal} showFunc={triggerAddAttr} />
 
         </>
     )
