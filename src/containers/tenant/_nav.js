@@ -130,7 +130,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Slack',
-        href: 'https://join.slack.com/t/nextensio-community/shared_invite/zt-w0zp05z6-ttQRbydR2XlTnVsYYLkutg',
+        href: 'https://join.slack.com/t/nextensio-community/shared_invite/zt-15br229n8-GDbNHrijOUnVcwL5LdGN1w',
         target: '_blank',
         rel: 'noopener noreferrer',
         className: 'roboto-font',

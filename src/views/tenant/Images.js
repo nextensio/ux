@@ -27,9 +27,9 @@ const Images = () => {
                             <CIcon name="cil-input-power" className="text-primary" />
                         </CCardImg>
                         <CCardBody>
-                            <CCardTitle>Connector</CCardTitle>
+                            <CCardTitle>Extender</CCardTitle>
                             <CCardText>
-                                Connector Image for use in Data Center Servers
+                                Extender Image for use in Data Center Servers
                             </CCardText>
                             <CButton href="https://images.nextensio.net/stable/connector">Download</CButton>
                         </CCardBody>
