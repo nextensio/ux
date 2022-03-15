@@ -8,9 +8,18 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
+    CDropdown,
+    CDropdownItem,
+    CDropdownMenu,
+    CDropdownToggle,
+    CForm,
+    CFormGroup,
     CLink,
+    CInput,
+    CInputGroup,
     CInputCheckbox,
     CInputRadio,
+    CInvalidFeedback,
     CRow,
     CPagination,
     CDataTable,
@@ -24,6 +33,8 @@ import CIcon from '@coreui/icons-react'
 import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AttributeEditorModal from '../../utilities/modals/AttributeEditorModal';
+import { GetAllUsers } from 'src/utilities/apis/apis';
 import './tenantviews.scss'
 
 var common = require('../../common')
@@ -82,8 +93,11 @@ const UsersView = (props) => {
 
     const [userGroupError, updateUserGroupError] = useState(false)
 
+    // Popups screens
     const [editTypeModal, setEditTypeModal] = useState(false)
-    const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false)
+    const [addAttrModal, setAddAttrModal] = useState(false)
+
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -95,13 +109,19 @@ const UsersView = (props) => {
         },
     };
 
+    const tenantID = props.match.params.id
+    const headers = hdrs.headers
+
     useEffect(() => {
         setDetails([]);
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allusers'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                updateUserData(data)
-            });
+        // let allUsers = GetAllUsers(tenantID, headers)
+        // updateUserData(allUsers)
+        const allUsers = async () => {
+            const users = await GetAllUsers(tenantID, headers)
+            return users
+        }
+        updateUserData(allUsers)
+
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
             .then(data => {
@@ -114,9 +134,7 @@ const UsersView = (props) => {
                 let users = []
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].appliesTo == "Users") {
-                        if (data[i].name[0] != "_") {
-                            users.push(data[i].name)
-                        }
+                        users.push(data[i].name)
                     }
                 }
                 users.sort()
@@ -181,12 +199,6 @@ const UsersView = (props) => {
             state: selectedUsers
         });
         setDetails([])
-    }
-
-    const toAttrEditor = (e) => {
-        props.history.push({
-            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor'
-        })
     }
 
     const handleDelete = (item) => {
@@ -263,7 +275,6 @@ const UsersView = (props) => {
     }
 
     function matchAttrs(item) {
-        console.log(item)
         if (userAttrSet.length != 0) {
             return (
                 <table className="table-attrs-bundle mr-3">
@@ -303,7 +314,7 @@ const UsersView = (props) => {
         } else {
             return (
                 <CCallout color="warning">
-                    No attributes configured! <a className="text-info" onClick={toAttrEditor}>Click here</a> to create User attributes.
+                    Nothing to show...
                 </CCallout>
             )
         }
@@ -358,6 +369,10 @@ const UsersView = (props) => {
         })
     }
 
+    const triggerAddAttr = (e) => {
+        setAddAttrModal(!addAttrModal)
+    }
+
     return (
         <>
             <CRow>
@@ -374,7 +389,13 @@ const UsersView = (props) => {
                                     Users
                                 </CLink>
                             </CTooltip>
-                            <div className="text-muted small">Click on a row to see attributes</div>
+                            <CButton
+                                className="float-right"
+                                color="primary"
+                                onClick={triggerAddAttr}
+                            >
+                                <FontAwesomeIcon icon="bullseye" className="mr-1" /> Add Attribute
+                            </CButton>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable
@@ -395,11 +416,7 @@ const UsersView = (props) => {
                                             return (
                                                 <CCollapse show={details.includes(index)}>
                                                     <CCardBody>
-                                                        <CRow>
-                                                            <CCol md="12">
-                                                                {matchAttrs(item)}
-                                                            </CCol>
-                                                        </CRow>
+                                                        {matchAttrs(item)}
                                                     </CCardBody>
                                                 </CCollapse>
                                             )
@@ -577,9 +594,27 @@ const UsersView = (props) => {
                             onClick={() => setEditTypeModal(!editTypeModal)}
                         >Cancel</CButton>
                     </CModalFooter>
-
                 </CModal>
-
+                <CModal show={deleteModal} className="roboto-font" onClose={() => setDeleteModal(!deleteModal)}>
+                    <CModalHeader className='bg-danger text-white py-n5' closeButton>
+                        <strong>Confirm Deletion</strong>
+                    </CModalHeader>
+                    <CModalBody className='text-lg-left'>
+                        <strong>Are you sure you want to delete the selected Users?</strong>
+                        <div><strong>You have {selectedUsers.length} selected.</strong></div>
+                    </CModalBody>
+                    <CModalFooter>
+                        <CButton
+                            color="danger"
+                            onClick={deleteAll}
+                        >Confirm</CButton>
+                        <CButton
+                            color="secondary"
+                            onClick={() => setDeleteModal(!deleteModal)}
+                        >Cancel</CButton>
+                    </CModalFooter>
+                </CModal>
+                <AttributeEditorModal props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Users"} show={addAttrModal} showFunc={triggerAddAttr} />
             </CRow>
         </>
     )

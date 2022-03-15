@@ -29,6 +29,7 @@ import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
+import AttributeEditorModal from 'src/utilities/modals/AttributeEditorModal';
 
 
 var common = require('../../common')
@@ -104,6 +105,7 @@ const HostsView = (props) => {
     const [generatePolicyModal, setGeneratePolicyModal] = useState(false);
     const [addRouteModal, setAddRouteModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [addAttrModal, setAddAttrModal] = useState(false)
 
     const { oktaAuth, authState } = useOktaAuth();
     const bearer = "Bearer " + common.GetAccessToken(authState);
@@ -395,9 +397,9 @@ const HostsView = (props) => {
 
     function ruleReturn(host, tag) {
         let rules = []
-        let tagDotHost = tag + "." + host
+        let tagColonHost = tag + ":" + host
         for (var i = 0; i < hostRuleData.length; i++) {
-            if (tagDotHost == hostRuleData[i].host) {
+            if (tagColonHost == hostRuleData[i].host) {
                 rules.push(hostRuleData[i])
             }
         }
@@ -480,6 +482,10 @@ const HostsView = (props) => {
         }
     }
 
+    const triggerAddAttr = (e) => {
+        setAddAttrModal(!addAttrModal)
+    }
+
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
@@ -499,13 +505,21 @@ const HostsView = (props) => {
                                     Applications
                                 </CLink>
                             </CTooltip>
-                            {easyMode &&
+                            {easyMode ?
                                 <CButton
                                     color="primary"
                                     className="float-right"
                                     onClick={triggerPolicyModal}
                                 >
                                     <FontAwesomeIcon icon="bullseye" className="mr-1" /> Generate Policy
+                                </CButton>
+                                :
+                                <CButton
+                                    className="float-right"
+                                    color="primary"
+                                    onClick={triggerAddAttr}
+                                >
+                                    <FontAwesomeIcon icon="bullseye" className="mr-1" /> Add Attribute
                                 </CButton>
                             }
                             <div className="text-muted small">Click on a row to see all routes</div>
@@ -800,6 +814,8 @@ const HostsView = (props) => {
                     </CButton>
                 </CModalFooter>
             </CModal>
+            <AttributeEditorModal props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Hosts"} show={addAttrModal} showFunc={triggerAddAttr} />
+
         </>
     )
 }
