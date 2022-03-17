@@ -147,7 +147,7 @@ const StatRule = (props) => {
             headers: hdrs.headers,
             body: JSON.stringify(ruleObj)
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/statsrule/'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/statsrule'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
