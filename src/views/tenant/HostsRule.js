@@ -85,7 +85,7 @@ const HostsRule = (props) => {
             else {
                 updateRuleData({
                     ...ruleData,
-                    host: props.location.state[1] + "." + props.location.state[0],
+                    host: props.location.state[1] + ":" + props.location.state[0],
                     rule: []
                 })
                 setHost(props.location.state[0])

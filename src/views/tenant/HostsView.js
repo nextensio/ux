@@ -395,9 +395,9 @@ const HostsView = (props) => {
 
     function ruleReturn(host, tag) {
         let rules = []
-        let tagDotHost = tag + "." + host
+        let tagColonHost = tag + ":" + host
         for (var i = 0; i < hostRuleData.length; i++) {
-            if (tagDotHost == hostRuleData[i].host) {
+            if (tagColonHost == hostRuleData[i].host) {
                 rules.push(hostRuleData[i])
             }
         }
