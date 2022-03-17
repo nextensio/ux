@@ -316,7 +316,7 @@ const TracingRule = (props) => {
                 rule: ruleData.rule
             }),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tracereqrule/'), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tracereqrule'), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
