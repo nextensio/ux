@@ -27,11 +27,25 @@ const Images = () => {
                             <CIcon name="cil-input-power" className="text-primary" />
                         </CCardImg>
                         <CCardBody>
-                            <CCardTitle>Extender</CCardTitle>
+                            <CCardTitle>Extender Binary (Data Center)</CCardTitle>
                             <CCardText>
-                                Extender Image for use in Data Center Servers
+                                chmod +x extender; ./extender -key [extender key]
                             </CCardText>
-                            <CButton href="https://images.nextensio.net/stable/connector">Download</CButton>
+                            <CButton href="https://images.nextensio.net/stable/extender">Download</CButton>
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+                <CCol md="3">
+                    <CCard className="image-component">
+                        <CCardImg className="py-5">
+                            <CIcon name="cil-input-power" className="text-primary" />
+                        </CCardImg>
+                        <CCardBody>
+                            <CCardTitle>Extender Docker (Data Center)</CCardTitle>
+                            <CCardText>
+                                docker run -it -e NXT_SECRET=[extender key] -d nextensio/extender:latest
+                            </CCardText>
+                            <CButton href="https://hub.docker.com/r/nextensio/extender">Dockerhub</CButton>
                         </CCardBody>
                     </CCard>
                 </CCol>
