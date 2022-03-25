@@ -373,6 +373,13 @@ const UsersView = (props) => {
         setAddAttrModal(!addAttrModal)
     }
 
+    const toAttributesView = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attributes',
+            state: 'Users'
+        });
+    }
+
     return (
         <>
             <CRow>
@@ -389,13 +396,17 @@ const UsersView = (props) => {
                                     Users
                                 </CLink>
                             </CTooltip>
-                            <CButton
+                            <CDropdown
                                 className="float-right"
-                                color="primary"
-                                onClick={triggerAddAttr}
                             >
-                                <FontAwesomeIcon icon="bullseye" className="mr-1" /> Add Attribute
-                            </CButton>
+                                <CDropdownToggle color="primary">
+                                    Attributes
+                                </CDropdownToggle>
+                                <CDropdownMenu>
+                                    <CDropdownItem onClick={triggerAddAttr}>Add Attribute</CDropdownItem>
+                                    <CDropdownItem onClick={toAttributesView}>All Attributes</CDropdownItem>
+                                </CDropdownMenu>
+                            </CDropdown>
                         </CCardHeader>
                         <CCardBody>
                             <CDataTable

@@ -9,6 +9,10 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
+    CDropdown,
+    CDropdownToggle,
+    CDropdownItem,
+    CDropdownMenu,
     CFormGroup,
     CLabel,
     CLink,
@@ -486,6 +490,13 @@ const HostsView = (props) => {
         setAddAttrModal(!addAttrModal)
     }
 
+    const toAttributesView = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attributes',
+            state: 'Hosts'
+        });
+    }
+
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
@@ -514,13 +525,17 @@ const HostsView = (props) => {
                                     <FontAwesomeIcon icon="bullseye" className="mr-1" /> Generate Policy
                                 </CButton>
                                 :
-                                <CButton
+                                <CDropdown
                                     className="float-right"
-                                    color="primary"
-                                    onClick={triggerAddAttr}
                                 >
-                                    <FontAwesomeIcon icon="bullseye" className="mr-1" /> Add Attribute
-                                </CButton>
+                                    <CDropdownToggle color="primary">
+                                        Attributes
+                                    </CDropdownToggle>
+                                    <CDropdownMenu>
+                                        <CDropdownItem onClick={triggerAddAttr}>Add Attribute</CDropdownItem>
+                                        <CDropdownItem onClick={toAttributesView}>All Attributes</CDropdownItem>
+                                    </CDropdownMenu>
+                                </CDropdown>
                             }
                             <div className="text-muted small">Click on a row to see all routes</div>
                         </CCardHeader>
