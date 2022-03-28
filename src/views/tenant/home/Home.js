@@ -565,35 +565,38 @@ const Home = (props) => {
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
+    // NOTE: The "Gateway configuration" is shown only if the user is a superadmin (ie nextensio ppl).
+    // Customers dont get to see any gateway configurations, they dont have to see it. 
     return (
         <>
             <CCallout color="primary">
                 <h4 className="title">Home</h4>
             </CCallout>
-
             <CRow className="mb-4">
-                <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow element pb-n5">
-                        <CCardHeader>
-                            Gateway Configuration
-                            <CButton
-                                className="float-right"
-                                color="info"
-                                onClick={() => setNewClusterModal(!newClusterModal)}
-                            >
-                                <CIcon className="mr-1" name="cil-settings" />
-                                Configure
-                            </CButton>
-                        </CCardHeader>
-                        <CCardBody className="mb-n4">
-                            <CDataTable
-                                fields={clusterFields}
-                                itemsPerPageSelect
-                                sorter
-                            />
-                        </CCardBody>
-                    </CCard>
-                </CCol>
+                {props.match.params.group == "superadmin" &&
+                    <CCol md="4">
+                        <CCard className="roboto-font border-rounded shadow element pb-n5">
+                            <CCardHeader>
+                                Gateway Configuration
+                                <CButton
+                                    className="float-right"
+                                    color="info"
+                                    onClick={() => setNewClusterModal(!newClusterModal)}
+                                >
+                                    <CIcon className="mr-1" name="cil-settings" />
+                                    Configure
+                                </CButton>
+                            </CCardHeader>
+                            <CCardBody className="mb-n4">
+                                <CDataTable
+                                    fields={clusterFields}
+                                    itemsPerPageSelect
+                                    sorter
+                                />
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                }
                 <CCol md="4">
                     <CCard className="roboto-font border-rounded shadow element pb-n5">
                         <CCardHeader>
