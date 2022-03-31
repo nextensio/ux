@@ -459,8 +459,6 @@ const UsersEdit = (props) => {
         }
     }
 
-    console.log(attrData)
-
     return (
         <CCard className="roboto-font">
             <CCardHeader>

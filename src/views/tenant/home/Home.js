@@ -381,6 +381,11 @@ const Home = (props) => {
     }
 
     const handleGroupCreate = (e) => {
+        if (group === "all") {
+            updateGroup("")
+            alert("all is a reserved keyword, please choose another group name")
+            return
+        }
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
