@@ -143,6 +143,8 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
             .then(response => response.json())
             .then(data => {
+                data.admgroups.push("admin")
+                data.admgroups.push("regular")
                 updateAdminGroups(data.admgroups)
             })
     }, []);
@@ -283,14 +285,7 @@ const UsersView = (props) => {
                         <th className="header">Value</th>
                     </tr>
                     {userAttrSet.map(attr => {
-                        if (attr[0] === "_") {
-                            return (
-                                <tr>
-                                    <td><strong>{attr}</strong></td>
-                                    <td><div className="text-warning">Default Value Assigned</div></td>
-                                </tr>
-                            )
-                        } else {
+                        if (attr[0] !== "_") {
                             return (
                                 <tr>
                                     <td><strong>{attr}</strong></td>
