@@ -22,6 +22,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import CIcon from '@coreui/icons-react'
 
 import './tenantviews.scss'
+import { func } from "prop-types";
+import { AddAttributeApi } from '../../utilities/apis/apis'
 
 var common = require('../../common')
 
@@ -132,6 +134,14 @@ const AttributesView = (props) => {
             ...attributeData,
             [e.target.name]: e.target.value
         })
+    }
+
+    const groupChangeConfirm = (e, item) => {
+        if (editGroupModal) {
+            console.log(attributeData)
+            AddAttributeApi(props.match.params.id, hdrs.headers, attributeData, function () { })
+        }
+        setEditGroupModal(!editGroupModal)
     }
 
     // Validation check, if attribute name is found in policy this function will return false,
@@ -382,6 +392,7 @@ const AttributesView = (props) => {
                 <CModalFooter>
                     <CButton
                         color="warning"
+                        onClick={() => groupChangeConfirm()}
                     >Confirm</CButton>
                     <CButton
                         color="secondary"
