@@ -31,12 +31,15 @@ export function AddAttributeApi(tenantID, headers, payload, successFunc) {
 }
 
 // Get all users
-export const GetAllUsers = async (tenantID, headers) => {
+export const GetAllUsers = async (tenantID, headers, callback) => {
     fetch(common.api_href('/api/v1/tenant/' + tenantID + '/get/allusers'), headers)
         .then(response => response.json())
+        .then(data => callback(data));
 }
-export function GetAllUserAttrs(tenantID, headers) {
+
+// Get all user attributes
+export function GetAllUserAttrs(tenantID, headers, callback) {
     return fetch(common.api_href('/api/v1/tenant/' + tenantID + '/get/alluserattr'), headers)
         .then(response => response.json())
-        .then(data => { return data })
+        .then(data => callback(data));
 }

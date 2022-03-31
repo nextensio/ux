@@ -110,17 +110,12 @@ const UsersView = (props) => {
     };
 
     const tenantID = props.match.params.id
-    const headers = hdrs.headers
 
     useEffect(() => {
         setDetails([]);
-        // let allUsers = GetAllUsers(tenantID, headers)
-        // updateUserData(allUsers)
-        const allUsers = async () => {
-            const users = await GetAllUsers(tenantID, headers)
-            return users
-        }
-        updateUserData(allUsers)
+        GetAllUsers(tenantID, hdrs, function (data) {
+            updateUserData(data)
+        })
 
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alluserattr'), hdrs)
             .then(response => response.json())
