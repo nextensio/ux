@@ -3,17 +3,7 @@ import './tenant.scss'
 export default [
     {
         _tag: 'CSidebarNavTitle',
-        _children: ['Home']
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Home',
-        to: '/tenant/:id/:group/home',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-home',
-            size: 'lg'
-        }
+        _children: ['Users']
     },
     {
         _tag: 'CSidebarNavItem',
@@ -67,16 +57,6 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Attribute Editor',
-        to: '/tenant/:id/:group/attreditor',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-code',
-            size: 'lg'
-        },
-    },
-    {
-        _tag: 'CSidebarNavItem',
         name: 'Policies',
         to: '/tenant/:id/:group/policy',
         className: 'roboto-font',
@@ -84,6 +64,16 @@ export default [
             name: 'cil-fingerprint',
             size: 'lg'
         },
+    },
+    {
+        _tag: 'CSidebarNavItem',
+        name: 'Advanced',
+        to: '/tenant/:id/:group/home',
+        className: 'roboto-font',
+        icon: {
+            name: 'cil-home',
+            size: 'lg'
+        }
     },
     {
         _tag: 'CSidebarNavDivider',

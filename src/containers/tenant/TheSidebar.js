@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useOktaAuth } from '@okta/okta-react';
 import {
     CButton,
     CCreateElement,
@@ -23,20 +24,46 @@ import './tenant.scss'
 // sidebar nav config
 import navigation from './_nav'
 
+var common = require('../../common')
+
 const TheSidebar = (props) => {
     const dispatch = useDispatch()
     const show = useSelector(state => state.sidebarShow)
     const [navExact, updateNav] = useState(navigation);
+    const [easyMode, setEasyMode] = useState(true)
+    let easyIgnore = ['Policies']
+
+    const { oktaAuth, authState } = useOktaAuth();
+    const bearer = "Bearer " + common.GetAccessToken(authState);
+    const hdrs = {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: bearer,
+            'X-Nextensio-Group': common.getGroup(common.GetAccessToken(authState), props),
+        },
+    };
 
     useEffect(() => {
-        let newNav = navigation.slice()
-        for (var i = 0; i < navigation.length; i++) {
-            if (navigation[i].hasOwnProperty('to')) {
-                newNav[i].to = navigation[i].to.replace(":id", props.match.params.id)
-                newNav[i].to = navigation[i].to.replace(":group", props.match.params.group)
-            }
-        }
-        updateNav(newNav)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
+            .then(response => response.json())
+            .then(data => {
+                setEasyMode(data.Tenant.easymode)
+                var newNav = []
+                for (var i = 0; i < navigation.length; i++) {
+                    // There are some stuff which are not needed in easy mode, dont show those in navigation
+                    if (easyMode && navigation[i].hasOwnProperty('name') && easyIgnore.includes(navigation[i].name)) {
+                        continue
+                    }
+                    newNav.push(navigation[i])
+                }
+                for (var i = 0; i < newNav.length; i++) {
+                    if (newNav[i].hasOwnProperty('to')) {
+                        newNav[i].to = newNav[i].to.replace(":id", props.match.params.id)
+                        newNav[i].to = newNav[i].to.replace(":group", props.match.params.group)
+                    }
+                }
+                updateNav(newNav)
+            });
     }, [JSON.stringify(props.match.params)]);
 
     const logoutURL = '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/logout';

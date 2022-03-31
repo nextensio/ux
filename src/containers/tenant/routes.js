@@ -18,7 +18,6 @@ const TracingRule = React.lazy(() => import('../../views/tenant/TracingRule'));
 const PolicyView = React.lazy(() => import('../../views/tenant/policies/PolicyView'));
 const PolicyAdd = React.lazy(() => import('../../views/tenant/policies/PolicyAdd'));
 const PolicyEdit = React.lazy(() => import('../../views/tenant/policies/PolicyEdit'));
-const AttributeEditor = React.lazy(() => import('../../views/tenant/AttributeEditor'));
 const AttributesView = React.lazy(() => import('../../views/tenant/AttributesView'));
 const Profile = React.lazy(() => import('../../views/tenant/Profile'));
 const Settings = React.lazy(() => import('../../views/tenant/Settings'));
@@ -47,7 +46,6 @@ const routes = [
     { path: '/tenant/:id/:group/policy', name: 'Policies', component: PolicyView, exact: true },
     { path: '/tenant/:id/:group/policy/add', name: 'Add', component: PolicyAdd },
     { path: '/tenant/:id/:group/policy/edit', name: 'Edit', component: PolicyEdit },
-    { path: '/tenant/:id/:group/attreditor', name: 'Attribute Editor', component: AttributeEditor },
     { path: '/tenant/:id/:group/attributes', name: 'Attributes Add', component: AttributesView },
     { path: '/tenant/:id/:group/profile', name: 'Profile', component: Profile, exact: true },
     { path: '/tenant/:id/:group/settings', name: 'Settings', component: Settings, exact: true },

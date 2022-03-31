@@ -570,7 +570,7 @@ const Home = (props) => {
     return (
         <>
             <CCallout color="primary">
-                <h4 className="title">Home</h4>
+                <h4 className="title">Advanced Configurations</h4>
             </CCallout>
             <CRow className="mb-4">
                 {props.match.params.group == "superadmin" &&
