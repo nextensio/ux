@@ -51,10 +51,11 @@ const TheSidebar = (props) => {
                 var newNav = []
                 for (var i = 0; i < navigation.length; i++) {
                     // There are some stuff which are not needed in easy mode, dont show those in navigation
-                    if (easyMode && navigation[i].hasOwnProperty('name') && easyIgnore.includes(navigation[i].name)) {
-                        continue
+                    if (data.Tenant.easymode && navigation[i].hasOwnProperty('name') && easyIgnore.includes(navigation[i].name)) {
+                        // ignore the item
+                    } else {
+                        newNav.push(navigation[i])
                     }
-                    newNav.push(navigation[i])
                 }
                 for (var i = 0; i < newNav.length; i++) {
                     if (newNav[i].hasOwnProperty('to')) {

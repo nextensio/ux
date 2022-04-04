@@ -155,15 +155,17 @@ const Advanced = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + newClusterData.gateway), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                setExistingClusterDataByGateway({
-                    gateway: newClusterData.gateway,
-                    apodrepl: data.TenantCl.apodrepl,
-                    image: data.TenantCl.image,
-                })
-            });
+        if (newClusterData.gateway !== "") {
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + newClusterData.gateway), hdrs)
+                .then(response => response.json())
+                .then(data => {
+                    setExistingClusterDataByGateway({
+                        gateway: newClusterData.gateway,
+                        apodrepl: data.TenantCl.apodrepl,
+                        image: data.TenantCl.image,
+                    })
+                });
+        }
     }, [newClusterData.gateway])
 
 
