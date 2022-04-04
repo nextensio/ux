@@ -250,9 +250,12 @@ const StatRule = (props) => {
                 <CCol md="6">
                     <CCard className="roboto-font">
                         <CCardHeader>
-                            Stats Rule Creator
+                            Telemetry Rule Creator
                             <div className="text-muted small">
                                 Specify which attributes to include based on your group.
+                            </div>
+                            <div className="text-muted small">
+                                <a target="_blank" href={"https://" + props.match.params.id + ".nxt-kc1.vltr-sjc1.nextensio.net/grafana/d/nxt-tenant-dashboard/nextensio-tenant-dashboard?orgId=1&refresh=30s"}>Telemetry Dashboard</a>
                             </div>
                         </CCardHeader>
                         <CCardBody className="roboto-font">

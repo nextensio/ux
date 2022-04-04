@@ -2,10 +2,6 @@ import './tenant.scss'
 
 export default [
     {
-        _tag: 'CSidebarNavTitle',
-        _children: ['Users']
-    },
-    {
         _tag: 'CSidebarNavItem',
         name: 'Users',
         to: '/tenant/:id/:group/users',
@@ -37,7 +33,7 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Stats',
+        name: 'Telemetry',
         to: '/tenant/:id/:group/stats',
         className: 'roboto-font',
         icon: {
@@ -68,7 +64,7 @@ export default [
     {
         _tag: 'CSidebarNavItem',
         name: 'Advanced',
-        to: '/tenant/:id/:group/home',
+        to: '/tenant/:id/:group/advanced',
         className: 'roboto-font',
         icon: {
             name: 'cil-home',
@@ -76,16 +72,8 @@ export default [
         }
     },
     {
-        _tag: 'CSidebarNavDivider',
-        className: 'm-2'
-    },
-    {
-        _tag: 'CSidebarNavTitle',
-        _children: ['Additional']
-    },
-    {
         _tag: 'CSidebarNavItem',
-        name: 'Images',
+        name: 'Software',
         to: '/tenant/:id/:group/images',
         className: 'roboto-font',
         icon: {
@@ -95,47 +83,11 @@ export default [
     },
     {
         _tag: 'CSidebarNavItem',
-        name: 'Docs',
-        href: 'https://docs.nextensio.net/',
-        target: '_blank',
-        rel: 'noopener noreferrer',
+        name: 'Help',
+        to: '/tenant/:id/:group/help',
         className: 'roboto-font',
         icon: {
-            name: 'cil-info',
-            size: 'lg'
-        },
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Ticketing',
-        href: 'https://github.com/nextensio/tickets/issues',
-        target: '_blank',
-        rel: 'noopener noreferrer',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-speech',
-            size: 'lg'
-        },
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Slack',
-        href: 'https://join.slack.com/t/nextensio-community/shared_invite/zt-15br229n8-GDbNHrijOUnVcwL5LdGN1w',
-        target: '_blank',
-        rel: 'noopener noreferrer',
-        className: 'roboto-font',
-        icon: {
-            name: 'cib-slack',
-            size: 'lg'
-        },
-    },
-    {
-        _tag: 'CSidebarNavItem',
-        name: 'Settings',
-        to: '/tenant/:id/:group/settings',
-        className: 'roboto-font',
-        icon: {
-            name: 'cil-settings',
+            name: 'cil-3d',
             size: 'lg'
         },
     },

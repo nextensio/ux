@@ -161,9 +161,13 @@ const UsersView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
             .then(response => response.json())
             .then(data => {
-                data.admgroups.push("admin")
-                data.admgroups.push("regular")
-                updateAdminGroups(data.admgroups)
+                if (data != null && data.admgroups != null) {
+                    data.admgroups.push("admin")
+                    data.admgroups.push("regular")
+                    updateAdminGroups(data.admgroups)
+                } else {
+                    updateAdminGroups(["admin", "regular"])
+                }
             })
     }, []);
 

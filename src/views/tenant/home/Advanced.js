@@ -19,7 +19,8 @@ import {
     CModalFooter,
     CSelect,
     CTooltip,
-    CTextarea
+    CTextarea,
+    CSwitch
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -27,6 +28,8 @@ import { withRouter } from 'react-router-dom';
 import '../tenantviews.scss'
 import { useOktaAuth } from '@okta/okta-react';
 import Map from './mapbox/Mapbox'
+import { cibCpanel } from '@coreui/icons';
+import { useTheme } from 'src/containers/tenant/Context';
 
 var common = require('../../../common')
 
@@ -75,7 +78,7 @@ const keyFields = [
     }
 ]
 
-const Home = (props) => {
+const Advanced = (props) => {
     const initConfigData = Object.freeze({
         gateway: "",
         image: "",
@@ -98,6 +101,8 @@ const Home = (props) => {
     const [groupConfigModal, setGroupConfigModal] = useState(false)
     const [keyConfigModal, setKeyConfigModal] = useState(false)
     const [grpAdmins, updateGrpAdmins] = useState([])
+    const [easyMode, setEasyMode] = useState(true)
+    const Theme = useTheme()
 
     const { oktaAuth, authState } = useOktaAuth();
 
@@ -161,6 +166,12 @@ const Home = (props) => {
             });
     }, [newClusterData.gateway])
 
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
+            .then(response => response.json())
+            .then(data => { setEasyMode(data.Tenant.easymode) });
+    }, []);
 
     function validateClusterFields() {
         let errs = {};
@@ -396,6 +407,35 @@ const Home = (props) => {
         }
     }
 
+    const toggleEasyMode = (e) => {
+        Theme.toggleTheme()
+        let newMode = !easyMode
+        setEasyMode(newMode)
+        const requestOptions = {
+            method: 'POST',
+            headers: hdrs.headers,
+            body: JSON.stringify({
+                "easymode": newMode
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tenant'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"]);
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
@@ -552,6 +592,24 @@ const Home = (props) => {
                     </CCard>
                 </CCol>
 
+                <CCol>
+                    <CCard>
+                        <CCardHeader>
+                            <strong>Settings</strong>
+                        </CCardHeader>
+                        <CCardBody className="roboto-font">
+                            <CRow className="mt-3">
+                                <CCol sm="2">
+                                    <div>Enable Expert Mode</div>
+                                </CCol>
+                                <CCol sm="10">
+                                    <CSwitch className={'mx-1'} onChange={toggleEasyMode} variant={'3d'} color={'primary'} checked={!easyMode} />
+                                </CCol>
+                            </CRow>
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+
             </CRow>
 
             <CModal className="roboto-font" show={newClusterModal}>
@@ -666,4 +724,4 @@ const Home = (props) => {
     )
 }
 
-export default withRouter(Home)
+export default withRouter(Advanced)

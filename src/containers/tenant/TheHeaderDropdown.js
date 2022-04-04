@@ -16,10 +16,6 @@ const TheHeaderDropdown = (props) => {
         props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/profile')
     }
 
-    const toSettings = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/settings')
-    }
-
     return (
         <CDropdown
             inNavclass
@@ -54,10 +50,6 @@ const TheHeaderDropdown = (props) => {
                 <CDropdownItem onClick={toProfile}>
                     <CIcon name='cil-user' className='mfe-2' />
                     Profile
-                </CDropdownItem>
-                <CDropdownItem onClick={toSettings}>
-                    <CIcon name='cil-settings' className='mfe-2' />
-                    Settings
                 </CDropdownItem>
                 <CDropdownItem divider />
                 <CDropdownItem>

@@ -465,7 +465,9 @@ const TracingRule = (props) => {
                     >
                         <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
                     </CButton>
-
+                    <div className="text-muted small">
+                        <a target="_blank" href={"https://" + props.match.params.id + ".nxt-kc1.vltr-sjc1.nextensio.net/tracing/search"}>Tracing Dashboard</a>
+                    </div>
                 </CCardHeader>
                 <CCardBody className="roboto-font">
                     <CListGroup>
