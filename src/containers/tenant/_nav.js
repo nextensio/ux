@@ -67,7 +67,7 @@ export default [
         to: '/tenant/:id/:group/advanced',
         className: 'roboto-font',
         icon: {
-            name: 'cil-home',
+            name: 'cil-settings',
             size: 'lg'
         }
     },
@@ -87,7 +87,7 @@ export default [
         to: '/tenant/:id/:group/help',
         className: 'roboto-font',
         icon: {
-            name: 'cil-3d',
+            name: 'cil-scrubber',
             size: 'lg'
         },
     },
