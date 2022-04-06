@@ -8,6 +8,10 @@ import {
     CCardHeader,
     CCol,
     CCollapse,
+    CDropdown,
+    CDropdownToggle,
+    CDropdownItem,
+    CDropdownMenu,
     CLink,
     CListGroup,
     CListGroupItem,
@@ -26,6 +30,7 @@ import { withRouter } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './tenantviews.scss'
+import AttributeEditorModal from 'src/utilities/modals/AttributeEditorModal';
 
 var common = require('../../common')
 
@@ -120,6 +125,7 @@ const BundlesView = (props) => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleteBid, setDeleteBid] = useState("");
     const [keyModal, setKeyModal] = useState(false);
+    const [addAttrModal, setAddAttrModal] = useState(false)
     const [keyBid, setKeyBid] = useState("");
 
     const { oktaAuth, authState } = useOktaAuth();
@@ -503,6 +509,17 @@ const BundlesView = (props) => {
         document.body.removeChild(tempInput)
     }
 
+    const triggerAddAttr = (e) => {
+        setAddAttrModal(!addAttrModal)
+    }
+
+    const toAttributesView = (e) => {
+        props.history.push({
+            pathname: '/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attributes',
+            state: 'Bundles'
+        });
+    }
+
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
@@ -522,7 +539,7 @@ const BundlesView = (props) => {
                                     AppGroups
                                 </CLink>
                             </CTooltip>
-                            {easyMode &&
+                            {easyMode ?
                                 <CButton
                                     className="float-right"
                                     color="primary"
@@ -530,6 +547,18 @@ const BundlesView = (props) => {
                                 >
                                     <FontAwesomeIcon icon="bullseye" className="mr-1" />Generate Policy
                                 </CButton>
+                                :
+                                <CDropdown
+                                    className="float-right"
+                                >
+                                    <CDropdownToggle color="primary">
+                                        Attributes
+                                    </CDropdownToggle>
+                                    <CDropdownMenu>
+                                        <CDropdownItem onClick={triggerAddAttr}>Add Attribute</CDropdownItem>
+                                        <CDropdownItem onClick={toAttributesView}>All Attributes</CDropdownItem>
+                                    </CDropdownMenu>
+                                </CDropdown>
                             }
                             <div className="text-muted small">Click on a row to see rules and attributes</div>
                         </CCardHeader>
@@ -808,6 +837,8 @@ const BundlesView = (props) => {
                         </CButton>
                     </CModalFooter>
                 </CModal>
+                <AttributeEditorModal props={props} apiHdrs={hdrs.headers} userBundleOrHost={"Bundles"} show={addAttrModal} showFunc={triggerAddAttr} />
+
             </CRow>
         </>
     )

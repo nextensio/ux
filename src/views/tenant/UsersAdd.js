@@ -89,10 +89,6 @@ const UsersAdd = (props) => {
             });
     }, []);
 
-    const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
-    }
-
     const handleUserChange = (e) => {
         updateUserData({
             ...userData,
@@ -332,7 +328,7 @@ const UsersAdd = (props) => {
             headers: hdrs.headers,
             body: JSON.stringify(attrState),
         };
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr/' + attrState.uid), requestOptions)
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/userattr/single/' + attrState.uid), requestOptions)
             .then(async response => {
                 const data = await response.json();
                 if (!response.ok) {
@@ -393,7 +389,7 @@ const UsersAdd = (props) => {
                             <div className="title py-3">Attributes</div>
                             {attrData.length === 0 &&
                                 <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
-                                    You have no attributes for Users. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                                    No attributes configured yet.
                                 </div>
                             }
                             {attrData.map(attr => {

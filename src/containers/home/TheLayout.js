@@ -69,7 +69,7 @@ const TheLayout = (props) => {
     } else if ((userInfo['usertype'] == 'admin') && (TenantData.type == 'MSP')) {
         return <Redirect to={'/tenant/' + userInfo['tenant'] + '/' + userInfo['usertype'] + '/msp'} />
     } else {
-        return <Redirect to={'/tenant/' + userInfo['tenant'] + '/' + userInfo['usertype'] + '/home'} />
+        return <Redirect to={'/tenant/' + userInfo['tenant'] + '/' + userInfo['usertype'] + '/users'} />
     }
 }
 
