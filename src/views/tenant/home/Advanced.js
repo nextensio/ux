@@ -8,11 +8,6 @@ import {
     CCol,
     CCollapse,
     CDataTable,
-    CDropdown,
-    CDropdownToggle,
-    CDropdownItem,
-    CDropdownMenu,
-    CEmbed,
     CInput,
     CInputGroup,
     CInvalidFeedback,
@@ -24,7 +19,8 @@ import {
     CModalFooter,
     CSelect,
     CTooltip,
-    CTextarea
+    CTextarea,
+    CSwitch
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -32,6 +28,8 @@ import { withRouter } from 'react-router-dom';
 import '../tenantviews.scss'
 import { useOktaAuth } from '@okta/okta-react';
 import Map from './mapbox/Mapbox'
+import { cibCpanel } from '@coreui/icons';
+import { useTheme } from 'src/containers/tenant/Context';
 
 var common = require('../../../common')
 
@@ -80,26 +78,7 @@ const keyFields = [
     }
 ]
 
-const idpFields = [
-    {
-        key: "name",
-        label: "Name",
-        _classes: "data-head",
-    },
-    {
-        key: "provider",
-        _classes: "data-field"
-    },
-    {
-        key: "delete",
-        label: "",
-        _style: { width: '1%' },
-        sorter: false,
-        filter: false
-    }
-]
-
-const Home = (props) => {
+const Advanced = (props) => {
     const initConfigData = Object.freeze({
         gateway: "",
         image: "",
@@ -115,17 +94,15 @@ const Home = (props) => {
     // When the user clicks on a gateway, make api call to see what existing image and apodrepl are for that gateway
     // Set as placeholder
     const [existingClusterDataByGateway, setExistingClusterDataByGateway] = useState(initConfigData)
-    const [idpJson, updateIdpJson] = useState(Object.freeze({}))
 
-    const [allIdps, updateAllIdps] = useState("")
     const [allGroups, updateAllGroups] = useState(Object.freeze([]))
     const [allKeys, updateAllKeys] = useState(Object.freeze([]))
     const [clusterErrObj, updateClusterErrObj] = useState(Object.freeze({}))
-    const [idpErrObj, updateIdpErrObj] = useState(Object.freeze({}))
     const [groupConfigModal, setGroupConfigModal] = useState(false)
     const [keyConfigModal, setKeyConfigModal] = useState(false)
     const [grpAdmins, updateGrpAdmins] = useState([])
-
+    const [easyMode, setEasyMode] = useState(true)
+    const Theme = useTheme()
 
     const { oktaAuth, authState } = useOktaAuth();
 
@@ -150,14 +127,7 @@ const Home = (props) => {
                 names.sort()
                 updateGatewayData(names)
             });
-        // Fetch for Idps
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/allidps'), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                if (data) {
-                    updateAllIdps(data)
-                }
-            })
+
         // Fetch for Admin Groups
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/alladmgroups'), hdrs)
             .then(response => response.json())
@@ -185,17 +155,25 @@ const Home = (props) => {
     }, []);
 
     useEffect(() => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + newClusterData.gateway), hdrs)
-            .then(response => response.json())
-            .then(data => {
-                setExistingClusterDataByGateway({
-                    gateway: newClusterData.gateway,
-                    apodrepl: data.TenantCl.apodrepl,
-                    image: data.TenantCl.image,
-                })
-            });
+        if (newClusterData.gateway !== "") {
+            fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenantcluster/' + newClusterData.gateway), hdrs)
+                .then(response => response.json())
+                .then(data => {
+                    setExistingClusterDataByGateway({
+                        gateway: newClusterData.gateway,
+                        apodrepl: data.TenantCl.apodrepl,
+                        image: data.TenantCl.image,
+                    })
+                });
+        }
     }, [newClusterData.gateway])
 
+
+    useEffect(() => {
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/tenant'), hdrs)
+            .then(response => response.json())
+            .then(data => { setEasyMode(data.Tenant.easymode) });
+    }, []);
 
     function validateClusterFields() {
         let errs = {};
@@ -213,141 +191,11 @@ const Home = (props) => {
         return errs
     }
 
-    function validateIdpFields() {
-        let errs = {}
-        if (!idpJson.name) {
-            errs.name = true
-        }
-        if (!idpJson.domain) {
-            errs.domain = true
-        }
-        if (idpJson.provider !== "SAML2") {
-            if (!idpJson.client) {
-                errs.clientId = true
-            }
-            if (!idpJson.secret) {
-                errs.clientSecret = true
-            }
-        }
-        if (idpJson.provider === "OIDC") {
-            if (!idpJson.issuer) {
-                errs.issuer = true
-            }
-            if (!idpJson.auth) {
-                errs.authEndpoint = true
-            }
-            if (!idpJson.token) {
-                errs.tokenEndpoint = true
-            }
-            if (!idpJson.jwks) {
-                errs.jwksEndpoint = true
-            }
-        }
-        if (idpJson.provider === "SAML2") {
-            if (!idpJson.issuer) {
-                errs.issuer = true
-            }
-            if (!idpJson.sso) {
-                errs.sso = true
-            }
-            if (!idpJson.audience) {
-                errs.audience = true
-            }
-            if (!idpJson.cert) {
-                errs.cert = true
-            }
-        }
-        updateIdpErrObj(errs)
-        return errs
-    }
-
-    const updateIdpProvider = (value) => {
-        updateIdpJson({
-            provider: value
-        })
-    }
-
-    const handleIdpJsonChange = (e) => {
-        if (e.target.name == "name") {
-            let words = e.target.value.split(/\s+/);
-            if (words.length != 1) {
-                alert("IDP Name has to be one single word " + words)
-                return
-            }
-        }
-        updateIdpJson({
-            ...idpJson,
-            [e.target.name]: e.target.value
-        })
-    }
-
     const handleNewClusterDataChange = (e) => {
         updateNewClusterData({
             ...newClusterData,
             [e.target.name]: e.target.value
         })
-    }
-
-    const handleIdpSubmit = (e) => {
-        let errs = validateIdpFields()
-        if (Object.keys(errs).length !== 0) {
-            return
-        }
-        e.preventDefault()
-        const requestOptions = {
-            method: 'POST',
-            headers: hdrs.headers,
-            body: JSON.stringify(idpJson),
-        };
-
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/idp'), requestOptions)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                } else {
-                    let idps = [...allIdps]
-                    idps.push(idpJson)
-                    updateAllIdps(idps)
-                    resetIdpJson()
-                }
-
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
-    }
-
-    const handleIdpDelete = (item) => {
-        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/del/idp/' + item.name), hdrs)
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    alert(error);
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-                // check for error response
-                if (data["Result"] != "ok") {
-                    alert(data["Result"])
-                } else {
-                    let index = allIdps.indexOf(item)
-                    let idps = [...allIdps]
-                    idps.splice(index, 1)
-                    updateAllIdps(idps)
-                }
-            })
-            .catch(error => {
-                alert('Error contacting server', error);
-            });
     }
 
     const handleGroupChange = (e) => {
@@ -356,11 +204,6 @@ const Home = (props) => {
 
     const handleKeyChange = (e) => {
         updateAPIKey(e.target.value)
-    }
-
-    const resetIdpJson = () => {
-        updateIdpJson({})
-        updateIdpErrObj({})
     }
 
     const cancelGroupChange = (e) => {
@@ -381,6 +224,11 @@ const Home = (props) => {
     }
 
     const handleGroupCreate = (e) => {
+        if (group === "all") {
+            updateGroup("")
+            alert("all is a reserved keyword, please choose another group name")
+            return
+        }
         const requestOptions = {
             method: 'POST',
             headers: hdrs.headers,
@@ -561,113 +409,71 @@ const Home = (props) => {
         }
     }
 
+    const toggleEasyMode = (e) => {
+        Theme.toggleTheme()
+        let newMode = !easyMode
+        setEasyMode(newMode)
+        const requestOptions = {
+            method: 'POST',
+            headers: hdrs.headers,
+            body: JSON.stringify({
+                "easymode": newMode
+            }),
+        };
+        fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/add/tenant'), requestOptions)
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    alert(error);
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                // check for error response
+                if (data["Result"] != "ok") {
+                    alert(data["Result"]);
+                }
+            })
+            .catch(error => {
+                alert('Error contacting server', error);
+            });
+    }
 
     const showingIcon = <FontAwesomeIcon icon="angle-right" />
     const hidingIcon = <FontAwesomeIcon icon="angle-down" className="text-primary" />
 
+    // NOTE: The "Gateway configuration" is shown only if the user is a superadmin (ie nextensio ppl).
+    // Customers dont get to see any gateway configurations, they dont have to see it. 
     return (
         <>
             <CCallout color="primary">
-                <h4 className="title">Home</h4>
+                <h4 className="title">Advanced Configurations</h4>
             </CCallout>
-
             <CRow className="mb-4">
-                <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow element pb-n5">
-                        <CCardHeader>
-                            Gateway Configuration
-                            <CButton
-                                className="float-right"
-                                color="info"
-                                onClick={() => setNewClusterModal(!newClusterModal)}
-                            >
-                                <CIcon className="mr-1" name="cil-settings" />
-                                Configure
-                            </CButton>
-                        </CCardHeader>
-                        <CCardBody className="mb-n4">
-                            <CDataTable
-                                fields={clusterFields}
-                                itemsPerPageSelect
-                                sorter
-                            />
-                        </CCardBody>
-                    </CCard>
-                </CCol>
-                <CCol md="4">
-                    <CCard className="roboto-font border-rounded shadow element pb-n5">
-                        <CCardHeader>
-                            Identity Provider Configuration
-                            <CDropdown className="float-right">
-                                <CDropdownToggle caret color="info">
-                                    <CIcon className="mr-1" name="cil-plus" />Add Identity Provider
-                                </CDropdownToggle>
-                                <CDropdownMenu>
-                                    <CDropdownItem onClick={() => updateIdpProvider("FACEBOOK")}>
-                                        Facebook
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("GOOGLE")}>
-                                        Google
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("LINKEDIN")}>
-                                        LinkedIn
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("MICROSOFT")}>
-                                        Microsoft
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("GITHUB")}>
-                                        Github
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("AMAZON")}>
-                                        Amazon
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("SALESFORCE")}>
-                                        Salesforce
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("SAML2")}>
-                                        SAML2.0
-                                    </CDropdownItem>
-                                    <CDropdownItem onClick={() => updateIdpProvider("OIDC")}>
-                                        OpenID Connect IdP
-                                    </CDropdownItem>
-                                </CDropdownMenu>
-                            </CDropdown>
-                        </CCardHeader>
-                        <CCardBody className="mb-n4">
-                            <CDataTable
-                                fields={idpFields}
-                                items={allIdps}
-                                itemsPerPageSelect
-                                sorter
-                                pagination
-                                scopedSlots={{
-                                    'delete':
-                                        (item, index) => {
-                                            return (
-                                                <td className="py-2">
-                                                    <CTooltip
-                                                        content='Delete'
-                                                        placement='top'
-                                                    >
-                                                        <CButton
-                                                            className="button-table"
-                                                            color='danger'
-                                                            variant='ghost'
-                                                            size="sm"
-                                                            onClick={() => handleIdpDelete(item)}
-                                                        >
-                                                            <FontAwesomeIcon icon="trash-alt" size="lg" className="icon-table-delete" />
-                                                        </CButton>
-                                                    </CTooltip>
-                                                </td>
-                                            )
-                                        }
-                                }}
-                            />
-                        </CCardBody>
-                    </CCard>
-                </CCol>
-
+                {props.match.params.group == "superadmin" &&
+                    <CCol md="4">
+                        <CCard className="roboto-font border-rounded shadow element pb-n5">
+                            <CCardHeader>
+                                Gateway Configuration
+                                <CButton
+                                    className="float-right"
+                                    color="info"
+                                    onClick={() => setNewClusterModal(!newClusterModal)}
+                                >
+                                    <CIcon className="mr-1" name="cil-settings" />
+                                    Configure
+                                </CButton>
+                            </CCardHeader>
+                            <CCardBody className="mb-n4">
+                                <CDataTable
+                                    fields={clusterFields}
+                                    itemsPerPageSelect
+                                    sorter
+                                />
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                }
             </CRow>
 
             <CRow>
@@ -788,175 +594,26 @@ const Home = (props) => {
                     </CCard>
                 </CCol>
 
+                <CCol>
+                    <CCard>
+                        <CCardHeader>
+                            <strong>Settings</strong>
+                        </CCardHeader>
+                        <CCardBody className="roboto-font">
+                            <CRow className="mt-3">
+                                <CCol sm="2">
+                                    <div>Enable Expert Mode</div>
+                                </CCol>
+                                <CCol sm="10">
+                                    <CSwitch className={'mx-1'} onChange={toggleEasyMode} variant={'3d'} color={'primary'} checked={!easyMode} />
+                                </CCol>
+                            </CRow>
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+
             </CRow>
 
-            <CModal closeOnBackdrop={false} className="roboto-font" show={idpJson.provider}>
-                <CModalHeader className="bg-info text-white py-n5">
-                    <strong>Add Identity Provider - {idpJson.provider}</strong>
-                </CModalHeader>
-                <CModalBody>
-                    <CLabel><strong>General Settings</strong></CLabel>
-                    <CRow className="mt-4">
-                        <CCol sm="4">
-                            <CLabel>Name</CLabel>
-                        </CCol>
-                        <CCol sm="8">
-                            <CInputGroup>
-                                <CInput name="name" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.name} />
-                                <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                            </CInputGroup>
-                        </CCol>
-                    </CRow>
-                    <CRow className="mt-4">
-                        <CCol sm="4">
-                            <CLabel>Matching domain</CLabel>
-                        </CCol>
-                        <CCol sm="8">
-                            <CInputGroup>
-                                <CInput name="domain" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.domain} />
-                                <CInvalidFeedback>Domain cannot be empty</CInvalidFeedback>
-                            </CInputGroup>
-                        </CCol>
-                    </CRow>
-                    {idpJson.provider !== "SAML2" &&
-                        <>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Client ID</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="client" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientId} />
-                                        <CInvalidFeedback>Client ID cannot be empty</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4 pb-4 border-bottom">
-                                <CCol sm="4">
-                                    <CLabel>Client Secret</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="secret" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.clientSecret} />
-                                        <CInvalidFeedback>Client Secret cannot be empty</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                        </>
-                    }
-                    {idpJson.provider === "OIDC" &&
-                        <>
-                            <CLabel className="mt-3"><strong>Endpoints</strong></CLabel>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Issuer</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="issuer" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.issuer} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Authorization Endpoint</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="auth" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.authEndpoint} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Token Endpoint</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="token" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.tokenEndpoint} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4 pb-4">
-                                <CCol sm="4">
-                                    <CLabel>JWKS Endpoint</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="jwks" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.jwksEndpoint} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                        </>
-                    }
-                    {idpJson.provider === "SAML2" &&
-                        <>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Issuer</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="issuer" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.issuer} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Single Sign On URL</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="sso" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.sso} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4">
-                                <CCol sm="4">
-                                    <CLabel>Audience</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CInput name="audience" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.audience} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                            <CRow className="mt-4 pb-4">
-                                <CCol sm="4">
-                                    <CLabel>Signature Certificate</CLabel>
-                                </CCol>
-                                <CCol sm="8">
-                                    <CInputGroup>
-                                        <CTextarea name="cert" onChange={e => handleIdpJsonChange(e)} invalid={idpErrObj.cert} />
-                                        <CInvalidFeedback>This field cannot be left blank</CInvalidFeedback>
-                                    </CInputGroup>
-                                </CCol>
-                            </CRow>
-                        </>
-                    }
-                </CModalBody>
-                <CModalFooter>
-                    <CButton
-                        color="info"
-                        onClick={handleIdpSubmit}
-                    >
-                        <strong>Add Identity Provider</strong>
-                    </CButton>
-                    <CButton
-                        color="secondary"
-                        onClick={resetIdpJson}
-                    >
-                        <strong>Cancel</strong>
-                    </CButton>
-                </CModalFooter>
-            </CModal>
             <CModal className="roboto-font" show={newClusterModal}>
                 <CModalHeader className="bg-info text-white py-n5">Gateway Configuration</CModalHeader>
                 <CModalBody>
@@ -1069,4 +726,4 @@ const Home = (props) => {
     )
 }
 
-export default withRouter(Home)
+export default withRouter(Advanced)

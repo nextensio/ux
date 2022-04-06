@@ -86,10 +86,6 @@ const UsersEdit = (props) => {
         }
     }, [selectedUsers])
 
-    const toAttributeEditor = (e) => {
-        props.history.push('/tenant/' + props.match.params.id + '/' + props.match.params.group + '/attreditor')
-    }
-
 
     const handleLengthCheck = (e) => {
         // length check to ensure bad guy does not send a massive string to DB
@@ -463,8 +459,6 @@ const UsersEdit = (props) => {
         }
     }
 
-    console.log(attrData)
-
     return (
         <CCard className="roboto-font">
             <CCardHeader>
@@ -477,7 +471,7 @@ const UsersEdit = (props) => {
                         <div className="title py-3">Attributes</div>
                         {attrData.length === 0 &&
                             <div><FontAwesomeIcon icon="info-circle" className="text-info" />{' '}
-                                You have no attributes for Users. <a className="text-primary" onClick={toAttributeEditor}>Click here</a> to add an attribute.
+                                No attributes configured yet.
                             </div>
                         }
                         {attrData.map(attr => {
