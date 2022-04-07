@@ -129,7 +129,6 @@ const HostsView = (props) => {
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/hostrules/all'), hdrs)
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 updateHostRuleData(data)
             });
         fetch(common.api_href('/api/v1/tenant/' + props.match.params.id + '/get/attrset/all'), hdrs)
